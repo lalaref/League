@@ -1,0 +1,163 @@
+﻿<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ALL-IN Basketball League - 球員對比">
+    <meta name="theme-color" content="#1a1a2e">
+    <title>球員對比 — ALL-IN Basketball League</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head>
+<body>
+    <!-- 導航列 -->
+    <header class="site-header">
+        <nav class="main-nav" aria-label="主導航">
+            <div class="nav-container">
+                <a href="index.html" class="nav-logo" aria-label="ALL-IN Basketball League 首頁">
+                    <img src="images/logo.svg" alt="ALL-IN Basketball League" class="logo-img">
+                    <span class="logo-text">ALL-IN</span>
+                </a>
+                <button class="hamburger-btn" aria-label="開啟選單" aria-expanded="false" aria-controls="nav-menu">
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                </button>
+                <ul id="nav-menu" class="nav-links" role="menubar">
+                    <li role="none"><a href="index.html" class="nav-link" role="menuitem" data-i18n="nav.home">首頁</a></li>
+                    <li role="none"><a href="schedule.html" class="nav-link" role="menuitem" data-i18n="nav.schedule">賽程</a></li>
+                    <li role="none"><a href="team.html" class="nav-link" role="menuitem" data-i18n="nav.teams">球隊</a></li>
+                    <li role="none"><a href="player.html" class="nav-link" role="menuitem" data-i18n="nav.players">球員</a></li>
+                    <li role="none"><a href="standings.html" class="nav-link" role="menuitem" data-i18n="nav.standings">排行榜</a></li>
+                    <li role="none"><a href="archive.html" class="nav-link" role="menuitem" data-i18n="nav.archive">歷史檔案</a></li>
+                    <li role="none"><a href="admin/index.html" class="nav-link" role="menuitem" data-i18n="nav.admin">管理後台</a></li>
+                </ul>
+                <div class="nav-actions">
+                    <button class="lang-switch-btn" aria-label="切換語言" data-i18n-attr="aria-label:nav.langSwitch">
+                        <span data-i18n="nav.lang">EN</span>
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- 主要內容區域 -->
+    <main class="main-content">
+        <!-- 英雄區域 -->
+        <section class="hero-section" aria-label="球員對比">
+            <div class="container">
+                <h1 class="hero-title" data-i18n="compare.title">球員對比</h1>
+                <p class="hero-subtitle" data-i18n="compare.subtitle">選擇兩位球員進行數據對比</p>
+            </div>
+        </section>
+
+        <!-- 控制區域：賽季選擇 + 球員選擇 -->
+        <section class="section" aria-label="對比控制">
+            <div class="container">
+                <!-- 賽季選擇 -->
+                <div class="compare-controls">
+                    <div class="compare-season-selector">
+                        <label for="season-select" class="compare-label" data-i18n="compare.selectSeason">選擇賽季</label>
+                        <select id="season-select" class="h2h-select" aria-label="選擇賽季">
+                            <option value="">—</option>
+                        </select>
+                    </div>
+
+                    <!-- 球員選擇 -->
+                    <div class="compare-player-selectors">
+                        <div class="compare-player-select">
+                            <label for="player1-select" class="compare-label" data-i18n="compare.selectPlayer1">選擇球員 1</label>
+                            <select id="player1-select" class="h2h-select" aria-label="選擇球員 1">
+                                <option value="">—</option>
+                            </select>
+                        </div>
+                        <div class="compare-vs" aria-hidden="true" data-i18n="common.vs">vs</div>
+                        <div class="compare-player-select">
+                            <label for="player2-select" class="compare-label" data-i18n="compare.selectPlayer2">選擇球員 2</label>
+                            <select id="player2-select" class="h2h-select" aria-label="選擇球員 2">
+                                <option value="">—</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 對比結果區域 -->
+        <section class="section compare-results" id="compare-results" style="display:none;" aria-label="對比結果">
+            <div class="container">
+                <!-- 並排數據表格 -->
+                <h2 class="section-title" data-i18n="compare.statsTable">賽季平均數據對比</h2>
+                <div class="compare-layout">
+                    <div class="compare-table-wrapper">
+                        <div class="table-wrapper">
+                            <table class="data-table compare-table" id="compare-stats-table">
+                                <thead>
+                                    <tr>
+                                        <th data-i18n="compare.stat">數據</th>
+                                        <th id="compare-th-player1">—</th>
+                                        <th id="compare-th-player2">—</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="compare-stats-body">
+                                    <!-- 動態載入 -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 雷達圖 -->
+                    <div class="compare-chart-wrapper">
+                        <h3 class="compare-chart-title" data-i18n="compare.radarChart">雷達圖對比</h3>
+                        <div class="chart-container compare-radar-container">
+                            <canvas id="compare-radar-chart" aria-label="球員對比雷達圖"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 空狀態提示 -->
+        <section class="section" id="compare-empty" aria-label="提示">
+            <div class="container text-center">
+                <p class="text-muted" data-i18n="compare.noSelection">請選擇兩位球員以開始對比</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- 頁腳 -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <img src="images/logo.svg" alt="ALL-IN Basketball League" class="footer-logo">
+                    <p class="footer-tagline" data-i18n="footer.tagline">全力以赴</p>
+                </div>
+                <div class="footer-links">
+                    <a href="index.html" data-i18n="nav.home">首頁</a>
+                    <a href="schedule.html" data-i18n="nav.schedule">賽程</a>
+                    <a href="team.html" data-i18n="nav.teams">球隊</a>
+                    <a href="standings.html" data-i18n="nav.standings">排行榜</a>
+                </div>
+                <div class="footer-copyright">
+                    <p>&copy; <span id="current-year"></span> ALL-IN Basketball League. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
+    <script src="js/utils.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/navigation.js"></script>
+    <script src="js/compare.js"></script>
+    <script>
+        I18n.init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+﻿<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ALL-IN Basketball League - 比賽詳情">
+    <meta name="theme-color" content="#1a1a2e">
+    <title>比賽詳情 — ALL-IN Basketball League</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <!-- 導航列 -->
+    <header class="site-header">
+        <nav class="main-nav" aria-label="主導航">
+            <div class="nav-container">
+                <a href="index.html" class="nav-logo" aria-label="ALL-IN Basketball League 首頁">
+                    <img src="images/logo.svg" alt="ALL-IN Basketball League" class="logo-img">
+                    <span class="logo-text">ALL-IN</span>
+                </a>
+                <button class="hamburger-btn" aria-label="開啟選單" aria-expanded="false" aria-controls="nav-menu">
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                </button>
+                <ul id="nav-menu" class="nav-links" role="menubar">
+                    <li role="none"><a href="index.html" class="nav-link" role="menuitem" data-i18n="nav.home">首頁</a></li>
+                    <li role="none"><a href="schedule.html" class="nav-link" role="menuitem" data-i18n="nav.schedule">賽程</a></li>
+                    <li role="none"><a href="team.html" class="nav-link" role="menuitem" data-i18n="nav.teams">球隊</a></li>
+                    <li role="none"><a href="player.html" class="nav-link" role="menuitem" data-i18n="nav.players">球員</a></li>
+                    <li role="none"><a href="standings.html" class="nav-link" role="menuitem" data-i18n="nav.standings">排行榜</a></li>
+                    <li role="none"><a href="archive.html" class="nav-link" role="menuitem" data-i18n="nav.archive">歷史檔案</a></li>
+                    <li role="none"><a href="admin/index.html" class="nav-link" role="menuitem" data-i18n="nav.admin">管理後台</a></li>
+                </ul>
+                <div class="nav-actions">
+                    <button class="lang-switch-btn" aria-label="切換語言" data-i18n-attr="aria-label:nav.langSwitch">
+                        <span data-i18n="nav.lang">EN</span>
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- 主要內容區域 -->
+    <main class="main-content">
+        <!-- 比賽標題區域 -->
+        <section class="section game-hero" aria-label="比賽資訊">
+            <div class="container">
+                <h1 class="section-title" data-i18n="game.detail">比賽詳情</h1>
+                <div id="game-date" class="game-detail-date"></div>
+                <div id="game-matchup" class="game-matchup-header">
+                    <div class="game-matchup-team" id="home-team-name">—</div>
+                    <div class="game-matchup-score">
+                        <span id="home-score" class="game-score-value">0</span>
+                        <span class="game-score-separator">-</span>
+                        <span id="away-score" class="game-score-value">0</span>
+                    </div>
+                    <div class="game-matchup-team" id="away-team-name">—</div>
+                </div>
+                <div id="game-status" class="game-status-badge"></div>
+            </div>
+        </section>
+
+        <!-- WhatsApp 分享 -->
+        <section class="section game-share" aria-label="分享">
+            <div class="container">
+                <button id="whatsapp-share-btn" class="btn btn-primary game-whatsapp-btn" aria-label="WhatsApp 分享">
+                    <span>📱</span> <span data-i18n="game.shareWhatsApp">WhatsApp 分享</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- 主隊 Box Score -->
+        <section class="section" aria-label="主隊 Box Score">
+            <div class="container">
+                <h2 class="section-title"><span data-i18n="game.homeTeam">主隊</span> — <span id="home-team-label">—</span></h2>
+                <div class="table-wrapper">
+                    <table class="data-table" id="home-boxscore-table">
+                        <thead>
+                            <tr>
+                                <th data-i18n="table.player">球員</th>
+                                <th data-i18n="table.pts">得分</th>
+                                <th data-i18n="table.reb">籃板</th>
+                                <th data-i18n="table.ast">助攻</th>
+                                <th data-i18n="table.stl">抄截</th>
+                                <th data-i18n="table.blk">封阻</th>
+                                <th data-i18n="table.fgm">投籃命中</th>
+                                <th data-i18n="table.fga">投籃出手</th>
+                                <th data-i18n="table.tpm">三分命中</th>
+                                <th data-i18n="table.tpa">三分出手</th>
+                                <th data-i18n="table.ftm">罰球命中</th>
+                                <th data-i18n="table.fta">罰球出手</th>
+                                <th data-i18n="table.to">失誤</th>
+                                <th data-i18n="table.fouls">犯規</th>
+                            </tr>
+                        </thead>
+                        <tbody id="home-boxscore-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 客隊 Box Score -->
+        <section class="section" aria-label="客隊 Box Score">
+            <div class="container">
+                <h2 class="section-title"><span data-i18n="game.awayTeam">客隊</span> — <span id="away-team-label">—</span></h2>
+                <div class="table-wrapper">
+                    <table class="data-table" id="away-boxscore-table">
+                        <thead>
+                            <tr>
+                                <th data-i18n="table.player">球員</th>
+                                <th data-i18n="table.pts">得分</th>
+                                <th data-i18n="table.reb">籃板</th>
+                                <th data-i18n="table.ast">助攻</th>
+                                <th data-i18n="table.stl">抄截</th>
+                                <th data-i18n="table.blk">封阻</th>
+                                <th data-i18n="table.fgm">投籃命中</th>
+                                <th data-i18n="table.fga">投籃出手</th>
+                                <th data-i18n="table.tpm">三分命中</th>
+                                <th data-i18n="table.tpa">三分出手</th>
+                                <th data-i18n="table.ftm">罰球命中</th>
+                                <th data-i18n="table.fta">罰球出手</th>
+                                <th data-i18n="table.to">失誤</th>
+                                <th data-i18n="table.fouls">犯規</th>
+                            </tr>
+                        </thead>
+                        <tbody id="away-boxscore-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 頁腳 -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <img src="images/logo.svg" alt="ALL-IN Basketball League" class="footer-logo">
+                    <p class="footer-tagline" data-i18n="footer.tagline">全力以赴</p>
+                </div>
+                <div class="footer-links">
+                    <a href="index.html" data-i18n="nav.home">首頁</a>
+                    <a href="schedule.html" data-i18n="nav.schedule">賽程</a>
+                    <a href="team.html" data-i18n="nav.teams">球隊</a>
+                    <a href="standings.html" data-i18n="nav.standings">排行榜</a>
+                </div>
+                <div class="footer-copyright">
+                    <p>&copy; <span id="current-year"></span> ALL-IN Basketball League. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
+    <script src="js/utils.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/whatsapp.js"></script>
+    <script src="js/navigation.js"></script>
+    <script src="js/game.js"></script>
+    <script>
+        I18n.init();
+    </script>
+</body>
+</html>
