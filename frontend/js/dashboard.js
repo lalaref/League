@@ -1,0 +1,312 @@
+/**
+ * ALL-IN Basketball League — 儀表板頁面邏輯
+ * 動態載入最近比賽、即將賽程、公告、排名及成就
+ * 需求：3.1, 3.2, 3.3, 3.4, 3.5, 15.6
+ */
+(function () {
+  'use strict';
+
+  // --- DOM 元素 ---
+  var recentGamesEl = document.getElementById('recent-games-list');
+  var upcomingGamesEl = document.getElementById('upcoming-games-list');
+  var announcementsEl = document.getElementById('announcements-list');
+  var standingsBody = document.querySelector('#standings-table tbody');
+  var achievementsEl = document.getElementById('achievements-list');
+
+  // --- 當前賽季 ID（從 API 取得最新活躍賽季） ---
+  var currentSeasonId = null;
+
+  // --- 初始化 ---
+  function init() {
+    loadCurrentSeason();
+  }
+
+  /**
+   * 載入當前活躍賽季，然後載入所有儀表板數據
+   */
+  function loadCurrentSeason() {
+    API.getSeasons()
+      .then(function (seasons) {
+        if (!seasons || seasons.length === 0) {
+          showEmptyAll();
+          return;
+        }
+        // 找到 active 賽季，若無則取最新一個
+        var active = null;
+        for (var i = 0; i < seasons.length; i++) {
+          if (seasons[i].status === 'active') {
+            active = seasons[i];
+            break;
+          }
+        }
+        if (!active) active = seasons[seasons.length - 1];
+        currentSeasonId = active.id;
+
+        // 並行載入所有數據
+        loadRecentGames();
+        loadUpcomingGames();
+        loadAnnouncements();
+        loadStandings();
+        loadRecentAchievements();
+      })
+      .catch(function () {
+        showEmptyAll();
+      });
+  }
+
+  // --- 最近比賽結果（需求 3.1, 3.4）---
+  function loadRecentGames() {
+    if (!recentGamesEl) return;
+    recentGamesEl.innerHTML = '<div class="loading" data-i18n="common.loading">' + I18n.t('common.loading') + '</div>';
+
+    API.getGames(currentSeasonId)
+      .then(function (games) {
+        if (!games || games.length === 0) {
+          recentGamesEl.innerHTML = '<p class="text-muted" data-i18n="common.noData">' + I18n.t('common.noData') + '</p>';
+          return;
+        }
+        // 篩選已完成比賽，按日期降序，取最近 6 場
+        var completed = games.filter(function (g) { return g.status === 'completed'; });
+        completed.sort(function (a, b) { return (b.date || '').localeCompare(a.date || ''); });
+        var recent = completed.slice(0, 6);
+
+        if (recent.length === 0) {
+          recentGamesEl.innerHTML = '<p class="text-muted" data-i18n="common.noData">' + I18n.t('common.noData') + '</p>';
+          return;
+        }
+        recentGamesEl.innerHTML = recent.map(renderGameCard).join('');
+      })
+      .catch(function () {
+        recentGamesEl.innerHTML = '<p class="text-muted">' + I18n.t('error.loadFailed') + ' <button class="btn btn-outline btn-sm" onclick="location.reload()">' + I18n.t('common.retry') + '</button></p>';
+      });
+  }
+
+  /**
+   * 渲染單場比賽卡片
+   */
+  function renderGameCard(game) {
+    var homeName = game.homeTeam || game.homeTeamId || '—';
+    var awayName = game.awayTeam || game.awayTeamId || '—';
+    var homeScore = game.homeScore != null ? game.homeScore : '—';
+    var awayScore = game.awayScore != null ? game.awayScore : '—';
+    var date = game.date || '';
+    var isCompleted = game.status === 'completed';
+
+    var html = '<div class="game-card">';
+    if (isCompleted) {
+      html += '<a href="game.html?id=' + encodeURIComponent(game.id) + '" aria-label="' + homeName + ' vs ' + awayName + '">';
+    }
+    html += '<div class="game-card-date text-muted">' + escapeHtml(date) + '</div>';
+    html += '<div class="game-card-matchup">';
+    html += '<span class="game-card-team">' + escapeHtml(homeName) + '</span>';
+    html += '<span class="game-card-score">' + escapeHtml(String(homeScore)) + ' - ' + escapeHtml(String(awayScore)) + '</span>';
+    html += '<span class="game-card-team">' + escapeHtml(awayName) + '</span>';
+    html += '</div>';
+    if (isCompleted) {
+      html += '</a>';
+    }
+    html += '</div>';
+    return html;
+  }
+
+  // --- 即將進行的賽程（需求 3.2）---
+  function loadUpcomingGames() {
+    if (!upcomingGamesEl) return;
+    upcomingGamesEl.innerHTML = '<div class="loading" data-i18n="common.loading">' + I18n.t('common.loading') + '</div>';
+
+    API.getSchedule(currentSeasonId)
+      .then(function (games) {
+        if (!games || games.length === 0) {
+          upcomingGamesEl.innerHTML = '<p class="text-muted" data-i18n="common.noData">' + I18n.t('common.noData') + '</p>';
+          return;
+        }
+        // 篩選未完成比賽，按日期升序，取最近 6 場
+        var upcoming = games.filter(function (g) { return g.status === 'scheduled'; });
+        upcoming.sort(function (a, b) { return (a.date || '').localeCompare(b.date || ''); });
+        var next = upcoming.slice(0, 6);
+
+        if (next.length === 0) {
+          upcomingGamesEl.innerHTML = '<p class="text-muted" data-i18n="common.noData">' + I18n.t('common.noData') + '</p>';
+          return;
+        }
+        upcomingGamesEl.innerHTML = next.map(renderUpcomingCard).join('');
+      })
+      .catch(function () {
+        upcomingGamesEl.innerHTML = '<p class="text-muted">' + I18n.t('error.loadFailed') + ' <button class="btn btn-outline btn-sm" onclick="location.reload()">' + I18n.t('common.retry') + '</button></p>';
+      });
+  }
+
+  /**
+   * 渲染即將進行的賽程卡片
+   */
+  function renderUpcomingCard(game) {
+    var homeName = game.home || game.homeTeamId || '—';
+    var awayName = game.away || game.awayTeamId || '—';
+    var date = game.date || '';
+    var time = game.time || '';
+    var venue = game.venue || '';
+
+    var html = '<div class="game-card game-card--upcoming">';
+    html += '<div class="game-card-date text-muted">' + escapeHtml(date) + (time ? ' ' + escapeHtml(time) : '') + '</div>';
+    html += '<div class="game-card-matchup">';
+    html += '<span class="game-card-team">' + escapeHtml(homeName) + '</span>';
+    html += '<span class="game-card-vs">' + I18n.t('common.vs') + '</span>';
+    html += '<span class="game-card-team">' + escapeHtml(awayName) + '</span>';
+    html += '</div>';
+    if (venue) {
+      html += '<div class="game-card-venue text-muted">📍 ' + escapeHtml(venue) + '</div>';
+    }
+    html += '</div>';
+    return html;
+  }
+
+  // --- 聯賽公告（需求 3.3）---
+  function loadAnnouncements() {
+    if (!announcementsEl) return;
+    announcementsEl.innerHTML = '<div class="loading" data-i18n="common.loading">' + I18n.t('common.loading') + '</div>';
+
+    API.getAnnouncements()
+      .then(function (announcements) {
+        if (!announcements || announcements.length === 0) {
+          announcementsEl.innerHTML = '<p class="text-muted" data-i18n="common.noData">' + I18n.t('common.noData') + '</p>';
+          return;
+        }
+        // 取最近 5 則公告
+        var recent = announcements.slice(0, 5);
+        announcementsEl.innerHTML = recent.map(renderAnnouncement).join('');
+      })
+      .catch(function () {
+        announcementsEl.innerHTML = '<p class="text-muted">' + I18n.t('error.loadFailed') + ' <button class="btn btn-outline btn-sm" onclick="location.reload()">' + I18n.t('common.retry') + '</button></p>';
+      });
+  }
+
+  /**
+   * 渲染公告項目
+   */
+  function renderAnnouncement(item) {
+    var html = '<div class="announcement-item';
+    if (item.pinned) html += ' announcement-item--pinned';
+    html += '">';
+    html += '<div class="announcement-date">' + escapeHtml(item.date || '') + '</div>';
+    html += '<div class="announcement-title">' + escapeHtml(item.title || '') + '</div>';
+    if (item.content) {
+      html += '<div class="announcement-content text-muted">' + escapeHtml(item.content) + '</div>';
+    }
+    html += '</div>';
+    return html;
+  }
+
+  // --- 球隊排名（需求 3.5）---
+  function loadStandings() {
+    if (!standingsBody) return;
+    standingsBody.innerHTML = '<tr><td colspan="6" class="loading" data-i18n="common.loading">' + I18n.t('common.loading') + '</td></tr>';
+
+    API.getStandings(currentSeasonId)
+      .then(function (standings) {
+        if (!standings || standings.length === 0) {
+          standingsBody.innerHTML = '<tr><td colspan="6" class="text-muted" data-i18n="common.noData">' + I18n.t('common.noData') + '</td></tr>';
+          return;
+        }
+        // 取前 8 名
+        var top8 = standings.slice(0, 8);
+        standingsBody.innerHTML = top8.map(function (team, idx) {
+          return renderStandingRow(team, idx + 1);
+        }).join('');
+      })
+      .catch(function () {
+        standingsBody.innerHTML = '<tr><td colspan="6" class="text-muted">' + I18n.t('error.loadFailed') + '</td></tr>';
+      });
+  }
+
+  /**
+   * 渲染排名表行
+   */
+  function renderStandingRow(team, rank) {
+    var name = team.team || team.name || '—';
+    var wins = team.wins != null ? team.wins : 0;
+    var losses = team.losses != null ? team.losses : 0;
+    var pct = team.pct != null ? Number(team.pct).toFixed(3) : '.000';
+    var gb = team.gb != null ? team.gb : '—';
+
+    return '<tr>' +
+      '<td>' + rank + '</td>' +
+      '<td>' + escapeHtml(name) + '</td>' +
+      '<td>' + wins + '</td>' +
+      '<td>' + losses + '</td>' +
+      '<td>' + pct + '</td>' +
+      '<td>' + escapeHtml(String(gb)) + '</td>' +
+      '</tr>';
+  }
+
+  // --- 最近成就（需求 15.6）---
+  function loadRecentAchievements() {
+    if (!achievementsEl) return;
+    achievementsEl.innerHTML = '<div class="loading" data-i18n="common.loading">' + I18n.t('common.loading') + '</div>';
+
+    // 成就 API 需要 playerId，但儀表板需要全局最近成就
+    // 嘗試用不帶 playerId 的方式取得全局成就，若 API 不支援則顯示空
+    API.get('recentAchievements', { seasonId: currentSeasonId })
+      .then(function (achievements) {
+        if (!achievements || achievements.length === 0) {
+          achievementsEl.innerHTML = '<p class="text-muted" data-i18n="common.noData">' + I18n.t('common.noData') + '</p>';
+          return;
+        }
+        var recent5 = achievements.slice(0, 5);
+        achievementsEl.innerHTML = recent5.map(renderAchievement).join('');
+      })
+      .catch(function () {
+        // 若 recentAchievements 端點不存在，靜默顯示空
+        achievementsEl.innerHTML = '<p class="text-muted" data-i18n="common.noData">' + I18n.t('common.noData') + '</p>';
+      });
+  }
+
+  /**
+   * 渲染成就項目
+   */
+  function renderAchievement(ach) {
+    var typeKey = 'achievement.' + (ach.type || '');
+    var typeName = I18n.t(typeKey);
+    if (typeName === typeKey) typeName = ach.type || '';
+    var playerName = ach.playerName || ach.playerId || '';
+    var date = ach.date || '';
+
+    var html = '<div class="achievement-item">';
+    html += '<div class="achievement-badge" aria-hidden="true">🏆</div>';
+    html += '<div class="achievement-info">';
+    html += '<div class="achievement-name">' + escapeHtml(playerName) + ' — ' + escapeHtml(typeName) + '</div>';
+    html += '<div class="achievement-date text-muted">' + escapeHtml(date) + '</div>';
+    html += '</div>';
+    html += '</div>';
+    return html;
+  }
+
+  // --- 全部顯示空狀態 ---
+  function showEmptyAll() {
+    var noData = '<p class="text-muted" data-i18n="common.noData">' + I18n.t('common.noData') + '</p>';
+    if (recentGamesEl) recentGamesEl.innerHTML = noData;
+    if (upcomingGamesEl) upcomingGamesEl.innerHTML = noData;
+    if (announcementsEl) announcementsEl.innerHTML = noData;
+    if (standingsBody) standingsBody.innerHTML = '<tr><td colspan="6" class="text-muted" data-i18n="common.noData">' + I18n.t('common.noData') + '</td></tr>';
+    if (achievementsEl) achievementsEl.innerHTML = noData;
+  }
+
+  // --- HTML 轉義 ---
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  // --- 頁面載入後初始化 ---
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  }
+})();
