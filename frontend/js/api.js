@@ -7,10 +7,10 @@ var API = (function () {
   'use strict';
 
   /** @type {string} Google Apps Script Web App 部署 URL */
-  var BASE_URL = '';
+  var BASE_URL = 'https://script.google.com/macros/s/AKfycbzQkJC-1ZIAnsbXyC0M6_Hwh53pvKMuZ38j_eCIVCN4Pm-XwQ-0HguJR20RjGIRl_4P/exec';
 
   /** @type {string} 管理後台 API Key */
-  var API_KEY = '';
+  var API_KEY = 'my-allin-secret-2026';
 
   /** @type {number} 請求超時時間（毫秒） */
   var TIMEOUT_MS = 15000;
@@ -103,19 +103,15 @@ var API = (function () {
     }
 
     var url = BASE_URL;
-    var body = Object.assign({}, data, { action: action });
+    var body = Object.assign({}, data, { action: action, apiKey: API_KEY });
 
     var options = {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'text/plain'
       },
       body: JSON.stringify(body)
     };
-
-    if (API_KEY) {
-      options.headers['X-API-Key'] = API_KEY;
-    }
 
     return _requestWithRetry(url, options, 0);
   }
