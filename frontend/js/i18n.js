@@ -234,6 +234,15 @@ var I18n = (function () {
     if (path.indexOf('/admin/') !== -1) {
       return '../';
     }
+    // 如果在專案根目錄（index.html 不在 frontend/ 內），需要加 frontend/ 前綴
+    // 檢測方式：腳本自身路徑包含 frontend/js/
+    var scripts = typeof document !== 'undefined' ? document.querySelectorAll('script[src]') : [];
+    for (var i = 0; i < scripts.length; i++) {
+      var src = scripts[i].getAttribute('src') || '';
+      if (src.indexOf('frontend/js/') !== -1) {
+        return 'frontend/';
+      }
+    }
     return '';
   }
 

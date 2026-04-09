@@ -6,6 +6,15 @@
 (function () {
   'use strict';
 
+  // --- 頁面基礎路徑（從根目錄載入時需要 frontend/ 前綴）---
+  var _pageBase = (function () {
+    var scripts = document.querySelectorAll('script[src]');
+    for (var i = 0; i < scripts.length; i++) {
+      if ((scripts[i].getAttribute('src') || '').indexOf('frontend/js/') !== -1) return 'frontend/';
+    }
+    return '';
+  })();
+
   // --- DOM 元素 ---
   var recentGamesEl = document.getElementById('recent-games-list');
   var upcomingGamesEl = document.getElementById('upcoming-games-list');
@@ -94,7 +103,7 @@
 
     var html = '<div class="game-card">';
     if (isCompleted) {
-      html += '<a href="game.html?id=' + encodeURIComponent(game.id) + '" aria-label="' + homeName + ' vs ' + awayName + '">';
+      html += '<a href="' + _pageBase + 'game.html?id=' + encodeURIComponent(game.id) + '" aria-label="' + homeName + ' vs ' + awayName + '">';
     }
     html += '<div class="game-card-date text-muted">' + escapeHtml(date) + '</div>';
     html += '<div class="game-card-matchup">';
