@@ -1,0 +1,190 @@
+﻿<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ALL-IN Basketball League - 管理後台">
+    <meta name="theme-color" content="#1a1a2e">
+    <title>管理後台 — ALL-IN Basketball League</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+    <!-- 導航列 -->
+    <header class="site-header">
+        <nav class="main-nav" aria-label="主導航">
+            <div class="nav-container">
+                <a href="../index.html" class="nav-logo" aria-label="ALL-IN Basketball League 首頁">
+                    <img src="../images/logo.svg" alt="ALL-IN Basketball League" class="logo-img">
+                    <span class="logo-text">ALL-IN</span>
+                </a>
+                <button class="hamburger-btn" aria-label="開啟選單" aria-expanded="false" aria-controls="nav-menu">
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                </button>
+                <ul id="nav-menu" class="nav-links" role="menubar">
+                    <li role="none"><a href="../index.html" class="nav-link" role="menuitem" data-i18n="nav.home">首頁</a></li>
+                    <li role="none"><a href="../schedule.html" class="nav-link" role="menuitem" data-i18n="nav.schedule">賽程</a></li>
+                    <li role="none"><a href="../team.html" class="nav-link" role="menuitem" data-i18n="nav.teams">球隊</a></li>
+                    <li role="none"><a href="../player.html" class="nav-link" role="menuitem" data-i18n="nav.players">球員</a></li>
+                    <li role="none"><a href="../standings.html" class="nav-link" role="menuitem" data-i18n="nav.standings">排行榜</a></li>
+                    <li role="none"><a href="../archive.html" class="nav-link" role="menuitem" data-i18n="nav.archive">歷史檔案</a></li>
+                    <li role="none"><a href="index.html" class="nav-link active" role="menuitem" data-i18n="nav.admin">管理後台</a></li>
+                </ul>
+                <div class="nav-actions">
+                    <button class="lang-switch-btn" aria-label="切換語言" data-i18n-attr="aria-label:nav.langSwitch">
+                        <span data-i18n="nav.lang">EN</span>
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <!-- 標題 -->
+        <section class="section">
+            <div class="container">
+                <h1 class="section-title" data-i18n="admin.title">管理後台</h1>
+
+                <!-- 管理功能入口卡片 -->
+                <div class="admin-dashboard-grid">
+                    <a href="seasons.html" class="admin-dashboard-card">
+                        <span class="admin-dashboard-icon">📋</span>
+                        <span class="admin-dashboard-label" data-i18n="admin.seasonManage">賽季管理</span>
+                    </a>
+                    <a href="teams.html" class="admin-dashboard-card">
+                        <span class="admin-dashboard-icon">🏀</span>
+                        <span class="admin-dashboard-label" data-i18n="admin.teamManage">球隊管理</span>
+                    </a>
+                    <a href="players.html" class="admin-dashboard-card">
+                        <span class="admin-dashboard-icon">👤</span>
+                        <span class="admin-dashboard-label" data-i18n="admin.playerManage">球員管理</span>
+                    </a>
+                    <a href="boxscore.html" class="admin-dashboard-card">
+                        <span class="admin-dashboard-icon">📊</span>
+                        <span class="admin-dashboard-label" data-i18n="admin.boxScore">Box Score 輸入</span>
+                    </a>
+                    <a href="schedule.html" class="admin-dashboard-card">
+                        <span class="admin-dashboard-icon">📅</span>
+                        <span class="admin-dashboard-label" data-i18n="admin.scheduleManage">賽程管理</span>
+                    </a>
+                    <a href="shotchart.html" class="admin-dashboard-card">
+                        <span class="admin-dashboard-icon">🎯</span>
+                        <span class="admin-dashboard-label" data-i18n="admin.shotChart">投籃位置記錄</span>
+                    </a>
+                    <a href="share-image.html" class="admin-dashboard-card">
+                        <span class="admin-dashboard-icon">🖼️</span>
+                        <span class="admin-dashboard-label" data-i18n="admin.shareImage">分享圖生成</span>
+                    </a>
+                    <a href="social-post.html" class="admin-dashboard-card">
+                        <span class="admin-dashboard-icon">📝</span>
+                        <span class="admin-dashboard-label" data-i18n="admin.socialPost">社交文案</span>
+                    </a>
+                    <a href="whatsapp.html" class="admin-dashboard-card">
+                        <span class="admin-dashboard-icon">📱</span>
+                        <span class="admin-dashboard-label" data-i18n="admin.whatsapp">WhatsApp 分享</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- 最近提交的比賽列表 -->
+        <section class="section" aria-label="最近提交">
+            <div class="container">
+                <h2 class="section-title" data-i18n="admin.recentSubmissions">最近提交</h2>
+                <div id="recent-submissions" class="games-grid">
+                    <p class="text-muted loading" data-i18n="common.loading">載入中...</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 頁腳 -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <img src="../images/logo.svg" alt="ALL-IN Basketball League" class="footer-logo">
+                    <p class="footer-tagline" data-i18n="footer.tagline">全力以赴</p>
+                </div>
+                <div class="footer-links">
+                    <a href="../index.html" data-i18n="nav.home">首頁</a>
+                    <a href="../schedule.html" data-i18n="nav.schedule">賽程</a>
+                    <a href="../team.html" data-i18n="nav.teams">球隊</a>
+                    <a href="../standings.html" data-i18n="nav.standings">排行榜</a>
+                </div>
+                <div class="footer-copyright">
+                    <p>&copy; <span id="current-year"></span> ALL-IN Basketball League. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
+    <script src="../js/utils.js?v=20260409"></script>
+    <script src="../js/api.js?v=20260409"></script>
+    <script src="../js/i18n.js?v=20260409"></script>
+    <script src="../js/navigation.js?v=20260409"></script>
+    <script>
+        I18n.init();
+
+        // 載入最近提交的比賽
+        (function () {
+            var container = document.getElementById('recent-submissions');
+            if (!container) return;
+
+            API.getGames()
+                .then(function (games) {
+                    var completed = (games || []).filter(function (g) {
+                        return g.status === 'completed';
+                    });
+                    // 按日期降序排列，取最近 10 場
+                    completed.sort(function (a, b) {
+                        return (b.date || '').localeCompare(a.date || '');
+                    });
+                    var recent = completed.slice(0, 10);
+
+                    container.innerHTML = '';
+
+                    if (recent.length === 0) {
+                        container.innerHTML = '<p class="text-muted">' +
+                            (typeof I18n !== 'undefined' ? I18n.t('common.noData') : '暫無數據') + '</p>';
+                        return;
+                    }
+
+                    recent.forEach(function (g) {
+                        var card = document.createElement('div');
+                        card.className = 'game-card';
+                        var home = g.homeTeamName || g.homeTeamId || '—';
+                        var away = g.awayTeamName || g.awayTeamId || '—';
+                        var score = (g.homeScore != null ? g.homeScore : '?') + ' - ' + (g.awayScore != null ? g.awayScore : '?');
+                        card.innerHTML =
+                            '<a href="../game.html?id=' + encodeURIComponent(g.id) + '">' +
+                            '<div class="game-card-date text-muted">' + (g.date || '') + '</div>' +
+                            '<div class="game-card-matchup">' +
+                            '<span class="game-card-team">' + _esc(home) + '</span>' +
+                            '<span class="game-card-score">' + _esc(score) + '</span>' +
+                            '<span class="game-card-team">' + _esc(away) + '</span>' +
+                            '</div>' +
+                            '</a>';
+                        container.appendChild(card);
+                    });
+                })
+                .catch(function () {
+                    container.innerHTML = '<p class="text-muted">' +
+                        (typeof I18n !== 'undefined' ? I18n.t('error.loadFailed') : '載入失敗，請重試') + '</p>';
+                });
+
+            function _esc(str) {
+                var d = document.createElement('div');
+                d.textContent = str;
+                return d.innerHTML;
+            }
+        })();
+    </script>
+</body>
+</html>

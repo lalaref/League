@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
@@ -10,51 +10,10 @@
     <meta property="og:title" content="ALL-IN Basketball League">
     <meta property="og:description" content="全力以赴 - 賽程、球隊、球員、排行榜">
     <meta property="og:type" content="website">
-    <meta property="og:image" content="frontend/images/logo.svg">
+    <meta property="og:image" content="images/logo.svg">
     <title>ALL-IN Basketball League</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Zhi+Mang+Xing&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="frontend/css/styles.css">
-    <link rel="stylesheet" href="frontend/css/responsive.css">
-    <style>
-        /* === Banner-only styles (scoped, no Tailwind needed) === */
-        .allin-banner { position:relative; width:100%; max-width:1414px; margin:0 auto; height:200px; background:#000; overflow:hidden; box-shadow:0 0 120px rgba(37,99,235,0.4); border-top:1px solid rgba(255,255,255,0.1); border-bottom:1px solid rgba(255,255,255,0.1); }
-        @media(min-width:640px){ .allin-banner { height:320px; } }
-        @media(min-width:768px){ .allin-banner { height:450px; } }
-        .allin-banner * { margin:0; padding:0; box-sizing:border-box; }
-        .allin-banner .bg-layer { position:absolute; inset:0; background:#0a0a0a; }
-        .allin-banner .bg-glow { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:1200px; height:400px; background:rgba(37,99,235,0.25); filter:blur(180px); }
-        .allin-banner svg { position:absolute; inset:0; width:100%; height:100%; z-index:0; }
-        .allin-banner .shattered { position:absolute; inset:0; display:flex; justify-content:center; align-items:center; z-index:1; pointer-events:none; user-select:none; }
-        .allin-banner .shattered h2 { font-family:'Oswald',sans-serif !important; font-weight:700 !important; font-size:10rem !important; line-height:1 !important; transform:skewX(-12deg) !important; opacity:0.5; -webkit-text-stroke:3px rgba(59,130,246,0.15) !important; color:transparent !important; letter-spacing:0.05em !important; clip-path:polygon(0% 0%,100% 0%,100% 48%,0% 52%,0% 100%,100% 100%,100% 52%,0% 48%) !important; }
-        @media(min-width:640px){ .allin-banner .shattered h2 { font-size:25rem !important; } }
-        @media(min-width:768px){ .allin-banner .shattered h2 { font-size:45rem !important; } }
-        .allin-banner .sparks { position:absolute; inset:0; pointer-events:none; z-index:5; }
-        @keyframes allin-sparks { 0%{transform:translateY(0) scale(1) rotate(0);opacity:0} 50%{opacity:0.8} 100%{transform:translateY(-200px) scale(0) rotate(360deg);opacity:0} }
-        .allin-banner .spark { position:absolute; width:3px; height:3px; background:#60a5fa; border-radius:1px; animation:allin-sparks 3s infinite ease-out; }
-        @keyframes allin-sweep { 0%{transform:translateX(-100%) skewX(-30deg)} 100%{transform:translateX(250%) skewX(-30deg)} }
-        .allin-banner .sweep-light { position:absolute; inset:0; width:33%; height:100%; background:linear-gradient(to right,transparent,rgba(255,255,255,0.1),transparent); z-index:30; pointer-events:none; animation:allin-sweep 2.5s infinite linear; }
-        .allin-banner .main-visual { position:relative; z-index:10; width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:0 16px; }
-        .allin-banner .cn-wrap { position:relative; margin-bottom:8px; }
-        .allin-banner .cn-shadow { position:absolute; inset:0; font-family:'Zhi Mang Xing',cursive !important; color:#1e3a8a !important; font-size:5rem !important; line-height:0.7 !important; transform:rotate(-2deg) scaleY(1.3) translateY(3px); filter:blur(10px); opacity:0.8; }
-        @media(min-width:640px){ .allin-banner .cn-shadow { font-size:10rem !important; } }
-        @media(min-width:768px){ .allin-banner .cn-shadow { font-size:18rem !important; } }
-        .allin-banner .cn-text { font-family:'Zhi Mang Xing',cursive !important; font-size:5rem !important; line-height:0.7 !important; transform:rotate(-2deg) scaleY(1.3); letter-spacing:-0.05em; user-select:none; position:relative; z-index:20; background:linear-gradient(to bottom,#fff 40%,#cbd5e1 100%) !important; -webkit-background-clip:text !important; background-clip:text !important; -webkit-text-fill-color:transparent !important; color:transparent !important; filter:drop-shadow(0 0 15px rgba(255,255,255,0.4)) drop-shadow(0 0 50px rgba(37,99,235,0.7)) !important; }
-        @media(min-width:640px){ .allin-banner .cn-text { font-size:10rem !important; } }
-        @media(min-width:768px){ .allin-banner .cn-text { font-size:18rem !important; } }
-        .allin-banner .en-wrap { margin-top:32px; position:relative; transition:transform 0.5s; -webkit-box-reflect:below -5px linear-gradient(transparent,rgba(255,255,255,0.1)); }
-        @media(min-width:640px){ .allin-banner .en-wrap { margin-top:48px; } }
-        @media(min-width:768px){ .allin-banner .en-wrap { margin-top:24px; } }
-        .allin-banner:hover .en-wrap { transform:scale(1.05); }
-        .allin-banner .en-label { background:#fff !important; color:#000 !important; font-family:'Oswald',sans-serif !important; font-style:italic; font-size:12px !important; padding:6px 24px !important; transform:skewX(-12deg); box-shadow:0 0 50px rgba(255,255,255,0.5); border-right:8px solid #2563eb; display:inline-block; }
-        @media(min-width:640px){ .allin-banner .en-label { font-size:20px !important; padding:8px 60px !important; } }
-        @media(min-width:768px){ .allin-banner .en-label { font-size:30px !important; padding:8px 80px !important; } }
-        .allin-banner .en-label span { display:block; transform:skewX(12deg); letter-spacing:0.5em; text-transform:uppercase; }
-        @media(min-width:768px){ .allin-banner .en-label span { letter-spacing:0.6em; } }
-        .allin-banner .en-bar-left { position:absolute; left:-32px; top:0; width:16px; height:100%; background:#3b82f6; transform:skewX(-12deg); }
-        .allin-banner .en-bar-bottom { position:absolute; right:-8px; bottom:-8px; width:100%; height:4px; background:rgba(96,165,250,0.3); }
-    </style>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
     <!-- 導航列 -->
@@ -62,7 +21,7 @@
         <nav class="main-nav" aria-label="主導航">
             <div class="nav-container">
                 <a href="index.html" class="nav-logo" aria-label="ALL-IN Basketball League 首頁">
-                    <img src="frontend/images/logo.svg" alt="ALL-IN Basketball League" class="logo-img">
+                    <img src="images/logo.svg" alt="ALL-IN Basketball League" class="logo-img">
                     <span class="logo-text">ALL-IN</span>
                 </a>
                 <button class="hamburger-btn" aria-label="開啟選單" aria-expanded="false" aria-controls="nav-menu">
@@ -72,12 +31,12 @@
                 </button>
                 <ul id="nav-menu" class="nav-links" role="menubar">
                     <li role="none"><a href="index.html" class="nav-link active" role="menuitem" data-i18n="nav.home">首頁</a></li>
-                    <li role="none"><a href="frontend/schedule.html" class="nav-link" role="menuitem" data-i18n="nav.schedule">賽程</a></li>
-                    <li role="none"><a href="frontend/team.html" class="nav-link" role="menuitem" data-i18n="nav.teams">球隊</a></li>
-                    <li role="none"><a href="frontend/player.html" class="nav-link" role="menuitem" data-i18n="nav.players">球員</a></li>
-                    <li role="none"><a href="frontend/standings.html" class="nav-link" role="menuitem" data-i18n="nav.standings">排行榜</a></li>
-                    <li role="none"><a href="frontend/archive.html" class="nav-link" role="menuitem" data-i18n="nav.archive">歷史檔案</a></li>
-                    <li role="none"><a href="frontend/admin/index.html" class="nav-link" role="menuitem" data-i18n="nav.admin">管理後台</a></li>
+                    <li role="none"><a href="schedule.html" class="nav-link" role="menuitem" data-i18n="nav.schedule">賽程</a></li>
+                    <li role="none"><a href="team.html" class="nav-link" role="menuitem" data-i18n="nav.teams">球隊</a></li>
+                    <li role="none"><a href="player.html" class="nav-link" role="menuitem" data-i18n="nav.players">球員</a></li>
+                    <li role="none"><a href="standings.html" class="nav-link" role="menuitem" data-i18n="nav.standings">排行榜</a></li>
+                    <li role="none"><a href="archive.html" class="nav-link" role="menuitem" data-i18n="nav.archive">歷史檔案</a></li>
+                    <li role="none"><a href="admin/index.html" class="nav-link" role="menuitem" data-i18n="nav.admin">管理後台</a></li>
                 </ul>
                 <div class="nav-actions">
                     <button class="lang-switch-btn" aria-label="切換語言" data-i18n-attr="aria-label:nav.langSwitch">
@@ -88,44 +47,23 @@
         </nav>
     </header>
 
+    <!-- 主要內容區域 -->
     <main class="main-content">
-        <!-- ===== ALL-IN Banner (pure CSS, no Tailwind) ===== -->
-        <section class="allin-banner" aria-label="聯賽橫幅">
-            <div class="bg-layer"><div class="bg-glow"></div></div>
-            <svg preserveAspectRatio="none" viewBox="0 0 1414 450" xmlns="http://www.w3.org/2000/svg">
-                <defs><linearGradient id="bg-grad" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#020617"/><stop offset="45%" stop-color="#1e40af"/><stop offset="100%" stop-color="#3b82f6"/></linearGradient></defs>
-                <path d="M-150,450 L750,450 L1050,0 L-150,0 Z" fill="url(#bg-grad)" opacity="0.95"/>
-                <path d="M1564,450 L914,450 L614,0 L1564,0 Z" fill="#1e3a8a" opacity="0.4"/>
-            </svg>
-            <div class="shattered"><h2>ALL IN</h2></div>
-            <div class="sparks">
-                <div class="spark" style="left:10%;bottom:5%;animation-delay:0.1s"></div>
-                <div class="spark" style="left:35%;bottom:12%;animation-delay:1.5s"></div>
-                <div class="spark" style="left:60%;bottom:8%;animation-delay:0.7s"></div>
-                <div class="spark" style="left:20%;bottom:18%;animation-delay:2.1s"></div>
-                <div class="spark" style="left:85%;bottom:10%;animation-delay:1.2s"></div>
-                <div class="spark" style="left:50%;bottom:15%;animation-delay:0.4s"></div>
-                <div class="spark" style="left:75%;bottom:20%;animation-delay:2.8s"></div>
+        <!-- 英雄區域 -->
+        <section class="hero-section" aria-label="聯賽橫幅">
+            <div class="container">
+                <h1 class="hero-title" data-i18n="home.title">ALL-IN Basketball League</h1>
+                <p class="hero-subtitle" data-i18n="home.subtitle">全力以赴</p>
             </div>
-            <div class="main-visual">
-                <div class="cn-wrap">
-                    <span class="cn-shadow">全力以赴</span>
-                    <h1 class="cn-text">全力以赴</h1>
-                </div>
-                <div class="en-wrap">
-                    <div class="en-label"><span>ALL-IN Basketball League</span></div>
-                    <div class="en-bar-left"></div>
-                    <div class="en-bar-bottom"></div>
-                </div>
-            </div>
-            <div class="sweep-light"></div>
         </section>
 
         <!-- 最近比賽結果 -->
         <section class="section recent-games" aria-label="最近比賽結果">
             <div class="container">
                 <h2 class="section-title" data-i18n="home.recentGames">最近比賽結果</h2>
-                <div id="recent-games-list" class="games-grid"></div>
+                <div id="recent-games-list" class="games-grid">
+                    <!-- 動態載入 -->
+                </div>
             </div>
         </section>
 
@@ -133,7 +71,9 @@
         <section class="section upcoming-games" aria-label="即將進行的賽程">
             <div class="container">
                 <h2 class="section-title" data-i18n="home.upcomingGames">即將進行的賽程</h2>
-                <div id="upcoming-games-list" class="games-grid"></div>
+                <div id="upcoming-games-list" class="games-grid">
+                    <!-- 動態載入 -->
+                </div>
             </div>
         </section>
 
@@ -141,7 +81,9 @@
         <section class="section announcements" aria-label="聯賽公告">
             <div class="container">
                 <h2 class="section-title" data-i18n="home.announcements">聯賽公告</h2>
-                <div id="announcements-list" class="announcements-list"></div>
+                <div id="announcements-list" class="announcements-list">
+                    <!-- 動態載入 -->
+                </div>
             </div>
         </section>
 
@@ -161,7 +103,9 @@
                                 <th data-i18n="table.gb">勝差</th>
                             </tr>
                         </thead>
-                        <tbody></tbody>
+                        <tbody>
+                            <!-- 動態載入 -->
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -171,23 +115,26 @@
         <section class="section recent-achievements" aria-label="最近成就">
             <div class="container">
                 <h2 class="section-title" data-i18n="home.achievements">最近成就</h2>
-                <div id="achievements-list" class="achievements-list"></div>
+                <div id="achievements-list" class="achievements-list">
+                    <!-- 動態載入 -->
+                </div>
             </div>
         </section>
     </main>
 
+    <!-- 頁腳 -->
     <footer class="site-footer">
         <div class="container">
             <div class="footer-content">
                 <div class="footer-brand">
-                    <img src="frontend/images/logo.svg" alt="ALL-IN Basketball League" class="footer-logo">
+                    <img src="images/logo.svg" alt="ALL-IN Basketball League" class="footer-logo">
                     <p class="footer-tagline" data-i18n="footer.tagline">全力以赴</p>
                 </div>
                 <div class="footer-links">
                     <a href="index.html" data-i18n="nav.home">首頁</a>
-                    <a href="frontend/schedule.html" data-i18n="nav.schedule">賽程</a>
-                    <a href="frontend/team.html" data-i18n="nav.teams">球隊</a>
-                    <a href="frontend/standings.html" data-i18n="nav.standings">排行榜</a>
+                    <a href="schedule.html" data-i18n="nav.schedule">賽程</a>
+                    <a href="team.html" data-i18n="nav.teams">球隊</a>
+                    <a href="standings.html" data-i18n="nav.standings">排行榜</a>
                 </div>
                 <div class="footer-copyright">
                     <p>&copy; <span id="current-year"></span> ALL-IN Basketball League. All rights reserved.</p>
@@ -196,12 +143,17 @@
         </div>
     </footer>
 
-    <script>document.getElementById('current-year').textContent = new Date().getFullYear();</script>
-    <script src="frontend/js/utils.js?v=20260409"></script>
-    <script src="frontend/js/api.js?v=20260409"></script>
-    <script src="frontend/js/i18n.js?v=20260409"></script>
-    <script src="frontend/js/navigation.js?v=20260409"></script>
-    <script src="frontend/js/dashboard.js?v=20260409"></script>
-    <script>I18n.init();</script>
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
+    <script src="js/utils.js?v=20260409"></script>
+    <script src="js/api.js?v=20260409"></script>
+    <script src="js/i18n.js?v=20260409"></script>
+    <script src="js/navigation.js?v=20260409"></script>
+    <script src="js/dashboard.js"></script>
+    <script>
+        // 初始化國際化模組
+        I18n.init();
+    </script>
 </body>
 </html>

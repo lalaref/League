@@ -1468,6 +1468,19 @@ function handleGetGames(e) {
   if (seasonId) {
     rows = rows.filter(function(r) { return r.seasonId === seasonId; });
   }
+
+  // 附加球隊名稱
+  var teamsSheet = ss.getSheetByName('Teams');
+  var teams = sheetToObjects(teamsSheet);
+  var teamNameMap = {};
+  for (var t = 0; t < teams.length; t++) {
+    teamNameMap[teams[t].id] = teams[t].name;
+  }
+  for (var i = 0; i < rows.length; i++) {
+    rows[i].homeTeamName = teamNameMap[rows[i].homeTeamId] || '';
+    rows[i].awayTeamName = teamNameMap[rows[i].awayTeamId] || '';
+  }
+
   return createSuccessResponse(rows, false);
 }
 

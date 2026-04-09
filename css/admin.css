@@ -1,0 +1,470 @@
+/* ============================================
+   ALL-IN Basketball League — 管理後台樣式
+   ============================================ */
+
+/* --- 表單元素 --- */
+.admin-label {
+    display: block;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.admin-select,
+.admin-input {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background-color: var(--color-surface);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-family: var(--font-primary);
+    font-size: var(--font-size-base);
+    min-height: var(--touch-target-min);
+    appearance: none;
+}
+
+.admin-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23a0a0b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+    cursor: pointer;
+}
+
+.admin-select option {
+    background-color: var(--color-surface);
+    color: var(--color-text);
+}
+
+.admin-textarea {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background-color: var(--color-surface);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-family: var(--font-primary);
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-relaxed);
+    resize: vertical;
+    min-height: 120px;
+}
+
+.admin-input:focus,
+.admin-select:focus,
+.admin-textarea:focus {
+    outline: 2px solid var(--color-secondary);
+    outline-offset: 2px;
+}
+
+.admin-form-group {
+    margin-bottom: var(--spacing-md);
+}
+
+.admin-form-row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+/* --- 訊息提示 --- */
+.admin-message {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.admin-message--info {
+    background-color: rgba(52, 152, 219, 0.15);
+    border: 1px solid var(--color-info);
+    color: var(--color-info);
+}
+
+.admin-message--success {
+    background-color: rgba(46, 204, 113, 0.15);
+    border: 1px solid var(--color-success);
+    color: var(--color-success);
+}
+
+.admin-message--error {
+    background-color: rgba(231, 76, 60, 0.15);
+    border: 1px solid var(--color-error);
+    color: var(--color-error);
+}
+
+/* --- 工具列 --- */
+.admin-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+}
+
+/* --- 操作按鈕區 --- */
+.admin-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-lg);
+}
+
+/* --- 卡片 --- */
+.admin-card {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+}
+
+.admin-card-title {
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--spacing-md);
+}
+
+/* --- Box Score 表格 --- */
+.admin-boxscore-table {
+    margin-bottom: var(--spacing-md);
+}
+
+.admin-team-header-row {
+    background-color: var(--color-primary-light);
+}
+
+.admin-team-header {
+    font-weight: var(--font-weight-bold);
+    color: var(--color-accent);
+    padding: var(--spacing-sm) var(--spacing-md) !important;
+    font-size: var(--font-size-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.admin-player-name {
+    font-weight: var(--font-weight-medium);
+    white-space: nowrap;
+    min-width: 120px;
+    position: sticky;
+    left: 0;
+    background-color: var(--color-surface);
+    z-index: 1;
+}
+
+.admin-input-cell {
+    position: relative;
+    padding: var(--spacing-xs) !important;
+}
+
+.admin-stat-input {
+    width: 56px;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: var(--font-size-sm);
+    text-align: center;
+    min-height: 36px;
+}
+
+.admin-stat-input:focus {
+    outline: 2px solid var(--color-secondary);
+    outline-offset: 1px;
+    border-color: var(--color-secondary);
+}
+
+.admin-stat-input.admin-input-error {
+    border-color: var(--color-error);
+    background-color: rgba(231, 76, 60, 0.1);
+}
+
+.admin-field-error {
+    display: block;
+    font-size: var(--font-size-xs);
+    color: var(--color-error);
+    margin-top: 2px;
+    line-height: 1.2;
+    max-width: 120px;
+    word-wrap: break-word;
+}
+
+/* --- Box Score 手機卡片 --- */
+.admin-boxscore-mobile {
+    display: none;
+}
+
+.admin-player-card {
+    display: none;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+}
+
+.admin-player-card.active {
+    display: block;
+}
+
+.admin-player-card-header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.admin-player-card-team {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.admin-player-card-name {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-inverse);
+}
+
+.admin-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-sm);
+}
+
+.admin-stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.admin-stat-label {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+}
+
+.admin-stat-item .admin-stat-input {
+    width: 100%;
+}
+
+/* --- 滑動提示 --- */
+.admin-swipe-hint {
+    display: none;
+    text-align: center;
+    padding: var(--spacing-sm);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.admin-player-indicator {
+    display: block;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-accent);
+    margin-top: var(--spacing-xs);
+}
+
+/* --- 投籃位置記錄 --- */
+.admin-shot-toggle {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.admin-shot-btn {
+    flex: 1;
+    max-width: 160px;
+}
+
+.admin-tap-hint {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    margin-bottom: var(--spacing-sm);
+    text-align: center;
+}
+
+.admin-court-container {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto var(--spacing-lg);
+    cursor: crosshair;
+    touch-action: none;
+}
+
+.admin-court-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: var(--radius-md);
+}
+
+.admin-shot-markers {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.admin-shot-marker {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    border: 2px solid;
+    pointer-events: none;
+}
+
+.admin-shot-marker--made {
+    background-color: rgba(46, 204, 113, 0.7);
+    border-color: var(--color-success);
+}
+
+.admin-shot-marker--missed {
+    background-color: rgba(231, 76, 60, 0.5);
+    border-color: var(--color-error);
+}
+
+/* --- 投籃統計摘要 --- */
+.admin-shot-stats {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+.admin-shot-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.admin-shot-stat-label {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+}
+
+.admin-shot-stat-value {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+}
+
+/* ===========================
+   手機響應式 (< 768px)
+   =========================== */
+@media (max-width: 767px) {
+    .admin-boxscore-table {
+        display: none !important;
+    }
+
+    .admin-boxscore-mobile {
+        display: block !important;
+    }
+
+    .admin-swipe-hint {
+        display: block !important;
+    }
+
+    .admin-stat-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .admin-shot-marker {
+        width: 12px;
+        height: 12px;
+    }
+}
+
+/* ===========================
+   平板+ (≥ 768px)
+   =========================== */
+@media (min-width: 768px) {
+    .admin-form-row {
+        flex-direction: row;
+    }
+
+    .admin-form-row .admin-form-group {
+        flex: 1;
+    }
+
+    .admin-boxscore-mobile {
+        display: none !important;
+    }
+
+    .admin-swipe-hint {
+        display: none !important;
+    }
+
+    .admin-stat-input {
+        width: 64px;
+    }
+}
+
+
+/* --- 管理後台首頁 Dashboard Grid --- */
+.admin-dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-2xl);
+}
+
+.admin-dashboard-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl) var(--spacing-md);
+    text-decoration: none;
+    color: var(--color-text);
+    min-height: 120px;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+}
+
+.admin-dashboard-card:hover,
+.admin-dashboard-card:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-secondary);
+    color: var(--color-text-inverse);
+}
+
+.admin-dashboard-icon {
+    font-size: 2rem;
+}
+
+.admin-dashboard-label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    text-align: center;
+}
+
+@media (min-width: 768px) {
+    .admin-dashboard-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .admin-dashboard-grid {
+        grid-template-columns: repeat(3, 1fr);
+        max-width: 800px;
+    }
+}

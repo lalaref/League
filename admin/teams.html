@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ALL-IN Basketball League - 球隊管理">
+    <meta name="theme-color" content="#1a1a2e">
+    <title>球隊管理 — ALL-IN Basketball League</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+    <header class="site-header">
+        <nav class="main-nav" aria-label="主導航">
+            <div class="nav-container">
+                <a href="../index.html" class="nav-logo" aria-label="ALL-IN Basketball League 首頁">
+                    <img src="../images/logo.svg" alt="ALL-IN Basketball League" class="logo-img">
+                    <span class="logo-text">ALL-IN</span>
+                </a>
+                <button class="hamburger-btn" aria-label="開啟選單" aria-expanded="false" aria-controls="nav-menu">
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                </button>
+                <ul id="nav-menu" class="nav-links" role="menubar">
+                    <li role="none"><a href="../index.html" class="nav-link" role="menuitem" data-i18n="nav.home">首頁</a></li>
+                    <li role="none"><a href="../schedule.html" class="nav-link" role="menuitem" data-i18n="nav.schedule">賽程</a></li>
+                    <li role="none"><a href="../team.html" class="nav-link" role="menuitem" data-i18n="nav.teams">球隊</a></li>
+                    <li role="none"><a href="../player.html" class="nav-link" role="menuitem" data-i18n="nav.players">球員</a></li>
+                    <li role="none"><a href="../standings.html" class="nav-link" role="menuitem" data-i18n="nav.standings">排行榜</a></li>
+                    <li role="none"><a href="../archive.html" class="nav-link" role="menuitem" data-i18n="nav.archive">歷史檔案</a></li>
+                    <li role="none"><a href="index.html" class="nav-link active" role="menuitem" data-i18n="nav.admin">管理後台</a></li>
+                </ul>
+                <div class="nav-actions">
+                    <button class="lang-switch-btn" aria-label="切換語言" data-i18n-attr="aria-label:nav.langSwitch">
+                        <span data-i18n="nav.lang">EN</span>
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <section class="section">
+            <div class="container">
+                <h1 class="section-title" data-i18n="admin.teamManage">球隊管理</h1>
+                <div id="team-message" class="admin-message" role="alert" hidden></div>
+
+                <!-- 賽季選擇 -->
+                <div class="admin-form-group">
+                    <label for="season-select" class="admin-label" data-i18n="admin.selectSeason">選擇賽季</label>
+                    <select id="season-select" class="admin-select"></select>
+                </div>
+
+                <div class="admin-toolbar">
+                    <button id="btn-create-team" class="btn btn-primary" data-i18n="admin.createTeam" disabled>建立球隊</button>
+                </div>
+
+                <!-- 球隊表單 -->
+                <div id="team-form" class="admin-card" hidden>
+                    <h2 id="team-form-title" class="admin-card-title" data-i18n="admin.createTeam">建立球隊</h2>
+                    <div class="admin-form-group">
+                        <label for="team-name" class="admin-label" data-i18n="admin.teamName">球隊名稱</label>
+                        <input type="text" id="team-name" class="admin-input" required>
+                    </div>
+                    <div class="admin-form-group">
+                        <label for="team-logo" class="admin-label" data-i18n="admin.logo">隊徽 URL</label>
+                        <input type="url" id="team-logo" class="admin-input">
+                    </div>
+                    <div class="admin-form-row">
+                        <div class="admin-form-group">
+                            <label for="team-captain" class="admin-label" data-i18n="team.captain">隊長</label>
+                            <input type="text" id="team-captain" class="admin-input">
+                        </div>
+                        <div class="admin-form-group">
+                            <label for="team-whatsapp" class="admin-label" data-i18n="admin.captainWhatsApp">隊長 WhatsApp</label>
+                            <input type="tel" id="team-whatsapp" class="admin-input">
+                        </div>
+                    </div>
+                    <div class="admin-form-group">
+                        <label for="team-desc" class="admin-label" data-i18n="team.description">球隊簡介</label>
+                        <textarea id="team-desc" class="admin-textarea" rows="3"></textarea>
+                    </div>
+                    <div class="admin-actions">
+                        <button id="btn-save-team" class="btn btn-primary" data-i18n="admin.save">儲存</button>
+                        <button id="btn-cancel-team" class="btn btn-outline" data-i18n="admin.cancel">取消</button>
+                    </div>
+                </div>
+
+                <!-- 球隊列表 -->
+                <div class="table-wrapper">
+                    <table class="data-table" id="teams-table">
+                        <thead>
+                            <tr>
+                                <th data-i18n="admin.teamName">球隊名稱</th>
+                                <th data-i18n="team.captain">隊長</th>
+                                <th data-i18n="admin.captainWhatsApp">WhatsApp</th>
+                                <th data-i18n="team.description">簡介</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="teams-body">
+                            <tr><td colspan="5" class="text-muted" data-i18n="common.loading">載入中...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <img src="../images/logo.svg" alt="ALL-IN Basketball League" class="footer-logo">
+                    <p class="footer-tagline" data-i18n="footer.tagline">全力以赴</p>
+                </div>
+                <div class="footer-copyright">
+                    <p>&copy; <span id="current-year"></span> ALL-IN Basketball League.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>document.getElementById('current-year').textContent = new Date().getFullYear();</script>
+    <script src="../js/utils.js?v=20260409"></script>
+    <script src="../js/api.js?v=20260409"></script>
+    <script src="../js/i18n.js?v=20260409"></script>
+    <script src="../js/navigation.js?v=20260409"></script>
+    <script>
+    I18n.init();
+
+    (function () {
+        var editingId = null;
+        var seasonSelect = document.getElementById('season-select');
+        var msgEl = document.getElementById('team-message');
+        var formEl = document.getElementById('team-form');
+        var formTitle = document.getElementById('team-form-title');
+        var tbody = document.getElementById('teams-body');
+        var createBtn = document.getElementById('btn-create-team');
+
+        function showMsg(text, type) {
+            msgEl.textContent = text;
+            msgEl.className = 'admin-message admin-message--' + type;
+            msgEl.hidden = false;
+            setTimeout(function () { msgEl.hidden = true; }, 4000);
+        }
+
+        function resetForm() {
+            editingId = null;
+            formTitle.textContent = I18n.t('admin.createTeam');
+            document.getElementById('team-name').value = '';
+            document.getElementById('team-logo').value = '';
+            document.getElementById('team-captain').value = '';
+            document.getElementById('team-whatsapp').value = '';
+            document.getElementById('team-desc').value = '';
+            formEl.hidden = true;
+        }
+
+        function loadSeasons() {
+            API.getSeasons().then(function (seasons) {
+                seasonSelect.innerHTML = '<option value="">--</option>';
+                (seasons || []).forEach(function (s) {
+                    var opt = document.createElement('option');
+                    opt.value = s.id;
+                    opt.textContent = s.name;
+                    seasonSelect.appendChild(opt);
+                });
+            });
+        }
+
+        function loadTeams() {
+            var sid = seasonSelect.value;
+            if (!sid) { tbody.innerHTML = '<tr><td colspan="5" class="text-muted">' + I18n.t('common.noData') + '</td></tr>'; return; }
+            API.getTeams(sid).then(function (teams) {
+                tbody.innerHTML = '';
+                if (!teams || teams.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-muted">' + I18n.t('common.noData') + '</td></tr>';
+                    return;
+                }
+                teams.forEach(function (t) {
+                    var tr = document.createElement('tr');
+                    tr.innerHTML =
+                        '<td>' + _esc(t.name) + '</td>' +
+                        '<td>' + _esc(t.captain) + '</td>' +
+                        '<td>' + _esc(t.captainWhatsApp) + '</td>' +
+                        '<td>' + _esc(t.description).substring(0, 40) + '</td>' +
+                        '<td>' +
+                        '<button class="btn btn-sm btn-outline btn-edit" data-id="' + t.id + '">' + I18n.t('admin.edit') + '</button> ' +
+                        '<button class="btn btn-sm btn-outline btn-delete" data-id="' + t.id + '">' + I18n.t('admin.delete') + '</button>' +
+                        '</td>';
+                    tbody.appendChild(tr);
+                });
+                bindRowButtons(teams);
+            }).catch(function () {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-muted">' + I18n.t('error.loadFailed') + '</td></tr>';
+            });
+        }
+
+        function bindRowButtons(teams) {
+            tbody.querySelectorAll('.btn-edit').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var id = btn.getAttribute('data-id');
+                    var t = teams.find(function (x) { return x.id === id; });
+                    if (!t) return;
+                    editingId = id;
+                    formTitle.textContent = I18n.t('admin.edit');
+                    document.getElementById('team-name').value = t.name || '';
+                    document.getElementById('team-logo').value = t.logo || '';
+                    document.getElementById('team-captain').value = t.captain || '';
+                    document.getElementById('team-whatsapp').value = t.captainWhatsApp || '';
+                    document.getElementById('team-desc').value = t.description || '';
+                    formEl.hidden = false;
+                });
+            });
+            tbody.querySelectorAll('.btn-delete').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var id = btn.getAttribute('data-id');
+                    if (!confirm('Delete this team?')) return;
+                    API.post('deleteTeam', { teamId: id }).then(function () {
+                        showMsg('Deleted', 'success');
+                        loadTeams();
+                    }).catch(function () { showMsg(I18n.t('error.submitFailed'), 'error'); });
+                });
+            });
+        }
+
+        seasonSelect.addEventListener('change', function () {
+            createBtn.disabled = !seasonSelect.value;
+            loadTeams();
+        });
+
+        createBtn.addEventListener('click', function () { resetForm(); formEl.hidden = false; });
+        document.getElementById('btn-cancel-team').addEventListener('click', resetForm);
+
+        document.getElementById('btn-save-team').addEventListener('click', function () {
+            var data = {
+                seasonId: seasonSelect.value,
+                name: document.getElementById('team-name').value.trim(),
+                logo: document.getElementById('team-logo').value.trim(),
+                captain: document.getElementById('team-captain').value.trim(),
+                captainWhatsApp: document.getElementById('team-whatsapp').value.trim(),
+                description: document.getElementById('team-desc').value.trim()
+            };
+            if (!data.name) { showMsg(I18n.t('error.requiredField', { field: 'name' }), 'error'); return; }
+            if (!data.seasonId) { showMsg(I18n.t('error.requiredField', { field: 'seasonId' }), 'error'); return; }
+
+            var action = editingId ? 'updateTeam' : 'createTeam';
+            if (editingId) data.teamId = editingId;
+
+            API.post(action, data).then(function () {
+                showMsg(editingId ? I18n.t('admin.updateSuccess') : I18n.t('admin.submitSuccess'), 'success');
+                resetForm();
+                loadTeams();
+            }).catch(function () { showMsg(I18n.t('error.submitFailed'), 'error'); });
+        });
+
+        function _esc(str) { var d = document.createElement('div'); d.textContent = str || ''; return d.innerHTML; }
+
+        loadSeasons();
+    })();
+    </script>
+</body>
+</html>
