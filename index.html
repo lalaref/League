@@ -14,6 +14,32 @@
     <title>ALL-IN Basketball League</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/responsive.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Zhi+Mang+Xing&display=swap" rel="stylesheet">
+    <style>
+    /* === ALL-IN Banner Scoped Styles === */
+    .allin-banner{position:relative;width:100%;max-width:1414px;margin:0 auto;height:200px;background:#000;overflow:hidden;border-bottom:1px solid rgba(255,255,255,.1);box-shadow:0 0 80px rgba(37,99,235,.3)}
+    .allin-banner *{box-sizing:border-box}
+    .allin-banner .ab-bg{position:absolute;inset:0;z-index:0}
+    .allin-banner .ab-bg svg{width:100%;height:100%;display:block}
+    .allin-banner .ab-glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:800px;height:300px;background:rgba(37,99,235,.2);filter:blur(120px);pointer-events:none}
+    .allin-banner .ab-shattered{position:absolute;inset:0;display:flex;justify-content:center;align-items:center;z-index:1;pointer-events:none}
+    .allin-banner .ab-shattered span{font-family:'Oswald',sans-serif;font-size:12rem;font-weight:700;-webkit-text-stroke:2px rgba(59,130,246,.12);color:transparent;letter-spacing:.05em;transform:skewX(-12deg);opacity:.4;line-height:1}
+    .allin-banner .ab-sparks{position:absolute;inset:0;pointer-events:none;z-index:5}
+    .allin-banner .ab-spark{position:absolute;width:3px;height:3px;background:#60a5fa;border-radius:1px;animation:ab-sparks 3s infinite ease-out;opacity:0}
+    @keyframes ab-sparks{0%{transform:translateY(0) scale(1) rotate(0);opacity:0}50%{opacity:.8}100%{transform:translateY(-150px) scale(0) rotate(360deg);opacity:0}}
+    .allin-banner .ab-content{position:relative;z-index:10;width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:0 1rem}
+    .allin-banner .ab-zh{font-family:'Zhi Mang Xing',cursive;font-size:5rem;line-height:.75;transform:rotate(-2deg) scaleY(1.3);background:linear-gradient(to bottom,#fff 40%,#cbd5e1 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 10px rgba(255,255,255,.3)) drop-shadow(0 0 30px rgba(37,99,235,.5));margin:0;letter-spacing:-.05em}
+    .allin-banner .ab-en-wrap{margin-top:1.2rem;position:relative;display:inline-block}
+    .allin-banner .ab-en-bar{background:#fff;color:#000;font-family:'Oswald',sans-serif;font-style:italic;font-size:14px;padding:4px 24px;transform:skewX(-12deg);box-shadow:0 0 30px rgba(255,255,255,.4);border-right:5px solid #2563eb;display:inline-block}
+    .allin-banner .ab-en-bar span{display:block;transform:skewX(12deg);letter-spacing:.4em;text-transform:uppercase}
+    .allin-banner .ab-en-accent{position:absolute;left:-6px;top:0;width:3px;height:100%;background:#3b82f6;transform:skewX(-12deg)}
+    .allin-banner .ab-sweep{position:absolute;inset:0;width:33%;height:100%;background:linear-gradient(to right,transparent,rgba(255,255,255,.08),transparent);z-index:30;pointer-events:none;animation:ab-sweep 2.5s infinite linear}
+    @keyframes ab-sweep{0%{transform:translateX(-100%) skewX(-30deg)}100%{transform:translateX(400%) skewX(-30deg)}}
+    @media(min-width:640px){.allin-banner{height:280px}.allin-banner .ab-zh{font-size:8rem}.allin-banner .ab-shattered span{font-size:20rem}.allin-banner .ab-en-bar{font-size:18px;padding:5px 36px}}
+    @media(min-width:768px){.allin-banner{height:350px}.allin-banner .ab-zh{font-size:11rem}.allin-banner .ab-shattered span{font-size:28rem}.allin-banner .ab-en-bar{font-size:22px;padding:6px 48px}.allin-banner .ab-en-wrap{margin-top:.5rem}}
+    </style>
 </head>
 <body>
     <!-- 導航列 -->
@@ -49,12 +75,35 @@
 
     <!-- 主要內容區域 -->
     <main class="main-content">
-        <!-- 英雄區域 -->
-        <section class="hero-section" aria-label="聯賽橫幅">
-            <div class="container">
-                <h1 class="hero-title" data-i18n="home.title">ALL-IN Basketball League</h1>
-                <p class="hero-subtitle" data-i18n="home.subtitle">全力以赴</p>
-            </div>
+        <!-- ALL-IN Banner -->
+        <section aria-label="聯賽橫幅">
+            <header class="allin-banner">
+                <div class="ab-bg">
+                    <div class="ab-glow"></div>
+                    <svg preserveAspectRatio="none" viewBox="0 0 1414 450" xmlns="http://www.w3.org/2000/svg">
+                        <defs><linearGradient id="main-grad" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#020617"/><stop offset="45%" stop-color="#1e40af"/><stop offset="100%" stop-color="#3b82f6"/></linearGradient></defs>
+                        <path d="M-150,450 L750,450 L1050,0 L-150,0 Z" fill="url(#main-grad)" opacity="0.95"/>
+                        <path d="M1564,450 L914,450 L614,0 L1564,0 Z" fill="#1e3a8a" opacity="0.4"/>
+                    </svg>
+                </div>
+                <div class="ab-shattered"><span>ALL IN</span></div>
+                <div class="ab-sparks">
+                    <div class="ab-spark" style="left:10%;bottom:5%;animation-delay:.1s"></div>
+                    <div class="ab-spark" style="left:35%;bottom:12%;animation-delay:1.5s"></div>
+                    <div class="ab-spark" style="left:60%;bottom:8%;animation-delay:.7s"></div>
+                    <div class="ab-spark" style="left:20%;bottom:18%;animation-delay:2.1s"></div>
+                    <div class="ab-spark" style="left:85%;bottom:10%;animation-delay:1.2s"></div>
+                    <div class="ab-spark" style="left:50%;bottom:15%;animation-delay:.4s"></div>
+                </div>
+                <div class="ab-content">
+                    <h1 class="ab-zh">全力以赴</h1>
+                    <div class="ab-en-wrap">
+                        <div class="ab-en-bar"><span>ALL-IN Basketball League</span></div>
+                        <div class="ab-en-accent"></div>
+                    </div>
+                </div>
+                <div class="ab-sweep"></div>
+            </header>
         </section>
 
         <!-- 最近比賽結果 -->
