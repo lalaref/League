@@ -144,6 +144,14 @@
         var formTitle = document.getElementById('season-form-title');
         var tbody = document.getElementById('seasons-body');
 
+        // Strip ISO to YYYY-MM-DD for date inputs
+        function _toDateInput(raw) {
+            if (!raw) return '';
+            var s = String(raw);
+            if (s.indexOf('T') !== -1) return s.split('T')[0];
+            return s;
+        }
+
         function showMsg(text, type) {
             msgEl.textContent = text;
             msgEl.className = 'admin-message admin-message--' + type;
@@ -175,8 +183,8 @@
                     var tr = document.createElement('tr');
                     tr.innerHTML =
                         '<td>' + _esc(s.name) + '</td>' +
-                        '<td>' + _esc(s.startDate) + '</td>' +
-                        '<td>' + _esc(s.endDate) + '</td>' +
+                        '<td>' + _esc(Utils.formatDateWithDay(s.startDate)) + '</td>' +
+                        '<td>' + _esc(Utils.formatDateWithDay(s.endDate)) + '</td>' +
                         '<td>' + (s.playoffTopN || 8) + '</td>' +
                         '<td>' + (s.minGamesForRanking || 3) + '</td>' +
                         '<td>' + _esc(s.status) + '</td>' +
@@ -203,8 +211,8 @@
                     editingId = id;
                     formTitle.textContent = I18n.t('admin.edit');
                     document.getElementById('season-name').value = s.name || '';
-                    document.getElementById('season-start').value = s.startDate || '';
-                    document.getElementById('season-end').value = s.endDate || '';
+                    document.getElementById('season-start').value = _toDateInput(s.startDate);
+                    document.getElementById('season-end').value = _toDateInput(s.endDate);
                     document.getElementById('season-playoff-topn').value = s.playoffTopN || 8;
                     document.getElementById('season-min-games').value = s.minGamesForRanking || 3;
                     document.getElementById('season-status').value = s.status || 'active';

@@ -35,11 +35,18 @@
   function loadSeasons() {
     API.getSeasons().then(function (seasons) {
       seasonSelect.innerHTML = '<option value="">--</option>';
+      var activeId = '';
       (seasons || []).forEach(function (s) {
         var o = document.createElement('option');
         o.value = s.id; o.textContent = s.name;
+        if (s.status === 'active' && !activeId) activeId = s.id;
         seasonSelect.appendChild(o);
       });
+      // Auto-select active season
+      if (activeId) {
+        seasonSelect.value = activeId;
+        loadGames(activeId);
+      }
     }).catch(function () { showMessage(I18n.t('error.loadFailed'), 'error'); });
   }
 
@@ -54,7 +61,9 @@
       gameSelect.disabled = false;
       (games || []).forEach(function (g) {
         var o = document.createElement('option'); o.value = g.id;
-        o.textContent = g.date + ' — ' + (g.homeTeamName || g.homeTeamId) + ' vs ' + (g.awayTeamName || g.awayTeamId) + (g.status === 'completed' ? ' ✓' : '');
+        var dateStr = Utils.formatDateWithDay(g.date);
+        var timeStr = Utils.formatTime(g.time);
+        o.textContent = dateStr + (timeStr ? ' ' + timeStr : '') + ' — ' + (g.homeTeamName || g.homeTeamId) + ' vs ' + (g.awayTeamName || g.awayTeamId) + (g.status === 'completed' ? ' ✓' : '');
         gameSelect.appendChild(o);
       });
     }).catch(function () { showMessage(I18n.t('error.loadFailed'), 'error'); });

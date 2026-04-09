@@ -20,51 +20,14 @@
   var currentSeasonId = null;
 
   /**
-   * 格式化日期：將 ISO 或 YYYY-MM-DD 轉為可讀格式
+   * 格式化日期：使用全局 Utils
    */
-  function _formatDate(raw) {
-    if (!raw) return '';
-    var str = String(raw);
-    // 處理 ISO 格式 (2026-04-09T16:00:00.000Z)
-    if (str.indexOf('T') !== -1) {
-      var d = new Date(str);
-      if (!isNaN(d.getTime())) {
-        var y = d.getFullYear();
-        var m = d.getMonth() + 1;
-        var day = d.getDate();
-        return y + '-' + (m < 10 ? '0' + m : m) + '-' + (day < 10 ? '0' + day : day);
-      }
-    }
-    return str;
-  }
+  function _formatDate(raw) { return Utils.formatDateWithDay(raw); }
 
   /**
-   * 格式化時間：將 ISO 或 HH:MM 轉為可讀格式
-   * Google Sheets 時間欄位可能回傳 1899-12-30T... 格式
+   * 格式化時間：使用全局 Utils
    */
-  function _formatTime(raw) {
-    if (!raw) return '';
-    var str = String(raw);
-    // 處理 Google Sheets 時間格式 (1899-12-30T13:23:18.000Z)
-    if (str.indexOf('1899-12-30') !== -1 || str.indexOf('1899-12-31') !== -1) {
-      var d = new Date(str);
-      if (!isNaN(d.getTime())) {
-        var h = d.getUTCHours();
-        var min = d.getUTCMinutes();
-        return (h < 10 ? '0' + h : h) + ':' + (min < 10 ? '0' + min : min);
-      }
-    }
-    // 處理一般 ISO 格式
-    if (str.indexOf('T') !== -1) {
-      var d2 = new Date(str);
-      if (!isNaN(d2.getTime())) {
-        var h2 = d2.getHours();
-        var min2 = d2.getMinutes();
-        return (h2 < 10 ? '0' + h2 : h2) + ':' + (min2 < 10 ? '0' + min2 : min2);
-      }
-    }
-    return str;
-  }
+  function _formatTime(raw) { return Utils.formatTime(raw); }
 
   // --- 初始化 ---
   function init() {

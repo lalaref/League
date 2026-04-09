@@ -35,11 +35,14 @@
   function loadSeasons() {
     API.getSeasons().then(function (seasons) {
       seasonSelect.innerHTML = '<option value="">--</option>';
+      var activeId = '';
       (seasons || []).forEach(function (s) {
         var o = document.createElement('option');
         o.value = s.id; o.textContent = s.name;
+        if (s.status === 'active' && !activeId) activeId = s.id;
         seasonSelect.appendChild(o);
       });
+      if (activeId) { seasonSelect.value = activeId; onSeasonChange(); }
     }).catch(function () { showMsg(I18n.t('error.loadFailed'), 'error'); });
   }
 
@@ -76,8 +79,8 @@
       (games || []).forEach(function (g) {
         var tr = document.createElement('tr');
         tr.innerHTML =
-          '<td>' + esc(g.date || '') + '</td>' +
-          '<td>' + esc(g.time || '') + '</td>' +
+          '<td>' + esc(Utils.formatDateWithDay(g.date)) + '</td>' +
+          '<td>' + esc(Utils.formatTime(g.time)) + '</td>' +
           '<td>' + esc(g.venue || '') + '</td>' +
           '<td>' + esc(g.homeTeamName || g.homeTeamId) + ' vs ' + esc(g.awayTeamName || g.awayTeamId) +
             (g.status === 'completed' ? ' <span class="text-accent">' + (g.homeScore||0) + '-' + (g.awayScore||0) + '</span>' : '') + '</td>' +
@@ -98,11 +101,21 @@
     gameForm.scrollIntoView({ behavior: 'smooth' });
   }
 
+  function _toDateInput(raw) {
+    if (!raw) return '';
+    var s = String(raw);
+    return s.indexOf('T') !== -1 ? s.split('T')[0] : s;
+  }
+  function _toTimeInput(raw) {
+    if (!raw) return '';
+    return Utils.formatTime(raw);
+  }
+
   function showEditForm(g) {
     editingGameId = g.id;
     formTitle.textContent = I18n.t('admin.editGame');
-    dateInput.value = g.date || '';
-    timeInput.value = g.time || '';
+    dateInput.value = _toDateInput(g.date);
+    timeInput.value = _toTimeInput(g.time);
     venueInput.value = g.venue || '';
     homeSelect.value = g.homeTeamId || '';
     awaySelect.value = g.awayTeamId || '';

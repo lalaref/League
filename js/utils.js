@@ -99,10 +99,60 @@ var Utils = (function () {
     return h + ' - ' + a;
   }
 
+  var DAY_NAMES_ZH = ['日', '一', '二', '三', '四', '五', '六'];
+
+  /**
+   * 格式化 ISO/YYYY-MM-DD 日期為帶星期的顯示格式
+   * @param {string} raw - ISO 日期或 YYYY-MM-DD
+   * @returns {string} 如 "2026-04-09 (三)" 或 "2026年4月9日 (三)"
+   */
+  function formatDateWithDay(raw) {
+    if (!raw) return '';
+    var str = String(raw);
+    var d;
+    if (str.indexOf('T') !== -1) {
+      d = new Date(str);
+    } else {
+      var p = str.split('-');
+      if (p.length === 3) d = new Date(parseInt(p[0],10), parseInt(p[1],10)-1, parseInt(p[2],10));
+    }
+    if (!d || isNaN(d.getTime())) return str;
+    var y = d.getFullYear(); var m = d.getMonth()+1; var day = d.getDate();
+    var dow = DAY_NAMES_ZH[d.getDay()];
+    return y + '-' + (m<10?'0'+m:m) + '-' + (day<10?'0'+day:day) + ' (' + dow + ')';
+  }
+
+  /**
+   * 格式化時間：處理 ISO 和 Google Sheets 1899 格式
+   * @param {string} raw
+   * @returns {string} 如 "13:23"
+   */
+  function formatTime(raw) {
+    if (!raw) return '';
+    var str = String(raw);
+    if (str.indexOf('1899-12-3') !== -1) {
+      var d = new Date(str);
+      if (!isNaN(d.getTime())) {
+        var h = d.getUTCHours(); var min = d.getUTCMinutes();
+        return (h<10?'0'+h:h) + ':' + (min<10?'0'+min:min);
+      }
+    }
+    if (str.indexOf('T') !== -1) {
+      var d2 = new Date(str);
+      if (!isNaN(d2.getTime())) {
+        var h2 = d2.getHours(); var min2 = d2.getMinutes();
+        return (h2<10?'0'+h2:h2) + ':' + (min2<10?'0'+min2:min2);
+      }
+    }
+    return str;
+  }
+
   // 公開 API
   return {
     generateId: generateId,
     formatDate: formatDate,
+    formatDateWithDay: formatDateWithDay,
+    formatTime: formatTime,
     formatNumber: formatNumber,
     formatPercentage: formatPercentage,
     formatGameScore: formatGameScore
