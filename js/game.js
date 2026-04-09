@@ -48,7 +48,7 @@
 
     // 比賽日期
     var dateEl = document.getElementById('game-date');
-    if (dateEl) dateEl.textContent = game.date || '';
+    if (dateEl) dateEl.textContent = Utils.formatDateWithDay(game.date) + ' ' + Utils.formatTime(game.time);
 
     // 隊名
     var homeNameEl = document.getElementById('home-team-name');
@@ -147,7 +147,7 @@
 
     btn.addEventListener('click', function () {
       var gameData = {
-        date: game.date || '',
+        date: Utils.formatDateWithDay(game.date),
         homeTeamName: game.homeTeamName || game.homeTeamId || 'Home',
         awayTeamName: game.awayTeamName || game.awayTeamId || 'Away',
         homeScore: game.homeScore,

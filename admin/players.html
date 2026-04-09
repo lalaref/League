@@ -80,16 +80,6 @@
                     </div>
                     <div class="admin-form-row">
                         <div class="admin-form-group">
-                            <label for="player-height" class="admin-label" data-i18n="admin.height">身高 (cm)</label>
-                            <input type="number" id="player-height" class="admin-input" min="100" max="250">
-                        </div>
-                        <div class="admin-form-group">
-                            <label for="player-weight" class="admin-label" data-i18n="admin.weight">體重 (kg)</label>
-                            <input type="number" id="player-weight" class="admin-input" min="30" max="200">
-                        </div>
-                    </div>
-                    <div class="admin-form-row">
-                        <div class="admin-form-group">
                             <label for="player-position" class="admin-label" data-i18n="admin.position">位置</label>
                             <select id="player-position" class="admin-select">
                                 <option value="">--</option>
@@ -119,13 +109,11 @@
                                 <th data-i18n="admin.jerseyNumber">#</th>
                                 <th data-i18n="admin.playerName">姓名</th>
                                 <th data-i18n="admin.position">位置</th>
-                                <th data-i18n="admin.height">身高</th>
-                                <th data-i18n="admin.weight">體重</th>
                                 <th></th>
                             </tr>
                         </thead>
                         <tbody id="players-body">
-                            <tr><td colspan="6" class="text-muted" data-i18n="common.loading">載入中...</td></tr>
+                            <tr><td colspan="4" class="text-muted" data-i18n="common.loading">載入中...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -177,8 +165,6 @@
             formTitle.textContent = I18n.t('admin.createPlayer');
             document.getElementById('player-name').value = '';
             document.getElementById('player-number').value = '';
-            document.getElementById('player-height').value = '';
-            document.getElementById('player-weight').value = '';
             document.getElementById('player-position').value = '';
             document.getElementById('player-photo').value = '';
             formEl.hidden = true;
@@ -215,11 +201,11 @@
 
         function loadPlayers() {
             var tid = teamSelect.value;
-            if (!tid) { tbody.innerHTML = '<tr><td colspan="6" class="text-muted">' + I18n.t('common.noData') + '</td></tr>'; return; }
+            if (!tid) { tbody.innerHTML = '<tr><td colspan="4" class="text-muted">' + I18n.t('common.noData') + '</td></tr>'; return; }
             API.getPlayers(tid).then(function (players) {
                 tbody.innerHTML = '';
                 if (!players || players.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" class="text-muted">' + I18n.t('common.noData') + '</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="4" class="text-muted">' + I18n.t('common.noData') + '</td></tr>';
                     return;
                 }
                 players.forEach(function (p) {
@@ -228,8 +214,6 @@
                         '<td>' + _esc(p.number) + '</td>' +
                         '<td>' + _esc(p.name) + '</td>' +
                         '<td>' + _esc(p.position) + '</td>' +
-                        '<td>' + _esc(p.height) + '</td>' +
-                        '<td>' + _esc(p.weight) + '</td>' +
                         '<td>' +
                         '<button class="btn btn-sm btn-outline btn-edit" data-id="' + p.id + '">' + I18n.t('admin.edit') + '</button> ' +
                         '<button class="btn btn-sm btn-outline btn-delete" data-id="' + p.id + '">' + I18n.t('admin.delete') + '</button>' +
@@ -238,7 +222,7 @@
                 });
                 bindRowButtons(players);
             }).catch(function () {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-muted">' + I18n.t('error.loadFailed') + '</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" class="text-muted">' + I18n.t('error.loadFailed') + '</td></tr>';
             });
         }
 
@@ -252,8 +236,6 @@
                     formTitle.textContent = I18n.t('admin.edit');
                     document.getElementById('player-name').value = p.name || '';
                     document.getElementById('player-number').value = p.number || '';
-                    document.getElementById('player-height').value = p.height || '';
-                    document.getElementById('player-weight').value = p.weight || '';
                     document.getElementById('player-position').value = p.position || '';
                     document.getElementById('player-photo').value = p.photo || '';
                     formEl.hidden = false;
@@ -273,7 +255,7 @@
 
         seasonSelect.addEventListener('change', function () {
             loadTeams();
-            tbody.innerHTML = '<tr><td colspan="6" class="text-muted">' + I18n.t('common.noData') + '</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="4" class="text-muted">' + I18n.t('common.noData') + '</td></tr>';
         });
 
         teamSelect.addEventListener('change', function () {
@@ -289,8 +271,6 @@
                 teamId: teamSelect.value,
                 name: document.getElementById('player-name').value.trim(),
                 number: parseInt(document.getElementById('player-number').value, 10) || 0,
-                height: parseInt(document.getElementById('player-height').value, 10) || 0,
-                weight: parseInt(document.getElementById('player-weight').value, 10) || 0,
                 position: document.getElementById('player-position').value,
                 photo: document.getElementById('player-photo').value.trim()
             };

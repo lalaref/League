@@ -279,7 +279,7 @@
         resultText = g.result;
       }
       return '<tr>' +
-        '<td>' + escapeHtml(g.date || '') + '</td>' +
+        '<td>' + escapeHtml(Utils.formatDateWithDay(g.date)) + '</td>' +
         '<td>' + scoreText + '</td>' +
         '<td>' + resultText + '</td>' +
         '</tr>';

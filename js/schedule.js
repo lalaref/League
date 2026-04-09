@@ -147,8 +147,8 @@
       }
 
       tr.innerHTML =
-        '<td>' + _escHtml(game.date || '—') + '</td>' +
-        '<td>' + _escHtml(game.time || '—') + '</td>' +
+        '<td>' + _escHtml(Utils.formatDateWithDay(game.date)) + '</td>' +
+        '<td>' + _escHtml(Utils.formatTime(game.time)) + '</td>' +
         '<td>' + _escHtml(game.venue || '—') + '</td>' +
         '<td>' + _escHtml(matchup) + '</td>' +
         '<td>' + _escHtml(result) + '</td>';

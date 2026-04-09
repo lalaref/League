@@ -6,6 +6,7 @@
 var ShareImageGenerator = (function () {
   'use strict';
 
+  function _fmtDate(raw) { return (typeof Utils !== 'undefined' && Utils.formatDateWithDay) ? Utils.formatDateWithDay(raw) : (raw || ''); }
   /** Canvas 尺寸 */
   var WIDTH = 1080;
   var HEIGHT = 1080;
@@ -56,7 +57,7 @@ var ShareImageGenerator = (function () {
     ctx.font = '600 32px -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-serif';
     ctx.fillStyle = BRAND.textMuted;
     ctx.textAlign = 'center';
-    ctx.fillText(gameData.date || '', WIDTH / 2, 200);
+    ctx.fillText(_fmtDate(gameData.date), WIDTH / 2, 200);
 
     // 對陣雙方隊名
     _drawTeamNames(ctx, gameData, BRAND.white, BRAND.textMuted, 320);
@@ -121,7 +122,7 @@ var ShareImageGenerator = (function () {
     ctx.font = '600 32px -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-serif';
     ctx.fillStyle = BRAND.textLight;
     ctx.textAlign = 'center';
-    ctx.fillText(gameData.date || '', WIDTH / 2, 200);
+    ctx.fillText(_fmtDate(gameData.date), WIDTH / 2, 200);
 
     // 對陣雙方隊名
     _drawTeamNames(ctx, gameData, BRAND.white, BRAND.textLight, 320);
@@ -165,7 +166,7 @@ var ShareImageGenerator = (function () {
     ctx.font = '600 32px -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-serif';
     ctx.fillStyle = '#888888';
     ctx.textAlign = 'center';
-    ctx.fillText(gameData.date || '', WIDTH / 2, 200);
+    ctx.fillText(_fmtDate(gameData.date), WIDTH / 2, 200);
 
     // 對陣雙方隊名
     _drawTeamNames(ctx, gameData, BRAND.primary, '#666666', 320);

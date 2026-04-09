@@ -111,8 +111,6 @@
     var photoEl = document.getElementById('player-photo');
     var numberEl = document.getElementById('player-number');
     var teamEl = document.getElementById('player-team-name');
-    var heightEl = document.getElementById('player-height');
-    var weightEl = document.getElementById('player-weight');
     var positionEl = document.getElementById('player-position');
     var gamesEl = document.getElementById('player-games');
 
@@ -128,8 +126,6 @@
         teamEl.innerHTML = '<a href="team.html?id=' + encodeURIComponent(info.teamId) + '">' + escapeHtml(info.teamName || info.team || '—') + '</a>';
       }
     }
-    if (heightEl) heightEl.textContent = info.height ? info.height + ' cm' : '—';
-    if (weightEl) weightEl.textContent = info.weight ? info.weight + ' kg' : '—';
     if (positionEl) positionEl.textContent = info.position || '—';
     if (gamesEl) gamesEl.textContent = info.gamesPlayed != null ? info.gamesPlayed : '—';
 
@@ -182,7 +178,7 @@
     });
     var recent = sorted.slice(-5);
 
-    var labels = recent.map(function (g) { return g.date || ''; });
+    var labels = recent.map(function (g) { return Utils.formatDateWithDay(g.date); });
     var points = recent.map(function (g) { return g.pts || 0; });
 
     if (trendChartInstance) {
@@ -253,7 +249,7 @@
       }
 
       return '<tr>' +
-        '<td>' + escapeHtml(g.date || '') + '</td>' +
+        '<td>' + escapeHtml(Utils.formatDateWithDay(g.date)) + '</td>' +
         '<td>' + escapeHtml(g.opponent || g.opponentName || '—') + '</td>' +
         '<td>' + escapeHtml(result) + '</td>' +
         '<td>' + (g.pts != null ? g.pts : 0) + '</td>' +
@@ -387,7 +383,7 @@
       var typeName = I18n.t(typeKey);
       if (typeName === typeKey) typeName = ach.type || '';
       var emoji = badgeEmojis[ach.type] || '🏆';
-      var dateStr = ach.date || '';
+      var dateStr = Utils.formatDateWithDay(ach.date);
 
       return '<div class="achievement-badge-card">' +
         '<div class="achievement-badge-icon" aria-hidden="true">' + emoji + '</div>' +

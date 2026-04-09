@@ -42,7 +42,7 @@ var PostGenerator = (function () {
    */
   function generate(gameData, style, lang) {
     var d = gameData || {};
-    var date = d.date || '';
+    var date = (typeof Utils !== 'undefined' && Utils.formatDateWithDay) ? Utils.formatDateWithDay(d.date) : (d.date || '');
     var home = d.homeTeamName || 'Home';
     var away = d.awayTeamName || 'Away';
     var hs = d.homeScore != null ? d.homeScore : 0;

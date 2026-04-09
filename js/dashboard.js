@@ -201,7 +201,7 @@
     var html = '<div class="announcement-item';
     if (item.pinned) html += ' announcement-item--pinned';
     html += '">';
-    html += '<div class="announcement-date">' + escapeHtml(item.date || '') + '</div>';
+    html += '<div class="announcement-date">' + escapeHtml(Utils.formatDateWithDay(item.date)) + '</div>';
     html += '<div class="announcement-title">' + escapeHtml(item.title || '') + '</div>';
     if (item.content) {
       html += '<div class="announcement-content text-muted">' + escapeHtml(item.content) + '</div>';
@@ -282,7 +282,7 @@
     var typeName = I18n.t(typeKey);
     if (typeName === typeKey) typeName = ach.type || '';
     var playerName = ach.playerName || ach.playerId || '';
-    var date = ach.date || '';
+    var date = Utils.formatDateWithDay(ach.date);
 
     var html = '<div class="achievement-item">';
     html += '<div class="achievement-badge" aria-hidden="true">🏆</div>';

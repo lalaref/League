@@ -17,7 +17,7 @@ var WhatsAppShare = (function () {
     var lines = [];
 
     lines.push('🏀 ALL-IN Basketball League');
-    lines.push('📅 ' + (d.date || ''));
+    lines.push('📅 ' + Utils.formatDateWithDay(d.date));
     lines.push('');
     lines.push((d.homeTeamName || 'Home') + ' ' + (d.homeScore != null ? d.homeScore : 0) +
       ' - ' + (d.awayScore != null ? d.awayScore : 0) + ' ' + (d.awayTeamName || 'Away'));
@@ -87,8 +87,8 @@ var WhatsAppShare = (function () {
         opponent = g.homeTeamName || g.homeTeamId || '?';
         homeAway = '(客場)';
       }
-      var datePart = g.date || '';
-      var timePart = g.time ? ' ' + g.time : '';
+      var datePart = Utils.formatDateWithDay(g.date);
+      var timePart = g.time ? ' ' + Utils.formatTime(g.time) : '';
       var venuePart = g.venue ? ' | 📍 ' + g.venue : '';
       lines.push('📅 ' + datePart + timePart + venuePart);
       lines.push('   vs ' + opponent + ' ' + homeAway);
