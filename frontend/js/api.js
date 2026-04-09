@@ -89,7 +89,7 @@ var API = (function () {
     var url = BASE_URL + '?' + queryParts.join('&');
     console.log('[API.get] BASE_URL =', BASE_URL, '| url =', url);
 
-    return _requestWithRetry(url, { method: 'GET' }, 0);
+    return _requestWithRetry(url, { method: 'GET', redirect: 'follow' }, 0);
   }
 
   /**
@@ -104,14 +104,16 @@ var API = (function () {
     }
 
     var url = BASE_URL;
-    console.log('[API.post] BASE_URL =', BASE_URL, '| url =', url, '| action =', action);
-    if (!url) {
-      return Promise.reject(new Error('BASE_URL is not configured. Please set it in api.js'));
+    console.log('[API.post] BASE_URL =', BASE_URL, '| action =', action);
+    if (!url || url.indexOf('script.google.com') === -1) {
+      console.error('[API.post] ERROR: BASE_URL is invalid:', url);
+      return Promise.reject(new Error('BASE_URL is not configured correctly. Current value: ' + url));
     }
     var body = Object.assign({}, data, { action: action, apiKey: API_KEY });
 
     var options = {
       method: 'POST',
+      redirect: 'follow',
       headers: {
         'Content-Type': 'text/plain'
       },
@@ -129,8 +131,13 @@ var API = (function () {
    * @returns {Promise<Object>}
    */
   function _requestWithRetry(url, options, attempt) {
+    console.log('[API._requestWithRetry] attempt', attempt, '| method:', options.method, '| url:', url);
     return fetchWithTimeout(url, options, TIMEOUT_MS)
       .then(function (response) {
+        console.log('[API._requestWithRetry] response status:', response.status, '| url:', response.url);
+        if (!response.ok) {
+          throw new Error('HTTP ' + response.status + ' from ' + response.url);
+        }
         return response.json().then(function (json) {
           if (json.status === 'error') {
             var err = new Error(json.message || '伺服器錯誤');
@@ -141,6 +148,7 @@ var API = (function () {
         });
       })
       .catch(function (err) {
+        console.error('[API._requestWithRetry] error:', err.message, '| attempt:', attempt);
         if (attempt < MAX_RETRIES && _isRetryable(err)) {
           return _requestWithRetry(url, options, attempt + 1);
         }
@@ -156,6 +164,8 @@ var API = (function () {
   function _isRetryable(err) {
     if (err.message === '請求超時') return true;
     if (err.message === 'Failed to fetch') return true;
+    // 不重試 HTTP 狀態碼錯誤
+    if (err.message && err.message.indexOf('HTTP ') === 0) return false;
     // 不重試 4xx 錯誤
     if (err.code && err.code >= 400 && err.code < 500) return false;
     return true;
