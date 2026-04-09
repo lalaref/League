@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ALL-IN Basketball League - 球員管理">
+    <meta name="theme-color" content="#1a1a2e">
+    <title>球員管理 — ALL-IN Basketball League</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+    <header class="site-header">
+        <nav class="main-nav" aria-label="主導航">
+            <div class="nav-container">
+                <a href="../index.html" class="nav-logo" aria-label="ALL-IN Basketball League 首頁">
+                    <img src="../images/logo.svg" alt="ALL-IN Basketball League" class="logo-img">
+                    <span class="logo-text">ALL-IN</span>
+                </a>
+                <button class="hamburger-btn" aria-label="開啟選單" aria-expanded="false" aria-controls="nav-menu">
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                </button>
+                <ul id="nav-menu" class="nav-links" role="menubar">
+                    <li role="none"><a href="../index.html" class="nav-link" role="menuitem" data-i18n="nav.home">首頁</a></li>
+                    <li role="none"><a href="../schedule.html" class="nav-link" role="menuitem" data-i18n="nav.schedule">賽程</a></li>
+                    <li role="none"><a href="../team.html" class="nav-link" role="menuitem" data-i18n="nav.teams">球隊</a></li>
+                    <li role="none"><a href="../player.html" class="nav-link" role="menuitem" data-i18n="nav.players">球員</a></li>
+                    <li role="none"><a href="../standings.html" class="nav-link" role="menuitem" data-i18n="nav.standings">排行榜</a></li>
+                    <li role="none"><a href="../archive.html" class="nav-link" role="menuitem" data-i18n="nav.archive">歷史檔案</a></li>
+                    <li role="none"><a href="index.html" class="nav-link active" role="menuitem" data-i18n="nav.admin">管理後台</a></li>
+                </ul>
+                <div class="nav-actions">
+                    <button class="lang-switch-btn" aria-label="切換語言" data-i18n-attr="aria-label:nav.langSwitch">
+                        <span data-i18n="nav.lang">EN</span>
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <section class="section">
+            <div class="container">
+                <h1 class="section-title" data-i18n="admin.playerManage">球員管理</h1>
+                <div id="player-message" class="admin-message" role="alert" hidden></div>
+
+                <!-- 賽季 → 球隊 級聯選擇 -->
+                <div class="admin-form-row">
+                    <div class="admin-form-group">
+                        <label for="season-select" class="admin-label" data-i18n="admin.selectSeason">選擇賽季</label>
+                        <select id="season-select" class="admin-select"></select>
+                    </div>
+                    <div class="admin-form-group">
+                        <label for="team-select" class="admin-label" data-i18n="admin.teamName">選擇球隊</label>
+                        <select id="team-select" class="admin-select" disabled>
+                            <option value="">--</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="admin-toolbar">
+                    <button id="btn-create-player" class="btn btn-primary" data-i18n="admin.createPlayer" disabled>建立球員</button>
+                </div>
+
+                <!-- 球員表單 -->
+                <div id="player-form" class="admin-card" hidden>
+                    <h2 id="player-form-title" class="admin-card-title" data-i18n="admin.createPlayer">建立球員</h2>
+                    <div class="admin-form-row">
+                        <div class="admin-form-group">
+                            <label for="player-name" class="admin-label" data-i18n="admin.playerName">球員姓名</label>
+                            <input type="text" id="player-name" class="admin-input" required>
+                        </div>
+                        <div class="admin-form-group">
+                            <label for="player-number" class="admin-label" data-i18n="admin.jerseyNumber">球衣號碼</label>
+                            <input type="number" id="player-number" class="admin-input" min="0" max="99">
+                        </div>
+                    </div>
+                    <div class="admin-form-row">
+                        <div class="admin-form-group">
+                            <label for="player-height" class="admin-label" data-i18n="admin.height">身高 (cm)</label>
+                            <input type="number" id="player-height" class="admin-input" min="100" max="250">
+                        </div>
+                        <div class="admin-form-group">
+                            <label for="player-weight" class="admin-label" data-i18n="admin.weight">體重 (kg)</label>
+                            <input type="number" id="player-weight" class="admin-input" min="30" max="200">
+                        </div>
+                    </div>
+                    <div class="admin-form-row">
+                        <div class="admin-form-group">
+                            <label for="player-position" class="admin-label" data-i18n="admin.position">位置</label>
+                            <select id="player-position" class="admin-select">
+                                <option value="">--</option>
+                                <option value="PG">PG</option>
+                                <option value="SG">SG</option>
+                                <option value="SF">SF</option>
+                                <option value="PF">PF</option>
+                                <option value="C">C</option>
+                            </select>
+                        </div>
+                        <div class="admin-form-group">
+                            <label for="player-photo" class="admin-label" data-i18n="admin.photo">照片 URL</label>
+                            <input type="url" id="player-photo" class="admin-input">
+                        </div>
+                    </div>
+                    <div class="admin-actions">
+                        <button id="btn-save-player" class="btn btn-primary" data-i18n="admin.save">儲存</button>
+                        <button id="btn-cancel-player" class="btn btn-outline" data-i18n="admin.cancel">取消</button>
+                    </div>
+                </div>
+
+                <!-- 球員列表 -->
+                <div class="table-wrapper">
+                    <table class="data-table" id="players-table">
+                        <thead>
+                            <tr>
+                                <th data-i18n="admin.jerseyNumber">#</th>
+                                <th data-i18n="admin.playerName">姓名</th>
+                                <th data-i18n="admin.position">位置</th>
+                                <th data-i18n="admin.height">身高</th>
+                                <th data-i18n="admin.weight">體重</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="players-body">
+                            <tr><td colspan="6" class="text-muted" data-i18n="common.loading">載入中...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <img src="../images/logo.svg" alt="ALL-IN Basketball League" class="footer-logo">
+                    <p class="footer-tagline" data-i18n="footer.tagline">全力以赴</p>
+                </div>
+                <div class="footer-copyright">
+                    <p>&copy; <span id="current-year"></span> ALL-IN Basketball League.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>document.getElementById('current-year').textContent = new Date().getFullYear();</script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/i18n.js"></script>
+    <script src="../js/navigation.js"></script>
+    <script>
+    I18n.init();
+
+    (function () {
+        var editingId = null;
+        var seasonSelect = document.getElementById('season-select');
+        var teamSelect = document.getElementById('team-select');
+        var msgEl = document.getElementById('player-message');
+        var formEl = document.getElementById('player-form');
+        var formTitle = document.getElementById('player-form-title');
+        var tbody = document.getElementById('players-body');
+        var createBtn = document.getElementById('btn-create-player');
+
+        function showMsg(text, type) {
+            msgEl.textContent = text;
+            msgEl.className = 'admin-message admin-message--' + type;
+            msgEl.hidden = false;
+            setTimeout(function () { msgEl.hidden = true; }, 4000);
+        }
+
+        function resetForm() {
+            editingId = null;
+            formTitle.textContent = I18n.t('admin.createPlayer');
+            document.getElementById('player-name').value = '';
+            document.getElementById('player-number').value = '';
+            document.getElementById('player-height').value = '';
+            document.getElementById('player-weight').value = '';
+            document.getElementById('player-position').value = '';
+            document.getElementById('player-photo').value = '';
+            formEl.hidden = true;
+        }
+
+        function loadSeasons() {
+            API.getSeasons().then(function (seasons) {
+                seasonSelect.innerHTML = '<option value="">--</option>';
+                (seasons || []).forEach(function (s) {
+                    var opt = document.createElement('option');
+                    opt.value = s.id;
+                    opt.textContent = s.name;
+                    seasonSelect.appendChild(opt);
+                });
+            });
+        }
+
+        function loadTeams() {
+            var sid = seasonSelect.value;
+            teamSelect.innerHTML = '<option value="">--</option>';
+            teamSelect.disabled = true;
+            createBtn.disabled = true;
+            if (!sid) return;
+            API.getTeams(sid).then(function (teams) {
+                (teams || []).forEach(function (t) {
+                    var opt = document.createElement('option');
+                    opt.value = t.id;
+                    opt.textContent = t.name;
+                    teamSelect.appendChild(opt);
+                });
+                teamSelect.disabled = false;
+            });
+        }
+
+        function loadPlayers() {
+            var tid = teamSelect.value;
+            if (!tid) { tbody.innerHTML = '<tr><td colspan="6" class="text-muted">' + I18n.t('common.noData') + '</td></tr>'; return; }
+            API.getPlayers(tid).then(function (players) {
+                tbody.innerHTML = '';
+                if (!players || players.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-muted">' + I18n.t('common.noData') + '</td></tr>';
+                    return;
+                }
+                players.forEach(function (p) {
+                    var tr = document.createElement('tr');
+                    tr.innerHTML =
+                        '<td>' + _esc(p.number) + '</td>' +
+                        '<td>' + _esc(p.name) + '</td>' +
+                        '<td>' + _esc(p.position) + '</td>' +
+                        '<td>' + _esc(p.height) + '</td>' +
+                        '<td>' + _esc(p.weight) + '</td>' +
+                        '<td>' +
+                        '<button class="btn btn-sm btn-outline btn-edit" data-id="' + p.id + '">' + I18n.t('admin.edit') + '</button> ' +
+                        '<button class="btn btn-sm btn-outline btn-delete" data-id="' + p.id + '">' + I18n.t('admin.delete') + '</button>' +
+                        '</td>';
+                    tbody.appendChild(tr);
+                });
+                bindRowButtons(players);
+            }).catch(function () {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-muted">' + I18n.t('error.loadFailed') + '</td></tr>';
+            });
+        }
+
+        function bindRowButtons(players) {
+            tbody.querySelectorAll('.btn-edit').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var id = btn.getAttribute('data-id');
+                    var p = players.find(function (x) { return x.id === id; });
+                    if (!p) return;
+                    editingId = id;
+                    formTitle.textContent = I18n.t('admin.edit');
+                    document.getElementById('player-name').value = p.name || '';
+                    document.getElementById('player-number').value = p.number || '';
+                    document.getElementById('player-height').value = p.height || '';
+                    document.getElementById('player-weight').value = p.weight || '';
+                    document.getElementById('player-position').value = p.position || '';
+                    document.getElementById('player-photo').value = p.photo || '';
+                    formEl.hidden = false;
+                });
+            });
+            tbody.querySelectorAll('.btn-delete').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var id = btn.getAttribute('data-id');
+                    if (!confirm('Delete this player?')) return;
+                    API.post('deletePlayer', { playerId: id }).then(function () {
+                        showMsg('Deleted', 'success');
+                        loadPlayers();
+                    }).catch(function () { showMsg(I18n.t('error.submitFailed'), 'error'); });
+                });
+            });
+        }
+
+        seasonSelect.addEventListener('change', function () {
+            loadTeams();
+            tbody.innerHTML = '<tr><td colspan="6" class="text-muted">' + I18n.t('common.noData') + '</td></tr>';
+        });
+
+        teamSelect.addEventListener('change', function () {
+            createBtn.disabled = !teamSelect.value;
+            loadPlayers();
+        });
+
+        createBtn.addEventListener('click', function () { resetForm(); formEl.hidden = false; });
+        document.getElementById('btn-cancel-player').addEventListener('click', resetForm);
+
+        document.getElementById('btn-save-player').addEventListener('click', function () {
+            var data = {
+                teamId: teamSelect.value,
+                name: document.getElementById('player-name').value.trim(),
+                number: parseInt(document.getElementById('player-number').value, 10) || 0,
+                height: parseInt(document.getElementById('player-height').value, 10) || 0,
+                weight: parseInt(document.getElementById('player-weight').value, 10) || 0,
+                position: document.getElementById('player-position').value,
+                photo: document.getElementById('player-photo').value.trim()
+            };
+            if (!data.name) { showMsg(I18n.t('error.requiredField', { field: 'name' }), 'error'); return; }
+            if (!data.teamId) { showMsg(I18n.t('error.requiredField', { field: 'teamId' }), 'error'); return; }
+
+            var action = editingId ? 'updatePlayer' : 'createPlayer';
+            if (editingId) data.playerId = editingId;
+
+            API.post(action, data).then(function () {
+                showMsg(editingId ? I18n.t('admin.updateSuccess') : I18n.t('admin.submitSuccess'), 'success');
+                resetForm();
+                loadPlayers();
+            }).catch(function () { showMsg(I18n.t('error.submitFailed'), 'error'); });
+        });
+
+        function _esc(str) { var d = document.createElement('div'); d.textContent = str != null ? str : ''; return d.innerHTML; }
+
+        loadSeasons();
+    })();
+    </script>
+</body>
+</html>
