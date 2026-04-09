@@ -16,11 +16,50 @@
   // --- 初始化 ---
   function init() {
     if (!playerId) {
-      showError('缺少球員 ID 參數');
+      showPlayerDirectory();
       return;
     }
     setupTabs();
     loadPlayerData();
+  }
+
+  // --- 球員目錄（無 ID 時顯示所有球員列表）---
+  function showPlayerDirectory() {
+    var main = document.querySelector('.main-content');
+    if (!main) return;
+    main.innerHTML = '<section class="section"><div class="container">' +
+      '<h1 class="section-title">球員目錄</h1>' +
+      '<div id="player-dir" class="text-muted">載入中...</div>' +
+      '</div></section>';
+    API.getSeasons().then(function (seasons) {
+      var active = (seasons || []).find(function (s) { return s.status === 'active'; }) || (seasons || [])[0];
+      if (!active) { document.getElementById('player-dir').textContent = '暫無賽季資料'; return; }
+      return API.getTeams(active.id).then(function (teams) {
+        if (!teams || teams.length === 0) { document.getElementById('player-dir').textContent = '暫無球隊資料'; return; }
+        var promises = teams.map(function (t) {
+          return API.getPlayers(t.id).then(function (players) { return { team: t, players: players || [] }; });
+        });
+        return Promise.all(promises);
+      });
+    }).then(function (results) {
+      if (!results) return;
+      var dir = document.getElementById('player-dir');
+      var html = '';
+      results.forEach(function (r) {
+        html += '<h2 class="section-subtitle" style="margin-top:1.5rem">' + escapeHtml(r.team.name) + '</h2>';
+        if (r.players.length === 0) { html += '<p class="text-muted">暫無球員</p>'; return; }
+        html += '<div class="games-grid">';
+        r.players.forEach(function (p) {
+          html += '<a href="player.html?id=' + encodeURIComponent(p.id) + '" class="game-card" style="text-decoration:none">' +
+            '<div class="game-card-matchup"><span class="game-card-team">#' + escapeHtml(String(p.number || '')) + ' ' + escapeHtml(p.name) + '</span></div>' +
+            '<div class="text-muted" style="font-size:.85rem">' + escapeHtml(p.position || '') + '</div></a>';
+        });
+        html += '</div>';
+      });
+      dir.innerHTML = html;
+    }).catch(function () {
+      document.getElementById('player-dir').textContent = '載入失敗';
+    });
   }
 
   // --- 分頁切換 ---

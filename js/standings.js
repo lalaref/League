@@ -8,12 +8,12 @@
 
   // --- 排行榜類別定義 ---
   var BASIC_CATEGORIES = ['pts', 'reb', 'ast', 'stl', 'blk'];
-  var SHOOTING_CATEGORIES = ['fgPct', 'tpPct', 'ftPct'];
-  var ADVANCED_CATEGORIES = ['per', 'tsPct', 'usgPct'];
+  var SHOOTING_CATEGORIES = ['fg_pct', 'tp_pct', 'ft_pct'];
+  var ADVANCED_CATEGORIES = [];
   var ALL_CATEGORIES = BASIC_CATEGORIES.concat(SHOOTING_CATEGORIES).concat(ADVANCED_CATEGORIES);
 
   // 百分比類別（顯示為百分比格式）
-  var PCT_CATEGORIES = ['fgPct', 'tpPct', 'ftPct', 'tsPct', 'usgPct'];
+  var PCT_CATEGORIES = ['fg_pct', 'tp_pct', 'ft_pct'];
 
   // --- DOM 元素 ---
   var seasonSelect = document.getElementById('season-select');
@@ -128,7 +128,7 @@
         renderTable(tbody, top10, category);
         // 渲染長條圖（取前 5 名以保持可讀性）
         var chartData = top10.slice(0, 5);
-        var labels = chartData.map(function (l) { return l.player || l.name || '—'; });
+        var labels = chartData.map(function (l) { return l.playerName || l.player || l.name || '—'; });
         var values = chartData.map(function (l) { return l.value != null ? l.value : 0; });
         renderChart(category, labels, values);
       })
@@ -146,8 +146,8 @@
     var isPct = PCT_CATEGORIES.indexOf(category) !== -1;
     tbody.innerHTML = leaders.map(function (leader, idx) {
       var rank = leader.rank != null ? leader.rank : (idx + 1);
-      var name = escapeHtml(leader.player || leader.name || '—');
-      var team = escapeHtml(leader.team || '—');
+      var name = escapeHtml(leader.playerName || leader.player || leader.name || '—');
+      var team = escapeHtml(leader.teamName || leader.team || '—');
       var value = leader.value != null ? leader.value : 0;
       var displayValue = isPct ? formatPct(value) : formatNum(value);
 

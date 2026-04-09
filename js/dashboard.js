@@ -89,7 +89,8 @@
         }
         recentGamesEl.innerHTML = recent.map(renderGameCard).join('');
       })
-      .catch(function () {
+      .catch(function (err) {
+        console.error('[Dashboard] loadRecentGames error:', err);
         recentGamesEl.innerHTML = '<p class="text-muted">' + I18n.t('error.loadFailed') + ' <button class="btn btn-outline btn-sm" onclick="location.reload()">' + I18n.t('common.retry') + '</button></p>';
       });
   }
@@ -235,7 +236,7 @@
    * 渲染排名表行
    */
   function renderStandingRow(team, rank) {
-    var name = team.team || team.name || '—';
+    var name = team.teamName || team.team || team.name || '—';
     var wins = team.wins != null ? team.wins : 0;
     var losses = team.losses != null ? team.losses : 0;
     var pct = team.pct != null ? Number(team.pct).toFixed(3) : '.000';

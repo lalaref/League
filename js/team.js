@@ -16,10 +16,37 @@
   // --- 初始化 ---
   function init() {
     if (!teamId) {
-      showError('缺少球隊 ID 參數');
+      showTeamDirectory();
       return;
     }
     loadTeamData();
+  }
+
+  // --- 球隊目錄（無 ID 時顯示所有球隊列表）---
+  function showTeamDirectory() {
+    var main = document.querySelector('.main-content');
+    if (!main) return;
+    main.innerHTML = '<section class="section"><div class="container">' +
+      '<h1 class="section-title">球隊目錄</h1>' +
+      '<div id="team-dir" class="text-muted">載入中...</div>' +
+      '</div></section>';
+    API.getSeasons().then(function (seasons) {
+      var active = (seasons || []).find(function (s) { return s.status === 'active'; }) || (seasons || [])[0];
+      if (!active) { document.getElementById('team-dir').textContent = '暫無賽季資料'; return; }
+      return API.getTeams(active.id);
+    }).then(function (teams) {
+      if (!teams || teams.length === 0) { document.getElementById('team-dir').textContent = '暫無球隊資料'; return; }
+      var html = '<div class="games-grid">';
+      teams.forEach(function (t) {
+        html += '<a href="team.html?id=' + encodeURIComponent(t.id) + '" class="game-card" style="text-decoration:none">' +
+          '<div class="game-card-matchup"><span class="game-card-team">' + escapeHtml(t.name) + '</span></div>' +
+          '<div class="text-muted" style="font-size:.85rem">' + escapeHtml(t.captain || '') + '</div></a>';
+      });
+      html += '</div>';
+      document.getElementById('team-dir').innerHTML = html;
+    }).catch(function () {
+      document.getElementById('team-dir').textContent = '載入失敗';
+    });
   }
 
   // --- 載入球隊數據 ---
