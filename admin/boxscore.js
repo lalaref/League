@@ -62,22 +62,32 @@
 
   function loadGameRosters(gameId) {
     showMessage(I18n.t('common.loading'), 'info');
+    console.log('[BoxScore] loadGameRosters: gameId=', gameId);
     Promise.all([API.getBoxScore(gameId), API.getGames(seasonSelect.value)]).then(function (r) {
       var boxData = r[0]; var games = r[1] || [];
       currentGame = games.find(function (g) { return g.id === gameId; }) || null;
+      console.log('[BoxScore] currentGame:', currentGame);
       if (boxData && (boxData.homeStats || boxData.awayStats)) {
         existingBoxScore = boxData; buildFromExisting(boxData);
       } else { existingBoxScore = null; loadTeamPlayers(); }
-    }).catch(function () { existingBoxScore = null; loadTeamPlayers(); });
+    }).catch(function (err) { console.error('[BoxScore] loadGameRosters error:', err); existingBoxScore = null; loadTeamPlayers(); });
   }
 
   function loadTeamPlayers() {
     if (!currentGame) { showMessage(I18n.t('admin.noGameSelected'), 'error'); return; }
+    console.log('[BoxScore] loadTeamPlayers: homeTeamId=', currentGame.homeTeamId, 'awayTeamId=', currentGame.awayTeamId);
     Promise.all([API.getPlayers(currentGame.homeTeamId), API.getPlayers(currentGame.awayTeamId)]).then(function (r) {
+      console.log('[BoxScore] homePlayers:', r[0], 'awayPlayers:', r[1]);
       var hp = (r[0]||[]).map(function(p){ return Object.assign({},p,{teamId:currentGame.homeTeamId,teamName:currentGame.homeTeamName||currentGame.homeTeamId,side:'home'}); });
       var ap = (r[1]||[]).map(function(p){ return Object.assign({},p,{teamId:currentGame.awayTeamId,teamName:currentGame.awayTeamName||currentGame.awayTeamId,side:'away'}); });
-      allPlayers = hp.concat(ap); renderBoxScore(); hideMessage();
-    }).catch(function () { showMessage(I18n.t('error.loadFailed'), 'error'); });
+      allPlayers = hp.concat(ap);
+      console.log('[BoxScore] allPlayers count:', allPlayers.length);
+      if (allPlayers.length === 0) {
+        showMessage('找不到球員資料。請先在球員管理頁面新增球員。', 'error');
+        return;
+      }
+      renderBoxScore(); hideMessage();
+    }).catch(function (err) { console.error('[BoxScore] loadTeamPlayers error:', err); showMessage(I18n.t('error.loadFailed'), 'error'); });
   }
 
   function buildFromExisting(boxData) {
