@@ -19,16 +19,16 @@
     <link rel="stylesheet" href="frontend/css/responsive.css">
     <style>
         /* === Banner-only styles (scoped, no Tailwind needed) === */
-        .allin-banner { position:relative; width:100%; max-width:1414px; margin:0 auto; height:300px; background:#000; overflow:hidden; box-shadow:0 0 120px rgba(37,99,235,0.4); border-top:1px solid rgba(255,255,255,0.1); border-bottom:1px solid rgba(255,255,255,0.1); }
-        @media(min-width:640px){ .allin-banner { height:380px; } }
+        .allin-banner { position:relative; width:100%; max-width:1414px; margin:0 auto; height:200px; background:#000; overflow:hidden; box-shadow:0 0 120px rgba(37,99,235,0.4); border-top:1px solid rgba(255,255,255,0.1); border-bottom:1px solid rgba(255,255,255,0.1); }
+        @media(min-width:640px){ .allin-banner { height:320px; } }
         @media(min-width:768px){ .allin-banner { height:450px; } }
         .allin-banner * { margin:0; padding:0; box-sizing:border-box; }
         .allin-banner .bg-layer { position:absolute; inset:0; background:#0a0a0a; }
         .allin-banner .bg-glow { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:1200px; height:400px; background:rgba(37,99,235,0.25); filter:blur(180px); }
         .allin-banner svg { position:absolute; inset:0; width:100%; height:100%; z-index:0; }
         .allin-banner .shattered { position:absolute; inset:0; display:flex; justify-content:center; align-items:center; z-index:1; pointer-events:none; user-select:none; }
-        .allin-banner .shattered h2 { font-family:'Oswald',sans-serif !important; font-weight:700 !important; font-size:22rem !important; line-height:1 !important; transform:skewX(-12deg) !important; opacity:0.5; -webkit-text-stroke:3px rgba(59,130,246,0.15) !important; color:transparent !important; letter-spacing:0.05em !important; clip-path:polygon(0% 0%,100% 0%,100% 48%,0% 52%,0% 100%,100% 100%,100% 52%,0% 48%) !important; }
-        @media(min-width:640px){ .allin-banner .shattered h2 { font-size:35rem !important; } }
+        .allin-banner .shattered h2 { font-family:'Oswald',sans-serif !important; font-weight:700 !important; font-size:10rem !important; line-height:1 !important; transform:skewX(-12deg) !important; opacity:0.5; -webkit-text-stroke:3px rgba(59,130,246,0.15) !important; color:transparent !important; letter-spacing:0.05em !important; clip-path:polygon(0% 0%,100% 0%,100% 48%,0% 52%,0% 100%,100% 100%,100% 52%,0% 48%) !important; }
+        @media(min-width:640px){ .allin-banner .shattered h2 { font-size:25rem !important; } }
         @media(min-width:768px){ .allin-banner .shattered h2 { font-size:45rem !important; } }
         .allin-banner .sparks { position:absolute; inset:0; pointer-events:none; z-index:5; }
         @keyframes allin-sparks { 0%{transform:translateY(0) scale(1) rotate(0);opacity:0} 50%{opacity:0.8} 100%{transform:translateY(-200px) scale(0) rotate(360deg);opacity:0} }
@@ -37,19 +37,19 @@
         .allin-banner .sweep-light { position:absolute; inset:0; width:33%; height:100%; background:linear-gradient(to right,transparent,rgba(255,255,255,0.1),transparent); z-index:30; pointer-events:none; animation:allin-sweep 2.5s infinite linear; }
         .allin-banner .main-visual { position:relative; z-index:10; width:100%; height:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:0 16px; }
         .allin-banner .cn-wrap { position:relative; margin-bottom:8px; }
-        .allin-banner .cn-shadow { position:absolute; inset:0; font-family:'Zhi Mang Xing',cursive !important; color:#1e3a8a !important; font-size:10rem !important; line-height:0.7 !important; transform:rotate(-2deg) scaleY(1.3) translateY(3px); filter:blur(10px); opacity:0.8; }
-        @media(min-width:640px){ .allin-banner .cn-shadow { font-size:14rem !important; } }
+        .allin-banner .cn-shadow { position:absolute; inset:0; font-family:'Zhi Mang Xing',cursive !important; color:#1e3a8a !important; font-size:5rem !important; line-height:0.7 !important; transform:rotate(-2deg) scaleY(1.3) translateY(3px); filter:blur(10px); opacity:0.8; }
+        @media(min-width:640px){ .allin-banner .cn-shadow { font-size:10rem !important; } }
         @media(min-width:768px){ .allin-banner .cn-shadow { font-size:18rem !important; } }
-        .allin-banner .cn-text { font-family:'Zhi Mang Xing',cursive !important; font-size:10rem !important; line-height:0.7 !important; transform:rotate(-2deg) scaleY(1.3); letter-spacing:-0.05em; user-select:none; position:relative; z-index:20; background:linear-gradient(to bottom,#fff 40%,#cbd5e1 100%) !important; -webkit-background-clip:text !important; background-clip:text !important; -webkit-text-fill-color:transparent !important; color:transparent !important; filter:drop-shadow(0 0 15px rgba(255,255,255,0.4)) drop-shadow(0 0 50px rgba(37,99,235,0.7)) !important; }
-        @media(min-width:640px){ .allin-banner .cn-text { font-size:14rem !important; } }
+        .allin-banner .cn-text { font-family:'Zhi Mang Xing',cursive !important; font-size:5rem !important; line-height:0.7 !important; transform:rotate(-2deg) scaleY(1.3); letter-spacing:-0.05em; user-select:none; position:relative; z-index:20; background:linear-gradient(to bottom,#fff 40%,#cbd5e1 100%) !important; -webkit-background-clip:text !important; background-clip:text !important; -webkit-text-fill-color:transparent !important; color:transparent !important; filter:drop-shadow(0 0 15px rgba(255,255,255,0.4)) drop-shadow(0 0 50px rgba(37,99,235,0.7)) !important; }
+        @media(min-width:640px){ .allin-banner .cn-text { font-size:10rem !important; } }
         @media(min-width:768px){ .allin-banner .cn-text { font-size:18rem !important; } }
-        .allin-banner .en-wrap { margin-top:56px; position:relative; transition:transform 0.5s; -webkit-box-reflect:below -5px linear-gradient(transparent,rgba(255,255,255,0.1)); }
-        @media(min-width:640px){ .allin-banner .en-wrap { margin-top:64px; } }
+        .allin-banner .en-wrap { margin-top:32px; position:relative; transition:transform 0.5s; -webkit-box-reflect:below -5px linear-gradient(transparent,rgba(255,255,255,0.1)); }
+        @media(min-width:640px){ .allin-banner .en-wrap { margin-top:48px; } }
         @media(min-width:768px){ .allin-banner .en-wrap { margin-top:24px; } }
         .allin-banner:hover .en-wrap { transform:scale(1.05); }
-        .allin-banner .en-label { background:#fff !important; color:#000 !important; font-family:'Oswald',sans-serif !important; font-style:italic; font-size:18px !important; padding:8px 40px !important; transform:skewX(-12deg); box-shadow:0 0 50px rgba(255,255,255,0.5); border-right:8px solid #2563eb; display:inline-block; }
-        @media(min-width:640px){ .allin-banner .en-label { font-size:24px !important; padding:8px 80px !important; } }
-        @media(min-width:768px){ .allin-banner .en-label { font-size:30px !important; } }
+        .allin-banner .en-label { background:#fff !important; color:#000 !important; font-family:'Oswald',sans-serif !important; font-style:italic; font-size:12px !important; padding:6px 24px !important; transform:skewX(-12deg); box-shadow:0 0 50px rgba(255,255,255,0.5); border-right:8px solid #2563eb; display:inline-block; }
+        @media(min-width:640px){ .allin-banner .en-label { font-size:20px !important; padding:8px 60px !important; } }
+        @media(min-width:768px){ .allin-banner .en-label { font-size:30px !important; padding:8px 80px !important; } }
         .allin-banner .en-label span { display:block; transform:skewX(12deg); letter-spacing:0.5em; text-transform:uppercase; }
         @media(min-width:768px){ .allin-banner .en-label span { letter-spacing:0.6em; } }
         .allin-banner .en-bar-left { position:absolute; left:-32px; top:0; width:16px; height:100%; background:#3b82f6; transform:skewX(-12deg); }
