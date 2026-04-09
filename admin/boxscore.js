@@ -219,7 +219,7 @@
     var errors = [], vals = {};
     STAT_FIELDS.forEach(function (f) {
       var inp = getInput(idx, f); var raw = inp ? inp.value.trim() : '';
-      if (raw === '') { showFieldError(idx, f, I18n.t('error.requiredField',{field:f.toUpperCase()})); errors.push({idx:idx,field:f}); return; }
+      if (raw === '') { vals[f] = 0; return; } // treat empty as 0
       var num = Number(raw);
       if (!Number.isInteger(num)) { showFieldError(idx, f, I18n.t('error.notInteger',{field:f.toUpperCase()})); errors.push({idx:idx,field:f}); return; }
       if (num < 0) { showFieldError(idx, f, I18n.t('error.negativeNumber',{field:f.toUpperCase()})); errors.push({idx:idx,field:f}); return; }
