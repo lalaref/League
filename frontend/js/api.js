@@ -87,6 +87,7 @@ var API = (function () {
       });
     }
     var url = BASE_URL + '?' + queryParts.join('&');
+    console.log('[API.get] BASE_URL =', BASE_URL, '| url =', url);
 
     return _requestWithRetry(url, { method: 'GET' }, 0);
   }
@@ -103,6 +104,10 @@ var API = (function () {
     }
 
     var url = BASE_URL;
+    console.log('[API.post] BASE_URL =', BASE_URL, '| url =', url, '| action =', action);
+    if (!url) {
+      return Promise.reject(new Error('BASE_URL is not configured. Please set it in api.js'));
+    }
     var body = Object.assign({}, data, { action: action, apiKey: API_KEY });
 
     var options = {
