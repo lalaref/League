@@ -223,6 +223,16 @@ function clearRelatedCache(action, params) {
       keysToRemove.push('seasons');
     } else if (action === 'createAnnouncement') {
       keysToRemove.push('announcements');
+    } else if (action === 'createSeason' || action === 'updateSeason' || action === 'deleteSeason') {
+      keysToRemove.push('seasons');
+    } else if (action === 'createTeam' || action === 'updateTeam' || action === 'deleteTeam') {
+      var seasonId5 = params && params.seasonId ? params.seasonId : '';
+      keysToRemove.push('teams_' + seasonId5);
+      keysToRemove.push('teams');
+    } else if (action === 'createPlayer' || action === 'updatePlayer' || action === 'deletePlayer') {
+      var teamId2 = params && params.teamId ? params.teamId : '';
+      keysToRemove.push('players_' + teamId2);
+      keysToRemove.push('players');
     }
 
     if (keysToRemove.length > 0) {
@@ -254,7 +264,10 @@ var VALID_GET_ACTIONS = [
 var VALID_POST_ACTIONS = [
   'submitBoxScore', 'updateBoxScore', 'createGame', 'updateGame',
   'submitShotLocation', 'generatePlayoffs', 'archiveSeason',
-  'createAnnouncement'
+  'createAnnouncement',
+  'createSeason', 'updateSeason', 'deleteSeason',
+  'createTeam', 'updateTeam', 'deleteTeam',
+  'createPlayer', 'updatePlayer', 'deletePlayer'
 ];
 
 /**
@@ -484,6 +497,33 @@ function doPost(e) {
         break;
       case 'createAnnouncement':
         result = handleCreateAnnouncement(e, body);
+        break;
+      case 'createSeason':
+        result = handleCreateSeason(e, body);
+        break;
+      case 'updateSeason':
+        result = handleUpdateSeason(e, body);
+        break;
+      case 'deleteSeason':
+        result = handleDeleteSeason(e, body);
+        break;
+      case 'createTeam':
+        result = handleCreateTeam(e, body);
+        break;
+      case 'updateTeam':
+        result = handleUpdateTeam(e, body);
+        break;
+      case 'deleteTeam':
+        result = handleDeleteTeam(e, body);
+        break;
+      case 'createPlayer':
+        result = handleCreatePlayer(e, body);
+        break;
+      case 'updatePlayer':
+        result = handleUpdatePlayer(e, body);
+        break;
+      case 'deletePlayer':
+        result = handleDeletePlayer(e, body);
         break;
       default:
         return createErrorResponse(400, '無效的請求動作：' + action);
@@ -2506,4 +2546,222 @@ function handleCreateAnnouncement(e, body) {
     message: '公告發佈成功',
     announcementId: id
   }, false);
+}
+
+
+// ============================================================
+// Season / Team / Player CRUD 處理函數
+// ============================================================
+
+/**
+ * 建立賽季
+ * @param {Object} e
+ * @param {Object} body - {name, startDate, endDate, playoffTopN, minGamesForRanking, status}
+ */
+function handleCreateSeason(e, body) {
+  if (!body.name) {
+    return createErrorResponse(400, '缺少必要參數：name');
+  }
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Seasons');
+  var id = generateId();
+  var headers = SHEET_DEFINITIONS.Seasons;
+  var row = [];
+  for (var h = 0; h < headers.length; h++) {
+    var col = headers[h];
+    if (col === 'id') row.push(id);
+    else if (col === 'playoffTopN') row.push(body.playoffTopN || 8);
+    else if (col === 'minGamesForRanking') row.push(body.minGamesForRanking || 3);
+    else if (col === 'status') row.push(body.status || 'active');
+    else row.push(body[col] !== undefined ? body[col] : '');
+  }
+  sheet.appendRow(row);
+  return createSuccessResponse({ message: '賽季建立成功', seasonId: id }, false);
+}
+
+/**
+ * 更新賽季
+ * @param {Object} e
+ * @param {Object} body - {seasonId, ...fields}
+ */
+function handleUpdateSeason(e, body) {
+  if (!body.seasonId) {
+    return createErrorResponse(400, '缺少必要參數：seasonId');
+  }
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Seasons');
+  var rowIdx = findRowIndex(sheet, 'id', body.seasonId);
+  if (rowIdx === -1) {
+    return createErrorResponse(400, '找不到指定的賽季：' + body.seasonId);
+  }
+  var headers = SHEET_DEFINITIONS.Seasons;
+  for (var h = 0; h < headers.length; h++) {
+    var col = headers[h];
+    if (col === 'id') continue;
+    if (body[col] !== undefined) {
+      sheet.getRange(rowIdx, h + 1).setValue(body[col]);
+    }
+  }
+  return createSuccessResponse({ message: '賽季更新成功', seasonId: body.seasonId }, false);
+}
+
+/**
+ * 刪除賽季
+ * @param {Object} e
+ * @param {Object} body - {seasonId}
+ */
+function handleDeleteSeason(e, body) {
+  if (!body.seasonId) {
+    return createErrorResponse(400, '缺少必要參數：seasonId');
+  }
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Seasons');
+  var rowIdx = findRowIndex(sheet, 'id', body.seasonId);
+  if (rowIdx === -1) {
+    return createErrorResponse(400, '找不到指定的賽季：' + body.seasonId);
+  }
+  sheet.deleteRow(rowIdx);
+  return createSuccessResponse({ message: '賽季刪除成功', seasonId: body.seasonId }, false);
+}
+
+/**
+ * 建立球隊
+ * @param {Object} e
+ * @param {Object} body - {seasonId, name, logo, captain, captainWhatsApp, description}
+ */
+function handleCreateTeam(e, body) {
+  if (!body.seasonId) {
+    return createErrorResponse(400, '缺少必要參數：seasonId');
+  }
+  if (!body.name) {
+    return createErrorResponse(400, '缺少必要參數：name');
+  }
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Teams');
+  var id = generateId();
+  var headers = SHEET_DEFINITIONS.Teams;
+  var row = [];
+  for (var h = 0; h < headers.length; h++) {
+    var col = headers[h];
+    if (col === 'id') row.push(id);
+    else row.push(body[col] !== undefined ? body[col] : '');
+  }
+  sheet.appendRow(row);
+  return createSuccessResponse({ message: '球隊建立成功', teamId: id }, false);
+}
+
+/**
+ * 更新球隊
+ * @param {Object} e
+ * @param {Object} body - {teamId, ...fields}
+ */
+function handleUpdateTeam(e, body) {
+  if (!body.teamId) {
+    return createErrorResponse(400, '缺少必要參數：teamId');
+  }
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Teams');
+  var rowIdx = findRowIndex(sheet, 'id', body.teamId);
+  if (rowIdx === -1) {
+    return createErrorResponse(400, '找不到指定的球隊：' + body.teamId);
+  }
+  var headers = SHEET_DEFINITIONS.Teams;
+  for (var h = 0; h < headers.length; h++) {
+    var col = headers[h];
+    if (col === 'id') continue;
+    if (body[col] !== undefined) {
+      sheet.getRange(rowIdx, h + 1).setValue(body[col]);
+    }
+  }
+  return createSuccessResponse({ message: '球隊更新成功', teamId: body.teamId }, false);
+}
+
+/**
+ * 刪除球隊
+ * @param {Object} e
+ * @param {Object} body - {teamId}
+ */
+function handleDeleteTeam(e, body) {
+  if (!body.teamId) {
+    return createErrorResponse(400, '缺少必要參數：teamId');
+  }
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Teams');
+  var rowIdx = findRowIndex(sheet, 'id', body.teamId);
+  if (rowIdx === -1) {
+    return createErrorResponse(400, '找不到指定的球隊：' + body.teamId);
+  }
+  sheet.deleteRow(rowIdx);
+  return createSuccessResponse({ message: '球隊刪除成功', teamId: body.teamId }, false);
+}
+
+/**
+ * 建立球員
+ * @param {Object} e
+ * @param {Object} body - {teamId, name, number, height, weight, photo, position}
+ */
+function handleCreatePlayer(e, body) {
+  if (!body.teamId) {
+    return createErrorResponse(400, '缺少必要參數：teamId');
+  }
+  if (!body.name) {
+    return createErrorResponse(400, '缺少必要參數：name');
+  }
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Players');
+  var id = generateId();
+  var headers = SHEET_DEFINITIONS.Players;
+  var row = [];
+  for (var h = 0; h < headers.length; h++) {
+    var col = headers[h];
+    if (col === 'id') row.push(id);
+    else row.push(body[col] !== undefined ? body[col] : '');
+  }
+  sheet.appendRow(row);
+  return createSuccessResponse({ message: '球員建立成功', playerId: id }, false);
+}
+
+/**
+ * 更新球員
+ * @param {Object} e
+ * @param {Object} body - {playerId, ...fields}
+ */
+function handleUpdatePlayer(e, body) {
+  if (!body.playerId) {
+    return createErrorResponse(400, '缺少必要參數：playerId');
+  }
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Players');
+  var rowIdx = findRowIndex(sheet, 'id', body.playerId);
+  if (rowIdx === -1) {
+    return createErrorResponse(400, '找不到指定的球員：' + body.playerId);
+  }
+  var headers = SHEET_DEFINITIONS.Players;
+  for (var h = 0; h < headers.length; h++) {
+    var col = headers[h];
+    if (col === 'id') continue;
+    if (body[col] !== undefined) {
+      sheet.getRange(rowIdx, h + 1).setValue(body[col]);
+    }
+  }
+  return createSuccessResponse({ message: '球員更新成功', playerId: body.playerId }, false);
+}
+
+/**
+ * 刪除球員
+ * @param {Object} e
+ * @param {Object} body - {playerId}
+ */
+function handleDeletePlayer(e, body) {
+  if (!body.playerId) {
+    return createErrorResponse(400, '缺少必要參數：playerId');
+  }
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Players');
+  var rowIdx = findRowIndex(sheet, 'id', body.playerId);
+  if (rowIdx === -1) {
+    return createErrorResponse(400, '找不到指定的球員：' + body.playerId);
+  }
+  sheet.deleteRow(rowIdx);
+  return createSuccessResponse({ message: '球員刪除成功', playerId: body.playerId }, false);
 }
