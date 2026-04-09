@@ -67,7 +67,12 @@
       var boxData = r[0]; var games = r[1] || [];
       currentGame = games.find(function (g) { return g.id === gameId; }) || null;
       console.log('[BoxScore] currentGame:', currentGame);
-      if (boxData && (boxData.homeStats || boxData.awayStats)) {
+      console.log('[BoxScore] boxData:', boxData);
+      var hasExisting = boxData && (
+        (Array.isArray(boxData.homeStats) && boxData.homeStats.length > 0) ||
+        (Array.isArray(boxData.awayStats) && boxData.awayStats.length > 0)
+      );
+      if (hasExisting) {
         existingBoxScore = boxData; buildFromExisting(boxData);
       } else { existingBoxScore = null; loadTeamPlayers(); }
     }).catch(function (err) { console.error('[BoxScore] loadGameRosters error:', err); existingBoxScore = null; loadTeamPlayers(); });
