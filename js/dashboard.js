@@ -213,6 +213,15 @@
       // Preserve line breaks from the editor
       html += '<div class="announcement-content">' + escapeHtml(item.content).replace(/\n/g, '<br>') + '</div>';
     }
+    // WhatsApp share button
+    var waMsg = '📢 *ALL-IN Basketball League*\n\n';
+    waMsg += '*' + (item.title || '') + '*\n';
+    if (item.content) waMsg += item.content + '\n';
+    waMsg += '\n🔗 https://www.aiblhk.com';
+    var waUrl = 'https://wa.me/?text=' + encodeURIComponent(waMsg);
+    html += '<div class="announcement-actions">';
+    html += '<a href="' + waUrl + '" target="_blank" rel="noopener" class="announcement-share-btn" aria-label="WhatsApp 分享">📱 分享</a>';
+    html += '</div>';
     html += '</div>';
     return html;
   }
