@@ -143,7 +143,9 @@
 
   // --- Attendance Selection ---
   function showAttendanceSelection() {
-    hideBoxScore();
+    // Hide boxscore UI elements only (don't reset currentGame)
+    desktopWrapper.hidden = true; mobileWrapper.hidden = true; actionsEl.hidden = true; swipeHint.hidden = true;
+    quarterSection.hidden = true;
     attendanceHome.innerHTML = '';
     attendanceAway.innerHTML = '';
     var homeLabel = document.createElement('h4');
