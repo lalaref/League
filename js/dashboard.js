@@ -199,12 +199,19 @@
    */
   function renderAnnouncement(item) {
     var html = '<div class="announcement-item';
-    if (item.pinned) html += ' announcement-item--pinned';
+    if (item.pinned === true || item.pinned === 'true') html += ' announcement-item--pinned';
     html += '">';
+    if (item.pinned === true || item.pinned === 'true') {
+      html += '<span class="announcement-pin">📌</span>';
+    }
     html += '<div class="announcement-date">' + escapeHtml(Utils.formatDateWithDay(item.date)) + '</div>';
     html += '<div class="announcement-title">' + escapeHtml(item.title || '') + '</div>';
+    if (item.photo) {
+      html += '<div class="announcement-photo"><img src="' + escapeHtml(item.photo) + '" alt="" loading="lazy"></div>';
+    }
     if (item.content) {
-      html += '<div class="announcement-content text-muted">' + escapeHtml(item.content) + '</div>';
+      // Preserve line breaks from the editor
+      html += '<div class="announcement-content">' + escapeHtml(item.content).replace(/\n/g, '<br>') + '</div>';
     }
     html += '</div>';
     return html;

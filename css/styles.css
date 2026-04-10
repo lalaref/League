@@ -535,6 +535,24 @@ img {
 .announcement-content {
     font-size: var(--font-size-sm);
     line-height: var(--line-height-relaxed);
+    color: var(--color-text-secondary);
+    white-space: pre-line;
+}
+
+.announcement-photo {
+    margin: var(--spacing-sm) 0;
+}
+
+.announcement-photo img {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: var(--radius-md);
+    object-fit: cover;
+}
+
+.announcement-pin {
+    float: right;
+    font-size: var(--font-size-base);
 }
 
 .announcement-item--pinned {
