@@ -50,11 +50,17 @@
     var dateEl = document.getElementById('game-date');
     if (dateEl) dateEl.textContent = Utils.formatDateWithDay(game.date) + ' ' + Utils.formatTime(game.time);
 
-    // 隊名
+    // 隊名 + 球衣顏色
     var homeNameEl = document.getElementById('home-team-name');
     var awayNameEl = document.getElementById('away-team-name');
-    if (homeNameEl) homeNameEl.textContent = game.homeTeamName || game.homeTeamId || '—';
-    if (awayNameEl) awayNameEl.textContent = game.awayTeamName || game.awayTeamId || '—';
+    if (homeNameEl) {
+      homeNameEl.textContent = game.homeTeamName || game.homeTeamId || '—';
+      if (game.homeJersey) _addJerseyBadge(homeNameEl, game.homeJersey, '主');
+    }
+    if (awayNameEl) {
+      awayNameEl.textContent = game.awayTeamName || game.awayTeamId || '—';
+      if (game.awayJersey) _addJerseyBadge(awayNameEl, game.awayJersey, '客');
+    }
 
     // 比分
     var homeScoreEl = document.getElementById('home-score');
@@ -204,6 +210,34 @@
     div.innerHTML = '<p class="text-center text-muted">' + _escapeHtml(msg) + '</p>';
     main.innerHTML = '';
     main.appendChild(div);
+  }
+
+  /**
+   * 在隊名旁加上球衣顏色標示
+   * @param {HTMLElement} el - 隊名元素
+   * @param {string} color - 球衣顏色（hex 或文字）
+   * @param {string} label - 主/客
+   */
+  function _addJerseyBadge(el, color, label) {
+    var badge = document.createElement('span');
+    badge.className = 'jersey-badge';
+    badge.title = label + '場球衣：' + color;
+    var isHex = /^#[0-9a-fA-F]{3,6}$/.test(color);
+    if (isHex) {
+      badge.style.backgroundColor = color;
+      badge.style.display = 'inline-block';
+      badge.style.width = '14px';
+      badge.style.height = '14px';
+      badge.style.borderRadius = '50%';
+      badge.style.border = '1px solid rgba(255,255,255,0.3)';
+      badge.style.verticalAlign = 'middle';
+      badge.style.marginLeft = '6px';
+    } else {
+      badge.textContent = ' 🎽' + color;
+      badge.style.fontSize = '0.8em';
+      badge.style.opacity = '0.7';
+    }
+    el.appendChild(badge);
   }
 
   /**

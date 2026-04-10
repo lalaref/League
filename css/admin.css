@@ -532,3 +532,26 @@
     width: 60px;
     text-align: center;
 }
+
+
+/* --- 球衣顏色選擇器 --- */
+.admin-color-picker {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.admin-color-input {
+    width: 40px;
+    height: 40px;
+    padding: 2px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    background: transparent;
+    flex-shrink: 0;
+}
+
+.admin-color-picker .admin-input {
+    flex: 1;
+}

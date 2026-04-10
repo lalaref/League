@@ -58,6 +58,22 @@
                             <label for="t-desc" class="admin-label">球隊簡介</label>
                             <textarea id="t-desc" class="admin-textarea" rows="3"></textarea>
                         </div>
+                        <div class="admin-form-row">
+                            <div class="admin-form-group">
+                                <label for="t-jersey-home" class="admin-label">主場球衣顏色</label>
+                                <div class="admin-color-picker">
+                                    <input type="color" id="t-jersey-home-color" value="#ffffff" class="admin-color-input">
+                                    <input type="text" id="t-jersey-home" class="admin-input" placeholder="例：白色">
+                                </div>
+                            </div>
+                            <div class="admin-form-group">
+                                <label for="t-jersey-away" class="admin-label">客場球衣顏色</label>
+                                <div class="admin-color-picker">
+                                    <input type="color" id="t-jersey-away-color" value="#000000" class="admin-color-input">
+                                    <input type="text" id="t-jersey-away" class="admin-input" placeholder="例：黑色">
+                                </div>
+                            </div>
+                        </div>
                         <button id="btn-save-team" class="btn btn-primary">儲存球隊資料</button>
                     </div>
 

@@ -24,7 +24,7 @@ var SHEET_DEFINITIONS = {
   ],
   Teams: [
     'id', 'seasonId', 'name', 'logo', 'captain',
-    'captainWhatsApp', 'description', 'teamToken'
+    'captainWhatsApp', 'description', 'jerseyHome', 'jerseyAway', 'teamToken'
   ],
   Players: [
     'id', 'teamId', 'name', 'number', 'height',
@@ -1495,16 +1495,20 @@ function handleGetGames(e) {
     rows = rows.filter(function(r) { return r.seasonId === seasonId; });
   }
 
-  // 附加球隊名稱
+  // 附加球隊名稱及球衣顏色
   var teamsSheet = ss.getSheetByName('Teams');
   var teams = sheetToObjects(teamsSheet);
   var teamNameMap = {};
+  var teamJerseyMap = {};
   for (var t = 0; t < teams.length; t++) {
     teamNameMap[teams[t].id] = teams[t].name;
+    teamJerseyMap[teams[t].id] = { jerseyHome: teams[t].jerseyHome || '', jerseyAway: teams[t].jerseyAway || '' };
   }
   for (var i = 0; i < rows.length; i++) {
     rows[i].homeTeamName = teamNameMap[rows[i].homeTeamId] || '';
     rows[i].awayTeamName = teamNameMap[rows[i].awayTeamId] || '';
+    rows[i].homeJersey = teamJerseyMap[rows[i].homeTeamId] ? teamJerseyMap[rows[i].homeTeamId].jerseyHome : '';
+    rows[i].awayJersey = teamJerseyMap[rows[i].awayTeamId] ? teamJerseyMap[rows[i].awayTeamId].jerseyAway : '';
   }
 
   return createSuccessResponse(rows, false);
@@ -1532,15 +1536,19 @@ function handleGetBoxScore(e) {
     return createErrorResponse(400, '找不到指定的比賽：' + gameId);
   }
 
-  // 解析球隊名稱
+  // 解析球隊名稱及球衣顏色
   var teamsSheet = ss.getSheetByName('Teams');
   var teams = sheetToObjects(teamsSheet);
   var teamMap = {};
+  var teamInfoMap = {};
   for (var t = 0; t < teams.length; t++) {
     teamMap[teams[t].id] = teams[t].name;
+    teamInfoMap[teams[t].id] = { jerseyHome: teams[t].jerseyHome || '', jerseyAway: teams[t].jerseyAway || '' };
   }
   game.homeTeamName = teamMap[game.homeTeamId] || game.homeTeamId;
   game.awayTeamName = teamMap[game.awayTeamId] || game.awayTeamId;
+  game.homeJersey = teamInfoMap[game.homeTeamId] ? teamInfoMap[game.homeTeamId].jerseyHome : '';
+  game.awayJersey = teamInfoMap[game.awayTeamId] ? teamInfoMap[game.awayTeamId].jerseyAway : '';
 
   // 解析球員名稱
   var playersSheet = ss.getSheetByName('Players');
@@ -2882,7 +2890,8 @@ function handleGetTeamByToken(e) {
   var safeTeam = {
     id: team.id, seasonId: team.seasonId, name: team.name,
     logo: team.logo, captain: team.captain,
-    captainWhatsApp: team.captainWhatsApp, description: team.description
+    captainWhatsApp: team.captainWhatsApp, description: team.description,
+    jerseyHome: team.jerseyHome, jerseyAway: team.jerseyAway
   };
   // 取得球員名單
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -2911,7 +2920,7 @@ function handlePublicUpdateTeam(e, body) {
     return createErrorResponse(400, '找不到球隊');
   }
   var headers = SHEET_DEFINITIONS.Teams;
-  var allowedFields = ['name', 'logo', 'captain', 'captainWhatsApp', 'description'];
+  var allowedFields = ['name', 'logo', 'captain', 'captainWhatsApp', 'description', 'jerseyHome', 'jerseyAway'];
   for (var h = 0; h < headers.length; h++) {
     var col = headers[h];
     if (allowedFields.indexOf(col) !== -1 && body[col] !== undefined) {

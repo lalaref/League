@@ -38,6 +38,14 @@
   });
   document.getElementById('btn-save-player').addEventListener('click', savePlayer);
 
+  // Color picker sync
+  document.getElementById('t-jersey-home-color').addEventListener('input', function () {
+    document.getElementById('t-jersey-home').value = this.value;
+  });
+  document.getElementById('t-jersey-away-color').addEventListener('input', function () {
+    document.getElementById('t-jersey-away').value = this.value;
+  });
+
   function loadTeamData() {
     API.get('teamByToken', { token: token })
       .then(function (data) {
@@ -60,6 +68,15 @@
     document.getElementById('t-captain').value = currentTeam.captain || '';
     document.getElementById('t-whatsapp').value = currentTeam.captainWhatsApp || '';
     document.getElementById('t-desc').value = currentTeam.description || '';
+    document.getElementById('t-jersey-home').value = currentTeam.jerseyHome || '';
+    document.getElementById('t-jersey-away').value = currentTeam.jerseyAway || '';
+    // Try to set color picker from stored hex or leave default
+    if (currentTeam.jerseyHome && currentTeam.jerseyHome.charAt(0) === '#') {
+      document.getElementById('t-jersey-home-color').value = currentTeam.jerseyHome;
+    }
+    if (currentTeam.jerseyAway && currentTeam.jerseyAway.charAt(0) === '#') {
+      document.getElementById('t-jersey-away-color').value = currentTeam.jerseyAway;
+    }
   }
 
   function renderPlayers() {
@@ -119,7 +136,9 @@
       logo: document.getElementById('t-logo').value.trim(),
       captain: document.getElementById('t-captain').value.trim(),
       captainWhatsApp: document.getElementById('t-whatsapp').value.trim(),
-      description: document.getElementById('t-desc').value.trim()
+      description: document.getElementById('t-desc').value.trim(),
+      jerseyHome: document.getElementById('t-jersey-home').value.trim() || document.getElementById('t-jersey-home-color').value,
+      jerseyAway: document.getElementById('t-jersey-away').value.trim() || document.getElementById('t-jersey-away-color').value
     };
     if (!data.name) { showTeamMsg('球隊名稱為必填', 'error'); return; }
     API.post('publicUpdateTeam', data)

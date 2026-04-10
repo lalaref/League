@@ -82,6 +82,16 @@
                         <label for="team-desc" class="admin-label" data-i18n="team.description">球隊簡介</label>
                         <textarea id="team-desc" class="admin-textarea" rows="3"></textarea>
                     </div>
+                    <div class="admin-form-row">
+                        <div class="admin-form-group">
+                            <label for="team-jersey-home" class="admin-label">主場球衣顏色</label>
+                            <input type="text" id="team-jersey-home" class="admin-input" placeholder="例：白色 或 #ffffff">
+                        </div>
+                        <div class="admin-form-group">
+                            <label for="team-jersey-away" class="admin-label">客場球衣顏色</label>
+                            <input type="text" id="team-jersey-away" class="admin-input" placeholder="例：黑色 或 #000000">
+                        </div>
+                    </div>
                     <div class="admin-actions">
                         <button id="btn-save-team" class="btn btn-primary" data-i18n="admin.save">儲存</button>
                         <button id="btn-cancel-team" class="btn btn-outline" data-i18n="admin.cancel">取消</button>
@@ -155,6 +165,8 @@
             document.getElementById('team-captain').value = '';
             document.getElementById('team-whatsapp').value = '';
             document.getElementById('team-desc').value = '';
+            document.getElementById('team-jersey-home').value = '';
+            document.getElementById('team-jersey-away').value = '';
             formEl.hidden = true;
         }
 
@@ -223,6 +235,8 @@
                     document.getElementById('team-captain').value = t.captain || '';
                     document.getElementById('team-whatsapp').value = t.captainWhatsApp || '';
                     document.getElementById('team-desc').value = t.description || '';
+                    document.getElementById('team-jersey-home').value = t.jerseyHome || '';
+                    document.getElementById('team-jersey-away').value = t.jerseyAway || '';
                     formEl.hidden = false;
                 });
             });
@@ -253,7 +267,9 @@
                 logo: document.getElementById('team-logo').value.trim(),
                 captain: document.getElementById('team-captain').value.trim(),
                 captainWhatsApp: document.getElementById('team-whatsapp').value.trim(),
-                description: document.getElementById('team-desc').value.trim()
+                description: document.getElementById('team-desc').value.trim(),
+                jerseyHome: document.getElementById('team-jersey-home').value.trim(),
+                jerseyAway: document.getElementById('team-jersey-away').value.trim()
             };
             if (!data.name) { showMsg(I18n.t('error.requiredField', { field: 'name' }), 'error'); return; }
             if (!data.seasonId) { showMsg(I18n.t('error.requiredField', { field: 'seasonId' }), 'error'); return; }
