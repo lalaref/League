@@ -81,13 +81,17 @@
     ]).then(function (r) {
       var boxData = r[0]; var games = r[1] || []; var teams = r[2] || [];
       currentGame = games.find(function (g) { return g.id === gameId; }) || null;
+      console.log('[BoxScore] currentGame:', JSON.stringify(currentGame));
 
-      // Client-side team name resolution fallback
+      // Client-side team name resolution — always override from teams list
       if (currentGame && teams.length > 0) {
         var teamMap = {};
         teams.forEach(function (t) { teamMap[t.id] = t.name; });
-        if (!currentGame.homeTeamName) currentGame.homeTeamName = teamMap[currentGame.homeTeamId] || '';
-        if (!currentGame.awayTeamName) currentGame.awayTeamName = teamMap[currentGame.awayTeamId] || '';
+        var resolvedHome = teamMap[currentGame.homeTeamId];
+        var resolvedAway = teamMap[currentGame.awayTeamId];
+        console.log('[BoxScore] resolved home=' + resolvedHome + ' away=' + resolvedAway);
+        if (resolvedHome) currentGame.homeTeamName = resolvedHome;
+        if (resolvedAway) currentGame.awayTeamName = resolvedAway;
       }
 
       var hasExisting = boxData && (
@@ -102,24 +106,39 @@
 
   function loadTeamPlayers() {
     if (!currentGame) { showMessage(I18n.t('admin.noGameSelected'), 'error'); return; }
-    Promise.all([API.getPlayers(currentGame.homeTeamId), API.getPlayers(currentGame.awayTeamId)]).then(function (r) {
-      // Deduplicate players by ID
+    var homeId = currentGame.homeTeamId;
+    var awayId = currentGame.awayTeamId;
+    console.log('[BoxScore] loadTeamPlayers homeId=' + homeId + ' awayId=' + awayId);
+
+    // Fetch players for both teams
+    Promise.all([API.getPlayers(homeId), API.getPlayers(awayId)]).then(function (r) {
+      var rawHome = r[0] || [];
+      var rawAway = r[1] || [];
+      console.log('[BoxScore] rawHome count=' + rawHome.length + ' rawAway count=' + rawAway.length);
+
+      // Filter strictly by teamId (backend may return all players if teamId param not working)
+      var homePlayers = rawHome.filter(function(p) { return p.teamId === homeId; });
+      var awayPlayers = rawAway.filter(function(p) { return p.teamId === awayId; });
+      console.log('[BoxScore] filtered home=' + homePlayers.length + ' away=' + awayPlayers.length);
+
+      // Deduplicate by player ID
       var seen = {};
       var dedup = function (arr) {
-        return (arr || []).filter(function (p) {
+        return arr.filter(function (p) {
           if (seen[p.id]) return false;
           seen[p.id] = true;
           return true;
         });
       };
-      var hp = dedup(r[0]).map(function(p){ return Object.assign({},p,{teamId:currentGame.homeTeamId,teamName:currentGame.homeTeamName||currentGame.homeTeamId,side:'home'}); });
-      var ap = dedup(r[1]).map(function(p){ return Object.assign({},p,{teamId:currentGame.awayTeamId,teamName:currentGame.awayTeamName||currentGame.awayTeamId,side:'away'}); });
+      var hp = dedup(homePlayers).map(function(p){ return Object.assign({},p,{teamId:homeId,teamName:currentGame.homeTeamName||homeId,side:'home'}); });
+      var ap = dedup(awayPlayers).map(function(p){ return Object.assign({},p,{teamId:awayId,teamName:currentGame.awayTeamName||awayId,side:'away'}); });
       allRosterPlayers = hp.concat(ap);
+      console.log('[BoxScore] allRosterPlayers count=' + allRosterPlayers.length);
       if (allRosterPlayers.length === 0) {
         showMessage('找不到球員資料。請先在球員管理頁面新增球員。', 'error'); return;
       }
       showAttendanceSelection();
-    }).catch(function () { showMessage(I18n.t('error.loadFailed'), 'error'); });
+    }).catch(function (err) { console.error('[BoxScore] loadTeamPlayers error:', err); showMessage(I18n.t('error.loadFailed'), 'error'); });
   }
 
   // --- Attendance Selection ---
