@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ALL-IN Basketball League - 公告管理">
+    <meta name="theme-color" content="#1a1a2e">
+    <title>公告管理 — ALL-IN Basketball League</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+    <header class="site-header">
+        <nav class="main-nav" aria-label="主導航">
+            <div class="nav-container">
+                <a href="../index.html" class="nav-logo">
+                    <img src="../images/logo.svg" alt="ALL-IN Basketball League" class="logo-img">
+                    <span class="logo-text">ALL-IN</span>
+                </a>
+                <ul id="nav-menu" class="nav-links" role="menubar">
+                    <li role="none"><a href="index.html" class="nav-link active" role="menuitem">管理後台</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <section class="section">
+            <div class="container">
+                <h1 class="section-title">📢 公告管理</h1>
+                <div id="ann-message" class="admin-message" role="alert" hidden></div>
+
+                <div class="admin-toolbar">
+                    <button id="btn-create" class="btn btn-primary">新增公告</button>
+                </div>
+
+                <!-- 新增/編輯表單 -->
+                <div id="ann-form" class="admin-card" hidden>
+                    <h2 id="ann-form-title">新增公告</h2>
+                    <div class="admin-form-group">
+                        <label for="ann-title" class="admin-label">標題 *</label>
+                        <input type="text" id="ann-title" class="admin-input" required>
+                    </div>
+                    <div class="admin-form-group">
+                        <label for="ann-content" class="admin-label">內容 *</label>
+                        <textarea id="ann-content" class="admin-textarea" rows="5"></textarea>
+                    </div>
+                    <div class="admin-form-group">
+                        <label for="ann-photo" class="admin-label">圖片 URL</label>
+                        <input type="url" id="ann-photo" class="admin-input" placeholder="https://...">
+                        <div id="ann-photo-preview" style="margin-top:var(--spacing-xs)"></div>
+                    </div>
+                    <div class="admin-form-group">
+                        <label class="admin-attendance-item">
+                            <input type="checkbox" id="ann-pinned">
+                            <span>置頂公告</span>
+                        </label>
+                    </div>
+                    <div class="admin-actions">
+                        <button id="btn-save" class="btn btn-primary">儲存</button>
+                        <button id="btn-cancel" class="btn btn-outline">取消</button>
+                    </div>
+                </div>
+
+                <!-- 公告列表 -->
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>日期</th>
+                                <th>標題</th>
+                                <th>圖片</th>
+                                <th>置頂</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="ann-body">
+                            <tr><td colspan="4" class="text-muted">載入中...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <img src="../images/logo.svg" alt="ALL-IN Basketball League" class="footer-logo">
+                    <p class="footer-tagline">全力以赴</p>
+                </div>
+                <div class="footer-copyright">
+                    <p>&copy; <span id="current-year"></span> ALL-IN Basketball League.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>document.getElementById('current-year').textContent = new Date().getFullYear();</script>
+    <script src="../js/utils.js?v=20260410"></script>
+    <script src="../js/api.js?v=20260410"></script>
+    <script src="../js/i18n.js?v=20260410"></script>
+    <script src="../js/navigation.js?v=20260410"></script>
+    <script src="auth.js?v=20260410"></script>
+    <script>
+    (function () {
+        var editingId = null;
+        var msgEl = document.getElementById('ann-message');
+        var formEl = document.getElementById('ann-form');
+        var formTitle = document.getElementById('ann-form-title');
+        var tbody = document.getElementById('ann-body');
+        var allAnn = [];
+
+        loadAnnouncements();
+
+        // Live photo preview
+        document.getElementById('ann-photo').addEventListener('input', function () {
+            var url = this.value.trim();
+            var preview = document.getElementById('ann-photo-preview');
+            if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
+                preview.innerHTML = '<img src="' + _esc(url) + '" style="max-width:200px;max-height:120px;border-radius:8px" onerror="this.style.display=\'none\'">';
+            } else {
+                preview.innerHTML = '';
+            }
+        });
+
+        document.getElementById('btn-create').addEventListener('click', function () {
+            editingId = null;
+            formTitle.textContent = '新增公告';
+            document.getElementById('ann-title').value = '';
+            document.getElementById('ann-content').value = '';
+            document.getElementById('ann-photo').value = '';
+            document.getElementById('ann-photo-preview').innerHTML = '';
+            document.getElementById('ann-pinned').checked = false;
+            formEl.hidden = false;
+        });
+
+        document.getElementById('btn-cancel').addEventListener('click', function () {
+            formEl.hidden = true;
+        });
+
+        document.getElementById('btn-save').addEventListener('click', function () {
+            var title = document.getElementById('ann-title').value.trim();
+            var content = document.getElementById('ann-content').value.trim();
+            var photo = document.getElementById('ann-photo').value.trim();
+            var pinned = document.getElementById('ann-pinned').checked;
+            if (!title || !content) { showMsg('標題和內容為必填', 'error'); return; }
+
+            var action = editingId ? 'updateAnnouncement' : 'createAnnouncement';
+            var data = { title: title, content: content, photo: photo, pinned: pinned };
+            if (editingId) data.announcementId = editingId;
+
+            API.post(action, data).then(function () {
+                showMsg(editingId ? '公告已更新' : '公告已發佈', 'success');
+                formEl.hidden = true;
+                loadAnnouncements();
+            }).catch(function (err) { showMsg(err.message || '儲存失敗', 'error'); });
+        });
+
+        function loadAnnouncements() {
+            API.getAnnouncements().then(function (data) {
+                allAnn = data || [];
+                allAnn.sort(function (a, b) { return (b.date || '').localeCompare(a.date || ''); });
+                renderList();
+            }).catch(function () {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-muted">載入失敗</td></tr>';
+            });
+        }
+
+        function renderList() {
+            tbody.innerHTML = '';
+            if (allAnn.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-muted">暫無公告</td></tr>';
+                return;
+            }
+            allAnn.forEach(function (a) {
+                var tr = document.createElement('tr');
+                var photoThumb = a.photo ? '<img src="' + _esc(a.photo) + '" style="width:40px;height:40px;object-fit:cover;border-radius:4px">' : '-';
+                tr.innerHTML =
+                    '<td>' + _esc(a.date || '') + '</td>' +
+                    '<td>' + _esc(a.title || '') + '</td>' +
+                    '<td>' + photoThumb + '</td>' +
+                    '<td>' + (a.pinned === true || a.pinned === 'true' ? '📌' : '') + '</td>' +
+                    '<td>' +
+                    '<button class="btn btn-sm btn-outline btn-edit" data-id="' + a.id + '">編輯</button> ' +
+                    '<button class="btn btn-sm btn-outline btn-del" data-id="' + a.id + '">刪除</button>' +
+                    '</td>';
+                tbody.appendChild(tr);
+            });
+            bindButtons();
+        }
+
+        function bindButtons() {
+            tbody.querySelectorAll('.btn-edit').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var id = btn.getAttribute('data-id');
+                    var a = allAnn.find(function (x) { return x.id === id; });
+                    if (!a) return;
+                    editingId = id;
+                    formTitle.textContent = '編輯公告';
+                    document.getElementById('ann-title').value = a.title || '';
+                    document.getElementById('ann-content').value = a.content || '';
+                    document.getElementById('ann-photo').value = a.photo || '';
+                    document.getElementById('ann-photo-preview').innerHTML = a.photo ? '<img src="' + _esc(a.photo) + '" style="max-width:200px;max-height:120px;border-radius:8px">' : '';
+                    document.getElementById('ann-pinned').checked = (a.pinned === true || a.pinned === 'true');
+                    formEl.hidden = false;
+                });
+            });
+            tbody.querySelectorAll('.btn-del').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var id = btn.getAttribute('data-id');
+                    if (!confirm('確定刪除此公告？')) return;
+                    API.post('deleteAnnouncement', { announcementId: id }).then(function () {
+                        showMsg('公告已刪除', 'success');
+                        loadAnnouncements();
+                    }).catch(function () { showMsg('刪除失敗', 'error'); });
+                });
+            });
+        }
+
+        function showMsg(text, type) {
+            msgEl.textContent = text;
+            msgEl.className = 'admin-message admin-message--' + type;
+            msgEl.hidden = false;
+            setTimeout(function () { msgEl.hidden = true; }, 4000);
+        }
+
+        function _esc(str) { var d = document.createElement('div'); d.textContent = str || ''; return d.innerHTML; }
+    })();
+    </script>
+</body>
+</html>

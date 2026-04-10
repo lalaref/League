@@ -52,7 +52,7 @@ var SHEET_DEFINITIONS = {
     'description'
   ],
   Announcements: [
-    'id', 'date', 'title', 'content', 'pinned'
+    'id', 'date', 'title', 'content', 'photo', 'pinned'
   ],
   SeasonArchives: [
     'id', 'seasonId', 'champion', 'playoffMvp',
@@ -266,7 +266,7 @@ var VALID_GET_ACTIONS = [
 var VALID_POST_ACTIONS = [
   'submitBoxScore', 'updateBoxScore', 'createGame', 'updateGame',
   'submitShotLocation', 'generatePlayoffs', 'archiveSeason',
-  'createAnnouncement',
+  'createAnnouncement', 'updateAnnouncement', 'deleteAnnouncement',
   'createSeason', 'updateSeason', 'deleteSeason',
   'createTeam', 'updateTeam', 'deleteTeam',
   'createPlayer', 'updatePlayer', 'deletePlayer',
@@ -510,6 +510,12 @@ function doPost(e) {
         break;
       case 'createAnnouncement':
         result = handleCreateAnnouncement(e, body);
+        break;
+      case 'updateAnnouncement':
+        result = handleUpdateAnnouncement(e, body);
+        break;
+      case 'deleteAnnouncement':
+        result = handleDeleteAnnouncement(e, body);
         break;
       case 'createSeason':
         result = handleCreateSeason(e, body);
@@ -2621,6 +2627,7 @@ function handleCreateAnnouncement(e, body) {
     else if (col === 'date') row.push(today);
     else if (col === 'title') row.push(body.title);
     else if (col === 'content') row.push(body.content);
+    else if (col === 'photo') row.push(body.photo || '');
     else if (col === 'pinned') row.push(body.pinned === true);
     else row.push('');
   }
@@ -2631,6 +2638,53 @@ function handleCreateAnnouncement(e, body) {
     message: '公告發佈成功',
     announcementId: id
   }, false);
+}
+
+/**
+ * 更新公告
+ * @param {Object} e
+ * @param {Object} body - {announcementId, title, content, pinned}
+ */
+function handleUpdateAnnouncement(e, body) {
+  if (!body.announcementId) {
+    return createErrorResponse(400, '缺少必要參數：announcementId');
+  }
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Announcements');
+  var rowIdx = findRowIndex(sheet, 'id', body.announcementId);
+  if (rowIdx === -1) {
+    return createErrorResponse(400, '找不到指定的公告');
+  }
+  var headers = SHEET_DEFINITIONS.Announcements;
+  for (var h = 0; h < headers.length; h++) {
+    var col = headers[h];
+    if (col === 'id') continue;
+    if (col === 'pinned' && body[col] !== undefined) {
+      sheet.getRange(rowIdx, h + 1).setValue(body[col] === true || body[col] === 'true');
+    } else if (body[col] !== undefined) {
+      sheet.getRange(rowIdx, h + 1).setValue(body[col]);
+    }
+  }
+  return createSuccessResponse({ message: '公告更新成功' }, false);
+}
+
+/**
+ * 刪除公告
+ * @param {Object} e
+ * @param {Object} body - {announcementId}
+ */
+function handleDeleteAnnouncement(e, body) {
+  if (!body.announcementId) {
+    return createErrorResponse(400, '缺少必要參數：announcementId');
+  }
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Announcements');
+  var rowIdx = findRowIndex(sheet, 'id', body.announcementId);
+  if (rowIdx === -1) {
+    return createErrorResponse(400, '找不到指定的公告');
+  }
+  sheet.deleteRow(rowIdx);
+  return createSuccessResponse({ message: '公告刪除成功' }, false);
 }
 
 
