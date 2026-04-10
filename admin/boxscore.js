@@ -1,11 +1,12 @@
 /**
  * ALL-IN Basketball League — Box Score 輸入介面
  * 需求：7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7, 12.6
+ * 功能：出席球員選擇、OREB/DREB 分開輸入、Q1-Q4 節分
  */
 (function () {
   'use strict';
 
-  var STAT_FIELDS = ['pts','reb','ast','stl','blk','fgm','fga','tpm','tpa','ftm','fta','to','fouls'];
+  var STAT_FIELDS = ['pts','oreb','dreb','ast','stl','blk','fgm','fga','tpm','tpa','ftm','fta','to','fouls'];
   var seasonSelect = document.getElementById('season-select');
   var gameSelect = document.getElementById('game-select');
   var messageEl = document.getElementById('boxscore-message');
@@ -17,9 +18,15 @@
   var swipeHint = document.getElementById('swipe-hint');
   var playerIndicator = document.getElementById('player-indicator');
   var boxscoreBody = document.getElementById('boxscore-body');
+  var attendanceSection = document.getElementById('attendance-section');
+  var attendanceHome = document.getElementById('attendance-home');
+  var attendanceAway = document.getElementById('attendance-away');
+  var confirmAttendanceBtn = document.getElementById('btn-confirm-attendance');
+  var quarterSection = document.getElementById('quarter-scores-section');
 
   var currentGame = null;
-  var allPlayers = [];
+  var allRosterPlayers = []; // all players from both teams
+  var allPlayers = [];       // only attending players
   var existingBoxScore = null;
   var mobileCurrentIndex = 0;
 
@@ -31,6 +38,7 @@
   });
   submitBtn.addEventListener('click', handleSubmit);
   updateBtn.addEventListener('click', handleUpdate);
+  confirmAttendanceBtn.addEventListener('click', confirmAttendance);
 
   function loadSeasons() {
     API.getSeasons().then(function (seasons) {
@@ -42,11 +50,7 @@
         if (s.status === 'active' && !activeId) activeId = s.id;
         seasonSelect.appendChild(o);
       });
-      // Auto-select active season
-      if (activeId) {
-        seasonSelect.value = activeId;
-        loadGames(activeId);
-      }
+      if (activeId) { seasonSelect.value = activeId; loadGames(activeId); }
     }).catch(function () { showMessage(I18n.t('error.loadFailed'), 'error'); });
   }
 
@@ -55,7 +59,6 @@
       gameSelect.innerHTML = '<option value="">--</option>';
       gameSelect.disabled = true; hideBoxScore(); return;
     }
-
     API.getGames(seasonId).then(function (games) {
       gameSelect.innerHTML = '<option value="">--</option>';
       gameSelect.disabled = false;
@@ -71,12 +74,9 @@
 
   function loadGameRosters(gameId) {
     showMessage(I18n.t('common.loading'), 'info');
-    console.log('[BoxScore] loadGameRosters: gameId=', gameId);
     Promise.all([API.getBoxScore(gameId), API.getGames(seasonSelect.value)]).then(function (r) {
       var boxData = r[0]; var games = r[1] || [];
       currentGame = games.find(function (g) { return g.id === gameId; }) || null;
-      console.log('[BoxScore] currentGame:', currentGame);
-      console.log('[BoxScore] boxData:', boxData);
       var hasExisting = boxData && (
         (Array.isArray(boxData.homeStats) && boxData.homeStats.length > 0) ||
         (Array.isArray(boxData.awayStats) && boxData.awayStats.length > 0)
@@ -84,24 +84,68 @@
       if (hasExisting) {
         existingBoxScore = boxData; buildFromExisting(boxData);
       } else { existingBoxScore = null; loadTeamPlayers(); }
-    }).catch(function (err) { console.error('[BoxScore] loadGameRosters error:', err); existingBoxScore = null; loadTeamPlayers(); });
+    }).catch(function () { existingBoxScore = null; loadTeamPlayers(); });
   }
 
   function loadTeamPlayers() {
     if (!currentGame) { showMessage(I18n.t('admin.noGameSelected'), 'error'); return; }
-    console.log('[BoxScore] loadTeamPlayers: homeTeamId=', currentGame.homeTeamId, 'awayTeamId=', currentGame.awayTeamId);
     Promise.all([API.getPlayers(currentGame.homeTeamId), API.getPlayers(currentGame.awayTeamId)]).then(function (r) {
-      console.log('[BoxScore] homePlayers:', r[0], 'awayPlayers:', r[1]);
       var hp = (r[0]||[]).map(function(p){ return Object.assign({},p,{teamId:currentGame.homeTeamId,teamName:currentGame.homeTeamName||currentGame.homeTeamId,side:'home'}); });
       var ap = (r[1]||[]).map(function(p){ return Object.assign({},p,{teamId:currentGame.awayTeamId,teamName:currentGame.awayTeamName||currentGame.awayTeamId,side:'away'}); });
-      allPlayers = hp.concat(ap);
-      console.log('[BoxScore] allPlayers count:', allPlayers.length);
-      if (allPlayers.length === 0) {
-        showMessage('找不到球員資料。請先在球員管理頁面新增球員。', 'error');
-        return;
+      allRosterPlayers = hp.concat(ap);
+      if (allRosterPlayers.length === 0) {
+        showMessage('找不到球員資料。請先在球員管理頁面新增球員。', 'error'); return;
       }
-      renderBoxScore(); hideMessage();
-    }).catch(function (err) { console.error('[BoxScore] loadTeamPlayers error:', err); showMessage(I18n.t('error.loadFailed'), 'error'); });
+      showAttendanceSelection();
+    }).catch(function () { showMessage(I18n.t('error.loadFailed'), 'error'); });
+  }
+
+  // --- Attendance Selection ---
+  function showAttendanceSelection() {
+    hideBoxScore();
+    attendanceHome.innerHTML = '';
+    attendanceAway.innerHTML = '';
+    var homeLabel = document.createElement('h4');
+    homeLabel.textContent = (currentGame.homeTeamName || currentGame.homeTeamId) + ' (主隊)';
+    attendanceHome.appendChild(homeLabel);
+    var awayLabel = document.createElement('h4');
+    awayLabel.textContent = (currentGame.awayTeamName || currentGame.awayTeamId) + ' (客隊)';
+    attendanceAway.appendChild(awayLabel);
+
+    allRosterPlayers.forEach(function (p, idx) {
+      var container = p.side === 'home' ? attendanceHome : attendanceAway;
+      var label = document.createElement('label');
+      label.className = 'admin-attendance-item';
+      var cb = document.createElement('input');
+      cb.type = 'checkbox'; cb.checked = true;
+      cb.dataset.rosterIndex = idx;
+      label.appendChild(cb);
+      var span = document.createElement('span');
+      span.textContent = ' #' + (p.number || '?') + ' ' + p.name;
+      label.appendChild(span);
+      container.appendChild(label);
+    });
+
+    attendanceSection.hidden = false;
+    hideMessage();
+  }
+
+  function confirmAttendance() {
+    var checkboxes = attendanceSection.querySelectorAll('input[type="checkbox"]');
+    allPlayers = [];
+    checkboxes.forEach(function (cb) {
+      if (cb.checked) {
+        var idx = parseInt(cb.dataset.rosterIndex, 10);
+        allPlayers.push(allRosterPlayers[idx]);
+      }
+    });
+    if (allPlayers.length === 0) {
+      showMessage('請至少選擇一位出席球員', 'error'); return;
+    }
+    attendanceSection.hidden = true;
+    showQuarterScores();
+    renderBoxScore();
+    hideMessage();
   }
 
   function buildFromExisting(boxData) {
@@ -110,9 +154,24 @@
       return (stats||[]).map(function(s){ return {id:s.playerId,name:s.playerName||s.playerId,number:s.number||'',teamId:s.teamId,teamName:s.teamName||s.teamId,side:side,stats:s}; });
     };
     allPlayers = map(boxData.homeStats,'home').concat(map(boxData.awayStats,'away'));
+    // Load existing quarter scores
+    var game = boxData.game || {};
+    showQuarterScores();
+    ['homeQ1','homeQ2','homeQ3','homeQ4','awayQ1','awayQ2','awayQ3','awayQ4'].forEach(function(qf) {
+      var el = document.getElementById('qs-' + qf);
+      if (el && game[qf]) el.value = game[qf];
+    });
     renderBoxScore(); submitBtn.hidden = true; updateBtn.hidden = false; hideMessage();
   }
 
+  function showQuarterScores() {
+    if (!currentGame) return;
+    var homeLabel = document.getElementById('qs-home-label');
+    var awayLabel = document.getElementById('qs-away-label');
+    if (homeLabel) homeLabel.textContent = currentGame.homeTeamName || currentGame.homeTeamId || '主隊';
+    if (awayLabel) awayLabel.textContent = currentGame.awayTeamName || currentGame.awayTeamId || '客隊';
+    quarterSection.hidden = false;
+  }
 
   function renderBoxScore() {
     renderDesktopTable(); renderMobileCards();
@@ -143,7 +202,8 @@
         inp.className = 'admin-stat-input'; inp.dataset.playerIndex = idx; inp.dataset.field = f;
         inp.id = 'stat-' + idx + '-' + f;
         inp.setAttribute('aria-label', p.name + ' ' + f.toUpperCase());
-        if (p.stats && p.stats[f] !== undefined) inp.value = p.stats[f];
+        inp.placeholder = '0';
+        if (p.stats && p.stats[f] !== undefined && p.stats[f] !== '' && p.stats[f] !== 0) inp.value = p.stats[f];
         td.appendChild(inp);
         var err = document.createElement('span'); err.className = 'admin-field-error';
         err.id = 'err-' + idx + '-' + f; err.setAttribute('role','alert'); err.hidden = true;
@@ -172,7 +232,8 @@
         inp.type = 'text'; inp.inputMode = 'numeric'; inp.pattern = '[0-9]*';
         inp.className = 'admin-stat-input'; inp.id = 'mob-'+idx+'-'+f;
         inp.dataset.playerIndex = idx; inp.dataset.field = f;
-        if (p.stats && p.stats[f] !== undefined) inp.value = p.stats[f];
+        inp.placeholder = '0';
+        if (p.stats && p.stats[f] !== undefined && p.stats[f] !== '' && p.stats[f] !== 0) inp.value = p.stats[f];
         item.appendChild(inp);
         var err = document.createElement('span'); err.className = 'admin-field-error';
         err.id = 'mob-err-'+idx+'-'+f; err.setAttribute('role','alert'); err.hidden = true;
@@ -182,7 +243,6 @@
     });
     setupSwipe();
   }
-
 
   function setupSwipe() {
     var startX = 0;
@@ -219,7 +279,7 @@
     var errors = [], vals = {};
     STAT_FIELDS.forEach(function (f) {
       var inp = getInput(idx, f); var raw = inp ? inp.value.trim() : '';
-      if (raw === '') { vals[f] = 0; return; } // treat empty as 0
+      if (raw === '') { vals[f] = 0; return; }
       var num = Number(raw);
       if (!Number.isInteger(num)) { showFieldError(idx, f, I18n.t('error.notInteger',{field:f.toUpperCase()})); errors.push({idx:idx,field:f}); return; }
       if (num < 0) { showFieldError(idx, f, I18n.t('error.negativeNumber',{field:f.toUpperCase()})); errors.push({idx:idx,field:f}); return; }
@@ -264,11 +324,21 @@
     });
   }
 
+  function collectQuarterScores() {
+    var qs = {};
+    ['homeQ1','homeQ2','homeQ3','homeQ4','awayQ1','awayQ2','awayQ3','awayQ4'].forEach(function(qf) {
+      var el = document.getElementById('qs-' + qf);
+      qs[qf] = el ? (parseInt(el.value, 10) || 0) : 0;
+    });
+    return qs;
+  }
+
   function handleSubmit() {
     var errors = validateAll();
     if (errors.length > 0) { showMessage(I18n.t('error.invalidData'), 'error'); return; }
     submitBtn.disabled = true;
-    API.submitBoxScore(gameSelect.value, collectEntries()).then(function () {
+    var payload = Object.assign({ gameId: gameSelect.value, entries: collectEntries() }, collectQuarterScores());
+    API.post('submitBoxScore', payload).then(function () {
       showMessage(I18n.t('admin.submitSuccess'), 'success');
       submitBtn.hidden = true; updateBtn.hidden = false; existingBoxScore = true;
     }).catch(function (err) {
@@ -280,7 +350,8 @@
     var errors = validateAll();
     if (errors.length > 0) { showMessage(I18n.t('error.invalidData'), 'error'); return; }
     updateBtn.disabled = true;
-    API.submitBoxScore(gameSelect.value, collectEntries()).then(function () {
+    var payload = Object.assign({ gameId: gameSelect.value, entries: collectEntries() }, collectQuarterScores());
+    API.post('submitBoxScore', payload).then(function () {
       showMessage(I18n.t('admin.updateSuccess'), 'success');
     }).catch(function (err) {
       showMessage(err.message || I18n.t('error.submitFailed'), 'error');
@@ -290,6 +361,7 @@
   // --- Helpers ---
   function hideBoxScore() {
     desktopWrapper.hidden = true; mobileWrapper.hidden = true; actionsEl.hidden = true; swipeHint.hidden = true;
+    quarterSection.hidden = true; attendanceSection.hidden = true;
     allPlayers = []; currentGame = null; existingBoxScore = null;
   }
 

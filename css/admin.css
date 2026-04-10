@@ -468,3 +468,67 @@
         max-width: 800px;
     }
 }
+
+/* --- 出席球員選擇 --- */
+.admin-attendance-group {
+    margin-bottom: var(--spacing-md);
+}
+
+.admin-attendance-group h4 {
+    color: var(--color-accent);
+    font-size: var(--font-size-base);
+    margin-bottom: var(--spacing-xs);
+    padding-bottom: var(--spacing-xs);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.admin-attendance-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: background-color var(--transition-fast);
+}
+
+.admin-attendance-item:hover {
+    background-color: var(--color-surface);
+}
+
+.admin-attendance-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--color-accent);
+}
+
+.admin-subtitle {
+    color: var(--color-text);
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--spacing-sm);
+}
+
+/* --- 節分輸入 (Q1-Q4) --- */
+.admin-quarter-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.admin-quarter-row {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.admin-quarter-team {
+    min-width: 100px;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+}
+
+.admin-quarter-row .admin-stat-input {
+    width: 60px;
+    text-align: center;
+}

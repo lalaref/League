@@ -58,6 +58,26 @@
                     <div class="game-matchup-team" id="away-team-name">—</div>
                 </div>
                 <div id="game-status" class="game-status-badge"></div>
+                <!-- 節分顯示 -->
+                <div id="quarter-scores-display" class="game-quarter-scores" hidden>
+                    <table class="data-table game-quarter-table">
+                        <thead>
+                            <tr><th></th><th>Q1</th><th>Q2</th><th>Q3</th><th>Q4</th><th>Total</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td id="qs-home-name" class="text-left">—</td>
+                                <td id="qs-hq1">-</td><td id="qs-hq2">-</td><td id="qs-hq3">-</td><td id="qs-hq4">-</td>
+                                <td id="qs-htotal" class="text-accent">-</td>
+                            </tr>
+                            <tr>
+                                <td id="qs-away-name" class="text-left">—</td>
+                                <td id="qs-aq1">-</td><td id="qs-aq2">-</td><td id="qs-aq3">-</td><td id="qs-aq4">-</td>
+                                <td id="qs-atotal" class="text-accent">-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </section>
 
@@ -80,6 +100,8 @@
                             <tr>
                                 <th data-i18n="table.player">球員</th>
                                 <th data-i18n="table.pts">得分</th>
+                                <th>OREB</th>
+                                <th>DREB</th>
                                 <th data-i18n="table.reb">籃板</th>
                                 <th data-i18n="table.ast">助攻</th>
                                 <th data-i18n="table.stl">抄截</th>
@@ -111,6 +133,8 @@
                             <tr>
                                 <th data-i18n="table.player">球員</th>
                                 <th data-i18n="table.pts">得分</th>
+                                <th>OREB</th>
+                                <th>DREB</th>
                                 <th data-i18n="table.reb">籃板</th>
                                 <th data-i18n="table.ast">助攻</th>
                                 <th data-i18n="table.stl">抄截</th>

@@ -62,6 +62,35 @@
                 <!-- 提示訊息 -->
                 <div id="boxscore-message" class="admin-message" role="alert" hidden></div>
 
+                <!-- 出席球員選擇 -->
+                <div id="attendance-section" class="admin-form-group" hidden>
+                    <h3 class="admin-subtitle">出席球員</h3>
+                    <div id="attendance-home" class="admin-attendance-group"></div>
+                    <div id="attendance-away" class="admin-attendance-group"></div>
+                    <button id="btn-confirm-attendance" class="btn btn-primary" style="margin-top:var(--spacing-sm)">確認出席名單</button>
+                </div>
+
+                <!-- 節分輸入 (Q1-Q4) -->
+                <div id="quarter-scores-section" class="admin-form-group" hidden>
+                    <h3 class="admin-subtitle">節分</h3>
+                    <div class="admin-quarter-grid">
+                        <div class="admin-quarter-row">
+                            <span id="qs-home-label" class="admin-quarter-team">主隊</span>
+                            <input type="text" inputmode="numeric" pattern="[0-9]*" id="qs-homeQ1" class="admin-stat-input" placeholder="Q1">
+                            <input type="text" inputmode="numeric" pattern="[0-9]*" id="qs-homeQ2" class="admin-stat-input" placeholder="Q2">
+                            <input type="text" inputmode="numeric" pattern="[0-9]*" id="qs-homeQ3" class="admin-stat-input" placeholder="Q3">
+                            <input type="text" inputmode="numeric" pattern="[0-9]*" id="qs-homeQ4" class="admin-stat-input" placeholder="Q4">
+                        </div>
+                        <div class="admin-quarter-row">
+                            <span id="qs-away-label" class="admin-quarter-team">客隊</span>
+                            <input type="text" inputmode="numeric" pattern="[0-9]*" id="qs-awayQ1" class="admin-stat-input" placeholder="Q1">
+                            <input type="text" inputmode="numeric" pattern="[0-9]*" id="qs-awayQ2" class="admin-stat-input" placeholder="Q2">
+                            <input type="text" inputmode="numeric" pattern="[0-9]*" id="qs-awayQ3" class="admin-stat-input" placeholder="Q3">
+                            <input type="text" inputmode="numeric" pattern="[0-9]*" id="qs-awayQ4" class="admin-stat-input" placeholder="Q4">
+                        </div>
+                    </div>
+                </div>
+
                 <!-- 手機滑動提示 -->
                 <div id="swipe-hint" class="admin-swipe-hint" hidden>
                     <span data-i18n="admin.swipeHint">← 左右滑動切換球員 →</span>
@@ -75,7 +104,8 @@
                             <tr>
                                 <th data-i18n="table.player">球員</th>
                                 <th data-i18n="table.pts">得分</th>
-                                <th data-i18n="table.reb">籃板</th>
+                                <th>OREB</th>
+                                <th>DREB</th>
                                 <th data-i18n="table.ast">助攻</th>
                                 <th data-i18n="table.stl">抄截</th>
                                 <th data-i18n="table.blk">封阻</th>

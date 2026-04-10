@@ -24,7 +24,7 @@ var SHEET_DEFINITIONS = {
   ],
   Teams: [
     'id', 'seasonId', 'name', 'logo', 'captain',
-    'captainWhatsApp', 'description'
+    'captainWhatsApp', 'description', 'teamToken'
   ],
   Players: [
     'id', 'teamId', 'name', 'number', 'height',
@@ -33,11 +33,13 @@ var SHEET_DEFINITIONS = {
   Games: [
     'id', 'seasonId', 'date', 'time', 'venue',
     'homeTeamId', 'awayTeamId', 'homeScore', 'awayScore',
+    'homeQ1', 'homeQ2', 'homeQ3', 'homeQ4',
+    'awayQ1', 'awayQ2', 'awayQ3', 'awayQ4',
     'type', 'playoffRound', 'playoffSeed', 'status', 'mvpPlayerId'
   ],
   BoxScores: [
     'id', 'gameId', 'playerId', 'teamId',
-    'pts', 'reb', 'ast', 'stl', 'blk',
+    'pts', 'oreb', 'dreb', 'reb', 'ast', 'stl', 'blk',
     'fgm', 'fga', 'tpm', 'tpa', 'ftm', 'fta',
     'to', 'fouls'
   ],
@@ -255,7 +257,7 @@ var VALID_GET_ACTIONS = [
   'seasons', 'teams', 'players', 'games', 'boxscore',
   'standings', 'leaders', 'playerProfile', 'teamProfile',
   'schedule', 'playoffs', 'shotchart', 'advancedStats',
-  'achievements', 'archive', 'announcements'
+  'achievements', 'archive', 'announcements', 'teamByToken'
 ];
 
 /**
@@ -267,7 +269,8 @@ var VALID_POST_ACTIONS = [
   'createAnnouncement',
   'createSeason', 'updateSeason', 'deleteSeason',
   'createTeam', 'updateTeam', 'deleteTeam',
-  'createPlayer', 'updatePlayer', 'deletePlayer'
+  'createPlayer', 'updatePlayer', 'deletePlayer',
+  'publicUpdateTeam', 'publicCreatePlayer', 'publicUpdatePlayer', 'publicDeletePlayer'
 ];
 
 /**
@@ -420,6 +423,9 @@ function doGet(e) {
       case 'announcements':
         result = handleGetAnnouncements(e);
         break;
+      case 'teamByToken':
+        result = handleGetTeamByToken(e);
+        break;
       default:
         return createErrorResponse(400, '無效的請求動作：' + action);
     }
@@ -448,11 +454,6 @@ function doGet(e) {
  */
 function doPost(e) {
   try {
-    // 授權驗證
-    if (!validateApiKey(e)) {
-      return createErrorResponse(401, '未授權：缺少或無效的 API Key');
-    }
-
     // 解析請求體
     var body;
     try {
@@ -469,6 +470,15 @@ function doPost(e) {
 
     if (VALID_POST_ACTIONS.indexOf(action) === -1) {
       return createErrorResponse(400, '無效的請求動作：' + action);
+    }
+
+    // 公開 API（使用 teamToken 驗證）不需要 API Key
+    var publicActions = ['publicUpdateTeam', 'publicCreatePlayer', 'publicUpdatePlayer', 'publicDeletePlayer'];
+    if (publicActions.indexOf(action) === -1) {
+      // 授權驗證（非公開 API）
+      if (!validateApiKey(e)) {
+        return createErrorResponse(401, '未授權：缺少或無效的 API Key');
+      }
     }
 
     // 路由至對應處理函數
@@ -525,6 +535,18 @@ function doPost(e) {
       case 'deletePlayer':
         result = handleDeletePlayer(e, body);
         break;
+      case 'publicUpdateTeam':
+        result = handlePublicUpdateTeam(e, body);
+        break;
+      case 'publicCreatePlayer':
+        result = handlePublicCreatePlayer(e, body);
+        break;
+      case 'publicUpdatePlayer':
+        result = handlePublicUpdatePlayer(e, body);
+        break;
+      case 'publicDeletePlayer':
+        result = handlePublicDeletePlayer(e, body);
+        break;
       default:
         return createErrorResponse(400, '無效的請求動作：' + action);
     }
@@ -563,7 +585,7 @@ function validateBoxScore(entries) {
   }
 
   var requiredStringFields = ['playerId', 'teamId'];
-  var numericFields = ['pts', 'reb', 'ast', 'stl', 'blk', 'fgm', 'fga', 'tpm', 'tpa', 'ftm', 'fta', 'to', 'fouls'];
+  var numericFields = ['pts', 'oreb', 'dreb', 'ast', 'stl', 'blk', 'fgm', 'fga', 'tpm', 'tpa', 'ftm', 'fta', 'to', 'fouls'];
 
   for (var i = 0; i < entries.length; i++) {
     var entry = entries[i];
@@ -636,14 +658,16 @@ function validateBoxScore(entries) {
  */
 function computePlayerAverages(boxScoreRows) {
   if (!boxScoreRows || boxScoreRows.length === 0) {
-    return { games_played: 0, avg_pts: 0, avg_reb: 0, avg_ast: 0, avg_stl: 0, avg_blk: 0 };
+    return { games_played: 0, avg_pts: 0, avg_reb: 0, avg_oreb: 0, avg_dreb: 0, avg_ast: 0, avg_stl: 0, avg_blk: 0 };
   }
   var games_played = boxScoreRows.length;
-  var sum_pts = 0, sum_reb = 0, sum_ast = 0, sum_stl = 0, sum_blk = 0;
+  var sum_pts = 0, sum_reb = 0, sum_oreb = 0, sum_dreb = 0, sum_ast = 0, sum_stl = 0, sum_blk = 0;
   for (var i = 0; i < boxScoreRows.length; i++) {
     var row = boxScoreRows[i];
     sum_pts += (row.pts || 0);
-    sum_reb += (row.reb || 0);
+    sum_oreb += (row.oreb || 0);
+    sum_dreb += (row.dreb || 0);
+    sum_reb += (row.reb || row.oreb + row.dreb || 0);
     sum_ast += (row.ast || 0);
     sum_stl += (row.stl || 0);
     sum_blk += (row.blk || 0);
@@ -652,6 +676,8 @@ function computePlayerAverages(boxScoreRows) {
     games_played: games_played,
     avg_pts: sum_pts / games_played,
     avg_reb: sum_reb / games_played,
+    avg_oreb: sum_oreb / games_played,
+    avg_dreb: sum_dreb / games_played,
     avg_ast: sum_ast / games_played,
     avg_stl: sum_stl / games_played,
     avg_blk: sum_blk / games_played
@@ -1506,6 +1532,24 @@ function handleGetBoxScore(e) {
     return createErrorResponse(400, '找不到指定的比賽：' + gameId);
   }
 
+  // 解析球隊名稱
+  var teamsSheet = ss.getSheetByName('Teams');
+  var teams = sheetToObjects(teamsSheet);
+  var teamMap = {};
+  for (var t = 0; t < teams.length; t++) {
+    teamMap[teams[t].id] = teams[t].name;
+  }
+  game.homeTeamName = teamMap[game.homeTeamId] || game.homeTeamId;
+  game.awayTeamName = teamMap[game.awayTeamId] || game.awayTeamId;
+
+  // 解析球員名稱
+  var playersSheet = ss.getSheetByName('Players');
+  var players = sheetToObjects(playersSheet);
+  var playerMap = {};
+  for (var p = 0; p < players.length; p++) {
+    playerMap[players[p].id] = { name: players[p].name, number: players[p].number };
+  }
+
   // 取得 Box Score
   var bsSheet = ss.getSheetByName('BoxScores');
   var allBs = sheetToObjects(bsSheet);
@@ -1513,6 +1557,11 @@ function handleGetBoxScore(e) {
   var awayStats = [];
   for (var b = 0; b < allBs.length; b++) {
     if (allBs[b].gameId === gameId) {
+      var playerInfo = playerMap[allBs[b].playerId];
+      if (playerInfo) {
+        allBs[b].playerName = playerInfo.name;
+        allBs[b].number = playerInfo.number;
+      }
       if (allBs[b].teamId === game.homeTeamId) {
         homeStats.push(allBs[b]);
       } else if (allBs[b].teamId === game.awayTeamId) {
@@ -2057,6 +2106,8 @@ function handleSubmitBoxScore(e, body) {
   var insertedIds = [];
   for (var i = 0; i < body.entries.length; i++) {
     var entry = body.entries[i];
+    // 自動計算 reb = oreb + dreb
+    entry.reb = (entry.oreb || 0) + (entry.dreb || 0);
     var id = generateId();
     insertedIds.push(id);
     var row = [];
@@ -2084,7 +2135,7 @@ function handleSubmitBoxScore(e, body) {
     }
   }
 
-  // 更新 Games 工作表的比分及狀態
+  // 更新 Games 工作表的比分、節分及狀態
   var gameRowIdx = findRowIndex(gamesSheet, 'id', body.gameId);
   if (gameRowIdx > 0) {
     var gHeaders = SHEET_DEFINITIONS.Games;
@@ -2094,6 +2145,16 @@ function handleSubmitBoxScore(e, body) {
     if (homeScoreCol > 0) gamesSheet.getRange(gameRowIdx, homeScoreCol).setValue(homeSum);
     if (awayScoreCol > 0) gamesSheet.getRange(gameRowIdx, awayScoreCol).setValue(awaySum);
     if (statusCol > 0) gamesSheet.getRange(gameRowIdx, statusCol).setValue('completed');
+
+    // 儲存節分 (Q1-Q4)
+    var quarterFields = ['homeQ1','homeQ2','homeQ3','homeQ4','awayQ1','awayQ2','awayQ3','awayQ4'];
+    for (var q = 0; q < quarterFields.length; q++) {
+      var qf = quarterFields[q];
+      var qCol = gHeaders.indexOf(qf) + 1;
+      if (qCol > 0 && body[qf] !== undefined) {
+        gamesSheet.getRange(gameRowIdx, qCol).setValue(parseInt(body[qf], 10) || 0);
+      }
+    }
   }
 
   // 觸發聚合計算、進階數據計算及成就檢查
@@ -2652,6 +2713,8 @@ function handleCreateTeam(e, body) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName('Teams');
   var id = generateId();
+  var teamToken = generateId(); // 自動生成球隊管理 token
+  body.teamToken = teamToken;
   var headers = SHEET_DEFINITIONS.Teams;
   var row = [];
   for (var h = 0; h < headers.length; h++) {
@@ -2660,7 +2723,7 @@ function handleCreateTeam(e, body) {
     else row.push(body[col] !== undefined ? body[col] : '');
   }
   sheet.appendRow(row);
-  return createSuccessResponse({ message: '球隊建立成功', teamId: id }, false);
+  return createSuccessResponse({ message: '球隊建立成功', teamId: id, teamToken: teamToken }, false);
 }
 
 /**
@@ -2777,4 +2840,187 @@ function handleDeletePlayer(e, body) {
   }
   sheet.deleteRow(rowIdx);
   return createSuccessResponse({ message: '球員刪除成功', playerId: body.playerId }, false);
+}
+
+// ============================================================
+// 公開球隊自助管理 API（使用 teamToken 驗證）
+// ============================================================
+
+/**
+ * 透過 teamToken 驗證並取得球隊資料
+ * @param {string} token - 球隊管理 token
+ * @returns {{team: Object, teamRow: number}|null}
+ */
+function validateTeamToken(token) {
+  if (!token) return null;
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Teams');
+  var teams = sheetToObjects(sheet);
+  for (var i = 0; i < teams.length; i++) {
+    if (teams[i].teamToken === token) {
+      return { team: teams[i], sheet: sheet };
+    }
+  }
+  return null;
+}
+
+/**
+ * GET ?action=teamByToken&token=X
+ * 公開端點：透過 token 取得球隊資料及球員名單
+ */
+function handleGetTeamByToken(e) {
+  var token = e && e.parameter ? e.parameter.token : null;
+  if (!token) {
+    return createErrorResponse(400, '缺少必要參數：token');
+  }
+  var result = validateTeamToken(token);
+  if (!result) {
+    return createErrorResponse(400, '無效的球隊連結');
+  }
+  var team = result.team;
+  // 不回傳 teamToken 給前端
+  var safeTeam = {
+    id: team.id, seasonId: team.seasonId, name: team.name,
+    logo: team.logo, captain: team.captain,
+    captainWhatsApp: team.captainWhatsApp, description: team.description
+  };
+  // 取得球員名單
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var playersSheet = ss.getSheetByName('Players');
+  var allPlayers = sheetToObjects(playersSheet);
+  var teamPlayers = allPlayers.filter(function(p) { return p.teamId === team.id; });
+  return createSuccessResponse({ team: safeTeam, players: teamPlayers }, false);
+}
+
+/**
+ * POST publicUpdateTeam — 球隊自助更新資料
+ * @param {Object} body - {teamToken, name, logo, captain, captainWhatsApp, description}
+ */
+function handlePublicUpdateTeam(e, body) {
+  if (!body.teamToken) {
+    return createErrorResponse(400, '缺少必要參數：teamToken');
+  }
+  var result = validateTeamToken(body.teamToken);
+  if (!result) {
+    return createErrorResponse(401, '無效的球隊連結');
+  }
+  var sheet = result.sheet;
+  var team = result.team;
+  var rowIdx = findRowIndex(sheet, 'id', team.id);
+  if (rowIdx === -1) {
+    return createErrorResponse(400, '找不到球隊');
+  }
+  var headers = SHEET_DEFINITIONS.Teams;
+  var allowedFields = ['name', 'logo', 'captain', 'captainWhatsApp', 'description'];
+  for (var h = 0; h < headers.length; h++) {
+    var col = headers[h];
+    if (allowedFields.indexOf(col) !== -1 && body[col] !== undefined) {
+      sheet.getRange(rowIdx, h + 1).setValue(body[col]);
+    }
+  }
+  return createSuccessResponse({ message: '球隊資料更新成功' }, false);
+}
+
+/**
+ * POST publicCreatePlayer — 球隊自助新增球員
+ * @param {Object} body - {teamToken, name, number, height, weight, position}
+ */
+function handlePublicCreatePlayer(e, body) {
+  if (!body.teamToken) {
+    return createErrorResponse(400, '缺少必要參數：teamToken');
+  }
+  var result = validateTeamToken(body.teamToken);
+  if (!result) {
+    return createErrorResponse(401, '無效的球隊連結');
+  }
+  if (!body.name) {
+    return createErrorResponse(400, '缺少必要參數：name');
+  }
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Players');
+  var id = generateId();
+  var headers = SHEET_DEFINITIONS.Players;
+  var row = [];
+  for (var h = 0; h < headers.length; h++) {
+    var col = headers[h];
+    if (col === 'id') row.push(id);
+    else if (col === 'teamId') row.push(result.team.id);
+    else row.push(body[col] !== undefined ? body[col] : '');
+  }
+  sheet.appendRow(row);
+  return createSuccessResponse({ message: '球員新增成功', playerId: id }, false);
+}
+
+/**
+ * POST publicUpdatePlayer — 球隊自助更新球員
+ * @param {Object} body - {teamToken, playerId, name, number, height, weight, position}
+ */
+function handlePublicUpdatePlayer(e, body) {
+  if (!body.teamToken) {
+    return createErrorResponse(400, '缺少必要參數：teamToken');
+  }
+  var result = validateTeamToken(body.teamToken);
+  if (!result) {
+    return createErrorResponse(401, '無效的球隊連結');
+  }
+  if (!body.playerId) {
+    return createErrorResponse(400, '缺少必要參數：playerId');
+  }
+  // 驗證球員屬於該球隊
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Players');
+  var players = sheetToObjects(sheet);
+  var player = null;
+  for (var i = 0; i < players.length; i++) {
+    if (players[i].id === body.playerId) { player = players[i]; break; }
+  }
+  if (!player || player.teamId !== result.team.id) {
+    return createErrorResponse(400, '無權修改此球員');
+  }
+  var rowIdx = findRowIndex(sheet, 'id', body.playerId);
+  if (rowIdx === -1) {
+    return createErrorResponse(400, '找不到球員');
+  }
+  var headers = SHEET_DEFINITIONS.Players;
+  var allowedFields = ['name', 'number', 'height', 'weight', 'photo', 'position'];
+  for (var h = 0; h < headers.length; h++) {
+    var col = headers[h];
+    if (allowedFields.indexOf(col) !== -1 && body[col] !== undefined) {
+      sheet.getRange(rowIdx, h + 1).setValue(body[col]);
+    }
+  }
+  return createSuccessResponse({ message: '球員更新成功' }, false);
+}
+
+/**
+ * POST publicDeletePlayer — 球隊自助刪除球員
+ * @param {Object} body - {teamToken, playerId}
+ */
+function handlePublicDeletePlayer(e, body) {
+  if (!body.teamToken) {
+    return createErrorResponse(400, '缺少必要參數：teamToken');
+  }
+  var result = validateTeamToken(body.teamToken);
+  if (!result) {
+    return createErrorResponse(401, '無效的球隊連結');
+  }
+  if (!body.playerId) {
+    return createErrorResponse(400, '缺少必要參數：playerId');
+  }
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Players');
+  var players = sheetToObjects(sheet);
+  var player = null;
+  for (var i = 0; i < players.length; i++) {
+    if (players[i].id === body.playerId) { player = players[i]; break; }
+  }
+  if (!player || player.teamId !== result.team.id) {
+    return createErrorResponse(400, '無權刪除此球員');
+  }
+  var rowIdx = findRowIndex(sheet, 'id', body.playerId);
+  if (rowIdx === -1) {
+    return createErrorResponse(400, '找不到球員');
+  }
+  sheet.deleteRow(rowIdx);
+  return createSuccessResponse({ message: '球員刪除成功' }, false);
 }

@@ -1581,3 +1581,20 @@ img {
 .game-whatsapp-btn {
     gap: var(--spacing-sm);
 }
+
+.game-quarter-scores {
+    margin-top: var(--spacing-md);
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.game-quarter-table {
+    font-size: var(--font-size-sm);
+}
+
+.game-quarter-table th,
+.game-quarter-table td {
+    text-align: center;
+    padding: var(--spacing-xs) var(--spacing-sm);
+}

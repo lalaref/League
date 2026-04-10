@@ -79,6 +79,9 @@
     _renderBoxScoreTable('home-boxscore-body', homeStats);
     _renderBoxScoreTable('away-boxscore-body', awayStats);
 
+    // 渲染節分 (Q1-Q4)
+    _renderQuarterScores(game);
+
     // 設定 WhatsApp 分享按鈕
     _setupWhatsAppShare(game, data);
   }
@@ -95,7 +98,7 @@
     if (!stats || stats.length === 0) {
       var tr = document.createElement('tr');
       var td = document.createElement('td');
-      td.colSpan = 14;
+      td.colSpan = 16;
       td.className = 'text-center text-muted';
       td.textContent = typeof I18n !== 'undefined' ? I18n.t('common.noData') : '暫無數據';
       tr.appendChild(td);
@@ -111,7 +114,9 @@
       var cells = [
         num + name,
         p.pts != null ? p.pts : 0,
-        p.reb != null ? p.reb : 0,
+        p.oreb != null ? p.oreb : 0,
+        p.dreb != null ? p.dreb : 0,
+        p.reb != null ? p.reb : ((p.oreb || 0) + (p.dreb || 0)),
         p.ast != null ? p.ast : 0,
         p.stl != null ? p.stl : 0,
         p.blk != null ? p.blk : 0,
@@ -134,6 +139,28 @@
 
       tbody.appendChild(tr);
     });
+  }
+
+  /**
+   * 渲染節分 (Q1-Q4)
+   * @param {Object} game
+   */
+  function _renderQuarterScores(game) {
+    var hasQS = game.homeQ1 || game.homeQ2 || game.homeQ3 || game.homeQ4 ||
+                game.awayQ1 || game.awayQ2 || game.awayQ3 || game.awayQ4;
+    var container = document.getElementById('quarter-scores-display');
+    if (!container || !hasQS) return;
+
+    container.hidden = false;
+    var setEl = function(id, val) { var el = document.getElementById(id); if (el) el.textContent = val != null ? val : '-'; };
+    setEl('qs-home-name', game.homeTeamName || game.homeTeamId || '主隊');
+    setEl('qs-away-name', game.awayTeamName || game.awayTeamId || '客隊');
+    setEl('qs-hq1', game.homeQ1 || 0); setEl('qs-hq2', game.homeQ2 || 0);
+    setEl('qs-hq3', game.homeQ3 || 0); setEl('qs-hq4', game.homeQ4 || 0);
+    setEl('qs-aq1', game.awayQ1 || 0); setEl('qs-aq2', game.awayQ2 || 0);
+    setEl('qs-aq3', game.awayQ3 || 0); setEl('qs-aq4', game.awayQ4 || 0);
+    setEl('qs-htotal', game.homeScore != null ? game.homeScore : '-');
+    setEl('qs-atotal', game.awayScore != null ? game.awayScore : '-');
   }
 
   /**

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ALL-IN Basketball League - 球隊管理">
+    <meta name="theme-color" content="#1a1a2e">
+    <title>球隊管理 — ALL-IN Basketball League</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+    <header class="site-header">
+        <nav class="main-nav" aria-label="主導航">
+            <div class="nav-container">
+                <a href="index.html" class="nav-logo" aria-label="ALL-IN Basketball League 首頁">
+                    <img src="images/logo.svg" alt="ALL-IN Basketball League" class="logo-img">
+                    <span class="logo-text">ALL-IN</span>
+                </a>
+                <span class="logo-text" style="margin-left:auto;font-size:var(--font-size-sm);color:var(--color-text-secondary)">球隊管理</span>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <section class="section">
+            <div class="container">
+                <div id="loading-msg" class="text-center text-muted" style="padding:var(--spacing-2xl)">載入中...</div>
+                <div id="error-msg" class="admin-message admin-message--error" hidden></div>
+
+                <!-- 球隊資料 -->
+                <div id="team-section" hidden>
+                    <h1 class="section-title" id="team-title">—</h1>
+                    <div id="team-msg" class="admin-message" role="alert" hidden></div>
+
+                    <div class="admin-card">
+                        <h2 class="admin-card-title">球隊資料</h2>
+                        <div class="admin-form-group">
+                            <label for="t-name" class="admin-label">球隊名稱</label>
+                            <input type="text" id="t-name" class="admin-input" required>
+                        </div>
+                        <div class="admin-form-group">
+                            <label for="t-logo" class="admin-label">隊徽 URL</label>
+                            <input type="url" id="t-logo" class="admin-input">
+                        </div>
+                        <div class="admin-form-row">
+                            <div class="admin-form-group">
+                                <label for="t-captain" class="admin-label">隊長</label>
+                                <input type="text" id="t-captain" class="admin-input">
+                            </div>
+                            <div class="admin-form-group">
+                                <label for="t-whatsapp" class="admin-label">隊長 WhatsApp</label>
+                                <input type="tel" id="t-whatsapp" class="admin-input">
+                            </div>
+                        </div>
+                        <div class="admin-form-group">
+                            <label for="t-desc" class="admin-label">球隊簡介</label>
+                            <textarea id="t-desc" class="admin-textarea" rows="3"></textarea>
+                        </div>
+                        <button id="btn-save-team" class="btn btn-primary">儲存球隊資料</button>
+                    </div>
+
+                    <!-- 球員名單 -->
+                    <div class="admin-card" style="margin-top:var(--spacing-xl)">
+                        <h2 class="admin-card-title">球員名單</h2>
+                        <div class="admin-toolbar">
+                            <button id="btn-add-player" class="btn btn-primary">新增球員</button>
+                        </div>
+
+                        <!-- 新增/編輯球員表單 -->
+                        <div id="player-form" class="admin-card" style="margin:var(--spacing-md) 0;background:var(--color-bg)" hidden>
+                            <h3 id="player-form-title">新增球員</h3>
+                            <div class="admin-form-row">
+                                <div class="admin-form-group">
+                                    <label for="p-name" class="admin-label">姓名 *</label>
+                                    <input type="text" id="p-name" class="admin-input" required>
+                                </div>
+                                <div class="admin-form-group">
+                                    <label for="p-number" class="admin-label">背號</label>
+                                    <input type="text" id="p-number" class="admin-input" inputmode="numeric">
+                                </div>
+                            </div>
+                            <div class="admin-form-row">
+                                <div class="admin-form-group">
+                                    <label for="p-position" class="admin-label">位置</label>
+                                    <select id="p-position" class="admin-select">
+                                        <option value="">--</option>
+                                        <option value="PG">PG 控球後衛</option>
+                                        <option value="SG">SG 得分後衛</option>
+                                        <option value="SF">SF 小前鋒</option>
+                                        <option value="PF">PF 大前鋒</option>
+                                        <option value="C">C 中鋒</option>
+                                    </select>
+                                </div>
+                                <div class="admin-form-group">
+                                    <label for="p-height" class="admin-label">身高 (cm)</label>
+                                    <input type="text" id="p-height" class="admin-input" inputmode="numeric">
+                                </div>
+                            </div>
+                            <div class="admin-form-group">
+                                <label for="p-weight" class="admin-label">體重 (kg)</label>
+                                <input type="text" id="p-weight" class="admin-input" inputmode="numeric">
+                            </div>
+                            <div class="admin-actions">
+                                <button id="btn-save-player" class="btn btn-primary">儲存</button>
+                                <button id="btn-cancel-player" class="btn btn-outline">取消</button>
+                            </div>
+                        </div>
+
+                        <!-- 球員列表 -->
+                        <div class="table-wrapper">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>背號</th>
+                                        <th>姓名</th>
+                                        <th>位置</th>
+                                        <th>身高</th>
+                                        <th>體重</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="players-body">
+                                    <tr><td colspan="6" class="text-muted">載入中...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <img src="images/logo.svg" alt="ALL-IN Basketball League" class="footer-logo">
+                    <p class="footer-tagline">全力以赴</p>
+                </div>
+                <div class="footer-copyright">
+                    <p>&copy; <span id="current-year"></span> ALL-IN Basketball League.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>document.getElementById('current-year').textContent = new Date().getFullYear();</script>
+    <script src="js/utils.js?v=20260410"></script>
+    <script src="js/api.js?v=20260410"></script>
+    <script src="js/team-manage.js?v=20260410"></script>
+</body>
+</html>
