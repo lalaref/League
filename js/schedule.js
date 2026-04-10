@@ -106,12 +106,26 @@
     _hideEl(scheduleEmpty);
     _hideEl(scheduleList);
 
-    API.getSchedule(currentSeasonId)
-      .then(function (games) {
+    Promise.all([
+      API.getSchedule(currentSeasonId),
+      API.getTeams(currentSeasonId)
+    ])
+      .then(function (results) {
+        var games = results[0];
+        var teams = results[1] || [];
         _hideEl(scheduleLoading);
         if (!games || games.length === 0) {
           _showEl(scheduleEmpty);
           return;
+        }
+        // Client-side team name resolution fallback
+        if (teams.length > 0) {
+          var teamMap = {};
+          teams.forEach(function (t) { teamMap[t.id] = t.name; });
+          games.forEach(function (g) {
+            if (!g.homeTeamName && g.homeTeamId) g.homeTeamName = teamMap[g.homeTeamId] || '';
+            if (!g.awayTeamName && g.awayTeamId) g.awayTeamName = teamMap[g.awayTeamId] || '';
+          });
         }
         _renderScheduleTable(games);
         _showEl(scheduleList);
@@ -164,12 +178,34 @@
     _hideEl(playoffsEmpty);
     _hideEl(playoffsBracketWrapper);
 
-    API.getPlayoffs(currentSeasonId)
-      .then(function (data) {
+    Promise.all([
+      API.getPlayoffs(currentSeasonId),
+      API.getTeams(currentSeasonId)
+    ])
+      .then(function (results) {
+        var data = results[0];
+        var teams = results[1] || [];
         _hideEl(playoffsLoading);
         if (!data || (!data.rounds && !data.bracket)) {
           _showEl(playoffsEmpty);
           return;
+        }
+        // Client-side team name resolution fallback
+        if (teams.length > 0) {
+          var teamMap = {};
+          teams.forEach(function (t) { teamMap[t.id] = t.name; });
+          var resolveGames = function (games) {
+            (games || []).forEach(function (g) {
+              if (!g.homeTeamName && g.homeTeamId) g.homeTeamName = teamMap[g.homeTeamId] || '';
+              if (!g.awayTeamName && g.awayTeamId) g.awayTeamName = teamMap[g.awayTeamId] || '';
+            });
+          };
+          if (data.rounds) {
+            data.rounds.forEach(function (r) { resolveGames(r.games); });
+          }
+          if (data.bracket) {
+            data.bracket.forEach(function (roundGames) { resolveGames(roundGames); });
+          }
         }
         _renderPlayoffBracket(data);
         _showEl(playoffsBracketWrapper);

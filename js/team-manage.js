@@ -82,15 +82,17 @@
   function renderPlayers() {
     playersBody.innerHTML = '';
     if (currentPlayers.length === 0) {
-      playersBody.innerHTML = '<tr><td colspan="4" class="text-muted">尚未新增球員</td></tr>';
+      playersBody.innerHTML = '<tr><td colspan="5" class="text-muted">尚未新增球員</td></tr>';
       return;
     }
     currentPlayers.forEach(function (p) {
       var tr = document.createElement('tr');
+      var photoHtml = p.photo ? '<img src="' + esc(p.photo) + '" alt="" style="width:32px;height:32px;border-radius:50%;object-fit:cover">' : '-';
       tr.innerHTML =
         '<td>' + esc(p.number || '-') + '</td>' +
         '<td>' + esc(p.name) + '</td>' +
         '<td>' + esc(p.position || '-') + '</td>' +
+        '<td>' + photoHtml + '</td>' +
         '<td>' +
         '<button class="btn btn-sm btn-outline btn-edit-p" data-id="' + p.id + '">編輯</button> ' +
         '<button class="btn btn-sm btn-outline btn-del-p" data-id="' + p.id + '">刪除</button>' +
@@ -111,6 +113,7 @@
         document.getElementById('p-name').value = p.name || '';
         document.getElementById('p-number').value = p.number || '';
         document.getElementById('p-position').value = p.position || '';
+        document.getElementById('p-photo').value = p.photo || '';
         playerForm.hidden = false;
       });
     });
@@ -147,7 +150,8 @@
       teamToken: token,
       name: document.getElementById('p-name').value.trim(),
       number: document.getElementById('p-number').value.trim(),
-      position: document.getElementById('p-position').value
+      position: document.getElementById('p-position').value,
+      photo: document.getElementById('p-photo').value.trim()
     };
     if (!data.name) { showTeamMsg('球員姓名為必填', 'error'); return; }
 
@@ -168,6 +172,7 @@
     document.getElementById('p-name').value = '';
     document.getElementById('p-number').value = '';
     document.getElementById('p-position').value = '';
+    document.getElementById('p-photo').value = '';
   }
 
   function showError(msg) {

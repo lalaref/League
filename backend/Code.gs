@@ -364,12 +364,15 @@ function doGet(e) {
       return createErrorResponse(400, '無效的請求動作：' + action);
     }
 
-    // 嘗試從快取讀取
+    // 嘗試從快取讀取（teamByToken 不快取，確保即時反映更新）
     var params = e && e.parameter ? e.parameter : {};
     var cacheKey = buildCacheKey(action, params);
-    var cachedData = getCachedResponse(cacheKey);
-    if (cachedData !== null) {
-      return createSuccessResponse(cachedData, true);
+    var noCacheActions = ['teamByToken'];
+    if (noCacheActions.indexOf(action) === -1) {
+      var cachedData = getCachedResponse(cacheKey);
+      if (cachedData !== null) {
+        return createSuccessResponse(cachedData, true);
+      }
     }
 
     // 快取未命中，路由至對應處理函數

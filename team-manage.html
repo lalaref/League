@@ -110,6 +110,10 @@
                                     </select>
                                 </div>
                             </div>
+                            <div class="admin-form-group">
+                                <label for="p-photo" class="admin-label">個人照片 URL</label>
+                                <input type="url" id="p-photo" class="admin-input" placeholder="https://...">
+                            </div>
                             <div class="admin-actions">
                                 <button id="btn-save-player" class="btn btn-primary">儲存</button>
                                 <button id="btn-cancel-player" class="btn btn-outline">取消</button>
@@ -124,11 +128,12 @@
                                         <th>背號</th>
                                         <th>姓名</th>
                                         <th>位置</th>
+                                        <th>照片</th>
                                         <th></th>
                                     </tr>
                                 </thead>
                                 <tbody id="players-body">
-                                    <tr><td colspan="4" class="text-muted">載入中...</td></tr>
+                                    <tr><td colspan="5" class="text-muted">載入中...</td></tr>
                                 </tbody>
                             </table>
                         </div>
