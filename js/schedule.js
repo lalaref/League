@@ -133,8 +133,8 @@
 
     sorted.forEach(function (game) {
       var tr = document.createElement('tr');
-      var homeName = game.home || game.homeTeam || '—';
-      var awayName = game.away || game.awayTeam || '—';
+      var homeName = game.homeTeamName || game.home || game.homeTeam || '—';
+      var awayName = game.awayTeamName || game.away || game.awayTeam || '—';
       var matchup = homeName + ' vs ' + awayName;
       var result = '';
 
@@ -240,8 +240,8 @@
     var card = document.createElement('div');
     card.className = 'playoff-matchup';
 
-    var homeName = game.home || game.homeTeam || game.team1 || 'TBD';
-    var awayName = game.away || game.awayTeam || game.team2 || 'TBD';
+    var homeName = game.homeTeamName || game.home || game.homeTeam || game.team1 || 'TBD';
+    var awayName = game.awayTeamName || game.away || game.awayTeam || game.team2 || 'TBD';
     var homeScore = game.homeScore != null ? game.homeScore : '';
     var awayScore = game.awayScore != null ? game.awayScore : '';
     var isCompleted = game.status === 'completed' || (homeScore !== '' && awayScore !== '');

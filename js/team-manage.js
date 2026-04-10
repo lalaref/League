@@ -82,7 +82,7 @@
   function renderPlayers() {
     playersBody.innerHTML = '';
     if (currentPlayers.length === 0) {
-      playersBody.innerHTML = '<tr><td colspan="6" class="text-muted">尚未新增球員</td></tr>';
+      playersBody.innerHTML = '<tr><td colspan="4" class="text-muted">尚未新增球員</td></tr>';
       return;
     }
     currentPlayers.forEach(function (p) {
@@ -91,8 +91,6 @@
         '<td>' + esc(p.number || '-') + '</td>' +
         '<td>' + esc(p.name) + '</td>' +
         '<td>' + esc(p.position || '-') + '</td>' +
-        '<td>' + esc(p.height ? p.height + 'cm' : '-') + '</td>' +
-        '<td>' + esc(p.weight ? p.weight + 'kg' : '-') + '</td>' +
         '<td>' +
         '<button class="btn btn-sm btn-outline btn-edit-p" data-id="' + p.id + '">編輯</button> ' +
         '<button class="btn btn-sm btn-outline btn-del-p" data-id="' + p.id + '">刪除</button>' +
@@ -113,8 +111,6 @@
         document.getElementById('p-name').value = p.name || '';
         document.getElementById('p-number').value = p.number || '';
         document.getElementById('p-position').value = p.position || '';
-        document.getElementById('p-height').value = p.height || '';
-        document.getElementById('p-weight').value = p.weight || '';
         playerForm.hidden = false;
       });
     });
@@ -151,9 +147,7 @@
       teamToken: token,
       name: document.getElementById('p-name').value.trim(),
       number: document.getElementById('p-number').value.trim(),
-      position: document.getElementById('p-position').value,
-      height: document.getElementById('p-height').value.trim(),
-      weight: document.getElementById('p-weight').value.trim()
+      position: document.getElementById('p-position').value
     };
     if (!data.name) { showTeamMsg('球員姓名為必填', 'error'); return; }
 
@@ -174,8 +168,6 @@
     document.getElementById('p-name').value = '';
     document.getElementById('p-number').value = '';
     document.getElementById('p-position').value = '';
-    document.getElementById('p-height').value = '';
-    document.getElementById('p-weight').value = '';
   }
 
   function showError(msg) {

@@ -77,7 +77,7 @@
     "history": "Ranking History",
     "h2h": "Head-to-Head Record",
     "selectTeam": "Select Team to Compare",
-    "captain": "Captain",
+    "captain": "Contact Person",
     "description": "Team Description",
     "record": "Record",
     "noTeamId": "Missing team ID parameter"
@@ -223,7 +223,7 @@
     "active": "Active",
     "teamName": "Team Name",
     "logo": "Logo URL",
-    "captainWhatsApp": "Captain WhatsApp",
+    "captainWhatsApp": "Contact WhatsApp",
     "playerName": "Player Name",
     "jerseyNumber": "Jersey Number",
     "height": "Height",

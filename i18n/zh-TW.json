@@ -77,7 +77,7 @@
     "history": "排名歷史",
     "h2h": "歷史對賽紀錄",
     "selectTeam": "選擇對比球隊",
-    "captain": "隊長",
+    "captain": "負責人",
     "description": "球隊簡介",
     "record": "戰績",
     "noTeamId": "缺少球隊 ID 參數"
@@ -223,7 +223,7 @@
     "active": "進行中",
     "teamName": "球隊名稱",
     "logo": "隊徽 URL",
-    "captainWhatsApp": "隊長 WhatsApp",
+    "captainWhatsApp": "負責人 WhatsApp",
     "playerName": "球員姓名",
     "jerseyNumber": "球衣號碼",
     "height": "身高",
