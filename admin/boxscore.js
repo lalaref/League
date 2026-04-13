@@ -187,8 +187,23 @@
     }
     attendanceSection.hidden = true;
     showQuarterScores();
+    populateMvpSelect();
     renderBoxScore();
     hideMessage();
+  }
+
+  function populateMvpSelect() {
+    var mvpSelect = document.getElementById('mvp-select');
+    var mvpSection = document.getElementById('mvp-section');
+    if (!mvpSelect || !mvpSection) return;
+    mvpSelect.innerHTML = '<option value="">-- 選擇 MVP --</option>';
+    allPlayers.forEach(function (p) {
+      var opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = '#' + (p.number || '?') + ' ' + p.name + ' (' + (p.teamName || '') + ')';
+      mvpSelect.appendChild(opt);
+    });
+    mvpSection.hidden = false;
   }
 
   function buildFromExisting(boxData) {
@@ -200,6 +215,12 @@
     // Load existing quarter scores
     var game = boxData.game || {};
     showQuarterScores();
+    populateMvpSelect();
+    // Set existing MVP
+    if (game.mvpPlayerId) {
+      var mvpSelect = document.getElementById('mvp-select');
+      if (mvpSelect) mvpSelect.value = game.mvpPlayerId;
+    }
     ['homeQ1','homeQ2','homeQ3','homeQ4','awayQ1','awayQ2','awayQ3','awayQ4'].forEach(function(qf) {
       var el = document.getElementById('qs-' + qf);
       if (el && game[qf]) el.value = game[qf];
@@ -380,7 +401,9 @@
     var errors = validateAll();
     if (errors.length > 0) { showMessage(I18n.t('error.invalidData'), 'error'); return; }
     submitBtn.disabled = true;
-    var payload = Object.assign({ gameId: gameSelect.value, entries: collectEntries() }, collectQuarterScores());
+    var mvpSelect = document.getElementById('mvp-select');
+    var mvpPlayerId = mvpSelect ? mvpSelect.value : '';
+    var payload = Object.assign({ gameId: gameSelect.value, entries: collectEntries(), mvpPlayerId: mvpPlayerId }, collectQuarterScores());
     API.post('submitBoxScore', payload).then(function () {
       showMessage(I18n.t('admin.submitSuccess'), 'success');
       submitBtn.hidden = true; updateBtn.hidden = false; existingBoxScore = true;
@@ -393,7 +416,9 @@
     var errors = validateAll();
     if (errors.length > 0) { showMessage(I18n.t('error.invalidData'), 'error'); return; }
     updateBtn.disabled = true;
-    var payload = Object.assign({ gameId: gameSelect.value, entries: collectEntries() }, collectQuarterScores());
+    var mvpSelect = document.getElementById('mvp-select');
+    var mvpPlayerId = mvpSelect ? mvpSelect.value : '';
+    var payload = Object.assign({ gameId: gameSelect.value, entries: collectEntries(), mvpPlayerId: mvpPlayerId }, collectQuarterScores());
     API.post('submitBoxScore', payload).then(function () {
       showMessage(I18n.t('admin.updateSuccess'), 'success');
     }).catch(function (err) {
@@ -405,6 +430,8 @@
   function hideBoxScore() {
     desktopWrapper.hidden = true; mobileWrapper.hidden = true; actionsEl.hidden = true; swipeHint.hidden = true;
     quarterSection.hidden = true; attendanceSection.hidden = true;
+    var mvpSection = document.getElementById('mvp-section');
+    if (mvpSection) mvpSection.hidden = true;
     allPlayers = []; currentGame = null; existingBoxScore = null;
   }
 

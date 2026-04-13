@@ -253,18 +253,22 @@
    */
   function renderStandingRow(team, rank) {
     var name = team.teamName || team.team || team.name || '—';
+    var played = team.played != null ? team.played : 0;
     var wins = team.wins != null ? team.wins : 0;
+    var draws = team.draws != null ? team.draws : 0;
     var losses = team.losses != null ? team.losses : 0;
-    var pct = team.pct != null ? Number(team.pct).toFixed(3) : '.000';
-    var gb = team.gb != null ? team.gb : '—';
+    var points = team.points != null ? team.points : 0;
+    var diff = team.diff != null ? (team.diff > 0 ? '+' + team.diff : team.diff) : '0';
 
     return '<tr>' +
       '<td>' + rank + '</td>' +
       '<td>' + escapeHtml(name) + '</td>' +
+      '<td>' + played + '</td>' +
       '<td>' + wins + '</td>' +
+      '<td>' + draws + '</td>' +
       '<td>' + losses + '</td>' +
-      '<td>' + pct + '</td>' +
-      '<td>' + escapeHtml(String(gb)) + '</td>' +
+      '<td>' + diff + '</td>' +
+      '<td class="text-accent">' + points + '</td>' +
       '</tr>';
   }
 

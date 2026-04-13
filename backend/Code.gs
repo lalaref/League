@@ -746,100 +746,112 @@ function computeHeadToHead(teamAId, teamBId, games) {
 }
 
 /**
- * 計算球隊排名（純邏輯函數）
- * @param {Array<Object>} games - 所有已完成比賽（含 homeTeamId, awayTeamId, homeScore, awayScore, status, date）
+ * 計算球隊排名（積分制）
+ * 勝=3分, 負=1分, 和=2分, 棄權=0分
+ * 排名：積分 → 對賽成績 → 總得失球差
+ * @param {Array<Object>} games - 所有比賽（含 homeTeamId, awayTeamId, homeScore, awayScore, status, date）
  * @param {Array<Object>} teams - 球隊列表（含 id, name）
  * @param {Object} [seasonConfig] - 賽季設定
- * @returns {Array<Object>} 排名陣列，按勝率降序排列
+ * @returns {Array<Object>} 排名陣列，按積分降序排列
  */
 function computeTeamStandings(games, teams, seasonConfig) {
   if (!teams || teams.length === 0) return [];
   var completedGames = [];
   for (var i = 0; i < games.length; i++) {
-    if (games[i].status === 'completed') {
+    if (games[i].status === 'completed' || games[i].status === 'forfeit') {
       completedGames.push(games[i]);
     }
   }
 
-  // 建立每隊的勝負紀錄
   var teamMap = {};
   for (var t = 0; t < teams.length; t++) {
     teamMap[teams[t].id] = {
       teamId: teams[t].id,
       teamName: teams[t].name,
+      played: 0,
       wins: 0,
+      draws: 0,
       losses: 0,
-      pct: 0,
+      points: 0,
+      scored: 0,
+      conceded: 0,
+      diff: 0,
       streak: '',
-      gb: 0,
-      gameResults: [] // { date, won }
+      gameResults: []
     };
   }
 
   for (var g = 0; g < completedGames.length; g++) {
     var game = completedGames[g];
-    var homeWon = game.homeScore > game.awayScore;
-    if (teamMap[game.homeTeamId]) {
-      if (homeWon) { teamMap[game.homeTeamId].wins++; } else { teamMap[game.homeTeamId].losses++; }
-      teamMap[game.homeTeamId].gameResults.push({ date: game.date || '', won: homeWon });
+    var hs = Number(game.homeScore) || 0;
+    var as = Number(game.awayScore) || 0;
+    var homeRec = teamMap[game.homeTeamId];
+    var awayRec = teamMap[game.awayTeamId];
+
+    if (game.status === 'forfeit') {
+      // 棄權：0分給棄權方（需要在 game 中標記哪方棄權，暫時兩方都0分）
+      if (homeRec) { homeRec.played++; }
+      if (awayRec) { awayRec.played++; }
+      continue;
     }
-    if (teamMap[game.awayTeamId]) {
-      if (!homeWon) { teamMap[game.awayTeamId].wins++; } else { teamMap[game.awayTeamId].losses++; }
-      teamMap[game.awayTeamId].gameResults.push({ date: game.date || '', won: !homeWon });
+
+    if (homeRec) {
+      homeRec.played++;
+      homeRec.scored += hs;
+      homeRec.conceded += as;
+    }
+    if (awayRec) {
+      awayRec.played++;
+      awayRec.scored += as;
+      awayRec.conceded += hs;
+    }
+
+    if (hs > as) {
+      // 主勝
+      if (homeRec) { homeRec.wins++; homeRec.points += 3; homeRec.gameResults.push({ date: game.date || '', result: 'W' }); }
+      if (awayRec) { awayRec.losses++; awayRec.points += 1; awayRec.gameResults.push({ date: game.date || '', result: 'L' }); }
+    } else if (as > hs) {
+      // 客勝
+      if (awayRec) { awayRec.wins++; awayRec.points += 3; awayRec.gameResults.push({ date: game.date || '', result: 'W' }); }
+      if (homeRec) { homeRec.losses++; homeRec.points += 1; homeRec.gameResults.push({ date: game.date || '', result: 'L' }); }
+    } else {
+      // 和局
+      if (homeRec) { homeRec.draws++; homeRec.points += 2; homeRec.gameResults.push({ date: game.date || '', result: 'D' }); }
+      if (awayRec) { awayRec.draws++; awayRec.points += 2; awayRec.gameResults.push({ date: game.date || '', result: 'D' }); }
     }
   }
 
-  // 計算勝率及連勝/連敗
   var standings = [];
   var teamIds = Object.keys(teamMap);
   for (var k = 0; k < teamIds.length; k++) {
     var rec = teamMap[teamIds[k]];
-    var total = rec.wins + rec.losses;
-    rec.pct = total === 0 ? 0 : rec.wins / total;
+    rec.diff = rec.scored - rec.conceded;
+    rec.pct = rec.played === 0 ? 0 : rec.wins / rec.played;
 
-    // 計算 streak：按日期排序後取最近連續結果
-    rec.gameResults.sort(function(a, b) {
-      return a.date < b.date ? -1 : (a.date > b.date ? 1 : 0);
-    });
+    // Streak
+    rec.gameResults.sort(function(a, b) { return a.date < b.date ? -1 : (a.date > b.date ? 1 : 0); });
     if (rec.gameResults.length > 0) {
-      var lastResult = rec.gameResults[rec.gameResults.length - 1].won;
-      var streakCount = 0;
+      var last = rec.gameResults[rec.gameResults.length - 1].result;
+      var cnt = 0;
       for (var s = rec.gameResults.length - 1; s >= 0; s--) {
-        if (rec.gameResults[s].won === lastResult) {
-          streakCount++;
-        } else {
-          break;
-        }
+        if (rec.gameResults[s].result === last) cnt++; else break;
       }
-      rec.streak = (lastResult ? 'W' : 'L') + streakCount;
+      rec.streak = last + cnt;
     } else {
       rec.streak = '-';
     }
-
     standings.push(rec);
   }
 
-  // 排序：勝率降序，勝率相同時以對賽成績為次要依據
+  // 排序：積分 → 對賽成績 → 得失球差
   standings.sort(function(a, b) {
-    if (b.pct !== a.pct) return b.pct - a.pct;
-    // 對賽成績 tiebreaker
+    if (b.points !== a.points) return b.points - a.points;
     var h2h = computeHeadToHead(a.teamId, b.teamId, completedGames);
-    if (h2h.teamAWins !== h2h.teamBWins) {
-      return h2h.teamBWins - h2h.teamAWins; // b wins more h2h => a ranks lower
-    }
-    return 0;
+    if (h2h.teamAWins !== h2h.teamBWins) return h2h.teamBWins - h2h.teamAWins;
+    return b.diff - a.diff;
   });
 
-  // 計算勝差 (GB)
-  if (standings.length > 0) {
-    var firstWins = standings[0].wins;
-    var firstLosses = standings[0].losses;
-    for (var r = 0; r < standings.length; r++) {
-      standings[r].gb = ((firstWins - standings[r].wins) + (standings[r].losses - firstLosses)) / 2;
-    }
-  }
-
-  // 清理 gameResults（不需要回傳）
+  // 清理
   for (var c = 0; c < standings.length; c++) {
     delete standings[c].gameResults;
   }
@@ -2170,6 +2182,14 @@ function handleSubmitBoxScore(e, body) {
       var qCol = gHeaders.indexOf(qf) + 1;
       if (qCol > 0 && body[qf] !== undefined) {
         gamesSheet.getRange(gameRowIdx, qCol).setValue(parseInt(body[qf], 10) || 0);
+      }
+    }
+
+    // 儲存 MVP
+    if (body.mvpPlayerId) {
+      var mvpCol = gHeaders.indexOf('mvpPlayerId') + 1;
+      if (mvpCol > 0) {
+        gamesSheet.getRange(gameRowIdx, mvpCol).setValue(body.mvpPlayerId);
       }
     }
   }

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ALL-IN Basketball League - 繳費方式">
+    <meta name="theme-color" content="#1a1a2e">
+    <title>繳費方式 — ALL-IN Basketball League</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <style>
+        .payment-hero { text-align: center; padding: var(--spacing-2xl) 0 var(--spacing-xl); }
+        .payment-hero h1 { font-size: 2rem; margin-bottom: var(--spacing-sm); }
+        .payment-hero p { color: var(--color-text-secondary); max-width: 600px; margin: 0 auto; }
+
+        .payment-grid { display: grid; grid-template-columns: 1fr; gap: var(--spacing-xl); max-width: 800px; margin: 0 auto; }
+        @media (min-width: 768px) { .payment-grid { grid-template-columns: 1fr 1fr; } }
+
+        .payment-card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            text-align: center;
+            transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+        }
+        .payment-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+        .payment-icon { font-size: 3rem; margin-bottom: var(--spacing-md); }
+        .payment-card h2 { font-size: var(--font-size-xl); margin-bottom: var(--spacing-sm); color: var(--color-text-inverse); }
+        .payment-card p { color: var(--color-text-secondary); font-size: var(--font-size-sm); margin-bottom: var(--spacing-md); }
+
+        .payment-qr {
+            width: 200px; height: 200px;
+            margin: 0 auto var(--spacing-md);
+            background: #fff;
+            border-radius: var(--radius-md);
+            display: flex; align-items: center; justify-content: center;
+            font-size: var(--font-size-sm); color: #666;
+            border: 2px dashed var(--color-border);
+        }
+        .payment-qr img { width: 100%; height: 100%; object-fit: contain; border-radius: var(--radius-md); }
+
+        .payment-link {
+            display: inline-block;
+            padding: var(--spacing-sm) var(--spacing-lg);
+            background: var(--color-accent);
+            color: #fff;
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            font-weight: var(--font-weight-semibold);
+            transition: opacity var(--transition-fast);
+        }
+        .payment-link:hover { opacity: 0.85; }
+        .payment-link--payme { background: #db0011; }
+        .payment-link--fps { background: #00a651; }
+
+        .payment-info {
+            max-width: 800px; margin: var(--spacing-2xl) auto 0;
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+        }
+        .payment-info h3 { color: var(--color-text-inverse); margin-bottom: var(--spacing-md); }
+        .payment-info-grid { display: grid; grid-template-columns: 1fr; gap: var(--spacing-md); }
+        @media (min-width: 768px) { .payment-info-grid { grid-template-columns: 1fr 1fr; } }
+
+        .info-item { display: flex; align-items: flex-start; gap: var(--spacing-sm); }
+        .info-item .info-icon { font-size: 1.5rem; flex-shrink: 0; }
+        .info-item .info-text h4 { color: var(--color-text); font-size: var(--font-size-base); margin-bottom: 2px; }
+        .info-item .info-text p { color: var(--color-text-secondary); font-size: var(--font-size-sm); margin: 0; }
+
+        .fee-table { width: 100%; margin-top: var(--spacing-xl); }
+        .fee-table th { text-align: left; padding: var(--spacing-sm); border-bottom: 2px solid var(--color-accent); color: var(--color-text-inverse); }
+        .fee-table td { padding: var(--spacing-sm); border-bottom: 1px solid var(--color-border); }
+        .fee-table .fee-amount { font-weight: var(--font-weight-bold); color: var(--color-accent); font-size: var(--font-size-lg); }
+
+        .payment-note {
+            margin-top: var(--spacing-xl);
+            padding: var(--spacing-md);
+            background: rgba(233, 69, 96, 0.1);
+            border-left: 3px solid var(--color-accent);
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+        }
+        .payment-note strong { color: var(--color-accent); }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <nav class="main-nav" aria-label="主導航">
+            <div class="nav-container">
+                <a href="index.html" class="nav-logo">
+                    <img src="images/logo.svg" alt="ALL-IN Basketball League" class="logo-img">
+                    <span class="logo-text">ALL-IN</span>
+                </a>
+                <button class="hamburger-btn" aria-label="開啟選單" aria-expanded="false" aria-controls="nav-menu">
+                    <span class="hamburger-line"></span><span class="hamburger-line"></span><span class="hamburger-line"></span>
+                </button>
+                <ul id="nav-menu" class="nav-links" role="menubar">
+                    <li role="none"><a href="index.html" class="nav-link" role="menuitem">首頁</a></li>
+                    <li role="none"><a href="schedule.html" class="nav-link" role="menuitem">賽程</a></li>
+                    <li role="none"><a href="team.html" class="nav-link" role="menuitem">球隊</a></li>
+                    <li role="none"><a href="player.html" class="nav-link" role="menuitem">球員</a></li>
+                    <li role="none"><a href="standings.html" class="nav-link" role="menuitem">排行榜</a></li>
+                    <li role="none"><a href="payment.html" class="nav-link active" role="menuitem">繳費</a></li>
+                    <li role="none"><a href="archive.html" class="nav-link" role="menuitem">歷史檔案</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <section class="section payment-hero">
+            <div class="container">
+                <h1>💰 繳費方式</h1>
+                <p>ALL-IN Basketball League 支持以下付款方式，請選擇最方便的方式完成繳費</p>
+            </div>
+        </section>
+
+        <!-- Payment Methods -->
+        <section class="section">
+            <div class="container">
+                <div class="payment-grid">
+                    <!-- PayMe -->
+                    <div class="payment-card">
+                        <div class="payment-icon">📱</div>
+                        <h2>PayMe</h2>
+                        <p>使用 HSBC PayMe 掃描 QR Code 或點擊連結付款</p>
+                        <div class="payment-qr">
+                            <img src="images/payme.jpg" alt="PayMe QR Code">
+                        </div>
+                        <div style="margin-bottom:var(--spacing-sm)">
+                            <a href="https://payme.hsbc/aiblhk" target="_blank" rel="noopener" style="color:var(--color-accent);font-size:var(--font-size-lg);font-weight:var(--font-weight-bold)">payme.hsbc/aiblhk</a>
+                        </div>
+                        <a href="https://payme.hsbc/aiblhk" target="_blank" rel="noopener" class="payment-link payment-link--payme">
+                            打開 PayMe 付款
+                        </a>
+                    </div>
+
+                    <!-- FPS -->
+                    <div class="payment-card">
+                        <div class="payment-icon">🏦</div>
+                        <h2>轉數快 FPS</h2>
+                        <p>掃描 FPS QR Code 或輸入 FPS 手機號碼轉賬</p>
+                        <div class="payment-qr">
+                            <img src="images/fps.jpg" alt="FPS QR Code">
+                        </div>
+                        <div style="margin-bottom:var(--spacing-md);color:var(--color-text-inverse);font-size:var(--font-size-lg);font-weight:var(--font-weight-bold)">
+                            FPS Mobile: <span style="color:var(--color-accent)">6128 7654</span>
+                        </div>
+                        <a href="#" class="payment-link payment-link--fps" onclick="navigator.clipboard.writeText('61287654');this.textContent='已複製!';setTimeout(function(){document.querySelector('.payment-link--fps').textContent='複製 FPS Mobile'},2000);return false;">
+                            複製 FPS Mobile
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Fee Schedule -->
+                <div class="payment-info">
+                    <h3>📋 繳費須知</h3>
+
+                    <div class="payment-info-grid" style="margin-top:var(--spacing-md)">
+                        <div class="info-item">
+                            <span class="info-icon">⏰</span>
+                            <div class="info-text">
+                                <h4>繳費期限</h4>
+                                <p>立即繳費留位，逾期未繳將無法參賽</p>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-icon">📝</span>
+                            <div class="info-text">
+                                <h4>付款備註</h4>
+                                <p>轉賬時請註明「球隊名稱 + 賽季」，例如：Thunder S3</p>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-icon">✅</span>
+                            <div class="info-text">
+                                <h4>確認付款</h4>
+                                <p>付款後請截圖發送至聯賽 WhatsApp 群組確認</p>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-icon">🔄</span>
+                            <div class="info-text">
+                                <h4>退款政策</h4>
+                                <p>繳交後恕不退還</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="payment-note">
+                        <strong>⚠️ 注意：</strong>所有費用以港幣 (HKD) 計算。如有任何疑問，請聯絡聯賽負責人。
+                        以上收費僅供參考，實際費用以聯賽公告為準。
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <img src="images/logo.svg" alt="ALL-IN Basketball League" class="footer-logo">
+                    <p class="footer-tagline">全力以赴</p>
+                </div>
+                <div class="footer-links">
+                    <a href="index.html">首頁</a>
+                    <a href="schedule.html">賽程</a>
+                    <a href="team.html">球隊</a>
+                    <a href="standings.html">排行榜</a>
+                </div>
+                <div class="footer-copyright">
+                    <p>&copy; <span id="current-year"></span> ALL-IN Basketball League. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>document.getElementById('current-year').textContent = new Date().getFullYear();</script>
+    <script src="js/utils.js?v=20260410"></script>
+    <script src="js/api.js?v=20260410"></script>
+    <script src="js/i18n.js?v=20260410"></script>
+    <script src="js/navigation.js?v=20260410"></script>
+</body>
+</html>
