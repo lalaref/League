@@ -154,6 +154,8 @@
 
       if (game.result) {
         result = game.result;
+      } else if (game.status === 'cancelled') {
+        result = '<span class="text-cancelled">' + I18n.t('admin.cancelled') + '</span>';
       } else if (game.status === 'completed' && game.homeScore != null && game.awayScore != null) {
         result = game.homeScore + ' - ' + game.awayScore;
       } else {

@@ -636,6 +636,34 @@ img {
     color: var(--color-text-inverse);
 }
 
+.btn-danger {
+    background-color: #dc3545;
+    color: #fff;
+    border: 1px solid #dc3545;
+}
+.btn-danger:hover,
+.btn-danger:focus-visible {
+    background-color: #a71d2a;
+    border-color: #a71d2a;
+    color: #fff;
+}
+
+.badge--cancelled {
+    display: inline-block;
+    background: #dc3545;
+    color: #fff;
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-left: 6px;
+    vertical-align: middle;
+}
+
+.text-cancelled {
+    color: #dc3545;
+    font-weight: 600;
+}
+
 /* --- 頁腳 --- */
 .site-footer {
     background-color: var(--color-primary);

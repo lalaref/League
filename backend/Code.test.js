@@ -153,7 +153,7 @@ function clearRelatedCache(action, params) {
           }
         }
       }
-    } else if (action === 'createGame' || action === 'updateGame') {
+    } else if (action === 'createGame' || action === 'updateGame' || action === 'cancelGame') {
       var seasonId2 = params && params.seasonId ? params.seasonId : '';
       keysToRemove.push('games_' + seasonId2);
       keysToRemove.push('games');
@@ -195,7 +195,7 @@ const VALID_GET_ACTIONS = [
 const VALID_POST_ACTIONS = [
   'submitBoxScore', 'updateBoxScore', 'createGame', 'updateGame',
   'submitShotLocation', 'generatePlayoffs', 'archiveSeason',
-  'createAnnouncement'
+  'createAnnouncement', 'cancelGame'
 ];
 
 function createSuccessResponse(data, cached) {
@@ -308,6 +308,10 @@ function handleGeneratePlayoffs(e, body) {
 function handleArchiveSeason(e, body) {
   if (!body.seasonId) return createErrorResponse(400, '缺少必要參數：seasonId');
   return createSuccessResponse({ message: '賽季封存成功', seasonId: body.seasonId }, false);
+}
+function handleCancelGame(e, body) {
+  if (!body.gameId) return createErrorResponse(400, '缺少必要參數：gameId');
+  return createSuccessResponse({ message: '比賽已取消', gameId: body.gameId }, false);
 }
 function handleCreateAnnouncement(e, body) {
   if (!body.title) return createErrorResponse(400, '缺少必要參數：title');
@@ -444,6 +448,7 @@ function doPost(e) {
       case 'generatePlayoffs': result = handleGeneratePlayoffs(e, body); break;
       case 'archiveSeason': result = handleArchiveSeason(e, body); break;
       case 'createAnnouncement': result = handleCreateAnnouncement(e, body); break;
+      case 'cancelGame': result = handleCancelGame(e, body); break;
       default: return createErrorResponse(400, '無效的請求動作：' + action);
     }
 

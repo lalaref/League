@@ -57,7 +57,21 @@
                 <!-- 建立比賽按鈕 -->
                 <div class="admin-toolbar">
                     <button id="btn-create-game" class="btn btn-primary" data-i18n="admin.createGame" disabled>建立比賽</button>
+                    <button id="btn-generate-round-robin" class="btn btn-accent" data-i18n="admin.generateRoundRobin" disabled>生成單循環賽程</button>
                     <button id="btn-generate-playoffs" class="btn btn-outline" data-i18n="admin.generatePlayoffs" disabled>一鍵生成季後賽</button>
+                </div>
+
+                <!-- 單循環賽程生成器 -->
+                <div id="round-robin-panel" class="admin-card" hidden>
+                    <h2 class="admin-card-title" data-i18n="admin.roundRobinTitle">單循環賽程</h2>
+                    <p class="admin-hint" data-i18n="admin.roundRobinHint">8 隊單循環，每隊 7 場。可更換隊伍，剩餘賽程自動重新配對。填入日期及場地後即可發佈。</p>
+
+                    <div id="rr-matchups" class="rr-matchups-grid"></div>
+
+                    <div class="admin-actions" style="margin-top:16px;">
+                        <button id="btn-rr-publish-all" class="btn btn-primary" data-i18n="admin.publishAll" disabled>發佈所有已填賽程</button>
+                        <button id="btn-rr-close" class="btn btn-outline" data-i18n="admin.cancel">取消</button>
+                    </div>
                 </div>
 
                 <!-- 比賽表單 (建立/編輯) -->

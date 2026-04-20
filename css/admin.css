@@ -555,3 +555,131 @@
 .admin-color-picker .admin-input {
     flex: 1;
 }
+
+/* --- Round-Robin Generator --- */
+.rr-matchups-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.rr-round-header {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-accent);
+    padding: var(--spacing-sm) 0 var(--spacing-xs);
+    border-bottom: 2px solid var(--color-accent);
+    margin-top: var(--spacing-md);
+}
+
+.rr-round-header:first-child {
+    margin-top: 0;
+}
+
+.rr-match-row {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-sm) 0;
+    border-bottom: 1px solid var(--color-border);
+    flex-wrap: wrap;
+}
+
+.rr-match-teams {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    min-width: 280px;
+    flex-shrink: 0;
+}
+
+.rr-team-select {
+    width: 120px;
+    min-width: 100px;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-sm);
+    min-height: 36px;
+}
+
+.rr-vs {
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    flex-shrink: 0;
+}
+
+.rr-match-details {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    flex: 1;
+    flex-wrap: wrap;
+}
+
+.rr-match-details .admin-input {
+    width: auto;
+    min-width: 100px;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-sm);
+    min-height: 36px;
+}
+
+.rr-match-details .rr-date { max-width: 150px; }
+.rr-match-details .rr-time { max-width: 110px; }
+.rr-match-details .rr-venue { max-width: 180px; flex: 1; }
+
+.rr-published .admin-input {
+    opacity: 0.5;
+}
+
+.badge--success {
+    display: inline-block;
+    background: var(--color-success, #2ecc71);
+    color: #fff;
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.btn-accent {
+    background-color: var(--color-accent, #f39c12);
+    color: var(--color-primary, #1a1a2e);
+    border: 1px solid var(--color-accent, #f39c12);
+    font-weight: var(--font-weight-bold);
+}
+
+.btn-accent:hover,
+.btn-accent:focus-visible {
+    filter: brightness(1.1);
+}
+
+.admin-hint {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    margin-bottom: var(--spacing-md);
+    line-height: var(--line-height-relaxed);
+}
+
+@media (max-width: 767px) {
+    .rr-match-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .rr-match-teams {
+        min-width: auto;
+    }
+    .rr-team-select {
+        flex: 1;
+        width: auto;
+    }
+    .rr-match-details .admin-input {
+        min-width: 0;
+        flex: 1;
+    }
+    .rr-match-details .rr-date,
+    .rr-match-details .rr-time,
+    .rr-match-details .rr-venue {
+        max-width: none;
+    }
+}
