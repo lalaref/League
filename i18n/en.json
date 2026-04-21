@@ -201,6 +201,8 @@
     "cancelGameConfirm": "Are you sure you want to cancel this match?",
     "gameCancelled": "Match has been cancelled!",
     "cancelled": "Cancelled",
+    "deleteGame": "Delete",
+    "deleteGameConfirm": "Permanently delete this cancelled match? This cannot be undone.",
     "generateRoundRobin": "Generate Round-Robin",
     "roundRobinTitle": "Round-Robin Schedule",
     "roundRobinHint": "8-team single round-robin, 7 games each. You can swap teams and remaining matchups auto-regenerate. Fill in date & venue to publish.",

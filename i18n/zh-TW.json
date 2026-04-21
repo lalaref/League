@@ -201,6 +201,8 @@
     "cancelGameConfirm": "確定要取消這場比賽嗎？",
     "gameCancelled": "比賽已取消！",
     "cancelled": "已取消",
+    "deleteGame": "刪除",
+    "deleteGameConfirm": "確定要永久刪除這場已取消的比賽？此操作不可撤銷。",
     "generateRoundRobin": "生成單循環賽程",
     "roundRobinTitle": "單循環賽程",
     "roundRobinHint": "8 隊單循環，每隊 7 場。可更換隊伍，剩餘賽程自動重新配對。填入日期及場地後即可發佈至即將進行的賽程。",
