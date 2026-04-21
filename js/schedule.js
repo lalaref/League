@@ -146,6 +146,9 @@
     });
 
     sorted.forEach(function (game) {
+      // Skip cancelled games on public schedule
+      if (game.status === 'cancelled') return;
+
       var tr = document.createElement('tr');
       var homeName = game.homeTeamName || game.home || game.homeTeam || '—';
       var awayName = game.awayTeamName || game.away || game.awayTeam || '—';
