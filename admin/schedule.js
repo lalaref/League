@@ -33,6 +33,34 @@
   var editingGameId = null;
   var rrMatchups = []; // generated round-robin matchups
 
+  // ============================================================
+  // localStorage persistence for round-robin state
+  // ============================================================
+  function rrStorageKey() {
+    return 'rr_matchups_' + (seasonSelect.value || 'default');
+  }
+
+  function saveRRState() {
+    try {
+      localStorage.setItem(rrStorageKey(), JSON.stringify(rrMatchups));
+    } catch (e) { /* ignore */ }
+  }
+
+  function loadRRState() {
+    try {
+      var saved = localStorage.getItem(rrStorageKey());
+      if (saved) {
+        var parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) { /* ignore */ }
+    return null;
+  }
+
+  function clearRRState() {
+    try { localStorage.removeItem(rrStorageKey()); } catch (e) { /* ignore */ }
+  }
+
   loadSeasons();
   seasonSelect.addEventListener('change', onSeasonChange);
   createBtn.addEventListener('click', showCreateForm);
@@ -67,16 +95,110 @@
     playoffsBtn.disabled = !sid;
     rrBtn.disabled = !sid;
     hideForm();
-    hideRoundRobinPanel();
-    if (sid) { loadTeams(sid); loadGames(sid); }
-    else { gamesBody.innerHTML = ''; teams = []; }
+    if (sid) {
+      // Load teams and games together, then reconstruct RR panel
+      Promise.all([
+        API.getTeams(sid),
+        API.getGames(sid)
+      ]).then(function (results) {
+        teams = results[0] || [];
+        var games = results[1] || [];
+        populateTeamSelects();
+        renderGamesTable(games);
+        restoreRRFromGames(games);
+      }).catch(function () {
+        showMsg(I18n.t('error.loadFailed'), 'error');
+      });
+    } else {
+      gamesBody.innerHTML = '';
+      teams = [];
+      hideRoundRobinPanel();
+    }
   }
 
-  function loadTeams(seasonId) {
-    API.getTeams(seasonId).then(function (t) {
-      teams = t || [];
-      populateTeamSelects();
-    }).catch(function () { teams = []; });
+  /**
+   * Reconstruct the round-robin panel by merging:
+   * 1. Published games already in the backend (marked as published)
+   * 2. Unpublished matchups from localStorage (still need date/venue)
+   * If no RR data exists at all, hide the panel.
+   */
+  function restoreRRFromGames(games) {
+    // Only consider regular season games as RR candidates
+    var regularGames = games.filter(function (g) {
+      return g.type === 'regular' || !g.type;
+    });
+
+    var savedState = loadRRState();
+
+    if (regularGames.length === 0 && !savedState) {
+      hideRoundRobinPanel();
+      return;
+    }
+
+    // Build published matchups from actual backend games
+    var publishedMatchups = regularGames.map(function (g, i) {
+      return {
+        round: g.round || 0,
+        homeId: g.homeTeamId,
+        awayId: g.awayTeamId,
+        homeName: g.homeTeamName || getTeamName(g.homeTeamId),
+        awayName: g.awayTeamName || getTeamName(g.awayTeamId),
+        date: g.date || '',
+        time: g.time || '',
+        venue: g.venue || '',
+        published: true,
+        gameId: g.id,
+        status: g.status
+      };
+    });
+
+    // Get unpublished matchups from localStorage (those not yet published)
+    var unpublishedMatchups = [];
+    if (savedState) {
+      unpublishedMatchups = savedState.filter(function (m) { return !m.published; });
+    }
+
+    // If we have no unpublished and no published, nothing to show
+    if (publishedMatchups.length === 0 && unpublishedMatchups.length === 0) {
+      hideRoundRobinPanel();
+      return;
+    }
+
+    // Assign round numbers to published matchups if missing
+    if (publishedMatchups.length > 0 && publishedMatchups[0].round === 0) {
+      assignRounds(publishedMatchups);
+    }
+
+    // Offset unpublished rounds after published ones
+    var maxPublishedRound = 0;
+    publishedMatchups.forEach(function (m) {
+      if (m.round > maxPublishedRound) maxPublishedRound = m.round;
+    });
+    unpublishedMatchups.forEach(function (m) {
+      if (m.round <= maxPublishedRound) m.round = maxPublishedRound + m.round;
+    });
+
+    rrMatchups = publishedMatchups.concat(unpublishedMatchups);
+
+    // If we only have published games and no saved unpublished state,
+    // generate the remaining unpublished matchups
+    if (unpublishedMatchups.length === 0 && teams.length >= 2) {
+      var allPairs = generateRoundRobin(teams);
+      var publishedPairKeys = {};
+      publishedMatchups.forEach(function (m) {
+        publishedPairKeys[[m.homeId, m.awayId].sort().join('_')] = true;
+      });
+      var remaining = allPairs.filter(function (m) {
+        return !publishedPairKeys[[m.homeId, m.awayId].sort().join('_')];
+      });
+      // Offset rounds
+      remaining.forEach(function (m) { m.round += maxPublishedRound; });
+      rrMatchups = publishedMatchups.concat(remaining);
+    }
+
+    saveRRState();
+    rrPanel.hidden = false;
+    renderRoundRobin();
   }
 
   function populateTeamSelects() {
@@ -92,8 +214,13 @@
 
   function loadGames(seasonId) {
     API.getGames(seasonId).then(function (games) {
-      gamesBody.innerHTML = '';
-      (games || []).forEach(function (g) {
+      renderGamesTable(games);
+    }).catch(function () { showMsg(I18n.t('error.loadFailed'), 'error'); });
+  }
+
+  function renderGamesTable(games) {
+    gamesBody.innerHTML = '';
+    (games || []).forEach(function (g) {
         var tr = document.createElement('tr');
         var statusBadge = '';
         if (g.status === 'cancelled') {
@@ -101,6 +228,9 @@
         }
         var cancelBtnHtml = g.status !== 'completed' && g.status !== 'cancelled'
           ? ' <button class="btn btn-sm btn-danger btn-cancel-game">' + I18n.t('admin.cancelGame') + '</button>'
+          : '';
+        var deleteBtnHtml = g.status === 'cancelled'
+          ? ' <button class="btn btn-sm btn-danger btn-delete-game">' + I18n.t('admin.deleteGame') + '</button>'
           : '';
         tr.innerHTML =
           '<td>' + esc(Utils.formatDateWithDay(g.date)) + '</td>' +
@@ -110,15 +240,18 @@
             (g.status === 'completed' ? ' <span class="text-accent">' + (g.homeScore||0) + '-' + (g.awayScore||0) + '</span>' : '') +
             statusBadge + '</td>' +
           '<td>' + esc(g.type || 'regular') + '</td>' +
-          '<td><button class="btn btn-sm btn-outline">' + I18n.t('admin.edit') + '</button>' + cancelBtnHtml + '</td>';
+          '<td><button class="btn btn-sm btn-outline">' + I18n.t('admin.edit') + '</button>' + cancelBtnHtml + deleteBtnHtml + '</td>';
         tr.querySelector('.btn-outline').addEventListener('click', function () { showEditForm(g); });
         var cancelEl = tr.querySelector('.btn-cancel-game');
         if (cancelEl) {
           cancelEl.addEventListener('click', function () { handleCancelGame(g.id); });
         }
+        var deleteEl = tr.querySelector('.btn-delete-game');
+        if (deleteEl) {
+          deleteEl.addEventListener('click', function () { handleDeleteGame(g.id); });
+        }
         gamesBody.appendChild(tr);
       });
-    }).catch(function () { showMsg(I18n.t('error.loadFailed'), 'error'); });
   }
 
   // ============================================================
@@ -179,7 +312,10 @@
     API.post(action, data).then(function () {
       showMsg(I18n.t('admin.gameSaved'), 'success');
       hideForm();
-      loadGames(seasonSelect.value);
+      API.getGames(seasonSelect.value).then(function (games) {
+        renderGamesTable(games);
+        restoreRRFromGames(games);
+      });
     }).catch(function (err) {
       showMsg(err.message || I18n.t('error.submitFailed'), 'error');
     }).finally(function () { saveBtn.disabled = false; });
@@ -198,9 +334,25 @@
 
   function handleCancelGame(gameId) {
     if (!confirm(I18n.t('admin.cancelGameConfirm'))) return;
-    API.post('cancelGame', { gameId: gameId }).then(function () {
+    API.post('cancelGame', { gameId: gameId, seasonId: seasonSelect.value }).then(function () {
       showMsg(I18n.t('admin.gameCancelled'), 'success');
-      loadGames(seasonSelect.value);
+      API.getGames(seasonSelect.value).then(function (games) {
+        renderGamesTable(games);
+        restoreRRFromGames(games);
+      });
+    }).catch(function (err) {
+      showMsg(err.message || I18n.t('error.submitFailed'), 'error');
+    });
+  }
+
+  function handleDeleteGame(gameId) {
+    if (!confirm(I18n.t('admin.deleteGameConfirm'))) return;
+    API.post('deleteGame', { gameId: gameId, seasonId: seasonSelect.value }).then(function () {
+      showMsg(I18n.t('admin.gameDeleted'), 'success');
+      API.getGames(seasonSelect.value).then(function (games) {
+        renderGamesTable(games);
+        restoreRRFromGames(games);
+      });
     }).catch(function (err) {
       showMsg(err.message || I18n.t('error.submitFailed'), 'error');
     });
@@ -261,6 +413,7 @@
       return;
     }
     rrMatchups = generateRoundRobin(teams);
+    saveRRState();
     renderRoundRobin();
     rrPanel.hidden = false;
     rrPanel.scrollIntoView({ behavior: 'smooth' });
@@ -269,6 +422,7 @@
   function hideRoundRobinPanel() {
     rrPanel.hidden = true;
     rrMatchups = [];
+    clearRRState();
   }
 
   /**
@@ -324,9 +478,9 @@
 
       homeSelEl.addEventListener('change', function () { handleTeamSwap(idx, 'home', this.value); });
       awaySelEl.addEventListener('change', function () { handleTeamSwap(idx, 'away', this.value); });
-      dateEl.addEventListener('change', function () { rrMatchups[idx].date = this.value; updatePublishAllBtn(); });
-      timeEl.addEventListener('change', function () { rrMatchups[idx].time = this.value; });
-      venueEl.addEventListener('change', function () { rrMatchups[idx].venue = this.value; updatePublishAllBtn(); });
+      dateEl.addEventListener('input', function () { rrMatchups[idx].date = this.value; saveRRState(); updatePublishAllBtn(); });
+      timeEl.addEventListener('input', function () { rrMatchups[idx].time = this.value; saveRRState(); });
+      venueEl.addEventListener('input', function () { rrMatchups[idx].venue = this.value; saveRRState(); updatePublishAllBtn(); });
 
       var pubBtn = row.querySelector('.rr-publish-btn');
       if (pubBtn) {
@@ -457,6 +611,7 @@
 
     // Merge: locked first, then new
     rrMatchups = locked.concat(newMatchups);
+    saveRRState();
     renderRoundRobin();
     showMsg(I18n.t('admin.rrRegenerated'), 'success');
   }
@@ -494,6 +649,13 @@
 
   function publishSingleMatch(idx) {
     var m = rrMatchups[idx];
+    // Read directly from DOM inputs in case change event hasn't fired yet
+    var row = rrMatchupsEl.querySelector('[data-idx="' + idx + '"]');
+    if (row) {
+      m.date = row.querySelector('.rr-date').value;
+      m.time = row.querySelector('.rr-time').value;
+      m.venue = row.querySelector('.rr-venue').value;
+    }
     if (!m.date || !m.venue) {
       showMsg(I18n.t('admin.rrNeedDateVenue'), 'error');
       return;
@@ -509,8 +671,11 @@
     };
     API.post('createGame', data).then(function () {
       m.published = true;
-      renderRoundRobin();
-      loadGames(seasonSelect.value);
+      saveRRState();
+      API.getGames(seasonSelect.value).then(function (games) {
+        renderGamesTable(games);
+        restoreRRFromGames(games);
+      });
       showMsg(I18n.t('admin.gameSaved'), 'success');
     }).catch(function (err) {
       showMsg(err.message || I18n.t('error.submitFailed'), 'error');
@@ -518,6 +683,16 @@
   }
 
   function handlePublishAll() {
+    // Sync all DOM input values into rrMatchups before checking
+    rrMatchups.forEach(function (m, idx) {
+      if (m.published) return;
+      var row = rrMatchupsEl.querySelector('[data-idx="' + idx + '"]');
+      if (row) {
+        m.date = row.querySelector('.rr-date').value;
+        m.time = row.querySelector('.rr-time').value;
+        m.venue = row.querySelector('.rr-venue').value;
+      }
+    });
     var toPublish = rrMatchups.filter(function (m) {
       return !m.published && m.date && m.venue;
     });
@@ -539,9 +714,12 @@
     });
 
     Promise.all(promises).then(function () {
+      saveRRState();
       showMsg(I18n.t('admin.rrPublished').replace('{count}', toPublish.length), 'success');
-      renderRoundRobin();
-      loadGames(seasonSelect.value);
+      API.getGames(seasonSelect.value).then(function (games) {
+        renderGamesTable(games);
+        restoreRRFromGames(games);
+      });
     }).catch(function (err) {
       showMsg(err.message || I18n.t('error.submitFailed'), 'error');
     }).finally(function () { rrPublishBtn.disabled = false; });
