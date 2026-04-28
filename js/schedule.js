@@ -162,11 +162,11 @@
       var homeName = game.homeTeamName || game.home || game.homeTeam || '—';
       var awayName = game.awayTeamName || game.away || game.awayTeam || '—';
 
-      // Build matchup with jersey color badges
+      // Build matchup with jersey color badges (swatch only, no text)
       var homeJersey = game._homeJersey || '';
       var awayJersey = game._awayJersey || '';
-      var homeJerseyHtml = homeJersey ? ' <span class="jersey-badge" title="主場球衣" style="' + _jerseyStyle(homeJersey) + '"></span><span class="jersey-label">(' + _escHtml(homeJersey) + ')</span>' : '';
-      var awayJerseyHtml = awayJersey ? ' <span class="jersey-badge" title="客場球衣" style="' + _jerseyStyle(awayJersey) + '"></span><span class="jersey-label">(' + _escHtml(awayJersey) + ')</span>' : '';
+      var homeJerseyHtml = homeJersey ? ' <span class="jersey-badge" title="主場球衣: ' + _escHtml(homeJersey) + '" style="' + _jerseyStyle(homeJersey) + '"></span>' : '';
+      var awayJerseyHtml = awayJersey ? ' <span class="jersey-badge" title="客場球衣: ' + _escHtml(awayJersey) + '" style="' + _jerseyStyle(awayJersey) + '"></span>' : '';
 
       var matchupHtml = _escHtml(homeName) + homeJerseyHtml + ' vs ' + _escHtml(awayName) + awayJerseyHtml;
 

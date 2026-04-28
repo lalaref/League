@@ -237,23 +237,49 @@
           ? ' <button class="btn btn-sm btn-danger btn-delete-game">' + I18n.t('admin.deleteGame') + '</button>'
           : '';
 
-        // Jersey color info
+        // Jersey color info — editable inline inputs
         var homeTeam = teamMap[g.homeTeamId];
         var awayTeam = teamMap[g.awayTeamId];
         var homeJersey = homeTeam ? (homeTeam.jerseyHome || '') : '';
         var awayJersey = awayTeam ? (awayTeam.jerseyAway || '') : '';
-        var homeJerseyHtml = homeJersey ? ' <span style="display:inline-block;width:12px;height:12px;border-radius:2px;vertical-align:middle;background:' + _jerseyColor(homeJersey) + ';border:1px solid rgba(255,255,255,0.2)"></span><span style="font-size:0.7rem;color:#a0a0b8">(' + esc(homeJersey) + ')</span>' : '';
-        var awayJerseyHtml = awayJersey ? ' <span style="display:inline-block;width:12px;height:12px;border-radius:2px;vertical-align:middle;background:' + _jerseyColor(awayJersey) + ';border:1px solid rgba(255,255,255,0.2)"></span><span style="font-size:0.7rem;color:#a0a0b8">(' + esc(awayJersey) + ')</span>' : '';
+        var homeJerseyBg = _jerseyColor(homeJersey);
+        var awayJerseyBg = _jerseyColor(awayJersey);
+
+        // Swatch + small editable text input
+        var homeSwatchStyle = homeJerseyBg !== 'transparent' ? 'background:' + homeJerseyBg + ';' : 'background:#333;';
+        var awaySwatchStyle = awayJerseyBg !== 'transparent' ? 'background:' + awayJerseyBg + ';' : 'background:#333;';
+
+        var homeJerseyHtml = ' <span class="jersey-swatch" style="' + homeSwatchStyle + '"></span>' +
+          '<input type="text" class="jersey-input jersey-home-input" value="' + esc(homeJersey) + '" placeholder="球衣色" data-team-id="' + (g.homeTeamId || '') + '" data-side="home" title="主場球衣顏色（輸入後按 Enter 儲存）">';
+        var awayJerseyHtml = ' <span class="jersey-swatch" style="' + awaySwatchStyle + '"></span>' +
+          '<input type="text" class="jersey-input jersey-away-input" value="' + esc(awayJersey) + '" placeholder="球衣色" data-team-id="' + (g.awayTeamId || '') + '" data-side="away" title="客場球衣顏色（輸入後按 Enter 儲存）">';
 
         tr.innerHTML =
           '<td>' + esc(Utils.formatDateWithDay(g.date)) + '</td>' +
           '<td>' + esc(Utils.formatTime(g.time)) + '</td>' +
           '<td>' + esc(g.venue || '') + '</td>' +
-          '<td>' + esc(g.homeTeamName || g.homeTeamId) + homeJerseyHtml + ' vs ' + esc(g.awayTeamName || g.awayTeamId) + awayJerseyHtml +
+          '<td><span class="matchup-team">' + esc(g.homeTeamName || g.homeTeamId) + homeJerseyHtml + '</span> vs <span class="matchup-team">' + esc(g.awayTeamName || g.awayTeamId) + awayJerseyHtml + '</span>' +
             (g.status === 'completed' ? ' <span class="text-accent">' + (g.homeScore||0) + '-' + (g.awayScore||0) + '</span>' : '') +
             statusBadge + '</td>' +
           '<td>' + esc(g.type || 'regular') + '</td>' +
           '<td><button class="btn btn-sm btn-outline">' + I18n.t('admin.edit') + '</button>' + cancelBtnHtml + deleteBtnHtml + '</td>';
+
+        // Bind jersey color input events
+        tr.querySelectorAll('.jersey-input').forEach(function (inp) {
+          // Live swatch preview on input
+          inp.addEventListener('input', function () {
+            var swatch = inp.previousElementSibling;
+            var val = inp.value.trim();
+            var bg = _jerseyColor(val);
+            if (swatch) swatch.style.background = bg !== 'transparent' ? bg : '#333';
+          });
+          // Save on Enter or blur
+          inp.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') { e.preventDefault(); _saveJerseyColor(inp); }
+          });
+          inp.addEventListener('blur', function () { _saveJerseyColor(inp); });
+        });
+
         tr.querySelector('.btn-outline').addEventListener('click', function () { showEditForm(g); });
         var cancelEl = tr.querySelector('.btn-cancel-game');
         if (cancelEl) {
@@ -287,6 +313,52 @@
       '金色': '#d69e2e', '銀色': '#cbd5e0'
     };
     return map[color] || (color.charAt(0) === '#' ? color : 'transparent');
+  }
+
+  /**
+   * Save jersey color change to the team via API.
+   * Updates jerseyHome or jerseyAway on the team record.
+   */
+  function _saveJerseyColor(inp) {
+    var teamId = inp.getAttribute('data-team-id');
+    var side = inp.getAttribute('data-side');
+    var newColor = inp.value.trim();
+    if (!teamId) return;
+
+    // Find original value to avoid unnecessary saves
+    var team = null;
+    for (var i = 0; i < teams.length; i++) {
+      if (teams[i].id === teamId) { team = teams[i]; break; }
+    }
+    if (!team) return;
+
+    var origColor = side === 'home' ? (team.jerseyHome || '') : (team.jerseyAway || '');
+    if (newColor === origColor) return; // no change
+
+    // Update local cache immediately
+    if (side === 'home') {
+      team.jerseyHome = newColor;
+    } else {
+      team.jerseyAway = newColor;
+    }
+
+    // Build update payload
+    var data = { teamId: teamId };
+    if (side === 'home') {
+      data.jerseyHome = newColor;
+    } else {
+      data.jerseyAway = newColor;
+    }
+
+    // Also send existing fields to avoid overwriting
+    data.seasonId = seasonSelect.value;
+    data.name = team.name || '';
+
+    API.post('updateTeam', data).then(function () {
+      showMsg('球衣顏色已更新', 'success');
+    }).catch(function (err) {
+      showMsg(err.message || '球衣顏色更新失敗', 'error');
+    });
   }
 
   // ============================================================
