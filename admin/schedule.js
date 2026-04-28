@@ -377,6 +377,16 @@
   function _toDateInput(raw) {
     if (!raw) return '';
     var s = String(raw);
+    // If ISO with Z (UTC), parse to local date
+    if (s.indexOf('T') !== -1 && s.indexOf('Z') !== -1) {
+      var d = new Date(s);
+      if (!isNaN(d.getTime())) {
+        var y = d.getFullYear();
+        var m = d.getMonth() + 1;
+        var day = d.getDate();
+        return y + '-' + (m < 10 ? '0' + m : m) + '-' + (day < 10 ? '0' + day : day);
+      }
+    }
     return s.indexOf('T') !== -1 ? s.split('T')[0] : s;
   }
   function _toTimeInput(raw) {

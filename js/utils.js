@@ -103,34 +103,74 @@ var Utils = (function () {
 
   /**
    * 格式化 ISO/YYYY-MM-DD 日期為帶星期的顯示格式
-   * @param {string} raw - ISO 日期或 YYYY-MM-DD
-   * @returns {string} 如 "2026-04-09 (三)" 或 "2026年4月9日 (三)"
+   * Google Sheets returns dates as UTC ISO strings (e.g. "2026-05-03T16:00:00.000Z"
+   * which is actually 2026-05-04 00:00 in HKT). We must parse via Date object
+   * and use local time methods to get the correct date.
+   * @param {string|number} raw
+   * @returns {string} 如 "2026-05-04 (一)"
    */
   function formatDateWithDay(raw) {
-    if (!raw) return '';
-    var str = String(raw);
-    var d;
-    if (str.indexOf('T') !== -1) {
-      d = new Date(str);
-    } else {
-      var p = str.split('-');
-      if (p.length === 3) d = new Date(parseInt(p[0],10), parseInt(p[1],10)-1, parseInt(p[2],10));
+    if (raw === null || raw === undefined || raw === '') return '';
+
+    // Handle Google Sheets serial date number
+    if (typeof raw === 'number' || (typeof raw === 'string' && /^\d{5,}$/.test(String(raw).trim()))) {
+      var serial = parseInt(raw, 10);
+      if (serial > 1 && serial < 200000) {
+        var epoch = new Date(1899, 11, 30);
+        var sd = new Date(epoch.getTime() + serial * 86400000);
+        if (!isNaN(sd.getTime())) {
+          var sy = sd.getFullYear(); var sm = sd.getMonth() + 1; var sday = sd.getDate();
+          return sy + '-' + (sm < 10 ? '0' + sm : sm) + '-' + (sday < 10 ? '0' + sday : sday) + ' (' + DAY_NAMES_ZH[sd.getDay()] + ')';
+        }
+      }
     }
-    if (!d || isNaN(d.getTime())) return str;
-    var y = d.getFullYear(); var m = d.getMonth()+1; var day = d.getDate();
-    var dow = DAY_NAMES_ZH[d.getDay()];
-    return y + '-' + (m<10?'0'+m:m) + '-' + (day<10?'0'+day:day) + ' (' + dow + ')';
+
+    var str = String(raw).trim();
+
+    // If it's an ISO string with T and Z (UTC), parse with Date to get local time
+    if (str.indexOf('T') !== -1 && str.indexOf('Z') !== -1) {
+      var d = new Date(str);
+      if (!isNaN(d.getTime())) {
+        var y = d.getFullYear(); var m = d.getMonth() + 1; var day = d.getDate();
+        return y + '-' + (m < 10 ? '0' + m : m) + '-' + (day < 10 ? '0' + day : day) + ' (' + DAY_NAMES_ZH[d.getDay()] + ')';
+      }
+    }
+
+    // If it's an ISO string with T but no Z (local time), or plain YYYY-MM-DD
+    // Extract date parts directly from string
+    var dateMatch = str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+    if (!dateMatch) return str;
+
+    var year = parseInt(dateMatch[1], 10);
+    var month = parseInt(dateMatch[2], 10);
+    var dayNum = parseInt(dateMatch[3], 10);
+    if (isNaN(year) || isNaN(month) || isNaN(dayNum)) return str;
+
+    var dateObj = new Date(year, month - 1, dayNum);
+    return year + '-' + (month < 10 ? '0' + month : month) + '-' + (dayNum < 10 ? '0' + dayNum : dayNum) + ' (' + DAY_NAMES_ZH[dateObj.getDay()] + ')';
   }
 
   /**
-   * 格式化時間：處理 ISO、Google Sheets 1899 格式、HH:MM 等
-   * Google Sheets stores time-only values as 1899-12-30T{HH:MM:SS}.000Z
-   * We extract HH:MM directly from the string to avoid timezone issues.
-   * @param {string} raw
+   * 格式化時間：處理多種格式
+   * Google Sheets time values come as "1899-12-30T05:46:18.000Z" (UTC).
+   * The actual local time is UTC+8, so we must parse with Date and use local time.
+   * @param {string|number} raw
    * @returns {string} 如 "21:00" 或 "13:23"
    */
   function formatTime(raw) {
-    if (!raw) return '';
+    if (raw === null || raw === undefined || raw === '') return '';
+
+    // Handle numeric value (Google Sheets fraction of day)
+    if (typeof raw === 'number') {
+      var num = raw;
+      if (num >= 0 && num < 1) {
+        var totalMinutes = Math.round(num * 24 * 60);
+        var fh = Math.floor(totalMinutes / 60);
+        var fm = totalMinutes % 60;
+        return (fh < 10 ? '0' + fh : fh) + ':' + (fm < 10 ? '0' + fm : fm);
+      }
+    }
+
     var str = String(raw).trim();
 
     // Already in HH:MM or HH:MM:SS format — return as HH:MM
@@ -141,15 +181,13 @@ var Utils = (function () {
       return (sh < 10 ? '0' + sh : sh) + ':' + (sm < 10 ? '0' + sm : sm);
     }
 
-    // Google Sheets 1899-12-30T... format or any ISO with T
-    // Extract time portion directly from the string to avoid timezone conversion
-    var tIdx = str.indexOf('T');
-    if (tIdx !== -1) {
-      var timePart = str.substring(tIdx + 1); // e.g. "21:00:00.000Z" or "13:23:00"
-      var timeMatch = timePart.match(/^(\d{1,2}):(\d{2})/);
-      if (timeMatch) {
-        var h = parseInt(timeMatch[1], 10);
-        var m = parseInt(timeMatch[2], 10);
+    // ISO string with T — parse with Date to convert UTC to local time
+    if (str.indexOf('T') !== -1) {
+      var d = new Date(str);
+      if (!isNaN(d.getTime())) {
+        // Use local time methods (getHours/getMinutes) which auto-convert from UTC
+        var h = d.getHours();
+        var m = d.getMinutes();
         return (h < 10 ? '0' + h : h) + ':' + (m < 10 ? '0' + m : m);
       }
     }
