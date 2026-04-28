@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ALL-IN Basketball League - 首頁內容分享">
+    <meta name="theme-color" content="#1a1a2e">
+    <title>首頁內容分享 — ALL-IN Basketball League</title>
+    <link rel="stylesheet" href="../css/styles.css?v=20260428">
+    <link rel="stylesheet" href="../css/responsive.css?v=20260428">
+    <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+    <header class="site-header">
+        <nav class="main-nav" aria-label="主導航">
+            <div class="nav-container">
+                <a href="../index.html" class="nav-logo">
+                    <img src="../images/logo.svg" alt="ALL-IN Basketball League" class="logo-img">
+                    <span class="logo-text">ALL-IN</span>
+                </a>
+                <button class="hamburger-btn" aria-label="開啟選單" aria-expanded="false" aria-controls="nav-menu">
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                </button>
+                <ul id="nav-menu" class="nav-links" role="menubar">
+                    <li role="none"><a href="../index.html" class="nav-link" role="menuitem">首頁</a></li>
+                    <li role="none"><a href="index.html" class="nav-link active" role="menuitem">管理後台</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <section class="section">
+            <div class="container">
+                <h1 class="section-title">📤 首頁內容分享</h1>
+                <p class="text-muted" style="margin-bottom:var(--spacing-lg)">將首頁各區塊內容分享至 WhatsApp 或匯出為 JPG 圖片（可分享至 IG）</p>
+                <div id="share-message" class="admin-message" role="alert" hidden></div>
+            </div>
+        </section>
+
+        <!-- 即將進行的賽程 -->
+        <section class="section upcoming-games" aria-label="即將進行的賽程">
+            <div class="container">
+                <div class="section-header-row">
+                    <h2 class="section-title">📅 即將進行的賽程</h2>
+                    <div class="section-share-actions">
+                        <button class="btn btn-sm btn-share-wa" onclick="AdminShare.shareUpcoming()" aria-label="WhatsApp 分享">📱 WhatsApp</button>
+                        <button class="btn btn-sm btn-share-img" onclick="AdminShare.exportSection('.upcoming-games','allin-upcoming.jpg')" aria-label="匯出圖片">📷 匯出JPG</button>
+                    </div>
+                </div>
+                <div id="upcoming-games-list" class="games-grid">
+                    <div class="loading">載入中...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 最近比賽結果 -->
+        <section class="section recent-games" aria-label="最近比賽結果">
+            <div class="container">
+                <div class="section-header-row">
+                    <h2 class="section-title">📊 最近比賽結果</h2>
+                    <div class="section-share-actions">
+                        <button class="btn btn-sm btn-share-wa" onclick="AdminShare.shareRecent()" aria-label="WhatsApp 分享">📱 WhatsApp</button>
+                        <button class="btn btn-sm btn-share-img" onclick="AdminShare.exportSection('.recent-games','allin-recent-results.jpg')" aria-label="匯出圖片">📷 匯出JPG</button>
+                    </div>
+                </div>
+                <div id="recent-games-list" class="games-grid">
+                    <div class="loading">載入中...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 球隊排名 -->
+        <section class="section standings-preview" aria-label="球隊排名">
+            <div class="container">
+                <div class="section-header-row">
+                    <h2 class="section-title">🏆 球隊排名</h2>
+                    <div class="section-share-actions">
+                        <button class="btn btn-sm btn-share-wa" onclick="AdminShare.shareStandings()" aria-label="WhatsApp 分享">📱 WhatsApp</button>
+                        <button class="btn btn-sm btn-share-img" onclick="AdminShare.exportSection('.standings-preview','allin-standings.jpg')" aria-label="匯出圖片">📷 匯出JPG</button>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table id="standings-table" class="data-table">
+                        <thead>
+                            <tr>
+                                <th>排名</th>
+                                <th>球隊</th>
+                                <th>場次</th>
+                                <th>勝</th>
+                                <th>和</th>
+                                <th>負</th>
+                                <th>得失</th>
+                                <th>積分</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="8" class="loading">載入中...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 聯賽公告 -->
+        <section class="section announcements" aria-label="聯賽公告">
+            <div class="container">
+                <div class="section-header-row">
+                    <h2 class="section-title">📢 聯賽公告</h2>
+                    <div class="section-share-actions">
+                        <button class="btn btn-sm btn-share-wa" onclick="AdminShare.shareAnnouncements()" aria-label="WhatsApp 分享">📱 WhatsApp</button>
+                        <button class="btn btn-sm btn-share-img" onclick="AdminShare.exportSection('.announcements','allin-announcements.jpg')" aria-label="匯出圖片">📷 匯出JPG</button>
+                    </div>
+                </div>
+                <div id="announcements-list" class="announcements-list">
+                    <div class="loading">載入中...</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <img src="../images/logo.svg" alt="ALL-IN Basketball League" class="footer-logo">
+                    <p class="footer-tagline">全力以赴</p>
+                </div>
+                <div class="footer-copyright">
+                    <p>&copy; <span id="current-year"></span> ALL-IN Basketball League.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>document.getElementById('current-year').textContent = new Date().getFullYear();</script>
+    <script src="../js/utils.js?v=20260428"></script>
+    <script src="../js/api.js?v=20260428"></script>
+    <script src="../js/i18n.js?v=20260428"></script>
+    <script src="../js/navigation.js?v=20260428"></script>
+    <script src="auth.js?v=20260428"></script>
+    <script>
+    I18n.init();
+
+    /**
+     * Admin Home Share — 載入首頁數據 + WhatsApp / JPG 匯出
+     */
+    (function () {
+      'use strict';
+
+      var recentGamesEl = document.getElementById('recent-games-list');
+      var upcomingGamesEl = document.getElementById('upcoming-games-list');
+      var announcementsEl = document.getElementById('announcements-list');
+      var standingsBody = document.querySelector('#standings-table tbody');
+      var currentSeasonId = null;
+
+      function init() {
+        API.getSeasons().then(function (seasons) {
+          if (!seasons || seasons.length === 0) return;
+          var active = seasons.find(function (s) { return s.status === 'active'; }) || seasons[seasons.length - 1];
+          currentSeasonId = active.id;
+          loadUpcoming();
+          loadRecent();
+          loadStandings();
+          loadAnnouncements();
+        });
+      }
+
+      function loadUpcoming() {
+        API.getSchedule(currentSeasonId).then(function (games) {
+          if (!games || games.length === 0) { upcomingGamesEl.innerHTML = '<p class="text-muted">暫無數據</p>'; return; }
+          var upcoming = games.filter(function (g) { return g.status === 'scheduled'; });
+          upcoming.sort(function (a, b) { return (a.date || '').localeCompare(b.date || ''); });
+          var next = upcoming.slice(0, 6);
+          if (next.length === 0) { upcomingGamesEl.innerHTML = '<p class="text-muted">暫無數據</p>'; return; }
+          upcomingGamesEl.innerHTML = next.map(function (g) {
+            var home = g.homeTeamName || g.home || g.homeTeamId || '—';
+            var away = g.awayTeamName || g.away || g.awayTeamId || '—';
+            var date = Utils.formatDateWithDay(g.date);
+            var time = Utils.formatTime(g.time);
+            var venue = g.venue || '';
+            return '<div class="game-card game-card--upcoming">' +
+              '<div class="game-card-date text-muted">' + _esc(date) + (time ? ' ' + _esc(time) : '') + '</div>' +
+              '<div class="game-card-matchup">' +
+              '<span class="game-card-team">' + _esc(home) + '</span>' +
+              '<span class="game-card-vs">vs</span>' +
+              '<span class="game-card-team">' + _esc(away) + '</span>' +
+              '</div>' +
+              (venue ? '<div class="game-card-venue text-muted">📍 ' + _esc(venue) + '</div>' : '') +
+              '</div>';
+          }).join('');
+        }).catch(function () { upcomingGamesEl.innerHTML = '<p class="text-muted">載入失敗</p>'; });
+      }
+
+      function loadRecent() {
+        API.getGames(currentSeasonId).then(function (games) {
+          if (!games || games.length === 0) { recentGamesEl.innerHTML = '<p class="text-muted">暫無數據</p>'; return; }
+          var completed = games.filter(function (g) { return g.status === 'completed'; });
+          completed.sort(function (a, b) { return (b.date || '').localeCompare(a.date || ''); });
+          var recent = completed.slice(0, 6);
+          if (recent.length === 0) { recentGamesEl.innerHTML = '<p class="text-muted">暫無數據</p>'; return; }
+          recentGamesEl.innerHTML = recent.map(function (g) {
+            var home = g.homeTeamName || g.homeTeam || g.homeTeamId || '—';
+            var away = g.awayTeamName || g.awayTeam || g.awayTeamId || '—';
+            var hs = g.homeScore != null ? g.homeScore : '—';
+            var as = g.awayScore != null ? g.awayScore : '—';
+            return '<div class="game-card">' +
+              '<div class="game-card-date text-muted">' + _esc(Utils.formatDateWithDay(g.date)) + '</div>' +
+              '<div class="game-card-matchup">' +
+              '<span class="game-card-team">' + _esc(home) + '</span>' +
+              '<span class="game-card-score">' + _esc(String(hs)) + ' - ' + _esc(String(as)) + '</span>' +
+              '<span class="game-card-team">' + _esc(away) + '</span>' +
+              '</div></div>';
+          }).join('');
+        }).catch(function () { recentGamesEl.innerHTML = '<p class="text-muted">載入失敗</p>'; });
+      }
+
+      function loadStandings() {
+        API.getStandings(currentSeasonId).then(function (standings) {
+          if (!standings || standings.length === 0) { standingsBody.innerHTML = '<tr><td colspan="8" class="text-muted">暫無數據</td></tr>'; return; }
+          standingsBody.innerHTML = standings.slice(0, 8).map(function (t, i) {
+            var name = t.teamName || t.team || t.name || '—';
+            var diff = t.diff != null ? (t.diff > 0 ? '+' + t.diff : t.diff) : '0';
+            return '<tr><td>' + (i + 1) + '</td><td>' + _esc(name) + '</td>' +
+              '<td>' + (t.played || 0) + '</td><td>' + (t.wins || 0) + '</td>' +
+              '<td>' + (t.draws || 0) + '</td><td>' + (t.losses || 0) + '</td>' +
+              '<td>' + diff + '</td><td class="text-accent">' + (t.points || 0) + '</td></tr>';
+          }).join('');
+        }).catch(function () { standingsBody.innerHTML = '<tr><td colspan="8" class="text-muted">載入失敗</td></tr>'; });
+      }
+
+      function loadAnnouncements() {
+        API.getAnnouncements().then(function (anns) {
+          if (!anns || anns.length === 0) { announcementsEl.innerHTML = '<p class="text-muted">暫無數據</p>'; return; }
+          var visible = anns.filter(function (a) { return a.hidden !== true && a.hidden !== 'true'; });
+          if (visible.length === 0) { announcementsEl.innerHTML = '<p class="text-muted">暫無數據</p>'; return; }
+          announcementsEl.innerHTML = visible.slice(0, 5).map(function (a) {
+            var html = '<div class="announcement-item' + (a.pinned === true || a.pinned === 'true' ? ' announcement-item--pinned' : '') + '">';
+            if (a.pinned === true || a.pinned === 'true') html += '<span class="announcement-pin">📌</span>';
+            html += '<div class="announcement-date">' + _esc(Utils.formatDateWithDay(a.date)) + '</div>';
+            html += '<div class="announcement-title">' + _esc(a.title || '') + '</div>';
+            if (a.photo) html += '<div class="announcement-photo"><img src="' + _esc(a.photo) + '" alt="" loading="lazy"></div>';
+            if (a.content) html += '<div class="announcement-content">' + _esc(a.content).replace(/\n/g, '<br>') + '</div>';
+            html += '</div>';
+            return html;
+          }).join('');
+        }).catch(function () { announcementsEl.innerHTML = '<p class="text-muted">載入失敗</p>'; });
+      }
+
+      function _esc(str) {
+        if (!str) return '';
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      }
+
+      // Expose data for share module
+      window._adminShareData = {
+        getUpcomingEl: function () { return upcomingGamesEl; },
+        getRecentEl: function () { return recentGamesEl; },
+        getStandingsTable: function () { return document.getElementById('standings-table'); },
+        getAnnouncementsEl: function () { return announcementsEl; }
+      };
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+    })();
+    </script>
+    <script src="../js/dashboard-share.js?v=20260428"></script>
+    <script>
+    /**
+     * AdminShare — wraps DashboardShare for admin page context
+     */
+    var AdminShare = (function () {
+      // html2canvas lazy load
+      var _h2cLoaded = false;
+      function _ensureH2C(cb) {
+        if (_h2cLoaded && typeof html2canvas !== 'undefined') { cb(); return; }
+        var s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+        s.onload = function () { _h2cLoaded = true; cb(); };
+        s.onerror = function () { alert('無法載入圖片匯出工具'); };
+        document.head.appendChild(s);
+      }
+
+      function _waOpen(msg) {
+        window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+      }
+
+      function exportSection(selector, filename) {
+        var section = document.querySelector(selector);
+        if (!section) { alert('找不到要匯出的區塊'); return; }
+        _ensureH2C(function () {
+          var container = section.querySelector('.container') || section;
+          html2canvas(container, {
+            backgroundColor: '#1a1a2e',
+            scale: 2,
+            useCORS: true,
+            logging: false
+          }).then(function (canvas) {
+            var link = document.createElement('a');
+            link.download = filename || 'allin-share.jpg';
+            link.href = canvas.toDataURL('image/jpeg', 0.92);
+            link.click();
+          }).catch(function () { alert('匯出圖片失敗，請重試'); });
+        });
+      }
+
+      function shareUpcoming() {
+        var el = document.getElementById('upcoming-games-list');
+        if (!el) return;
+        var cards = el.querySelectorAll('.game-card');
+        if (cards.length === 0) { alert('暫無即將進行的賽程'); return; }
+        var lines = ['🏀 *ALL-IN Basketball League*', '📋 即將進行的賽程', ''];
+        cards.forEach(function (card) {
+          var date = card.querySelector('.game-card-date');
+          var teams = card.querySelectorAll('.game-card-team');
+          var venue = card.querySelector('.game-card-venue');
+          lines.push('📅 ' + (date ? date.textContent.trim() : ''));
+          lines.push('   ' + (teams[0] ? teams[0].textContent.trim() : '') + ' vs ' + (teams[1] ? teams[1].textContent.trim() : ''));
+          if (venue) lines.push('   ' + venue.textContent.trim());
+          lines.push('');
+        });
+        lines.push('🔗 https://www.aiblhk.com');
+        _waOpen(lines.join('\n'));
+      }
+
+      function shareRecent() {
+        var el = document.getElementById('recent-games-list');
+        if (!el) return;
+        var cards = el.querySelectorAll('.game-card');
+        if (cards.length === 0) { alert('暫無最近比賽結果'); return; }
+        var lines = ['🏀 *ALL-IN Basketball League*', '📊 最近比賽結果', ''];
+        cards.forEach(function (card) {
+          var date = card.querySelector('.game-card-date');
+          var teams = card.querySelectorAll('.game-card-team');
+          var score = card.querySelector('.game-card-score');
+          lines.push('📅 ' + (date ? date.textContent.trim() : ''));
+          lines.push('   ' + (teams[0] ? teams[0].textContent.trim() : '') + ' ' + (score ? score.textContent.trim() : '') + ' ' + (teams[1] ? teams[1].textContent.trim() : ''));
+          lines.push('');
+        });
+        lines.push('🔗 https://www.aiblhk.com');
+        _waOpen(lines.join('\n'));
+      }
+
+      function shareStandings() {
+        var table = document.getElementById('standings-table');
+        if (!table) return;
+        var rows = table.querySelectorAll('tbody tr');
+        if (rows.length === 0) { alert('暫無排名數據'); return; }
+        var lines = ['🏀 *ALL-IN Basketball League*', '🏆 球隊排名', ''];
+        rows.forEach(function (row) {
+          var cells = row.querySelectorAll('td');
+          if (cells.length >= 8) {
+            lines.push(cells[0].textContent.trim() + '. ' + cells[1].textContent.trim() +
+              ' (' + cells[3].textContent.trim() + '勝' + cells[5].textContent.trim() + '負) ' +
+              cells[7].textContent.trim() + '分');
+          }
+        });
+        lines.push('');
+        lines.push('🔗 https://www.aiblhk.com');
+        _waOpen(lines.join('\n'));
+      }
+
+      function shareAnnouncements() {
+        var el = document.getElementById('announcements-list');
+        if (!el) return;
+        var items = el.querySelectorAll('.announcement-item');
+        if (items.length === 0) { alert('暫無公告'); return; }
+        var lines = ['📢 *ALL-IN Basketball League*', '聯賽公告', ''];
+        items.forEach(function (item) {
+          var title = item.querySelector('.announcement-title');
+          var date = item.querySelector('.announcement-date');
+          var content = item.querySelector('.announcement-content');
+          if (title) lines.push('*' + title.textContent.trim() + '*');
+          if (date) lines.push(date.textContent.trim());
+          if (content) lines.push(content.textContent.trim().substring(0, 200));
+          lines.push('');
+        });
+        lines.push('🔗 https://www.aiblhk.com');
+        _waOpen(lines.join('\n'));
+      }
+
+      return {
+        exportSection: exportSection,
+        shareUpcoming: shareUpcoming,
+        shareRecent: shareRecent,
+        shareStandings: shareStandings,
+        shareAnnouncements: shareAnnouncements
+      };
+    })();
+    </script>
+</body>
+</html>
