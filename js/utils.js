@@ -123,27 +123,37 @@ var Utils = (function () {
   }
 
   /**
-   * 格式化時間：處理 ISO 和 Google Sheets 1899 格式
+   * 格式化時間：處理 ISO、Google Sheets 1899 格式、HH:MM 等
+   * Google Sheets stores time-only values as 1899-12-30T{HH:MM:SS}.000Z
+   * We extract HH:MM directly from the string to avoid timezone issues.
    * @param {string} raw
-   * @returns {string} 如 "13:23"
+   * @returns {string} 如 "21:00" 或 "13:23"
    */
   function formatTime(raw) {
     if (!raw) return '';
-    var str = String(raw);
-    if (str.indexOf('1899-12-3') !== -1) {
-      var d = new Date(str);
-      if (!isNaN(d.getTime())) {
-        var h = d.getUTCHours(); var min = d.getUTCMinutes();
-        return (h<10?'0'+h:h) + ':' + (min<10?'0'+min:min);
+    var str = String(raw).trim();
+
+    // Already in HH:MM or HH:MM:SS format — return as HH:MM
+    if (/^\d{1,2}:\d{2}(:\d{2})?$/.test(str)) {
+      var simpleParts = str.split(':');
+      var sh = parseInt(simpleParts[0], 10);
+      var sm = parseInt(simpleParts[1], 10);
+      return (sh < 10 ? '0' + sh : sh) + ':' + (sm < 10 ? '0' + sm : sm);
+    }
+
+    // Google Sheets 1899-12-30T... format or any ISO with T
+    // Extract time portion directly from the string to avoid timezone conversion
+    var tIdx = str.indexOf('T');
+    if (tIdx !== -1) {
+      var timePart = str.substring(tIdx + 1); // e.g. "21:00:00.000Z" or "13:23:00"
+      var timeMatch = timePart.match(/^(\d{1,2}):(\d{2})/);
+      if (timeMatch) {
+        var h = parseInt(timeMatch[1], 10);
+        var m = parseInt(timeMatch[2], 10);
+        return (h < 10 ? '0' + h : h) + ':' + (m < 10 ? '0' + m : m);
       }
     }
-    if (str.indexOf('T') !== -1) {
-      var d2 = new Date(str);
-      if (!isNaN(d2.getTime())) {
-        var h2 = d2.getHours(); var min2 = d2.getMinutes();
-        return (h2<10?'0'+h2:h2) + ':' + (min2<10?'0'+min2:min2);
-      }
-    }
+
     return str;
   }
 
