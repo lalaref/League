@@ -220,6 +220,10 @@
 
   function renderGamesTable(games) {
     gamesBody.innerHTML = '';
+    // Build team map for jersey colors
+    var teamMap = {};
+    teams.forEach(function (t) { teamMap[t.id] = t; });
+
     (games || []).forEach(function (g) {
         var tr = document.createElement('tr');
         var statusBadge = '';
@@ -232,11 +236,20 @@
         var deleteBtnHtml = g.status === 'cancelled'
           ? ' <button class="btn btn-sm btn-danger btn-delete-game">' + I18n.t('admin.deleteGame') + '</button>'
           : '';
+
+        // Jersey color info
+        var homeTeam = teamMap[g.homeTeamId];
+        var awayTeam = teamMap[g.awayTeamId];
+        var homeJersey = homeTeam ? (homeTeam.jerseyHome || '') : '';
+        var awayJersey = awayTeam ? (awayTeam.jerseyAway || '') : '';
+        var homeJerseyHtml = homeJersey ? ' <span style="display:inline-block;width:12px;height:12px;border-radius:2px;vertical-align:middle;background:' + _jerseyColor(homeJersey) + ';border:1px solid rgba(255,255,255,0.2)"></span><span style="font-size:0.7rem;color:#a0a0b8">(' + esc(homeJersey) + ')</span>' : '';
+        var awayJerseyHtml = awayJersey ? ' <span style="display:inline-block;width:12px;height:12px;border-radius:2px;vertical-align:middle;background:' + _jerseyColor(awayJersey) + ';border:1px solid rgba(255,255,255,0.2)"></span><span style="font-size:0.7rem;color:#a0a0b8">(' + esc(awayJersey) + ')</span>' : '';
+
         tr.innerHTML =
           '<td>' + esc(Utils.formatDateWithDay(g.date)) + '</td>' +
           '<td>' + esc(Utils.formatTime(g.time)) + '</td>' +
           '<td>' + esc(g.venue || '') + '</td>' +
-          '<td>' + esc(g.homeTeamName || g.homeTeamId) + ' vs ' + esc(g.awayTeamName || g.awayTeamId) +
+          '<td>' + esc(g.homeTeamName || g.homeTeamId) + homeJerseyHtml + ' vs ' + esc(g.awayTeamName || g.awayTeamId) + awayJerseyHtml +
             (g.status === 'completed' ? ' <span class="text-accent">' + (g.homeScore||0) + '-' + (g.awayScore||0) + '</span>' : '') +
             statusBadge + '</td>' +
           '<td>' + esc(g.type || 'regular') + '</td>' +
@@ -252,6 +265,28 @@
         }
         gamesBody.appendChild(tr);
       });
+  }
+
+  /**
+   * Map Chinese color names to hex for jersey badge display
+   */
+  function _jerseyColor(color) {
+    if (!color) return 'transparent';
+    var map = {
+      '白色': '#ffffff', '白': '#ffffff',
+      '黑色': '#222222', '黑': '#222222',
+      '紅色': '#e53e3e', '紅': '#e53e3e',
+      '藍色': '#3182ce', '藍': '#3182ce',
+      '綠色': '#38a169', '綠': '#38a169',
+      '黃色': '#ecc94b', '黃': '#ecc94b',
+      '橙色': '#ed8936', '橙': '#ed8936',
+      '紫色': '#805ad5', '紫': '#805ad5',
+      '灰色': '#a0aec0', '灰': '#a0aec0',
+      '深藍': '#1a365d', '淺藍': '#63b3ed',
+      '深紅': '#9b2c2c', '粉紅': '#ed64a6', '粉紅色': '#ed64a6',
+      '金色': '#d69e2e', '銀色': '#cbd5e0'
+    };
+    return map[color] || (color.charAt(0) === '#' ? color : 'transparent');
   }
 
   // ============================================================

@@ -245,10 +245,16 @@
     "captainWhatsApp": "負責人 WhatsApp",
     "playerName": "球員姓名",
     "jerseyNumber": "球衣號碼",
+    "jerseyHome": "主場球衣顏色",
+    "jerseyAway": "客場球衣顏色",
     "height": "身高",
     "weight": "體重",
     "position": "位置",
-    "photo": "照片 URL"
+    "photo": "照片 URL",
+    "announcementHidden": "公告已隱藏",
+    "announcementShown": "公告已顯示",
+    "hideAnnouncement": "隱藏",
+    "showAnnouncement": "顯示"
   },
   "advanced": {
     "tsPct": "True Shooting %",

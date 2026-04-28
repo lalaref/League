@@ -104,6 +104,7 @@
                         <thead>
                             <tr>
                                 <th data-i18n="admin.teamName">球隊名稱</th>
+                                <th>球衣顏色</th>
                                 <th>負責人</th>
                                 <th>負責人 WhatsApp</th>
                                 <th>自助管理連結</th>
@@ -185,19 +186,26 @@
 
         function loadTeams() {
             var sid = seasonSelect.value;
-            if (!sid) { tbody.innerHTML = '<tr><td colspan="5" class="text-muted">' + I18n.t('common.noData') + '</td></tr>'; return; }
+            if (!sid) { tbody.innerHTML = '<tr><td colspan="6" class="text-muted">' + I18n.t('common.noData') + '</td></tr>'; return; }
             API.getTeams(sid).then(function (teams) {
                 tbody.innerHTML = '';
                 if (!teams || teams.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" class="text-muted">' + I18n.t('common.noData') + '</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-muted">' + I18n.t('common.noData') + '</td></tr>';
                     return;
                 }
                 teams.forEach(function (t) {
                     var tr = document.createElement('tr');
                     var manageUrl = t.teamToken ? (window.location.origin + window.location.pathname.replace(/admin\/teams\.html.*/, 'team-manage.html?token=' + t.teamToken)) : '';
                     var linkHtml = manageUrl ? '<a href="' + manageUrl + '" target="_blank" style="font-size:0.75rem;word-break:break-all">' + manageUrl.substring(0, 50) + '...</a> <button class="btn btn-sm btn-outline btn-copy" data-url="' + _esc(manageUrl) + '">複製</button>' : '—';
+                    // Jersey color badges
+                    var jerseyHtml = '';
+                    if (t.jerseyHome) jerseyHtml += '<span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:' + _jerseyColor(t.jerseyHome) + ';border:1px solid rgba(255,255,255,0.2);vertical-align:middle"></span> 主:' + _esc(t.jerseyHome);
+                    if (t.jerseyHome && t.jerseyAway) jerseyHtml += '<br>';
+                    if (t.jerseyAway) jerseyHtml += '<span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:' + _jerseyColor(t.jerseyAway) + ';border:1px solid rgba(255,255,255,0.2);vertical-align:middle"></span> 客:' + _esc(t.jerseyAway);
+                    if (!jerseyHtml) jerseyHtml = '—';
                     tr.innerHTML =
                         '<td>' + _esc(t.name) + '</td>' +
+                        '<td style="font-size:0.8rem">' + jerseyHtml + '</td>' +
                         '<td>' + _esc(t.captain) + '</td>' +
                         '<td>' + _esc(t.captainWhatsApp) + '</td>' +
                         '<td>' + linkHtml + '</td>' +
@@ -219,8 +227,27 @@
                 });
                 bindRowButtons(teams);
             }).catch(function () {
-                tbody.innerHTML = '<tr><td colspan="5" class="text-muted">' + I18n.t('error.loadFailed') + '</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="text-muted">' + I18n.t('error.loadFailed') + '</td></tr>';
             });
+        }
+
+        function _jerseyColor(color) {
+            if (!color) return 'transparent';
+            var map = {
+                '白色': '#ffffff', '白': '#ffffff',
+                '黑色': '#222222', '黑': '#222222',
+                '紅色': '#e53e3e', '紅': '#e53e3e',
+                '藍色': '#3182ce', '藍': '#3182ce',
+                '綠色': '#38a169', '綠': '#38a169',
+                '黃色': '#ecc94b', '黃': '#ecc94b',
+                '橙色': '#ed8936', '橙': '#ed8936',
+                '紫色': '#805ad5', '紫': '#805ad5',
+                '灰色': '#a0aec0', '灰': '#a0aec0',
+                '深藍': '#1a365d', '淺藍': '#63b3ed',
+                '深紅': '#9b2c2c', '粉紅': '#ed64a6', '粉紅色': '#ed64a6',
+                '金色': '#d69e2e', '銀色': '#cbd5e0'
+            };
+            return map[color] || (color.charAt(0) === '#' ? color : 'transparent');
         }
 
         function bindRowButtons(teams) {

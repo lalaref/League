@@ -245,10 +245,16 @@
     "captainWhatsApp": "Contact WhatsApp",
     "playerName": "Player Name",
     "jerseyNumber": "Jersey Number",
+    "jerseyHome": "Home Jersey Color",
+    "jerseyAway": "Away Jersey Color",
     "height": "Height",
     "weight": "Weight",
     "position": "Position",
-    "photo": "Photo URL"
+    "photo": "Photo URL",
+    "announcementHidden": "Announcement hidden",
+    "announcementShown": "Announcement shown",
+    "hideAnnouncement": "Hide",
+    "showAnnouncement": "Show"
   },
   "advanced": {
     "tsPct": "True Shooting %",

@@ -105,11 +105,17 @@
             </header>
         </section>
 
-        <!-- 聯賽公告 -->
-        <section class="section announcements" aria-label="聯賽公告">
+        <!-- 即將進行的賽程 -->
+        <section class="section upcoming-games" aria-label="即將進行的賽程">
             <div class="container">
-                <h2 class="section-title" data-i18n="home.announcements">聯賽公告</h2>
-                <div id="announcements-list" class="announcements-list">
+                <div class="section-header-row">
+                    <h2 class="section-title" data-i18n="home.upcomingGames">即將進行的賽程</h2>
+                    <div class="section-share-actions">
+                        <button class="btn btn-sm btn-share-wa" onclick="DashboardShare.shareUpcoming()" aria-label="WhatsApp 分享">📱 WhatsApp</button>
+                        <button class="btn btn-sm btn-share-img" onclick="DashboardShare.exportUpcoming()" aria-label="匯出圖片">📷 匯出JPG</button>
+                    </div>
+                </div>
+                <div id="upcoming-games-list" class="games-grid">
                     <!-- 動態載入 -->
                 </div>
             </div>
@@ -118,18 +124,14 @@
         <!-- 最近比賽結果 -->
         <section class="section recent-games" aria-label="最近比賽結果">
             <div class="container">
-                <h2 class="section-title" data-i18n="home.recentGames">最近比賽結果</h2>
-                <div id="recent-games-list" class="games-grid">
-                    <!-- 動態載入 -->
+                <div class="section-header-row">
+                    <h2 class="section-title" data-i18n="home.recentGames">最近比賽結果</h2>
+                    <div class="section-share-actions">
+                        <button class="btn btn-sm btn-share-wa" onclick="DashboardShare.shareRecent()" aria-label="WhatsApp 分享">📱 WhatsApp</button>
+                        <button class="btn btn-sm btn-share-img" onclick="DashboardShare.exportRecent()" aria-label="匯出圖片">📷 匯出JPG</button>
+                    </div>
                 </div>
-            </div>
-        </section>
-
-        <!-- 即將進行的賽程 -->
-        <section class="section upcoming-games" aria-label="即將進行的賽程">
-            <div class="container">
-                <h2 class="section-title" data-i18n="home.upcomingGames">即將進行的賽程</h2>
-                <div id="upcoming-games-list" class="games-grid">
+                <div id="recent-games-list" class="games-grid">
                     <!-- 動態載入 -->
                 </div>
             </div>
@@ -138,7 +140,13 @@
         <!-- 球隊排名 -->
         <section class="section standings-preview" aria-label="球隊排名">
             <div class="container">
-                <h2 class="section-title" data-i18n="home.standings">球隊排名</h2>
+                <div class="section-header-row">
+                    <h2 class="section-title" data-i18n="home.standings">球隊排名</h2>
+                    <div class="section-share-actions">
+                        <button class="btn btn-sm btn-share-wa" onclick="DashboardShare.shareStandings()" aria-label="WhatsApp 分享">📱 WhatsApp</button>
+                        <button class="btn btn-sm btn-share-img" onclick="DashboardShare.exportStandings()" aria-label="匯出圖片">📷 匯出JPG</button>
+                    </div>
+                </div>
                 <div class="table-wrapper">
                     <table id="standings-table" class="data-table">
                         <thead>
@@ -157,6 +165,22 @@
                             <!-- 動態載入 -->
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 聯賽公告 -->
+        <section class="section announcements" aria-label="聯賽公告">
+            <div class="container">
+                <div class="section-header-row">
+                    <h2 class="section-title" data-i18n="home.announcements">聯賽公告</h2>
+                    <div class="section-share-actions">
+                        <button class="btn btn-sm btn-share-wa" onclick="DashboardShare.shareAnnouncements()" aria-label="WhatsApp 分享">📱 WhatsApp</button>
+                        <button class="btn btn-sm btn-share-img" onclick="DashboardShare.exportAnnouncements()" aria-label="匯出圖片">📷 匯出JPG</button>
+                    </div>
+                </div>
+                <div id="announcements-list" class="announcements-list">
+                    <!-- 動態載入 -->
                 </div>
             </div>
         </section>
@@ -200,7 +224,8 @@
     <script src="js/api.js?v=20260409"></script>
     <script src="js/i18n.js?v=20260409"></script>
     <script src="js/navigation.js?v=20260409"></script>
-    <script src="js/dashboard.js?v=20260410"></script>
+    <script src="js/dashboard.js?v=20260428"></script>
+    <script src="js/dashboard-share.js?v=20260428"></script>
     <script>
         // 初始化國際化模組
         I18n.init();

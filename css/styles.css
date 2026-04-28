@@ -1670,3 +1670,76 @@ img {
     text-align: center;
     padding: var(--spacing-xs) var(--spacing-sm);
 }
+
+/* --- 球衣顏色標記 --- */
+.jersey-badge {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    vertical-align: middle;
+    margin-left: 4px;
+    margin-right: 2px;
+    flex-shrink: 0;
+}
+
+.jersey-label {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    vertical-align: middle;
+}
+
+/* --- 首頁區塊標題列（含分享按鈕） --- */
+.section-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+}
+
+.section-header-row .section-title {
+    margin-bottom: 0;
+}
+
+.section-share-actions {
+    display: flex;
+    gap: var(--spacing-xs);
+    flex-shrink: 0;
+}
+
+.btn-share-wa {
+    background: #25d366;
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-xs);
+    cursor: pointer;
+    transition: background var(--transition-fast), transform var(--transition-fast);
+    white-space: nowrap;
+}
+
+.btn-share-wa:hover {
+    background: #1da851;
+    transform: scale(1.03);
+}
+
+.btn-share-img {
+    background: var(--color-surface-light);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-xs);
+    cursor: pointer;
+    transition: background var(--transition-fast), transform var(--transition-fast);
+    white-space: nowrap;
+}
+
+.btn-share-img:hover {
+    background: var(--color-surface);
+    border-color: var(--color-accent);
+    transform: scale(1.03);
+}

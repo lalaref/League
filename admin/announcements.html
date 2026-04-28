@@ -57,6 +57,12 @@
                             <span>置頂公告</span>
                         </label>
                     </div>
+                    <div class="admin-form-group">
+                        <label class="admin-attendance-item">
+                            <input type="checkbox" id="ann-hidden">
+                            <span>隱藏公告（不在首頁顯示）</span>
+                        </label>
+                    </div>
                     <div class="admin-actions">
                         <button id="btn-save" class="btn btn-primary">儲存</button>
                         <button id="btn-cancel" class="btn btn-outline">取消</button>
@@ -72,6 +78,7 @@
                                 <th>標題</th>
                                 <th>圖片</th>
                                 <th>置頂</th>
+                                <th>顯示</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -134,6 +141,7 @@
             document.getElementById('ann-photo').value = '';
             document.getElementById('ann-photo-preview').innerHTML = '';
             document.getElementById('ann-pinned').checked = false;
+            document.getElementById('ann-hidden').checked = false;
             formEl.hidden = false;
         });
 
@@ -146,10 +154,11 @@
             var content = document.getElementById('ann-content').value.trim();
             var photo = document.getElementById('ann-photo').value.trim();
             var pinned = document.getElementById('ann-pinned').checked;
+            var hidden = document.getElementById('ann-hidden').checked;
             if (!title || !content) { showMsg('標題和內容為必填', 'error'); return; }
 
             var action = editingId ? 'updateAnnouncement' : 'createAnnouncement';
-            var data = { title: title, content: content, photo: photo, pinned: pinned };
+            var data = { title: title, content: content, photo: photo, pinned: pinned, hidden: hidden };
             if (editingId) data.announcementId = editingId;
 
             API.post(action, data).then(function () {
@@ -172,17 +181,23 @@
         function renderList() {
             tbody.innerHTML = '';
             if (allAnn.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="text-muted">暫無公告</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="text-muted">暫無公告</td></tr>';
                 return;
             }
             allAnn.forEach(function (a) {
                 var tr = document.createElement('tr');
+                if (a.hidden === true || a.hidden === 'true') tr.style.opacity = '0.5';
                 var photoThumb = a.photo ? '<img src="' + _esc(a.photo) + '" style="width:40px;height:40px;object-fit:cover;border-radius:4px">' : '-';
+                var isHidden = a.hidden === true || a.hidden === 'true';
+                var visibilityBtn = isHidden
+                    ? '<button class="btn btn-sm btn-outline btn-toggle-vis" data-id="' + a.id + '" data-action="show" title="顯示">👁️ 顯示</button>'
+                    : '<button class="btn btn-sm btn-outline btn-toggle-vis" data-id="' + a.id + '" data-action="hide" title="隱藏">🙈 隱藏</button>';
                 tr.innerHTML =
                     '<td>' + _esc(a.date || '') + '</td>' +
-                    '<td>' + _esc(a.title || '') + '</td>' +
+                    '<td>' + _esc(a.title || '') + (isHidden ? ' <span style="color:#e94560;font-size:0.75rem">（已隱藏）</span>' : '') + '</td>' +
                     '<td>' + photoThumb + '</td>' +
                     '<td>' + (a.pinned === true || a.pinned === 'true' ? '📌' : '') + '</td>' +
+                    '<td>' + visibilityBtn + '</td>' +
                     '<td>' +
                     '<button class="btn btn-sm btn-outline btn-edit" data-id="' + a.id + '">編輯</button> ' +
                     '<button class="btn btn-sm btn-outline btn-del" data-id="' + a.id + '">刪除</button>' +
@@ -205,6 +220,7 @@
                     document.getElementById('ann-photo').value = a.photo || '';
                     document.getElementById('ann-photo-preview').innerHTML = a.photo ? '<img src="' + _esc(a.photo) + '" style="max-width:200px;max-height:120px;border-radius:8px">' : '';
                     document.getElementById('ann-pinned').checked = (a.pinned === true || a.pinned === 'true');
+                    document.getElementById('ann-hidden').checked = (a.hidden === true || a.hidden === 'true');
                     formEl.hidden = false;
                 });
             });
@@ -216,6 +232,17 @@
                         showMsg('公告已刪除', 'success');
                         loadAnnouncements();
                     }).catch(function () { showMsg('刪除失敗', 'error'); });
+                });
+            });
+            tbody.querySelectorAll('.btn-toggle-vis').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var id = btn.getAttribute('data-id');
+                    var action = btn.getAttribute('data-action');
+                    var newHidden = action === 'hide';
+                    API.post('updateAnnouncement', { announcementId: id, hidden: newHidden }).then(function () {
+                        showMsg(newHidden ? '公告已隱藏' : '公告已顯示', 'success');
+                        loadAnnouncements();
+                    }).catch(function () { showMsg('操作失敗', 'error'); });
                 });
             });
         }

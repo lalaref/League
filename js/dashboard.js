@@ -185,8 +185,16 @@
           announcementsEl.innerHTML = '<p class="text-muted" data-i18n="common.noData">' + I18n.t('common.noData') + '</p>';
           return;
         }
+        // Filter out hidden announcements
+        var visible = announcements.filter(function (a) {
+          return a.hidden !== true && a.hidden !== 'true';
+        });
+        if (visible.length === 0) {
+          announcementsEl.innerHTML = '<p class="text-muted" data-i18n="common.noData">' + I18n.t('common.noData') + '</p>';
+          return;
+        }
         // 取最近 5 則公告
-        var recent = announcements.slice(0, 5);
+        var recent = visible.slice(0, 5);
         announcementsEl.innerHTML = recent.map(renderAnnouncement).join('');
       })
       .catch(function () {

@@ -100,6 +100,9 @@
   }
 
   // --- 載入賽程列表 ---
+  // Team data cache for jersey colors
+  var _teamsCache = [];
+
   function _loadSchedule() {
     if (!currentSeasonId) return;
     _showEl(scheduleLoading);
@@ -113,18 +116,24 @@
       .then(function (results) {
         var games = results[0];
         var teams = results[1] || [];
+        _teamsCache = teams;
         _hideEl(scheduleLoading);
         if (!games || games.length === 0) {
           _showEl(scheduleEmpty);
           return;
         }
-        // Client-side team name resolution fallback
+        // Client-side team name resolution fallback + jersey color mapping
         if (teams.length > 0) {
           var teamMap = {};
-          teams.forEach(function (t) { teamMap[t.id] = t.name; });
+          teams.forEach(function (t) { teamMap[t.id] = t; });
           games.forEach(function (g) {
-            if (!g.homeTeamName && g.homeTeamId) g.homeTeamName = teamMap[g.homeTeamId] || '';
-            if (!g.awayTeamName && g.awayTeamId) g.awayTeamName = teamMap[g.awayTeamId] || '';
+            var homeTeam = teamMap[g.homeTeamId];
+            var awayTeam = teamMap[g.awayTeamId];
+            if (!g.homeTeamName && homeTeam) g.homeTeamName = homeTeam.name || '';
+            if (!g.awayTeamName && awayTeam) g.awayTeamName = awayTeam.name || '';
+            // Attach jersey colors
+            g._homeJersey = homeTeam ? (homeTeam.jerseyHome || '') : '';
+            g._awayJersey = awayTeam ? (awayTeam.jerseyAway || '') : '';
           });
         }
         _renderScheduleTable(games);
@@ -152,9 +161,16 @@
       var tr = document.createElement('tr');
       var homeName = game.homeTeamName || game.home || game.homeTeam || '—';
       var awayName = game.awayTeamName || game.away || game.awayTeam || '—';
-      var matchup = homeName + ' vs ' + awayName;
-      var result = '';
 
+      // Build matchup with jersey color badges
+      var homeJersey = game._homeJersey || '';
+      var awayJersey = game._awayJersey || '';
+      var homeJerseyHtml = homeJersey ? ' <span class="jersey-badge" title="主場球衣" style="' + _jerseyStyle(homeJersey) + '"></span><span class="jersey-label">(' + _escHtml(homeJersey) + ')</span>' : '';
+      var awayJerseyHtml = awayJersey ? ' <span class="jersey-badge" title="客場球衣" style="' + _jerseyStyle(awayJersey) + '"></span><span class="jersey-label">(' + _escHtml(awayJersey) + ')</span>' : '';
+
+      var matchupHtml = _escHtml(homeName) + homeJerseyHtml + ' vs ' + _escHtml(awayName) + awayJerseyHtml;
+
+      var result = '';
       if (game.result) {
         result = game.result;
       } else if (game.status === 'cancelled') {
@@ -169,11 +185,38 @@
         '<td>' + _escHtml(Utils.formatDateWithDay(game.date)) + '</td>' +
         '<td>' + _escHtml(Utils.formatTime(game.time)) + '</td>' +
         '<td>' + _escHtml(game.venue || '—') + '</td>' +
-        '<td>' + _escHtml(matchup) + '</td>' +
+        '<td>' + matchupHtml + '</td>' +
         '<td>' + _escHtml(result) + '</td>';
 
       scheduleTbody.appendChild(tr);
     });
+  }
+
+  /**
+   * Generate inline style for jersey color badge.
+   * Supports hex colors (#fff, #ffffff) and Chinese color names.
+   */
+  function _jerseyStyle(color) {
+    if (!color) return '';
+    var colorMap = {
+      '白色': '#ffffff', '白': '#ffffff',
+      '黑色': '#222222', '黑': '#222222',
+      '紅色': '#e53e3e', '紅': '#e53e3e',
+      '藍色': '#3182ce', '藍': '#3182ce',
+      '綠色': '#38a169', '綠': '#38a169',
+      '黃色': '#ecc94b', '黃': '#ecc94b',
+      '橙色': '#ed8936', '橙': '#ed8936',
+      '紫色': '#805ad5', '紫': '#805ad5',
+      '灰色': '#a0aec0', '灰': '#a0aec0',
+      '深藍': '#1a365d', '淺藍': '#63b3ed',
+      '深紅': '#9b2c2c', '粉紅': '#ed64a6', '粉紅色': '#ed64a6',
+      '金色': '#d69e2e', '銀色': '#cbd5e0'
+    };
+    var bg = colorMap[color] || (color.charAt(0) === '#' ? color : '');
+    if (!bg) return 'display:none';
+    // Add border for light colors
+    var border = (bg === '#ffffff' || bg === '#cbd5e0' || bg === '#ecc94b') ? 'border:1px solid rgba(0,0,0,0.3);' : 'border:1px solid rgba(255,255,255,0.2);';
+    return 'background-color:' + bg + ';' + border;
   }
 
   // --- 載入季後賽對陣 ---
