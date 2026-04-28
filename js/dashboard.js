@@ -123,17 +123,41 @@
     return html;
   }
 
+  // --- Team data cache for jersey colors on home page ---
+  var _teamsMap = {};
+
   // --- 即將進行的賽程（需求 3.2）---
   function loadUpcomingGames() {
     if (!upcomingGamesEl) return;
     upcomingGamesEl.innerHTML = '<div class="loading" data-i18n="common.loading">' + I18n.t('common.loading') + '</div>';
 
-    API.getSchedule(currentSeasonId)
-      .then(function (games) {
+    Promise.all([
+      API.getSchedule(currentSeasonId),
+      API.getTeams(currentSeasonId)
+    ])
+      .then(function (results) {
+        var games = results[0];
+        var teams = results[1] || [];
+
+        // Build team map for jersey colors and name resolution
+        _teamsMap = {};
+        teams.forEach(function (t) { _teamsMap[t.id] = t; });
+
         if (!games || games.length === 0) {
           upcomingGamesEl.innerHTML = '<p class="text-muted" data-i18n="common.noData">' + I18n.t('common.noData') + '</p>';
           return;
         }
+
+        // Resolve team names and attach jersey colors
+        games.forEach(function (g) {
+          var ht = _teamsMap[g.homeTeamId];
+          var at = _teamsMap[g.awayTeamId];
+          if (!g.homeTeamName && ht) g.homeTeamName = ht.name || '';
+          if (!g.awayTeamName && at) g.awayTeamName = at.name || '';
+          g._homeJersey = ht ? (ht.jerseyHome || '') : '';
+          g._awayJersey = at ? (at.jerseyAway || '') : '';
+        });
+
         // 篩選未完成比賽，按日期升序，取最近 6 場
         var upcoming = games.filter(function (g) { return g.status === 'scheduled'; });
         upcoming.sort(function (a, b) { return (a.date || '').localeCompare(b.date || ''); });
@@ -151,7 +175,7 @@
   }
 
   /**
-   * 渲染即將進行的賽程卡片
+   * 渲染即將進行的賽程卡片（含球衣顏色）
    */
   function renderUpcomingCard(game) {
     var homeName = game.homeTeamName || game.home || game.homeTeamId || '—';
@@ -160,18 +184,56 @@
     var time = _formatTime(game.time);
     var venue = game.venue || '';
 
+    // Jersey color swatches
+    var homeJerseyHtml = _jerseyBadge(game._homeJersey);
+    var awayJerseyHtml = _jerseyBadge(game._awayJersey);
+
     var html = '<div class="game-card game-card--upcoming">';
     html += '<div class="game-card-date text-muted">' + escapeHtml(date) + (time ? ' ' + escapeHtml(time) : '') + '</div>';
     html += '<div class="game-card-matchup">';
-    html += '<span class="game-card-team">' + escapeHtml(homeName) + '</span>';
+    html += '<span class="game-card-team">' + escapeHtml(homeName) + homeJerseyHtml + '</span>';
     html += '<span class="game-card-vs">' + I18n.t('common.vs') + '</span>';
-    html += '<span class="game-card-team">' + escapeHtml(awayName) + '</span>';
+    html += '<span class="game-card-team">' + escapeHtml(awayName) + awayJerseyHtml + '</span>';
     html += '</div>';
     if (venue) {
       html += '<div class="game-card-venue text-muted">📍 ' + escapeHtml(venue) + '</div>';
     }
     html += '</div>';
     return html;
+  }
+
+  /**
+   * Generate jersey color badge HTML (swatch only)
+   */
+  function _jerseyBadge(color) {
+    if (!color) return '';
+    var bg = _jerseyColor(color);
+    if (bg === 'transparent') return '';
+    var border = (bg === '#ffffff' || bg === '#cbd5e0' || bg === '#ecc94b')
+      ? 'border:1px solid rgba(0,0,0,0.3);' : 'border:1px solid rgba(255,255,255,0.2);';
+    return ' <span class="jersey-badge" title="' + escapeHtml(color) + '" style="background-color:' + bg + ';' + border + '"></span>';
+  }
+
+  /**
+   * Map color names/hex to CSS color
+   */
+  function _jerseyColor(color) {
+    if (!color) return 'transparent';
+    var map = {
+      '白色': '#ffffff', '白': '#ffffff',
+      '黑色': '#222222', '黑': '#222222',
+      '紅色': '#e53e3e', '紅': '#e53e3e',
+      '藍色': '#3182ce', '藍': '#3182ce',
+      '綠色': '#38a169', '綠': '#38a169',
+      '黃色': '#ecc94b', '黃': '#ecc94b',
+      '橙色': '#ed8936', '橙': '#ed8936',
+      '紫色': '#805ad5', '紫': '#805ad5',
+      '灰色': '#a0aec0', '灰': '#a0aec0',
+      '深藍': '#1a365d', '淺藍': '#63b3ed',
+      '深紅': '#9b2c2c', '粉紅': '#ed64a6', '粉紅色': '#ed64a6',
+      '金色': '#d69e2e', '銀色': '#cbd5e0'
+    };
+    return map[color] || (color.charAt(0) === '#' ? color : 'transparent');
   }
 
   // --- 聯賽公告（需求 3.3）---
