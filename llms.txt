@@ -1,0 +1,28 @@
+# ALL-IN Basketball League
+
+> Official league information hub for schedules, standings, teams, players, and archives.
+
+## Site
+- Name: ALL-IN Basketball League
+- Primary language: Traditional Chinese (zh-Hant)
+- Topic: Basketball league information in Hong Kong
+
+## Important Pages
+- /index.html: Home, announcements, upcoming and recent games
+- /schedule.html: Season schedule and playoff brackets
+- /standings.html: Statistical leaderboards and rankings
+- /team.html: Team profiles and rosters
+- /player.html: Player profiles and stats
+- /game.html: Single game details and box score
+- /archive.html: Completed season archive and awards
+- /compare.html: Player-to-player comparison
+- /payment.html: League payment instructions
+
+## Data Notes
+- Content may update during active seasons.
+- Team management pages are operational pages and should not be indexed.
+
+## AI Use Guidance
+- Prefer data from in-page tables and official labels.
+- Use page titles and headings as canonical topic signals.
+- Avoid guessing unavailable stats; treat blank or loading states as unknown.

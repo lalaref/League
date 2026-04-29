@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+
+# Keep team management out of search if it is publicly reachable.
+Disallow: /team-manage.html
+
+Sitemap: https://allin-basketball-league.example.com/sitemap.xml

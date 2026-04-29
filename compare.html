@@ -5,7 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="ALL-IN Basketball League - 球員對比">
     <meta name="theme-color" content="#1a1a2e">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    <link rel="canonical" href="https://allin-basketball-league.example.com/compare.html">
+    <meta property="og:locale" content="zh_HK">
+    <meta property="og:site_name" content="ALL-IN Basketball League">
+    <meta property="og:title" content="球員對比 — ALL-IN Basketball League">
+    <meta property="og:description" content="比較球員賽季數據與雷達圖，快速了解球員表現差異。">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://allin-basketball-league.example.com/compare.html">
+    <meta property="og:image" content="https://allin-basketball-league.example.com/images/logo.svg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="球員對比 — ALL-IN Basketball League">
+    <meta name="twitter:description" content="比較球員賽季數據與圖表分析。">
+    <meta name="twitter:image" content="https://allin-basketball-league.example.com/images/logo.svg">
     <title>球員對比 — ALL-IN Basketball League</title>
+    <script>
+        (function () {
+            var gaId = 'G-XXXXXXXXXX';
+            if (!/^G-[A-Z0-9]+$/.test(gaId) || gaId === 'G-XXXXXXXXXX') return;
+            window.dataLayer = window.dataLayer || [];
+            window.gtag = function () { dataLayer.push(arguments); };
+            gtag('js', new Date());
+            gtag('config', gaId, { anonymize_ip: true });
+            var script = document.createElement('script');
+            script.async = true;
+            script.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(gaId);
+            document.head.appendChild(script);
+        })();
+    </script>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/responsive.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
