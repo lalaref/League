@@ -93,10 +93,17 @@
 
                 <!-- Game MVP 選擇 -->
                 <div id="mvp-section" class="admin-form-group" hidden>
-                    <h3 class="admin-subtitle">🏆 Game MVP</h3>
-                    <select id="mvp-select" class="admin-select">
-                        <option value="">-- 選擇 MVP --</option>
-                    </select>
+                    <div class="admin-mvp-card">
+                        <h3 class="admin-subtitle">🏆 Game MVP</h3>
+                        <p class="admin-mvp-note">請選擇本場 MVP，將同步顯示在比賽詳情頁並可直接連到球員檔案。</p>
+                        <label for="mvp-select" class="admin-label">MVP 球員</label>
+                        <select id="mvp-select" class="admin-select">
+                            <option value="">-- 選擇 MVP --</option>
+                        </select>
+                        <div id="mvp-profile-box" class="admin-mvp-profile" hidden>
+                            <a id="mvp-profile-link" href="#" target="_blank" rel="noopener">查看球員檔案</a>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- 手機滑動提示 -->

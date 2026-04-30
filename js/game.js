@@ -88,8 +88,52 @@
     // 渲染節分 (Q1-Q4)
     _renderQuarterScores(game);
 
+    // 渲染本場 MVP（連結球員頁）
+    _renderGameMvp(game, homeStats, awayStats);
+
     // 設定 WhatsApp 分享按鈕
     _setupWhatsAppShare(game, data);
+  }
+
+  /**
+   * 渲染本場 MVP 卡片，並連結到球員檔案
+   * @param {Object} game
+   * @param {Object[]} homeStats
+   * @param {Object[]} awayStats
+   */
+  function _renderGameMvp(game, homeStats, awayStats) {
+    var section = document.getElementById('game-mvp-section');
+    var linkEl = document.getElementById('game-mvp-link');
+    var teamEl = document.getElementById('game-mvp-team');
+    var statsEl = document.getElementById('game-mvp-stats');
+    if (!section || !linkEl || !teamEl || !statsEl) return;
+
+    var mvpId = game.mvpPlayerId;
+    if (!mvpId) {
+      section.hidden = true;
+      return;
+    }
+
+    var allStats = (homeStats || []).concat(awayStats || []);
+    var mvp = allStats.find(function (p) { return p.playerId === mvpId; }) || null;
+    if (!mvp) {
+      section.hidden = true;
+      return;
+    }
+
+    var mvpName = mvp.playerName || mvp.playerId || 'MVP';
+    var teamName = mvp.teamName || (mvp.teamId === game.homeTeamId ? game.homeTeamName : game.awayTeamName) || mvp.teamId || '—';
+    var reb = mvp.reb != null ? mvp.reb : ((mvp.oreb || 0) + (mvp.dreb || 0));
+
+    linkEl.href = 'player.html?id=' + encodeURIComponent(mvp.playerId);
+    linkEl.textContent = (mvp.number != null && mvp.number !== '' ? ('#' + mvp.number + ' ') : '') + mvpName;
+    teamEl.textContent = '所屬球隊：' + teamName;
+    statsEl.textContent =
+      (mvp.pts != null ? mvp.pts : 0) + ' PTS  •  ' +
+      reb + ' REB  •  ' +
+      (mvp.ast != null ? mvp.ast : 0) + ' AST';
+
+    section.hidden = false;
   }
 
   /**

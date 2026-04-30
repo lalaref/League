@@ -1645,6 +1645,57 @@ img {
     letter-spacing: 0.05em;
 }
 
+.game-mvp-section {
+    padding-top: var(--spacing-lg);
+    padding-bottom: var(--spacing-sm);
+}
+
+.game-mvp-card {
+    max-width: 680px;
+    margin: 0 auto;
+    text-align: center;
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-lg);
+    border: 1px solid rgba(245, 166, 35, 0.35);
+    background: linear-gradient(140deg, rgba(245, 166, 35, 0.16), rgba(233, 69, 96, 0.08));
+    box-shadow: var(--shadow-md);
+}
+
+.game-mvp-badge {
+    margin-bottom: var(--spacing-xs);
+    font-size: var(--font-size-sm);
+    color: var(--color-accent-light);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.08em;
+}
+
+.game-mvp-name {
+    display: inline-block;
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-inverse);
+    text-decoration: none;
+}
+
+.game-mvp-name:hover {
+    color: var(--color-accent-light);
+    text-decoration: underline;
+}
+
+.game-mvp-team {
+    margin-top: var(--spacing-xs);
+    margin-bottom: var(--spacing-xs);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+.game-mvp-stats {
+    margin-bottom: 0;
+    font-size: var(--font-size-base);
+    color: var(--color-text);
+    font-weight: var(--font-weight-medium);
+}
+
 .game-share {
     padding: var(--spacing-md) 0;
     text-align: center;

@@ -17,6 +17,7 @@
   var actionsEl = document.getElementById('boxscore-actions');
   var submitBtn = document.getElementById('btn-submit-boxscore');
   var updateBtn = document.getElementById('btn-update-boxscore');
+  var mvpSelectEl = document.getElementById('mvp-select');
   var swipeHint = document.getElementById('swipe-hint');
   var playerIndicator = document.getElementById('player-indicator');
   var boxscoreBody = document.getElementById('boxscore-body');
@@ -40,6 +41,7 @@
   });
   submitBtn.addEventListener('click', handleSubmit);
   updateBtn.addEventListener('click', handleUpdate);
+  if (mvpSelectEl) mvpSelectEl.addEventListener('change', updateMvpProfileLink);
   confirmAttendanceBtn.addEventListener('click', confirmAttendance);
 
   function loadSeasons() {
@@ -206,6 +208,27 @@
       mvpSelect.appendChild(opt);
     });
     mvpSection.hidden = false;
+    updateMvpProfileLink();
+  }
+
+  function updateMvpProfileLink() {
+    var profileBox = document.getElementById('mvp-profile-box');
+    var profileLink = document.getElementById('mvp-profile-link');
+    if (!profileBox || !profileLink || !mvpSelectEl) return;
+
+    var playerId = mvpSelectEl.value;
+    if (!playerId) {
+      profileBox.hidden = true;
+      profileLink.removeAttribute('href');
+      return;
+    }
+
+    var player = allPlayers.find(function (p) { return p.id === playerId; }) || null;
+    var playerLabel = player ? ('#' + (player.number || '?') + ' ' + player.name) : playerId;
+
+    profileLink.href = '../player.html?id=' + encodeURIComponent(playerId);
+    profileLink.textContent = '查看球員檔案：' + playerLabel;
+    profileBox.hidden = false;
   }
 
   function buildFromExisting(boxData) {
@@ -223,6 +246,7 @@
       var mvpSelect = document.getElementById('mvp-select');
       if (mvpSelect) mvpSelect.value = game.mvpPlayerId;
     }
+    updateMvpProfileLink();
     ['homeQ1','homeQ2','homeQ3','homeQ4','awayQ1','awayQ2','awayQ3','awayQ4'].forEach(function(qf) {
       var el = document.getElementById('qs-' + qf);
       if (el && game[qf]) el.value = game[qf];
@@ -432,6 +456,8 @@
     quarterSection.hidden = true; attendanceSection.hidden = true;
     var mvpSection = document.getElementById('mvp-section');
     if (mvpSection) mvpSection.hidden = true;
+    var profileBox = document.getElementById('mvp-profile-box');
+    if (profileBox) profileBox.hidden = true;
     allPlayers = []; currentGame = null; existingBoxScore = null;
   }
 
