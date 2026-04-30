@@ -6,7 +6,9 @@
 (function () {
   'use strict';
 
-  var STAT_FIELDS = ['pts','oreb','dreb','ast','stl','blk','fgm','fga','tpm','tpa','ftm','fta','to','fouls'];
+  // Keep UI order aligned with scorer workflow.
+  // Note: fgm is preserved in payload for backend compatibility, but not shown in input UI.
+  var STAT_FIELDS = ['fouls','pts','fga','tpm','tpa','ftm','fta','oreb','dreb','ast','stl','blk','to'];
   var seasonSelect = document.getElementById('season-select');
   var gameSelect = document.getElementById('game-select');
   var messageEl = document.getElementById('boxscore-message');
@@ -349,9 +351,6 @@
       if (num < 0) { showFieldError(idx, f, I18n.t('error.negativeNumber',{field:f.toUpperCase()})); errors.push({idx:idx,field:f}); return; }
       vals[f] = num;
     });
-    if (vals.fgm !== undefined && vals.fga !== undefined && vals.fgm > vals.fga) {
-      showFieldError(idx,'fgm',I18n.t('error.fgmExceedsFga')); errors.push({idx:idx,field:'fgm'});
-    }
     if (vals.tpm !== undefined && vals.tpa !== undefined && vals.tpm > vals.tpa) {
       showFieldError(idx,'tpm',I18n.t('error.tpmExceedsTpa')); errors.push({idx:idx,field:'tpm'});
     }
@@ -384,6 +383,7 @@
     return allPlayers.map(function (p, idx) {
       var entry = {playerId: p.id, teamId: p.teamId};
       STAT_FIELDS.forEach(function(f){ var inp = getInput(idx,f); entry[f] = parseInt(inp.value,10)||0; });
+      entry.fgm = (p.stats && Number.isInteger(Number(p.stats.fgm))) ? Number(p.stats.fgm) : 0;
       return entry;
     });
   }

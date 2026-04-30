@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="ALL-IN Basketball League - 球隊管理">
+    <meta name="description" content="ALL-IN Basketball League - çƒéšŠç®¡ç†">
     <meta name="theme-color" content="#1a1a2e">
         <!-- Google tag (gtag.js) -->
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-S64W9C7CYZ"></script>
@@ -14,20 +14,20 @@
 
             gtag('config', 'G-S64W9C7CYZ');
         </script>
-    <title>球隊管理 — ALL-IN Basketball League</title>
+    <title>çƒéšŠç®¡ç† â€” ALL-IN Basketball League</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/responsive.css">
     <link rel="stylesheet" href="css/admin.css">
 </head>
 <body>
     <header class="site-header">
-        <nav class="main-nav" aria-label="主導航">
+        <nav class="main-nav" aria-label="ä¸»å°Žèˆª">
             <div class="nav-container">
-                <a href="index.html" class="nav-logo" aria-label="ALL-IN Basketball League 首頁">
+                <a href="index.html" class="nav-logo" aria-label="ALL-IN Basketball League é¦–é ">
                     <img src="images/logo.svg" alt="ALL-IN Basketball League" class="logo-img">
                     <span class="logo-text">ALL-IN</span>
                 </a>
-                <span class="logo-text" style="margin-left:auto;font-size:var(--font-size-sm);color:var(--color-text-secondary)">球隊管理</span>
+                <span class="logo-text" style="margin-left:auto;font-size:var(--font-size-sm);color:var(--color-text-secondary)">çƒéšŠç®¡ç†</span>
             </div>
         </nav>
     </header>
@@ -35,114 +35,114 @@
     <main class="main-content">
         <section class="section">
             <div class="container">
-                <div id="loading-msg" class="text-center text-muted" style="padding:var(--spacing-2xl)">載入中...</div>
+                <div id="loading-msg" class="text-center text-muted" style="padding:var(--spacing-2xl)">è¼‰å…¥ä¸­...</div>
                 <div id="error-msg" class="admin-message admin-message--error" hidden></div>
 
-                <!-- 球隊資料 -->
+                <!-- çƒéšŠè³‡æ–™ -->
                 <div id="team-section" hidden>
-                    <h1 class="section-title" id="team-title">—</h1>
+                    <h1 class="section-title" id="team-title">â€”</h1>
                     <div id="team-msg" class="admin-message" role="alert" hidden></div>
 
                     <div class="admin-card">
-                        <h2 class="admin-card-title">球隊資料</h2>
+                        <h2 class="admin-card-title">çƒéšŠè³‡æ–™</h2>
                         <div class="admin-form-group">
-                            <label for="t-name" class="admin-label">球隊名稱</label>
+                            <label for="t-name" class="admin-label">çƒéšŠåç¨±</label>
                             <input type="text" id="t-name" class="admin-input" required>
                         </div>
                         <div class="admin-form-group">
-                            <label for="t-logo" class="admin-label">隊徽 URL</label>
+                            <label for="t-logo" class="admin-label">éšŠå¾½ URL</label>
                             <input type="url" id="t-logo" class="admin-input">
                         </div>
                         <div class="admin-form-row">
                             <div class="admin-form-group">
-                                <label for="t-captain" class="admin-label">負責人</label>
+                                <label for="t-captain" class="admin-label">è² è²¬äºº</label>
                                 <input type="text" id="t-captain" class="admin-input">
                             </div>
                             <div class="admin-form-group">
-                                <label for="t-whatsapp" class="admin-label">負責人 WhatsApp</label>
+                                <label for="t-whatsapp" class="admin-label">è² è²¬äºº WhatsApp</label>
                                 <input type="tel" id="t-whatsapp" class="admin-input">
                             </div>
                         </div>
                         <div class="admin-form-group">
-                            <label for="t-desc" class="admin-label">球隊簡介</label>
+                            <label for="t-desc" class="admin-label">çƒéšŠç°¡ä»‹</label>
                             <textarea id="t-desc" class="admin-textarea" rows="3"></textarea>
                         </div>
                         <div class="admin-form-row">
                             <div class="admin-form-group">
-                                <label for="t-jersey-home" class="admin-label">主場球衣顏色</label>
+                                <label for="t-jersey-home" class="admin-label">ä¸»å ´çƒè¡£é¡è‰²</label>
                                 <div class="admin-color-picker">
                                     <input type="color" id="t-jersey-home-color" value="#ffffff" class="admin-color-input">
-                                    <input type="text" id="t-jersey-home" class="admin-input" placeholder="例：白色">
+                                    <input type="text" id="t-jersey-home" class="admin-input" placeholder="ä¾‹ï¼šç™½è‰²">
                                 </div>
                             </div>
                             <div class="admin-form-group">
-                                <label for="t-jersey-away" class="admin-label">客場球衣顏色</label>
+                                <label for="t-jersey-away" class="admin-label">å®¢å ´çƒè¡£é¡è‰²</label>
                                 <div class="admin-color-picker">
                                     <input type="color" id="t-jersey-away-color" value="#000000" class="admin-color-input">
-                                    <input type="text" id="t-jersey-away" class="admin-input" placeholder="例：黑色">
+                                    <input type="text" id="t-jersey-away" class="admin-input" placeholder="ä¾‹ï¼šé»‘è‰²">
                                 </div>
                             </div>
                         </div>
-                        <button id="btn-save-team" class="btn btn-primary">儲存球隊資料</button>
+                        <button id="btn-save-team" class="btn btn-primary">å„²å­˜çƒéšŠè³‡æ–™</button>
                     </div>
 
-                    <!-- 球員名單 -->
+                    <!-- çƒå“¡åå–® -->
                     <div class="admin-card" style="margin-top:var(--spacing-xl)">
-                        <h2 class="admin-card-title">球員名單</h2>
+                        <h2 class="admin-card-title">çƒå“¡åå–®</h2>
                         <div class="admin-toolbar">
-                            <button id="btn-add-player" class="btn btn-primary">新增球員</button>
+                            <button id="btn-add-player" class="btn btn-primary">æ–°å¢žçƒå“¡</button>
                         </div>
 
-                        <!-- 新增/編輯球員表單 -->
+                        <!-- æ–°å¢ž/ç·¨è¼¯çƒå“¡è¡¨å–® -->
                         <div id="player-form" class="admin-card" style="margin:var(--spacing-md) 0;background:var(--color-bg)" hidden>
-                            <h3 id="player-form-title">新增球員</h3>
+                            <h3 id="player-form-title">æ–°å¢žçƒå“¡</h3>
                             <div class="admin-form-row">
                                 <div class="admin-form-group">
-                                    <label for="p-name" class="admin-label">姓名 *</label>
+                                    <label for="p-name" class="admin-label">å§“å *</label>
                                     <input type="text" id="p-name" class="admin-input" required>
                                 </div>
                                 <div class="admin-form-group">
-                                    <label for="p-number" class="admin-label">背號</label>
+                                    <label for="p-number" class="admin-label">èƒŒè™Ÿ</label>
                                     <input type="text" id="p-number" class="admin-input" inputmode="numeric">
                                 </div>
                             </div>
                             <div class="admin-form-row">
                                 <div class="admin-form-group">
-                                    <label for="p-position" class="admin-label">位置</label>
+                                    <label for="p-position" class="admin-label">ä½ç½®</label>
                                     <select id="p-position" class="admin-select">
                                         <option value="">--</option>
-                                        <option value="PG">PG 控球後衛</option>
-                                        <option value="SG">SG 得分後衛</option>
-                                        <option value="SF">SF 小前鋒</option>
-                                        <option value="PF">PF 大前鋒</option>
-                                        <option value="C">C 中鋒</option>
+                                        <option value="PG">PG æŽ§çƒå¾Œè¡›</option>
+                                        <option value="SG">SG å¾—åˆ†å¾Œè¡›</option>
+                                        <option value="SF">SF å°å‰é‹’</option>
+                                        <option value="PF">PF å¤§å‰é‹’</option>
+                                        <option value="C">C ä¸­é‹’</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="admin-form-group">
-                                <label for="p-photo" class="admin-label">個人照片 URL</label>
+                                <label for="p-photo" class="admin-label">å€‹äººç…§ç‰‡ URL</label>
                                 <input type="url" id="p-photo" class="admin-input" placeholder="https://...">
                             </div>
                             <div class="admin-actions">
-                                <button id="btn-save-player" class="btn btn-primary">儲存</button>
-                                <button id="btn-cancel-player" class="btn btn-outline">取消</button>
+                                <button id="btn-save-player" class="btn btn-primary">å„²å­˜</button>
+                                <button id="btn-cancel-player" class="btn btn-outline">å–æ¶ˆ</button>
                             </div>
                         </div>
 
-                        <!-- 球員列表 -->
+                        <!-- çƒå“¡åˆ—è¡¨ -->
                         <div class="table-wrapper">
                             <table class="data-table">
                                 <thead>
                                     <tr>
-                                        <th>背號</th>
-                                        <th>姓名</th>
-                                        <th>位置</th>
-                                        <th>照片</th>
+                                        <th>èƒŒè™Ÿ</th>
+                                        <th>å§“å</th>
+                                        <th>ä½ç½®</th>
+                                        <th>ç…§ç‰‡</th>
                                         <th></th>
                                     </tr>
                                 </thead>
                                 <tbody id="players-body">
-                                    <tr><td colspan="5" class="text-muted">載入中...</td></tr>
+                                    <tr><td colspan="5" class="text-muted">è¼‰å…¥ä¸­...</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -157,7 +157,7 @@
             <div class="footer-content">
                 <div class="footer-brand">
                     <img src="images/logo.svg" alt="ALL-IN Basketball League" class="footer-logo">
-                    <p class="footer-tagline">全力以赴</p>
+                    <p class="footer-tagline">å…¨åŠ›ä»¥èµ´</p>
                 </div>
                 <div class="footer-copyright">
                     <p>&copy; <span id="current-year"></span> ALL-IN Basketball League.</p>
@@ -170,5 +170,10 @@
     <script src="js/utils.js?v=20260410"></script>
     <script src="js/api.js?v=20260410"></script>
     <script src="js/team-manage.js?v=20260410"></script>
+    <a class="wa-float" href="https://api.whatsapp.com/send?phone=85284330084&text=%E6%88%91%E6%9C%89%E8%88%88%E8%B6%A3%E5%A0%B1%E9%9A%8A%E5%8F%83%E5%8A%A0%E6%AF%94%E8%B3%BD" target="_blank" rel="noopener" aria-label="WhatsApp 查詢及報名">
+        <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+            <path d="M19.11 17.33c-.27-.14-1.58-.78-1.83-.87-.24-.09-.42-.14-.6.14s-.69.87-.85 1.04c-.15.17-.31.19-.58.05-.27-.14-1.13-.42-2.16-1.33-.8-.71-1.35-1.59-1.51-1.86-.16-.27-.02-.41.12-.55.12-.12.27-.31.41-.46.14-.15.19-.26.29-.44.1-.17.05-.32-.02-.46-.07-.14-.6-1.45-.82-1.99-.22-.53-.44-.46-.6-.47h-.51c-.17 0-.46.07-.7.32-.24.26-.93.91-.93 2.23 0 1.31.95 2.58 1.08 2.76.14.17 1.86 2.84 4.5 3.99.63.27 1.12.43 1.5.56.63.2 1.2.17 1.65.1.5-.08 1.58-.64 1.8-1.25.22-.62.22-1.15.15-1.25-.06-.1-.24-.15-.51-.29zM16.01 4.8c-6.19 0-11.2 5.01-11.2 11.2 0 1.97.52 3.9 1.5 5.58L4.8 27.2l5.76-1.5a11.16 11.16 0 0 0 5.45 1.4h.01c6.18 0 11.19-5.01 11.19-11.2 0-2.99-1.16-5.79-3.28-7.91A11.12 11.12 0 0 0 16.01 4.8zm0 20.4h-.01c-1.68 0-3.33-.45-4.78-1.31l-.34-.2-3.42.89.91-3.33-.22-.34a9.28 9.28 0 0 1-1.42-4.91c0-5.11 4.16-9.27 9.28-9.27 2.47 0 4.79.96 6.53 2.7a9.18 9.18 0 0 1 2.72 6.57c0 5.12-4.16 9.28-9.27 9.28z"/>
+        </svg>
+    </a>
 </body>
 </html>

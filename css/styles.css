@@ -1743,3 +1743,43 @@ img {
     border-color: var(--color-accent);
     transform: scale(1.03);
 }
+
+/* --- WhatsApp 浮動按鈕 --- */
+.wa-float {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 1100;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 9999px;
+    background: #25d366;
+    color: #fff;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+}
+
+.wa-float:hover,
+.wa-float:focus-visible {
+    background: #1da851;
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.42);
+}
+
+.wa-float svg {
+    width: 28px;
+    height: 28px;
+    fill: currentColor;
+}
+
+@media (max-width: 768px) {
+    .wa-float {
+        right: 16px;
+        bottom: 16px;
+        width: 52px;
+        height: 52px;
+    }
+}
