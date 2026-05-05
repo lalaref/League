@@ -251,6 +251,7 @@
       var el = document.getElementById('qs-' + qf);
       if (el && game[qf]) el.value = game[qf];
     });
+    updateQuarterTotals();
     renderBoxScore(); submitBtn.hidden = true; updateBtn.hidden = false; hideMessage();
   }
 
@@ -261,6 +262,30 @@
     if (homeLabel) homeLabel.textContent = currentGame.homeTeamName || currentGame.homeTeamId || '主隊';
     if (awayLabel) awayLabel.textContent = currentGame.awayTeamName || currentGame.awayTeamId || '客隊';
     quarterSection.hidden = false;
+    attachQuarterListeners();
+  }
+
+  function attachQuarterListeners() {
+    ['homeQ1','homeQ2','homeQ3','homeQ4','awayQ1','awayQ2','awayQ3','awayQ4'].forEach(function(qf) {
+      var el = document.getElementById('qs-' + qf);
+      if (el) el.addEventListener('input', updateQuarterTotals);
+    });
+  }
+
+  function updateQuarterTotals() {
+    var homeTotal = 0, awayTotal = 0;
+    ['homeQ1','homeQ2','homeQ3','homeQ4'].forEach(function(qf) {
+      var el = document.getElementById('qs-' + qf);
+      homeTotal += el ? (parseInt(el.value, 10) || 0) : 0;
+    });
+    ['awayQ1','awayQ2','awayQ3','awayQ4'].forEach(function(qf) {
+      var el = document.getElementById('qs-' + qf);
+      awayTotal += el ? (parseInt(el.value, 10) || 0) : 0;
+    });
+    var homeTotalEl = document.getElementById('qs-homeTotal');
+    var awayTotalEl = document.getElementById('qs-awayTotal');
+    if (homeTotalEl) homeTotalEl.value = homeTotal || '';
+    if (awayTotalEl) awayTotalEl.value = awayTotal || '';
   }
 
   function renderBoxScore() {
@@ -418,6 +443,8 @@
       var el = document.getElementById('qs-' + qf);
       qs[qf] = el ? (parseInt(el.value, 10) || 0) : 0;
     });
+    qs.homeScore = qs.homeQ1 + qs.homeQ2 + qs.homeQ3 + qs.homeQ4;
+    qs.awayScore = qs.awayQ1 + qs.awayQ2 + qs.awayQ3 + qs.awayQ4;
     return qs;
   }
 
