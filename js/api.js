@@ -12,8 +12,11 @@ var API = (function () {
   /** @type {string} 管理後台 API Key */
   var API_KEY = 'my-allin-secret-2026';
 
-  /** @type {number} 請求超時時間（毫秒） */
+  /** @type {number} GET 請求超時時間（毫秒） */
   var TIMEOUT_MS = 15000;
+
+  /** @type {number} POST 請求超時時間（毫秒）— GAS 冷啟動可達 20 秒以上 */
+  var POST_TIMEOUT_MS = 60000;
 
   /** @type {number} 最大重試次數 */
   var MAX_RETRIES = 2;
@@ -120,7 +123,8 @@ var API = (function () {
       body: JSON.stringify(body)
     };
 
-    return _requestWithRetry(url, options, 0);
+    // POST 請求不重試（非冪等，避免重複提交）
+    return _requestWithRetry(url, options, 0, { maxRetries: 0, timeoutMs: POST_TIMEOUT_MS });
   }
 
   /**
@@ -128,11 +132,14 @@ var API = (function () {
    * @param {string} url
    * @param {Object} options
    * @param {number} attempt - 當前嘗試次數
+   * @param {Object} [opts] - 可選配置 { maxRetries, timeoutMs }
    * @returns {Promise<Object>}
    */
-  function _requestWithRetry(url, options, attempt) {
+  function _requestWithRetry(url, options, attempt, opts) {
+    var maxRetries = (opts && opts.maxRetries !== undefined) ? opts.maxRetries : MAX_RETRIES;
+    var timeoutMs = (opts && opts.timeoutMs !== undefined) ? opts.timeoutMs : TIMEOUT_MS;
     console.log('[API._requestWithRetry] attempt', attempt, '| method:', options.method, '| url:', url);
-    return fetchWithTimeout(url, options, TIMEOUT_MS)
+    return fetchWithTimeout(url, options, timeoutMs)
       .then(function (response) {
         console.log('[API._requestWithRetry] response status:', response.status, '| url:', response.url);
         if (!response.ok) {
@@ -149,8 +156,8 @@ var API = (function () {
       })
       .catch(function (err) {
         console.error('[API._requestWithRetry] error:', err.message, '| attempt:', attempt);
-        if (attempt < MAX_RETRIES && _isRetryable(err)) {
-          return _requestWithRetry(url, options, attempt + 1);
+        if (attempt < maxRetries && _isRetryable(err)) {
+          return _requestWithRetry(url, options, attempt + 1, opts);
         }
         throw err;
       });
