@@ -565,6 +565,31 @@
     text-align: center;
 }
 
+.admin-quarter-header-row {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+}
+
+.admin-quarter-col-label {
+    width: 60px;
+    text-align: center;
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+}
+
+.admin-quarter-total-label {
+    color: var(--color-accent);
+}
+
+.admin-stat-input--total {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+    font-weight: var(--font-weight-bold);
+    cursor: default;
+}
+
 
 /* --- 球衣顏色選擇器 --- */
 .admin-color-picker {
