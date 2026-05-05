@@ -101,8 +101,21 @@
   function renderGameCard(game) {
     var homeName = game.homeTeamName || game.homeTeam || game.homeTeamId || '—';
     var awayName = game.awayTeamName || game.awayTeam || game.awayTeamId || '—';
-    var homeScore = game.homeScore != null ? game.homeScore : '—';
-    var awayScore = game.awayScore != null ? game.awayScore : '—';
+
+    // Derive score from quarters when available — they are the source of truth
+    var hasQuarters = game.homeQ1 || game.homeQ2 || game.homeQ3 || game.homeQ4 ||
+                      game.awayQ1 || game.awayQ2 || game.awayQ3 || game.awayQ4;
+    var homeScore, awayScore;
+    if (hasQuarters) {
+      homeScore = (parseInt(game.homeQ1, 10) || 0) + (parseInt(game.homeQ2, 10) || 0) +
+                  (parseInt(game.homeQ3, 10) || 0) + (parseInt(game.homeQ4, 10) || 0);
+      awayScore = (parseInt(game.awayQ1, 10) || 0) + (parseInt(game.awayQ2, 10) || 0) +
+                  (parseInt(game.awayQ3, 10) || 0) + (parseInt(game.awayQ4, 10) || 0);
+    } else {
+      homeScore = game.homeScore != null ? game.homeScore : '—';
+      awayScore = game.awayScore != null ? game.awayScore : '—';
+    }
+
     var date = _formatDate(game.date);
     var isCompleted = game.status === 'completed';
 
