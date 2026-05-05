@@ -427,13 +427,21 @@
     submitBtn.disabled = true;
     var mvpSelect = document.getElementById('mvp-select');
     var mvpPlayerId = mvpSelect ? mvpSelect.value : '';
-    var payload = Object.assign({ gameId: gameSelect.value, entries: collectEntries(), mvpPlayerId: mvpPlayerId }, collectQuarterScores());
+    var payload = Object.assign({ gameId: gameSelect.value, seasonId: seasonSelect.value, entries: collectEntries(), mvpPlayerId: mvpPlayerId }, collectQuarterScores());
     API.post('submitBoxScore', payload).then(function () {
       showMessage(I18n.t('admin.submitSuccess'), 'success');
       submitBtn.hidden = true; updateBtn.hidden = false; existingBoxScore = true;
     }).catch(function (err) {
-      showMessage(err.message || I18n.t('error.submitFailed'), 'error');
-    }).finally(function(){ submitBtn.disabled = false; });
+      if (err.message === '請求超時') {
+        // Timeout does NOT mean failure — GAS may have already written the data.
+        // Show warning and switch to Update mode to prevent duplicate submission.
+        showMessage('⚠️ 請求逾時，但資料可能已成功儲存。請重新載入頁面確認，或使用「更新 Box Score」按鈕修正數據，切勿重新點擊提交。', 'error');
+        submitBtn.hidden = true; updateBtn.hidden = false; existingBoxScore = true;
+      } else {
+        showMessage(err.message || I18n.t('error.submitFailed'), 'error');
+        submitBtn.disabled = false;
+      }
+    });
   }
 
   function handleUpdate() {
@@ -442,7 +450,7 @@
     updateBtn.disabled = true;
     var mvpSelect = document.getElementById('mvp-select');
     var mvpPlayerId = mvpSelect ? mvpSelect.value : '';
-    var payload = Object.assign({ gameId: gameSelect.value, entries: collectEntries(), mvpPlayerId: mvpPlayerId }, collectQuarterScores());
+    var payload = Object.assign({ gameId: gameSelect.value, seasonId: seasonSelect.value, entries: collectEntries(), mvpPlayerId: mvpPlayerId }, collectQuarterScores());
     API.post('submitBoxScore', payload).then(function () {
       showMessage(I18n.t('admin.updateSuccess'), 'success');
     }).catch(function (err) {
