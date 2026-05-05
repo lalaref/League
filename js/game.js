@@ -218,19 +218,11 @@
     setEl('qs-htotal', homeTotal);
     setEl('qs-atotal', awayTotal);
 
-    // If homeScore was not persisted (0 or missing), update the main scoreboard from quarters
-    if (!game.homeScore && homeTotal > 0) {
-      var homeScoreEl = document.getElementById('home-score');
-      if (homeScoreEl && (homeScoreEl.textContent === '0' || homeScoreEl.textContent === '—')) {
-        homeScoreEl.textContent = homeTotal;
-      }
-    }
-    if (!game.awayScore && awayTotal > 0) {
-      var awayScoreEl = document.getElementById('away-score');
-      if (awayScoreEl && (awayScoreEl.textContent === '0' || awayScoreEl.textContent === '—')) {
-        awayScoreEl.textContent = awayTotal;
-      }
-    }
+    // Quarter scores are the source of truth — always sync the main scoreboard
+    var homeScoreEl = document.getElementById('home-score');
+    var awayScoreEl = document.getElementById('away-score');
+    if (homeScoreEl) homeScoreEl.textContent = homeTotal;
+    if (awayScoreEl) awayScoreEl.textContent = awayTotal;
   }
 
   /**
