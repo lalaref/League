@@ -74,19 +74,29 @@
                 <div id="quarter-scores-section" class="admin-form-group" hidden>
                     <h3 class="admin-subtitle">節分</h3>
                     <div class="admin-quarter-grid">
+                        <div class="admin-quarter-row admin-quarter-header-row">
+                            <span class="admin-quarter-team"></span>
+                            <span class="admin-quarter-col-label">Q1</span>
+                            <span class="admin-quarter-col-label">Q2</span>
+                            <span class="admin-quarter-col-label">Q3</span>
+                            <span class="admin-quarter-col-label">Q4</span>
+                            <span class="admin-quarter-col-label admin-quarter-total-label">Total</span>
+                        </div>
                         <div class="admin-quarter-row">
                             <span id="qs-home-label" class="admin-quarter-team">主隊</span>
-                            <input type="text" inputmode="numeric" pattern="[0-9]*" id="qs-homeQ1" class="admin-stat-input" placeholder="Q1">
-                            <input type="text" inputmode="numeric" pattern="[0-9]*" id="qs-homeQ2" class="admin-stat-input" placeholder="Q2">
-                            <input type="text" inputmode="numeric" pattern="[0-9]*" id="qs-homeQ3" class="admin-stat-input" placeholder="Q3">
-                            <input type="text" inputmode="numeric" pattern="[0-9]*" id="qs-homeQ4" class="admin-stat-input" placeholder="Q4">
+                            <input type="text" inputmode="numeric" pattern="[0-9]*" id="qs-homeQ1" class="admin-stat-input" placeholder="0">
+                            <input type="text" inputmode="numeric" pattern="[0-9]*" id="qs-homeQ2" class="admin-stat-input" placeholder="0">
+                            <input type="text" inputmode="numeric" pattern="[0-9]*" id="qs-homeQ3" class="admin-stat-input" placeholder="0">
+                            <input type="text" inputmode="numeric" pattern="[0-9]*" id="qs-homeQ4" class="admin-stat-input" placeholder="0">
+                            <input type="text" id="qs-homeTotal" class="admin-stat-input admin-stat-input--total" placeholder="0" readonly tabindex="-1">
                         </div>
                         <div class="admin-quarter-row">
                             <span id="qs-away-label" class="admin-quarter-team">客隊</span>
-                            <input type="text" inputmode="numeric" pattern="[0-9]*" id="qs-awayQ1" class="admin-stat-input" placeholder="Q1">
-                            <input type="text" inputmode="numeric" pattern="[0-9]*" id="qs-awayQ2" class="admin-stat-input" placeholder="Q2">
-                            <input type="text" inputmode="numeric" pattern="[0-9]*" id="qs-awayQ3" class="admin-stat-input" placeholder="Q3">
-                            <input type="text" inputmode="numeric" pattern="[0-9]*" id="qs-awayQ4" class="admin-stat-input" placeholder="Q4">
+                            <input type="text" inputmode="numeric" pattern="[0-9]*" id="qs-awayQ1" class="admin-stat-input" placeholder="0">
+                            <input type="text" inputmode="numeric" pattern="[0-9]*" id="qs-awayQ2" class="admin-stat-input" placeholder="0">
+                            <input type="text" inputmode="numeric" pattern="[0-9]*" id="qs-awayQ3" class="admin-stat-input" placeholder="0">
+                            <input type="text" inputmode="numeric" pattern="[0-9]*" id="qs-awayQ4" class="admin-stat-input" placeholder="0">
+                            <input type="text" id="qs-awayTotal" class="admin-stat-input admin-stat-input--total" placeholder="0" readonly tabindex="-1">
                         </div>
                     </div>
                 </div>
