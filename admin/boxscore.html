@@ -141,6 +141,7 @@
                                 <th data-i18n="table.stl">抄截</th>
                                 <th data-i18n="table.blk">封阻</th>
                                 <th data-i18n="table.to">TO</th>
+                                <th class="admin-op-col">操作</th>
                             </tr>
                         </thead>
                         <tbody id="boxscore-body"></tbody>
@@ -149,6 +150,29 @@
 
                 <!-- Box Score 卡片 (手機) -->
                 <div id="boxscore-mobile" class="admin-boxscore-mobile" hidden></div>
+
+                <!-- 球員名單管理 -->
+                <div id="player-mgmt-section" class="admin-form-group" hidden>
+                    <h3 class="admin-subtitle">球員名單管理</h3>
+                    <div class="admin-player-mgmt-row">
+                        <select id="add-player-select" class="admin-select admin-select--inline">
+                            <option value="">-- 從名單加入球員 --</option>
+                        </select>
+                        <button id="btn-add-roster-player" class="btn btn-outline btn-sm">＋ 加入</button>
+                    </div>
+                    <details class="admin-guest-player-form">
+                        <summary class="admin-guest-summary">＋ 加入臨時球員（非名單）</summary>
+                        <div class="admin-player-add-guest">
+                            <select id="guest-side" class="admin-select admin-select--inline">
+                                <option value="home">主隊</option>
+                                <option value="away">客隊</option>
+                            </select>
+                            <input type="text" id="guest-number" class="admin-input admin-input--sm" placeholder="#號碼" maxlength="3">
+                            <input type="text" id="guest-name" class="admin-input admin-input--sm" placeholder="球員名稱">
+                            <button id="btn-add-guest-player" class="btn btn-outline btn-sm">加入</button>
+                        </div>
+                    </details>
+                </div>
 
                 <!-- 提交按鈕 -->
                 <div id="boxscore-actions" class="admin-actions" hidden>

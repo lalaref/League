@@ -201,6 +201,12 @@
     var container = document.getElementById('quarter-scores-display');
     if (!container || !hasQS) return;
 
+    // Always derive totals from Q1–Q4 so the Total column is self-consistent
+    var homeTotal = (parseInt(game.homeQ1, 10) || 0) + (parseInt(game.homeQ2, 10) || 0) +
+                    (parseInt(game.homeQ3, 10) || 0) + (parseInt(game.homeQ4, 10) || 0);
+    var awayTotal = (parseInt(game.awayQ1, 10) || 0) + (parseInt(game.awayQ2, 10) || 0) +
+                    (parseInt(game.awayQ3, 10) || 0) + (parseInt(game.awayQ4, 10) || 0);
+
     container.hidden = false;
     var setEl = function(id, val) { var el = document.getElementById(id); if (el) el.textContent = val != null ? val : '-'; };
     setEl('qs-home-name', game.homeTeamName || game.homeTeamId || '主隊');
@@ -209,8 +215,22 @@
     setEl('qs-hq3', game.homeQ3 || 0); setEl('qs-hq4', game.homeQ4 || 0);
     setEl('qs-aq1', game.awayQ1 || 0); setEl('qs-aq2', game.awayQ2 || 0);
     setEl('qs-aq3', game.awayQ3 || 0); setEl('qs-aq4', game.awayQ4 || 0);
-    setEl('qs-htotal', game.homeScore != null ? game.homeScore : '-');
-    setEl('qs-atotal', game.awayScore != null ? game.awayScore : '-');
+    setEl('qs-htotal', homeTotal);
+    setEl('qs-atotal', awayTotal);
+
+    // If homeScore was not persisted (0 or missing), update the main scoreboard from quarters
+    if (!game.homeScore && homeTotal > 0) {
+      var homeScoreEl = document.getElementById('home-score');
+      if (homeScoreEl && (homeScoreEl.textContent === '0' || homeScoreEl.textContent === '—')) {
+        homeScoreEl.textContent = homeTotal;
+      }
+    }
+    if (!game.awayScore && awayTotal > 0) {
+      var awayScoreEl = document.getElementById('away-score');
+      if (awayScoreEl && (awayScoreEl.textContent === '0' || awayScoreEl.textContent === '—')) {
+        awayScoreEl.textContent = awayTotal;
+      }
+    }
   }
 
   /**
