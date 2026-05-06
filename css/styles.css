@@ -411,6 +411,17 @@ img {
     background-color: var(--color-surface-light);
 }
 
+.player-link {
+    color: var(--color-accent-light, var(--color-accent));
+    text-decoration: none;
+    font-weight: var(--font-weight-semibold);
+}
+
+.player-link:hover {
+    text-decoration: underline;
+    color: var(--color-text-inverse);
+}
+
 /* --- 公告列表 --- */
 .announcements-list {
     display: flex;
