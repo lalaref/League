@@ -294,43 +294,6 @@
     refreshAddPlayerDropdown();
   }
 
-  function _makeStepperCell(idx, f, initVal) {
-    var td = document.createElement('td'); td.className = 'admin-input-cell';
-    // Hidden input keeps existing validate/collect logic working unchanged
-    var inp = document.createElement('input');
-    inp.type = 'hidden';
-    inp.id = 'stat-' + idx + '-' + f;
-    inp.dataset.playerIndex = idx; inp.dataset.field = f;
-    inp.value = initVal || 0;
-    td.appendChild(inp);
-    var stepper = document.createElement('div'); stepper.className = 'admin-stepper';
-    var dec = document.createElement('button'); dec.type = 'button';
-    dec.className = 'admin-btn admin-stepper__btn admin-stepper__btn--dec';
-    dec.textContent = '−'; dec.setAttribute('aria-label', f.toUpperCase() + ' 減一');
-    var display = document.createElement('span'); display.className = 'admin-stepper__display';
-    display.id = 'disp-stat-' + idx + '-' + f;
-    display.textContent = inp.value;
-    var inc = document.createElement('button'); inc.type = 'button';
-    inc.className = 'admin-btn admin-stepper__btn admin-stepper__btn--inc';
-    inc.textContent = '+'; inc.setAttribute('aria-label', f.toUpperCase() + ' 加一');
-    (function(input, disp) {
-      inc.addEventListener('click', function() {
-        var v = (parseInt(input.value, 10) || 0) + 1;
-        input.value = v; disp.textContent = v;
-      });
-      dec.addEventListener('click', function() {
-        var v = Math.max(0, (parseInt(input.value, 10) || 0) - 1);
-        input.value = v; disp.textContent = v;
-      });
-    })(inp, display);
-    stepper.appendChild(dec); stepper.appendChild(display); stepper.appendChild(inc);
-    td.appendChild(stepper);
-    var err = document.createElement('span'); err.className = 'admin-field-error';
-    err.id = 'err-' + idx + '-' + f; err.setAttribute('role','alert'); err.hidden = true;
-    td.appendChild(err);
-    return td;
-  }
-
   function renderDesktopTable() {
     boxscoreBody.innerHTML = '';
     var curSide = '';
@@ -347,8 +310,18 @@
       var nc = document.createElement('td'); nc.className = 'admin-player-name';
       nc.textContent = '#' + (p.number||'?') + ' ' + p.name; tr.appendChild(nc);
       STAT_FIELDS.forEach(function (f) {
-        var initVal = (p.stats && p.stats[f] !== undefined && p.stats[f] !== '') ? p.stats[f] : 0;
-        tr.appendChild(_makeStepperCell(idx, f, initVal));
+        var td = document.createElement('td'); td.className = 'admin-input-cell';
+        var inp = document.createElement('input');
+        inp.type = 'text'; inp.inputMode = 'numeric'; inp.pattern = '[0-9]*';
+        inp.className = 'admin-stat-input'; inp.dataset.playerIndex = idx; inp.dataset.field = f;
+        inp.id = 'stat-' + idx + '-' + f;
+        inp.setAttribute('aria-label', p.name + ' ' + f.toUpperCase());
+        inp.placeholder = '0';
+        if (p.stats && p.stats[f] !== undefined && p.stats[f] !== '' && p.stats[f] !== 0) inp.value = p.stats[f];
+        td.appendChild(inp);
+        var err = document.createElement('span'); err.className = 'admin-field-error';
+        err.id = 'err-' + idx + '-' + f; err.setAttribute('role','alert'); err.hidden = true;
+        td.appendChild(err); tr.appendChild(td);
       });
       // Remove button column
       var rtd = document.createElement('td'); rtd.className = 'admin-op-col';
@@ -382,36 +355,14 @@
       STAT_FIELDS.forEach(function (f) {
         var item = document.createElement('div'); item.className = 'admin-stat-item';
         var lbl = document.createElement('label'); lbl.className = 'admin-stat-label';
-        lbl.textContent = f.toUpperCase(); item.appendChild(lbl);
-        // Hidden input (id=mob-...) keeps validate/collect logic unchanged
+        lbl.setAttribute('for','mob-'+idx+'-'+f); lbl.textContent = f.toUpperCase(); item.appendChild(lbl);
         var inp = document.createElement('input');
-        inp.type = 'hidden'; inp.id = 'mob-'+idx+'-'+f;
+        inp.type = 'text'; inp.inputMode = 'numeric'; inp.pattern = '[0-9]*';
+        inp.className = 'admin-stat-input'; inp.id = 'mob-'+idx+'-'+f;
         inp.dataset.playerIndex = idx; inp.dataset.field = f;
-        var initVal = (p.stats && p.stats[f] !== undefined && p.stats[f] !== '') ? p.stats[f] : 0;
-        inp.value = initVal;
+        inp.placeholder = '0';
+        if (p.stats && p.stats[f] !== undefined && p.stats[f] !== '' && p.stats[f] !== 0) inp.value = p.stats[f];
         item.appendChild(inp);
-        var stepper = document.createElement('div'); stepper.className = 'admin-stepper';
-        var dec = document.createElement('button'); dec.type = 'button';
-        dec.className = 'admin-btn admin-stepper__btn admin-stepper__btn--dec';
-        dec.textContent = '−'; dec.setAttribute('aria-label', f.toUpperCase() + ' 減一');
-        var display = document.createElement('span'); display.className = 'admin-stepper__display';
-        display.id = 'disp-mob-'+idx+'-'+f;
-        display.textContent = initVal;
-        var inc = document.createElement('button'); inc.type = 'button';
-        inc.className = 'admin-btn admin-stepper__btn admin-stepper__btn--inc';
-        inc.textContent = '+'; inc.setAttribute('aria-label', f.toUpperCase() + ' 加一');
-        (function(input, disp) {
-          inc.addEventListener('click', function() {
-            var v = (parseInt(input.value, 10) || 0) + 1;
-            input.value = v; disp.textContent = v;
-          });
-          dec.addEventListener('click', function() {
-            var v = Math.max(0, (parseInt(input.value, 10) || 0) - 1);
-            input.value = v; disp.textContent = v;
-          });
-        })(inp, display);
-        stepper.appendChild(dec); stepper.appendChild(display); stepper.appendChild(inc);
-        item.appendChild(stepper);
         var err = document.createElement('span'); err.className = 'admin-field-error';
         err.id = 'mob-err-'+idx+'-'+f; err.setAttribute('role','alert'); err.hidden = true;
         item.appendChild(err); grid.appendChild(item);
@@ -479,15 +430,14 @@
     ['err-'+idx+'-'+f, 'mob-err-'+idx+'-'+f].forEach(function(id){
       var el = document.getElementById(id); if(el){el.textContent=msg;el.hidden=false;}
     });
-    // Highlight stepper displays (hidden inputs no longer have visible style)
-    ['disp-stat-'+idx+'-'+f, 'disp-mob-'+idx+'-'+f].forEach(function(id){
+    ['stat-'+idx+'-'+f, 'mob-'+idx+'-'+f].forEach(function(id){
       var el = document.getElementById(id); if(el) el.classList.add('admin-input-error');
     });
   }
 
   function clearAllErrors() {
     document.querySelectorAll('.admin-field-error').forEach(function(el){el.textContent='';el.hidden=true;});
-    document.querySelectorAll('.admin-stepper__display.admin-input-error').forEach(function(el){el.classList.remove('admin-input-error');});
+    document.querySelectorAll('.admin-input-error').forEach(function(el){el.classList.remove('admin-input-error');});
   }
 
   // --- Submit / Update ---
