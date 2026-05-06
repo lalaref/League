@@ -171,12 +171,26 @@
       var matchupHtml = _escHtml(homeName) + homeJerseyHtml + ' vs ' + _escHtml(awayName) + awayJerseyHtml;
 
       var result = '';
-      if (game.result) {
-        result = game.result;
-      } else if (game.status === 'cancelled') {
+      if (game.status === 'cancelled') {
         result = '<span class="text-cancelled">' + I18n.t('admin.cancelled') + '</span>';
-      } else if (game.status === 'completed' && game.homeScore != null && game.awayScore != null) {
-        result = game.homeScore + ' - ' + game.awayScore;
+      } else if (game.status === 'completed') {
+        // Use Q1-Q4 sum as source of truth (same as game.js and dashboard.js)
+        var hasQuarters = (game.homeQ1 != null || game.homeQ2 != null || game.homeQ3 != null || game.homeQ4 != null);
+        var hs, as_;
+        if (hasQuarters) {
+          hs  = (game.homeQ1 || 0) + (game.homeQ2 || 0) + (game.homeQ3 || 0) + (game.homeQ4 || 0);
+          as_ = (game.awayQ1 || 0) + (game.awayQ2 || 0) + (game.awayQ3 || 0) + (game.awayQ4 || 0);
+        } else {
+          hs  = game.homeScore;
+          as_ = game.awayScore;
+        }
+        if (hs != null && as_ != null) {
+          result = hs + ' - ' + as_;
+        } else {
+          result = I18n.t('schedule.upcoming');
+        }
+      } else if (game.result) {
+        result = game.result;
       } else {
         result = I18n.t('schedule.upcoming');
       }
