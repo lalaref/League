@@ -174,12 +174,15 @@
       if (game.status === 'cancelled') {
         result = '<span class="text-cancelled">' + I18n.t('admin.cancelled') + '</span>';
       } else if (game.status === 'completed') {
-        // Use Q1-Q4 sum as source of truth (same as game.js and dashboard.js)
-        var hasQuarters = (game.homeQ1 != null || game.homeQ2 != null || game.homeQ3 != null || game.homeQ4 != null);
+        // Use Q1-Q4 sum as source of truth when quarter data exists (same logic as dashboard.js)
+        var hasQuarters = game.homeQ1 || game.homeQ2 || game.homeQ3 || game.homeQ4 ||
+                          game.awayQ1 || game.awayQ2 || game.awayQ3 || game.awayQ4;
         var hs, as_;
         if (hasQuarters) {
-          hs  = (game.homeQ1 || 0) + (game.homeQ2 || 0) + (game.homeQ3 || 0) + (game.homeQ4 || 0);
-          as_ = (game.awayQ1 || 0) + (game.awayQ2 || 0) + (game.awayQ3 || 0) + (game.awayQ4 || 0);
+          hs  = (parseInt(game.homeQ1, 10) || 0) + (parseInt(game.homeQ2, 10) || 0) +
+                (parseInt(game.homeQ3, 10) || 0) + (parseInt(game.homeQ4, 10) || 0);
+          as_ = (parseInt(game.awayQ1, 10) || 0) + (parseInt(game.awayQ2, 10) || 0) +
+                (parseInt(game.awayQ3, 10) || 0) + (parseInt(game.awayQ4, 10) || 0);
         } else {
           hs  = game.homeScore;
           as_ = game.awayScore;
