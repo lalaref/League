@@ -7,8 +7,8 @@
   'use strict';
 
   // Keep UI order aligned with scorer workflow.
-  // Note: fgm is preserved in payload for backend compatibility, but not shown in input UI.
-  var STAT_FIELDS = ['fouls','pts','fga','tpm','tpa','ftm','fta','oreb','dreb','ast','stl','blk','to'];
+  // Note: fgm now included — must match table header order in boxscore.html
+  var STAT_FIELDS = ['fouls','pts','fgm','fga','tpm','tpa','ftm','fta','oreb','dreb','ast','stl','blk','to'];
   var seasonSelect = document.getElementById('season-select');
   var gameSelect = document.getElementById('game-select');
   var messageEl = document.getElementById('boxscore-message');
@@ -445,7 +445,6 @@
     return allPlayers.map(function (p, idx) {
       var entry = {playerId: p.id, teamId: p.teamId};
       STAT_FIELDS.forEach(function(f){ var inp = getInput(idx,f); entry[f] = parseInt(inp.value,10)||0; });
-      entry.fgm = (p.stats && Number.isInteger(Number(p.stats.fgm))) ? Number(p.stats.fgm) : 0;
       return entry;
     });
   }
