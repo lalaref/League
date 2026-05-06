@@ -425,44 +425,36 @@ img {
 /* --- 比賽詳情 Box Score 全寬緊湊排版 --- */
 .game-boxscore-section .container {
     max-width: 100%;
+    padding: 0 4px;
 }
 
 .game-boxscore-section .data-table {
-    table-layout: fixed;
+    table-layout: auto;
     width: 100%;
-    font-size: 0.875rem; /* 14px */
+    font-size: 1rem; /* 16px */
 }
 
 .game-boxscore-section .data-table th,
 .game-boxscore-section .data-table td {
-    padding: 5px 2px;
+    padding: 6px 3px;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
     text-align: center;
-    width: 36px;
+    min-width: 0;
 }
 
-/* player name column — wider, left-aligned */
+/* player name column — left-aligned, constrained */
 .game-boxscore-section .data-table th:first-child,
 .game-boxscore-section .data-table td:first-child {
-    width: 100px;
     text-align: left;
     padding-left: 6px;
-}
-
-/* percentage columns slightly wider for "100%" */
-.game-boxscore-section .data-table th:nth-child(6),
-.game-boxscore-section .data-table td:nth-child(6),
-.game-boxscore-section .data-table th:nth-child(9),
-.game-boxscore-section .data-table td:nth-child(9),
-.game-boxscore-section .data-table th:nth-child(12),
-.game-boxscore-section .data-table td:nth-child(12) {
-    width: 44px;
+    max-width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .game-boxscore-section .table-wrapper {
-    overflow-x: unset;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 /* --- 公告列表 --- */
