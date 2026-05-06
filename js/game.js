@@ -161,8 +161,19 @@
       var name = p.playerName || p.playerId || '—';
       var num = p.number != null ? '#' + p.number + ' ' : '';
 
+      var nameTd = document.createElement('td');
+      nameTd.className = 'text-nowrap';
+      if (p.playerId) {
+        var a = document.createElement('a');
+        a.href = 'player.html?id=' + encodeURIComponent(p.playerId);
+        a.textContent = num + name;
+        a.className = 'player-link';
+        nameTd.appendChild(a);
+      } else {
+        nameTd.textContent = num + name;
+      }
+
       var cells = [
-        num + name,
         p.pts != null ? p.pts : 0,
         p.oreb != null ? p.oreb : 0,
         p.dreb != null ? p.dreb : 0,
@@ -183,10 +194,11 @@
       cells.forEach(function (val, idx) {
         var td = document.createElement('td');
         td.textContent = val;
-        if (idx > 0) td.className = 'text-right';
+        td.className = 'text-right';
         tr.appendChild(td);
       });
 
+      tr.insertBefore(nameTd, tr.firstChild);
       tbody.appendChild(tr);
     });
   }
