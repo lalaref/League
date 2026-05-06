@@ -233,7 +233,9 @@
                         var teamId = btn.getAttribute('data-teamid');
                         btn.disabled = true;
                         btn.textContent = '產生中...';
-                        API.post('generateTeamToken', { teamId: teamId, seasonId: seasonSelect.value })
+                        // Generate token client-side and persist via updateTeam
+                        var token = _genToken();
+                        API.post('updateTeam', { teamId: teamId, seasonId: seasonSelect.value, teamToken: token })
                             .then(function() {
                                 showMsg('連結已產生', 'success');
                                 loadTeams();
@@ -333,6 +335,12 @@
         });
 
         function _esc(str) { var d = document.createElement('div'); d.textContent = str || ''; return d.innerHTML; }
+        function _genToken() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx'.replace(/[xy]/g, function(c) {
+                var r = Math.random() * 16 | 0;
+                return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+            });
+        }
 
         loadSeasons();
     })();
