@@ -343,22 +343,26 @@
 
   /**
    * 從比賽數據計算球隊積分榜（節分優先）
+   * 積分制：勝3分 / 和2分 / 負1分 / 棄權0分
+   * 同分排名：對賽往績積分 → 對賽往績得失 → 全組得失球差
    */
   function _computeStandings(games, teams) {
     var table = {};
     teams.forEach(function (t) {
       table[t.id] = {
+        id: t.id,
         teamName: t.name || t.teamName || t.id,
-        played: 0, wins: 0, draws: 0, losses: 0,
+        played: 0, wins: 0, draws: 0, losses: 0, forfeits: 0,
         pointsFor: 0, pointsAgainst: 0, diff: 0, points: 0
       };
     });
+
+    var allResults = []; // stored for h2h tiebreaker
 
     games.forEach(function (g) {
       if (g.status !== 'completed') return;
       if (!table[g.homeTeamId] || !table[g.awayTeamId]) return;
 
-      // Quarter data is the source of truth
       var hasQuarters = g.homeQ1 || g.homeQ2 || g.homeQ3 || g.homeQ4 ||
                         g.awayQ1 || g.awayQ2 || g.awayQ3 || g.awayQ4;
       var homeScore, awayScore;
@@ -372,6 +376,16 @@
         awayScore = parseInt(g.awayScore, 10) || 0;
       }
 
+      // Forfeit detection (backend may set g.forfeit = 'home'/'away' or g.walkover)
+      var forfeitSide = g.forfeit || g.walkover || '';
+      var isForfeit = forfeitSide === 'home' || forfeitSide === 'away';
+
+      allResults.push({
+        homeId: g.homeTeamId, awayId: g.awayTeamId,
+        homeScore: homeScore, awayScore: awayScore,
+        isForfeit: isForfeit, forfeitSide: forfeitSide
+      });
+
       table[g.homeTeamId].played++;
       table[g.awayTeamId].played++;
       table[g.homeTeamId].pointsFor += homeScore;
@@ -379,30 +393,82 @@
       table[g.awayTeamId].pointsFor += awayScore;
       table[g.awayTeamId].pointsAgainst += homeScore;
 
-      if (homeScore > awayScore) {
-        table[g.homeTeamId].wins++;   table[g.homeTeamId].points += 2;
-        table[g.awayTeamId].losses++;
+      if (isForfeit) {
+        // Forfeiting side gets 0 pts; winner gets 3 pts
+        if (forfeitSide === 'home') {
+          table[g.awayTeamId].wins++;   table[g.awayTeamId].points += 3;
+          table[g.homeTeamId].forfeits++; // 0 pts
+        } else {
+          table[g.homeTeamId].wins++;   table[g.homeTeamId].points += 3;
+          table[g.awayTeamId].forfeits++; // 0 pts
+        }
+      } else if (homeScore > awayScore) {
+        table[g.homeTeamId].wins++;   table[g.homeTeamId].points += 3;
+        table[g.awayTeamId].losses++; table[g.awayTeamId].points += 1;
       } else if (awayScore > homeScore) {
-        table[g.awayTeamId].wins++;   table[g.awayTeamId].points += 2;
-        table[g.homeTeamId].losses++;
+        table[g.awayTeamId].wins++;   table[g.awayTeamId].points += 3;
+        table[g.homeTeamId].losses++; table[g.homeTeamId].points += 1;
       } else {
-        table[g.homeTeamId].draws++; table[g.homeTeamId].points++;
-        table[g.awayTeamId].draws++; table[g.awayTeamId].points++;
+        table[g.homeTeamId].draws++; table[g.homeTeamId].points += 2;
+        table[g.awayTeamId].draws++; table[g.awayTeamId].points += 2;
       }
     });
 
-    var result = Object.keys(table).map(function (id) {
+    var rows = Object.keys(table).map(function (id) {
       var t = table[id];
       t.diff = t.pointsFor - t.pointsAgainst;
       return t;
     });
 
-    result.sort(function (a, b) {
-      if (b.points !== a.points) return b.points - a.points;
-      return b.diff - a.diff;
-    });
+    return _sortStandings(rows, allResults);
+  }
 
-    return result;
+  /**
+   * 排名排序：積分 → 對賽往績（積分/得失）→ 全組得失球差
+   */
+  function _sortStandings(rows, allResults) {
+    rows.sort(function (a, b) { return b.points - a.points; });
+    var out = [], i = 0;
+    while (i < rows.length) {
+      var j = i;
+      while (j < rows.length && rows[j].points === rows[i].points) j++;
+      var group = rows.slice(i, j);
+      if (group.length > 1) group = _resolveH2H(group, allResults);
+      out = out.concat(group);
+      i = j;
+    }
+    return out;
+  }
+
+  function _resolveH2H(group, allResults) {
+    if (group.length === 1) return group;
+    var ids = {};
+    group.forEach(function (t) { ids[t.id] = true; });
+    // Only games between the tied teams
+    var h2hGames = allResults.filter(function (g) { return ids[g.homeId] && ids[g.awayId]; });
+    var h2h = {};
+    group.forEach(function (t) { h2h[t.id] = { points: 0, diff: 0 }; });
+    h2hGames.forEach(function (g) {
+      if (g.isForfeit) {
+        if (g.forfeitSide === 'home') { h2h[g.awayId].points += 3; }
+        else { h2h[g.homeId].points += 3; }
+      } else if (g.homeScore > g.awayScore) {
+        h2h[g.homeId].points += 3; h2h[g.awayId].points += 1;
+      } else if (g.awayScore > g.homeScore) {
+        h2h[g.awayId].points += 3; h2h[g.homeId].points += 1;
+      } else {
+        h2h[g.homeId].points += 2; h2h[g.awayId].points += 2;
+      }
+      h2h[g.homeId].diff += (g.homeScore - g.awayScore);
+      h2h[g.awayId].diff += (g.awayScore - g.homeScore);
+    });
+    group.sort(function (a, b) {
+      var ha = h2h[a.id], hb = h2h[b.id];
+      if (hb.points !== ha.points) return hb.points - ha.points; // h2h 積分
+      if (hb.diff   !== ha.diff)   return hb.diff   - ha.diff;   // h2h 得失
+      return b.diff - a.diff;                                     // 全組得失球差
+    });
+    return group;
   }
 
   /**
