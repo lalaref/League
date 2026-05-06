@@ -186,14 +186,16 @@
       var cells = [
         p.fouls != null ? p.fouls : 0,
         p.pts   != null ? p.pts   : 0,
-        fgm, fga, pct(fgm, fga),
-        tpm, tpa, pct(tpm, tpa),
-        ftm, fta, pct(ftm, fta),
-        oreb, dreb, oreb + dreb,
+        fgm, fga,
+        tpm, tpa,
+        ftm, fta,
+        oreb, dreb,
         p.ast != null ? p.ast : 0,
         p.stl != null ? p.stl : 0,
         p.blk != null ? p.blk : 0,
-        p.to  != null ? p.to  : 0
+        p.to  != null ? p.to  : 0,
+        pct(fgm, fga), pct(tpm, tpa), pct(ftm, fta),
+        oreb + dreb
       ];
 
       cells.forEach(function (val) {
