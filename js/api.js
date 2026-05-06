@@ -89,6 +89,7 @@ var API = (function () {
         }
       });
     }
+    queryParts.push('_t=' + Date.now());
     var url = BASE_URL + '?' + queryParts.join('&');
     console.log('[API.get] BASE_URL =', BASE_URL, '| url =', url);
 
