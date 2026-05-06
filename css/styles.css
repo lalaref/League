@@ -430,20 +430,35 @@ img {
 .game-boxscore-section .data-table {
     table-layout: fixed;
     width: 100%;
-    font-size: 0.6875rem; /* 11px */
+    font-size: 0.875rem; /* 14px */
 }
 
 .game-boxscore-section .data-table th,
 .game-boxscore-section .data-table td {
-    padding: 4px 4px;
+    padding: 5px 2px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    text-align: center;
+    width: 36px;
 }
 
+/* player name column — wider, left-aligned */
 .game-boxscore-section .data-table th:first-child,
 .game-boxscore-section .data-table td:first-child {
-    width: 90px;
+    width: 100px;
+    text-align: left;
+    padding-left: 6px;
+}
+
+/* percentage columns slightly wider for "100%" */
+.game-boxscore-section .data-table th:nth-child(6),
+.game-boxscore-section .data-table td:nth-child(6),
+.game-boxscore-section .data-table th:nth-child(9),
+.game-boxscore-section .data-table td:nth-child(9),
+.game-boxscore-section .data-table th:nth-child(12),
+.game-boxscore-section .data-table td:nth-child(12) {
+    width: 44px;
 }
 
 .game-boxscore-section .table-wrapper {
