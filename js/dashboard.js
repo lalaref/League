@@ -309,26 +309,100 @@
     return html;
   }
 
-  // --- 球隊排名（需求 3.5）---
+  // --- 球隊排名（需求 3.5）— 從比賽結果前端計算，確保與節分一致 ---
   function loadStandings() {
     if (!standingsBody) return;
-    standingsBody.innerHTML = '<tr><td colspan="6" class="loading" data-i18n="common.loading">' + I18n.t('common.loading') + '</td></tr>';
+    standingsBody.innerHTML = '<tr><td colspan="8" class="loading" data-i18n="common.loading">' + I18n.t('common.loading') + '</td></tr>';
 
-    API.getStandings(currentSeasonId)
-      .then(function (standings) {
-        if (!standings || standings.length === 0) {
-          standingsBody.innerHTML = '<tr><td colspan="6" class="text-muted" data-i18n="common.noData">' + I18n.t('common.noData') + '</td></tr>';
-          return;
-        }
-        // 取前 8 名
-        var top8 = standings.slice(0, 8);
-        standingsBody.innerHTML = top8.map(function (team, idx) {
-          return renderStandingRow(team, idx + 1);
-        }).join('');
-      })
-      .catch(function () {
-        standingsBody.innerHTML = '<tr><td colspan="6" class="text-muted">' + I18n.t('error.loadFailed') + '</td></tr>';
-      });
+    Promise.all([
+      API.getGames(currentSeasonId),
+      API.getTeams(currentSeasonId)
+    ]).then(function (results) {
+      var games = results[0] || [];
+      var teams = results[1] || [];
+
+      if (teams.length === 0) {
+        standingsBody.innerHTML = '<tr><td colspan="8" class="text-muted" data-i18n="common.noData">' + I18n.t('common.noData') + '</td></tr>';
+        return;
+      }
+
+      var standings = _computeStandings(games, teams);
+      if (standings.length === 0) {
+        standingsBody.innerHTML = '<tr><td colspan="8" class="text-muted" data-i18n="common.noData">' + I18n.t('common.noData') + '</td></tr>';
+        return;
+      }
+
+      var top8 = standings.slice(0, 8);
+      standingsBody.innerHTML = top8.map(function (team, idx) {
+        return renderStandingRow(team, idx + 1);
+      }).join('');
+    }).catch(function () {
+      standingsBody.innerHTML = '<tr><td colspan="8" class="text-muted">' + I18n.t('error.loadFailed') + '</td></tr>';
+    });
+  }
+
+  /**
+   * 從比賽數據計算球隊積分榜（節分優先）
+   */
+  function _computeStandings(games, teams) {
+    var table = {};
+    teams.forEach(function (t) {
+      table[t.id] = {
+        teamName: t.name || t.teamName || t.id,
+        played: 0, wins: 0, draws: 0, losses: 0,
+        pointsFor: 0, pointsAgainst: 0, diff: 0, points: 0
+      };
+    });
+
+    games.forEach(function (g) {
+      if (g.status !== 'completed') return;
+      if (!table[g.homeTeamId] || !table[g.awayTeamId]) return;
+
+      // Quarter data is the source of truth
+      var hasQuarters = g.homeQ1 || g.homeQ2 || g.homeQ3 || g.homeQ4 ||
+                        g.awayQ1 || g.awayQ2 || g.awayQ3 || g.awayQ4;
+      var homeScore, awayScore;
+      if (hasQuarters) {
+        homeScore = (parseInt(g.homeQ1, 10) || 0) + (parseInt(g.homeQ2, 10) || 0) +
+                    (parseInt(g.homeQ3, 10) || 0) + (parseInt(g.homeQ4, 10) || 0);
+        awayScore = (parseInt(g.awayQ1, 10) || 0) + (parseInt(g.awayQ2, 10) || 0) +
+                    (parseInt(g.awayQ3, 10) || 0) + (parseInt(g.awayQ4, 10) || 0);
+      } else {
+        homeScore = parseInt(g.homeScore, 10) || 0;
+        awayScore = parseInt(g.awayScore, 10) || 0;
+      }
+
+      table[g.homeTeamId].played++;
+      table[g.awayTeamId].played++;
+      table[g.homeTeamId].pointsFor += homeScore;
+      table[g.homeTeamId].pointsAgainst += awayScore;
+      table[g.awayTeamId].pointsFor += awayScore;
+      table[g.awayTeamId].pointsAgainst += homeScore;
+
+      if (homeScore > awayScore) {
+        table[g.homeTeamId].wins++;   table[g.homeTeamId].points += 2;
+        table[g.awayTeamId].losses++;
+      } else if (awayScore > homeScore) {
+        table[g.awayTeamId].wins++;   table[g.awayTeamId].points += 2;
+        table[g.homeTeamId].losses++;
+      } else {
+        table[g.homeTeamId].draws++; table[g.homeTeamId].points++;
+        table[g.awayTeamId].draws++; table[g.awayTeamId].points++;
+      }
+    });
+
+    var result = Object.keys(table).map(function (id) {
+      var t = table[id];
+      t.diff = t.pointsFor - t.pointsAgainst;
+      return t;
+    });
+
+    result.sort(function (a, b) {
+      if (b.points !== a.points) return b.points - a.points;
+      return b.diff - a.diff;
+    });
+
+    return result;
   }
 
   /**
