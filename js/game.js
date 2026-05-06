@@ -173,25 +173,30 @@
         nameTd.textContent = num + name;
       }
 
+      var fgm  = p.fgm  != null ? p.fgm  : 0;
+      var fga  = p.fga  != null ? p.fga  : 0;
+      var tpm  = p.tpm  != null ? p.tpm  : 0;
+      var tpa  = p.tpa  != null ? p.tpa  : 0;
+      var ftm  = p.ftm  != null ? p.ftm  : 0;
+      var fta  = p.fta  != null ? p.fta  : 0;
+      var oreb = p.oreb != null ? p.oreb : 0;
+      var dreb = p.dreb != null ? p.dreb : 0;
+      var pct  = function(m, a) { return a > 0 ? (m / a * 100).toFixed(1) + '%' : '-'; };
+
       var cells = [
-        p.pts != null ? p.pts : 0,
-        p.oreb != null ? p.oreb : 0,
-        p.dreb != null ? p.dreb : 0,
-        p.reb != null ? p.reb : ((p.oreb || 0) + (p.dreb || 0)),
+        p.fouls != null ? p.fouls : 0,
+        p.pts   != null ? p.pts   : 0,
+        fgm, fga, pct(fgm, fga),
+        tpm, tpa, pct(tpm, tpa),
+        ftm, fta, pct(ftm, fta),
+        oreb, dreb, oreb + dreb,
         p.ast != null ? p.ast : 0,
         p.stl != null ? p.stl : 0,
         p.blk != null ? p.blk : 0,
-        p.fgm != null ? p.fgm : 0,
-        p.fga != null ? p.fga : 0,
-        p.tpm != null ? p.tpm : 0,
-        p.tpa != null ? p.tpa : 0,
-        p.ftm != null ? p.ftm : 0,
-        p.fta != null ? p.fta : 0,
-        p.to != null ? p.to : 0,
-        p.fouls != null ? p.fouls : 0
+        p.to  != null ? p.to  : 0
       ];
 
-      cells.forEach(function (val, idx) {
+      cells.forEach(function (val) {
         var td = document.createElement('td');
         td.textContent = val;
         td.className = 'text-right';
