@@ -5,25 +5,25 @@
 
 /* --- 品牌配色 CSS Custom Properties --- */
 :root {
-    /* 主色調 */
-    --color-primary: #1a1a2e;        /* 深海軍藍 — 主背景/導航 */
-    --color-primary-light: #16213e;  /* 淺海軍藍 */
-    --color-secondary: #e94560;      /* 活力紅 — 強調色/CTA */
-    --color-secondary-light: #ff6b81;/* 淺紅 */
-    --color-accent: #f5a623;         /* 金色 — 獎項/高亮 */
-    --color-accent-light: #ffd166;   /* 淺金色 */
+    /* 主色調 — TheBasketball Red/Black 配色 */
+    --color-primary: #111111;        /* 深黑 — 標題/深色元素 */
+    --color-primary-light: #1a1a1a;  /* 深黑 */
+    --color-secondary: #cc0000;      /* 紅色 — 主強調色/CTA */
+    --color-secondary-light: #ee2222;/* 淺紅 */
+    --color-accent: #cc0000;         /* 紅色 — 獎項/高亮 */
+    --color-accent-light: #ff3333;   /* 淺紅 */
 
     /* 中性色 */
-    --color-bg: #0f0f23;            /* 頁面背景 */
-    --color-surface: #1a1a2e;       /* 卡片/區塊背景 */
-    --color-surface-light: #222244; /* 懸停/次要區塊 */
-    --color-border: #2a2a4a;        /* 邊框 */
+    --color-bg: #f5f5f5;            /* 頁面背景 — 淺灰白 */
+    --color-surface: #ffffff;       /* 卡片/區塊背景 — 白 */
+    --color-surface-light: #fff0f0; /* 懸停/次要區塊 — 極淺紅 */
+    --color-border: #e0e0e0;        /* 邊框 — 淺灰 */
 
     /* 文字色 */
-    --color-text: #e8e8f0;          /* 主要文字 */
-    --color-text-secondary: #a0a0b8;/* 次要文字 */
-    --color-text-muted: #6a6a8a;    /* 淡化文字 */
-    --color-text-inverse: #ffffff;  /* 反色文字 */
+    --color-text: #444444;          /* 主要文字 — 深灰 */
+    --color-text-secondary: #777777;/* 次要文字 — 灰 */
+    --color-text-muted: #aaaaaa;    /* 淡化文字 — 淺灰 */
+    --color-text-inverse: #ffffff;  /* 反色文字 — 白 */
 
     /* 狀態色 */
     --color-success: #2ecc71;       /* 成功/勝利 */
@@ -65,14 +65,16 @@
     /* 圓角 */
     --radius-sm: 4px;
     --radius-md: 8px;
-    --radius-lg: 12px;
-    --radius-xl: 16px;
+    --radius-lg: 14px;
+    --radius-xl: 20px;
     --radius-full: 9999px;
+    --radius-card: 12px;
 
     /* 陰影 */
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
-    --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.4);
+    --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.07);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.10);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.14);
+    --shadow-orange: 0 4px 20px rgba(204, 0, 0, 0.25);
 
     /* 過渡 */
     --transition-fast: 150ms ease;
@@ -116,6 +118,9 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
+/* Override headings to dark on light background */
+h1, h2, h3, h4, h5, h6 { color: var(--color-primary); }
+
 /* --- 排版 --- */
 h1, h2, h3, h4, h5, h6 {
     font-weight: var(--font-weight-bold);
@@ -140,7 +145,7 @@ a {
 
 a:hover,
 a:focus-visible {
-    color: var(--color-secondary-light);
+    color: #c84f02;
 }
 
 img {
@@ -162,33 +167,40 @@ img {
     position: sticky;
     top: 0;
     z-index: 1000;
-    background-color: var(--color-primary);
-    border-bottom: 1px solid var(--color-border);
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
 }
 
-.main-nav {
-    height: var(--nav-height);
+/* Top info bar */
+.header-top {
+    background: #111111;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.5);
 }
 
-.nav-container {
+.header-top-inner {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 100%;
+    align-items: stretch;
     max-width: var(--container-max);
     margin: 0 auto;
-    padding: 0 var(--spacing-md);
+    min-height: 64px;
+}
+
+/* Logo block — red diagonal background */
+.ht-logo-wrap {
+    background: #cc0000;
+    padding: 0 44px 0 24px;
+    display: flex;
+    align-items: center;
+    clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 100%, 0 100%);
+    flex-shrink: 0;
 }
 
 .nav-logo {
     display: flex;
     align-items: center;
     gap: var(--spacing-sm);
-    color: var(--color-text-inverse);
+    color: #ffffff;
     font-weight: var(--font-weight-bold);
-    font-size: var(--font-size-lg);
-    min-height: var(--touch-target-min);
-    min-width: var(--touch-target-min);
+    text-decoration: none;
 }
 
 .logo-img {
@@ -198,6 +210,85 @@ img {
 
 .logo-text {
     letter-spacing: 0.05em;
+    font-family: 'Oswald', sans-serif;
+    font-size: 20px;
+}
+
+/* Right side: info + nav + lang */
+.ht-right {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    justify-content: flex-end;
+    gap: 0;
+}
+
+/* Info columns */
+.ht-info-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 0 16px;
+    border-right: 1px solid rgba(255,255,255,0.1);
+}
+
+.ht-info-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 20px;
+    color: rgba(255,255,255,0.7);
+    font-size: 13px;
+    border-right: 1px solid rgba(255,255,255,0.1);
+}
+
+.ht-info-item--last {
+    border-right: none;
+}
+
+.ht-info-item strong {
+    display: block;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+}
+
+.ht-info-item a,
+.ht-info-item span {
+    color: rgba(255,255,255,0.6);
+    font-size: 12px;
+    text-decoration: none;
+}
+
+.ht-info-item a:hover { color: #cc0000; }
+
+.ht-icon {
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
+    color: #cc0000;
+}
+
+.ht-lang-wrap {
+    padding: 0 16px;
+}
+
+/* Nav inside header-top (single-row) */
+.main-nav {
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.nav-container {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding: 0;
+    gap: 0;
 }
 
 /* 漢堡選單按鈕 */
@@ -219,7 +310,7 @@ img {
     display: block;
     width: 24px;
     height: 2px;
-    background-color: var(--color-text-inverse);
+    background-color: #ffffff;
     border-radius: 2px;
     transition: transform var(--transition-normal), opacity var(--transition-normal);
 }
@@ -240,15 +331,16 @@ img {
 .nav-links {
     display: none;
     position: absolute;
-    top: var(--nav-height);
-    left: 0;
+    top: 64px;
     right: 0;
-    background-color: var(--color-primary);
-    border-bottom: 1px solid var(--color-border);
+    width: 220px;
+    background-color: #1a1a1a;
+    border-bottom: 2px solid #cc0000;
     list-style: none;
     flex-direction: column;
     padding: var(--spacing-sm) 0;
     box-shadow: var(--shadow-lg);
+    z-index: 200;
 }
 
 .nav-links.open {
@@ -259,27 +351,28 @@ img {
     display: flex;
     align-items: center;
     padding: var(--spacing-md) var(--spacing-lg);
-    color: var(--color-text);
-    font-size: var(--font-size-base);
-    font-weight: var(--font-weight-medium);
+    color: rgba(255,255,255,0.75);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-family: 'Raleway', sans-serif;
     min-height: var(--touch-target-min);
-    transition: background-color var(--transition-fast), color var(--transition-fast);
+    transition: color var(--transition-fast), background-color var(--transition-fast);
+    text-decoration: none;
 }
 
 .nav-link:hover,
 .nav-link:focus-visible {
-    background-color: var(--color-surface-light);
-    color: var(--color-text-inverse);
+    color: #cc0000;
+    background-color: rgba(204,0,0,0.08);
 }
 
 .nav-link.active {
-    color: var(--color-secondary);
-    border-left: 3px solid var(--color-secondary);
-}
-
-.nav-actions {
-    display: flex;
-    align-items: center;
+    color: #cc0000;
+    font-weight: 800;
+    border-left: 3px solid #cc0000;
+    background: rgba(204,0,0,0.08);
 }
 
 .lang-switch-btn {
@@ -287,12 +380,12 @@ img {
     align-items: center;
     justify-content: center;
     min-width: var(--touch-target-min);
-    min-height: var(--touch-target-min);
-    padding: var(--spacing-xs) var(--spacing-sm);
+    min-height: 32px;
+    padding: 4px 12px;
     background-color: transparent;
-    border: 1px solid var(--color-border);
+    border: 1px solid rgba(255,255,255,0.3);
     border-radius: var(--radius-md);
-    color: var(--color-text);
+    color: rgba(255,255,255,0.75);
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
     cursor: pointer;
@@ -301,8 +394,15 @@ img {
 
 .lang-switch-btn:hover,
 .lang-switch-btn:focus-visible {
-    background-color: var(--color-surface-light);
-    border-color: var(--color-secondary);
+    background-color: rgba(204,0,0,0.3);
+    border-color: #cc0000;
+    color: #ffffff;
+}
+
+/* Hide top info bar on mobile — shown via responsive.css at 1024px+ */
+.header-top {
+    display: flex;
+    flex-direction: column;
 }
 
 /* --- 主要內容 --- */
@@ -321,6 +421,7 @@ img {
     padding-bottom: var(--spacing-sm);
     border-bottom: 2px solid var(--color-secondary);
     display: inline-block;
+    color: var(--color-primary);
 }
 
 /* --- 英雄區域 --- */
@@ -354,15 +455,18 @@ img {
 
 .game-card {
     background-color: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
+    border: 1px solid rgba(0, 0, 0, .06);
+    border-left: 3px solid var(--color-secondary);
+    border-radius: 0 var(--radius-card) var(--radius-card) 0;
     padding: var(--spacing-md);
-    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--transition-normal), box-shadow var(--transition-normal);
 }
 
 .game-card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+    transform: translateX(3px) translateY(-2px);
+    box-shadow: 0 6px 24px rgba(232, 93, 4, .15);
+    background-color: var(--color-surface-light);
 }
 
 .game-card a {
@@ -376,8 +480,9 @@ img {
 .table-wrapper {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-card);
     border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-sm);
 }
 
 .data-table {
@@ -387,7 +492,7 @@ img {
 }
 
 .data-table thead {
-    background-color: var(--color-primary-light);
+    background-color: var(--color-primary);
 }
 
 .data-table th {
@@ -405,6 +510,7 @@ img {
     padding: var(--spacing-sm) var(--spacing-md);
     border-top: 1px solid var(--color-border);
     white-space: nowrap;
+    color: var(--color-text);
 }
 
 .data-table tbody tr:hover {
@@ -466,9 +572,15 @@ img {
 
 .announcement-item {
     background-color: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
+    border: 1px solid rgba(0, 0, 0, .06);
+    border-radius: var(--radius-card);
     padding: var(--spacing-md);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+}
+.announcement-item:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
 }
 
 .announcement-item .announcement-date {
@@ -478,10 +590,11 @@ img {
 }
 
 .announcement-item .announcement-title {
-    font-size: var(--font-size-base);
+    font-size: var(--font-size-sm);
     font-weight: var(--font-weight-semibold);
-    color: var(--color-text-inverse);
+    color: var(--color-primary);
     margin-bottom: var(--spacing-xs);
+    line-height: 1.4;
 }
 
 /* --- 成就列表 --- */
@@ -530,6 +643,12 @@ img {
 .game-card-date {
     font-size: var(--font-size-xs);
     margin-bottom: var(--spacing-xs);
+    display: inline-block;
+    background: #f0f0f0;
+    padding: 2px 10px;
+    border-radius: var(--radius-full);
+    color: var(--color-text-secondary);
+    letter-spacing: 0.03em;
 }
 
 .game-card-matchup {
@@ -542,7 +661,7 @@ img {
 .game-card-team {
     font-weight: var(--font-weight-semibold);
     font-size: var(--font-size-sm);
-    color: var(--color-text-inverse);
+    color: var(--color-primary);
     flex: 1;
     min-width: 0;
     overflow: hidden;
@@ -557,15 +676,25 @@ img {
 .game-card-score {
     font-weight: var(--font-weight-bold);
     font-size: var(--font-size-lg);
-    color: var(--color-accent);
+    color: var(--color-secondary);
     flex-shrink: 0;
-    padding: 0 var(--spacing-sm);
+    padding: 4px 12px;
+    font-family: 'Raleway', sans-serif;
+    background: rgba(232, 93, 4, 0.08);
+    border-radius: var(--radius-md);
+    letter-spacing: 0.05em;
 }
 
 .game-card-vs {
-    font-size: var(--font-size-sm);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
     color: var(--color-text-muted);
     flex-shrink: 0;
+    background: #ebebeb;
+    padding: 3px 9px;
+    border-radius: var(--radius-full);
+    text-transform: uppercase;
 }
 
 .game-card-venue {
@@ -574,7 +703,8 @@ img {
 }
 
 .game-card--upcoming {
-    border-left: 3px solid var(--color-info);
+    border-left: 3px solid var(--color-secondary);
+    background-color: var(--color-surface);
 }
 
 /* --- 公告內容 --- */
@@ -602,7 +732,7 @@ img {
 }
 
 .announcement-item--pinned {
-    border-left: 3px solid var(--color-accent);
+    border-left: 3px solid var(--color-secondary);
 }
 
 .announcement-actions {
@@ -618,7 +748,7 @@ img {
     padding: var(--spacing-xs) var(--spacing-sm);
     font-size: var(--font-size-xs);
     color: var(--color-text-secondary);
-    background: var(--color-bg);
+    background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-sm);
     text-decoration: none;
@@ -661,13 +791,19 @@ img {
 }
 
 .btn-primary {
-    background-color: var(--color-secondary);
+    background: linear-gradient(135deg, var(--color-secondary) 0%, #c84f02 100%);
     color: var(--color-text-inverse);
+    border-radius: var(--radius-full);
+    box-shadow: 0 4px 14px rgba(232, 93, 4, 0.35);
+    letter-spacing: 0.02em;
 }
 
 .btn-primary:hover,
 .btn-primary:focus-visible {
-    background-color: var(--color-secondary-light);
+    background: linear-gradient(135deg, #ff7520, var(--color-secondary));
+    color: var(--color-text-inverse);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(232, 93, 4, 0.45);
 }
 
 .btn-outline {
@@ -712,10 +848,10 @@ img {
 
 /* --- 頁腳 --- */
 .site-footer {
-    background-color: var(--color-primary);
-    border-top: 1px solid var(--color-border);
-    padding: var(--spacing-2xl) 0;
-    margin-top: var(--spacing-2xl);
+    background-color: #0d0d1a;
+    border-top: none;
+    padding: var(--spacing-2xl) 0 0;
+    margin-top: 0;
 }
 
 .footer-content {
@@ -734,8 +870,9 @@ img {
 
 .footer-tagline {
     font-size: var(--font-size-sm);
-    color: var(--color-text-secondary);
+    color: #666;
     margin-bottom: 0;
+    line-height: 1.7;
 }
 
 .footer-links {
@@ -760,7 +897,7 @@ img {
 
 .footer-copyright {
     font-size: var(--font-size-xs);
-    color: var(--color-text-muted);
+    color: #444;
 }
 
 /* --- 工具類別 --- */
@@ -779,7 +916,7 @@ img {
 .text-center { text-align: center; }
 .text-right { text-align: right; }
 
-.text-accent { color: var(--color-accent); }
+.text-accent { color: var(--color-secondary) !important; font-weight: 700; }
 .text-success { color: var(--color-success); }
 .text-error { color: var(--color-error); }
 .text-muted { color: var(--color-text-muted); }
@@ -810,6 +947,10 @@ img {
     animation: spin 0.8s linear infinite;
 }
 
+.loading {
+    color: var(--color-text-muted);
+}
+
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
@@ -818,6 +959,7 @@ img {
 .player-hero {
     background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
     border-bottom: 3px solid var(--color-secondary);
+    color: var(--color-text-inverse);
 }
 
 .player-profile-card {
@@ -835,7 +977,7 @@ img {
     overflow: hidden;
     border: 3px solid var(--color-secondary);
     flex-shrink: 0;
-    background-color: var(--color-surface-light);
+    background-color: var(--color-primary-light);
 }
 
 .player-photo {
@@ -1256,7 +1398,7 @@ img {
 
 .leaderboard-title {
     font-size: var(--font-size-lg);
-    color: var(--color-text-inverse);
+    color: var(--color-primary);
     margin-bottom: var(--spacing-md);
     display: flex;
     align-items: center;

@@ -1,0 +1,814 @@
+﻿<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ALL-IN Basketball League — TheBasketball Style</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Open+Sans:wght@400;600;700&family=Raleway:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --orange:#e85d04;
+  --dark:#1a1a2e;
+  --darker:#111;
+  --light:#f8f8f8;
+  --border:#e0e0e0;
+  --text:#333;
+  --muted:#888;
+}
+body{font-family:'Open Sans',sans-serif;color:var(--text);background:#fff;font-size:14px}
+a{text-decoration:none;color:inherit}
+img{max-width:100%}
+
+/* ── TOP BAR ── */
+.topbar{background:var(--darker);padding:8px 0;font-size:12px}
+.topbar-inner{max-width:1200px;margin:0 auto;padding:0 20px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.topbar-left{display:flex;gap:28px}
+.topbar-item{display:flex;align-items:center;gap:7px;color:#aaa}
+.topbar-item span.icon{color:var(--orange);font-size:13px}
+.topbar-item strong{color:#fff;font-size:11px;letter-spacing:.05em;text-transform:uppercase}
+.topbar-item a{color:#ccc;font-size:11px}
+.topbar-right{display:flex;align-items:center;gap:20px}
+.topbar-right a{color:#aaa;font-size:12px;transition:color .2s}
+.topbar-right a:hover{color:var(--orange)}
+.topbar-cart{display:flex;align-items:center;gap:6px;color:#aaa;font-size:11px;letter-spacing:.05em}
+.topbar-cart span.icon{color:var(--orange)}
+
+/* ── NAV ── */
+.navbar{background:var(--dark);padding:0}
+.nav-inner{max-width:1200px;margin:0 auto;padding:0 20px;display:flex;justify-content:space-between;align-items:center}
+.nav-logo{padding:14px 0}
+.nav-logo h1{font-family:'Raleway',sans-serif;font-size:28px;font-weight:900;color:#fff;letter-spacing:.04em;line-height:1}
+.nav-logo h1 em{color:var(--orange);font-style:normal}
+.nav-logo small{display:block;font-size:9px;color:#666;letter-spacing:.3em;text-transform:uppercase;font-family:'Open Sans',sans-serif;margin-top:2px}
+.nav-links{display:flex;align-items:stretch}
+.nav-links a{display:flex;align-items:center;padding:0 16px;height:66px;color:rgba(255,255,255,.65);font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;transition:all .2s;border-bottom:3px solid transparent}
+.nav-links a:hover,.nav-links a.active{color:#fff;border-bottom-color:var(--orange)}
+
+/* ── HERO ── */
+.hero{position:relative;background:linear-gradient(135deg,#0d0d1f 0%,#1a1a2e 40%,#0d0d1f 100%);overflow:hidden;padding:60px 20px}
+.hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23e85d04' fill-opacity='0.04'%3E%3Ccircle cx='30' cy='30' r='28'/%3E%3Ccircle cx='30' cy='30' r='18'/%3E%3Ccircle cx='30' cy='30' r='8'/%3E%3Cline x1='2' y1='30' x2='58' y2='30' stroke='%23e85d04' stroke-opacity='0.04' stroke-width='1'/%3E%3Cline x1='30' y1='2' x2='30' y2='58' stroke='%23e85d04' stroke-opacity='0.04' stroke-width='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat}
+.hero-inner{max-width:1200px;margin:0 auto;position:relative;z-index:1;text-align:center}
+.hero-date{color:var(--orange);font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;margin-bottom:10px}
+.hero h2{font-family:'Raleway',sans-serif;font-size:44px;font-weight:900;color:#fff;line-height:1.1;margin-bottom:28px;text-transform:uppercase}
+.hero h2 span{color:var(--orange)}
+
+/* countdown */
+.countdown{display:flex;justify-content:center;gap:16px;margin-bottom:32px}
+.cd-block{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);padding:18px 24px;min-width:90px;text-align:center;position:relative}
+.cd-block::after{content:':';position:absolute;right:-10px;top:50%;transform:translateY(-50%);color:var(--orange);font-family:'Raleway',sans-serif;font-size:28px;font-weight:900}
+.cd-block:last-child::after{display:none}
+.cd-num{font-family:'Raleway',sans-serif;font-size:42px;font-weight:900;color:#fff;line-height:1;display:block}
+.cd-label{font-size:10px;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:#666;margin-top:4px;display:block}
+.hero-cta{display:inline-flex;align-items:center;gap:8px;background:var(--orange);color:#fff;padding:13px 32px;font-family:'Raleway',sans-serif;font-size:13px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;border:none;cursor:pointer;transition:background .2s}
+.hero-cta:hover{background:#c84f02}
+.hero-meta{display:flex;justify-content:center;gap:40px;margin-top:24px}
+.hero-meta-item{color:#555;font-size:11px;letter-spacing:.15em;text-transform:uppercase}
+.hero-meta-item strong{display:block;color:#fff;font-size:20px;font-family:'Raleway',sans-serif;font-weight:900;margin-bottom:2px}
+
+/* ── MAIN LAYOUT ── */
+.main{max-width:1200px;margin:0 auto;padding:40px 20px;display:grid;grid-template-columns:1fr 340px;gap:32px}
+.main-left{display:flex;flex-direction:column;gap:40px}
+.main-right{display:flex;flex-direction:column;gap:32px}
+
+/* section headings */
+.sec-title{display:flex;align-items:center;gap:0;margin-bottom:20px}
+.sec-title h3{font-family:'Raleway',sans-serif;font-size:16px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#fff;background:var(--orange);padding:9px 16px;position:relative}
+.sec-title h3::after{content:'';position:absolute;right:-10px;top:0;bottom:0;width:0;height:0;border-style:solid;border-width:19px 0 19px 10px;border-color:transparent transparent transparent var(--orange)}
+.sec-title-line{flex:1;height:2px;background:var(--dark);margin-left:18px}
+
+/* ── RESULTS TABLE ── */
+.results-table{width:100%;border-collapse:collapse}
+.results-table thead tr{background:var(--dark);color:#fff}
+.results-table thead th{padding:10px 14px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;text-align:left}
+.results-table tbody tr{border-bottom:1px solid var(--border);transition:background .15s}
+.results-table tbody tr:hover{background:#fff8f4}
+.results-table tbody td{padding:11px 14px;font-size:13px}
+.td-date{color:var(--muted);font-size:11px;white-space:nowrap}
+.td-venue{color:var(--muted);font-size:11px;text-align:center}
+.td-team{font-weight:700;color:var(--dark)}
+.td-score{text-align:center;font-family:'Raleway',sans-serif;font-size:16px;font-weight:900;color:var(--orange)}
+.td-winner{color:var(--orange)}
+
+/* ── TODAY'S MATCHES ── */
+.matches-grid{display:flex;flex-direction:column;gap:12px}
+.match-card{background:var(--dark);padding:18px 20px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;position:relative;overflow:hidden}
+.match-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--orange)}
+.match-team{display:flex;flex-direction:column;gap:4px}
+.match-team-home{align-items:flex-start}
+.match-team-away{align-items:flex-end;text-align:right}
+.match-team-name{font-family:'Raleway',sans-serif;font-size:15px;font-weight:800;color:#fff;text-transform:uppercase}
+.match-team-rec{font-size:11px;color:#666;letter-spacing:.05em}
+.match-vs{text-align:center}
+.match-vs-time{font-family:'Raleway',sans-serif;font-size:18px;font-weight:900;color:var(--orange);line-height:1}
+.match-vs-label{font-size:10px;color:#555;letter-spacing:.15em;text-transform:uppercase;margin-top:2px}
+.match-vs-venue{font-size:10px;color:#555;margin-top:2px}
+
+/* ── ROSTER / TEAM ── */
+.roster-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.player-card{background:var(--dark);text-align:center;padding:20px 12px;position:relative;overflow:hidden;cursor:pointer;transition:transform .2s}
+.player-card:hover{transform:translateY(-3px)}
+.player-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--orange)}
+.player-num{font-family:'Raleway',sans-serif;font-size:48px;font-weight:900;color:rgba(255,255,255,.06);line-height:1;position:absolute;top:8px;right:10px}
+.player-avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--orange),#ff9a3c);margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-family:'Raleway',sans-serif;font-size:24px;font-weight:900;color:#fff;position:relative;z-index:1}
+.player-name{font-family:'Raleway',sans-serif;font-size:13px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.05em;position:relative;z-index:1}
+.player-pos{font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--orange);margin-top:4px;position:relative;z-index:1}
+.join-team-btn{display:inline-flex;align-items:center;gap:8px;background:var(--orange);color:#fff;padding:12px 24px;font-family:'Raleway',sans-serif;font-size:12px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;border:none;cursor:pointer;transition:background .2s;margin-top:16px}
+.join-team-btn:hover{background:#c84f02}
+
+/* ── PLAYER STATS ── */
+.stats-tabs{display:flex;gap:0;margin-bottom:20px;border-bottom:2px solid var(--border)}
+.stats-tab{padding:9px 18px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s;color:var(--muted)}
+.stats-tab.active,.stats-tab:hover{color:var(--orange);border-bottom-color:var(--orange)}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.stat-card{border:1px solid var(--border);padding:20px;text-align:center;position:relative;overflow:hidden;transition:box-shadow .2s}
+.stat-card:hover{box-shadow:0 4px 20px rgba(232,93,4,.15)}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--orange)}
+.stat-points{font-family:'Raleway',sans-serif;font-size:28px;font-weight:900;color:var(--orange);line-height:1}
+.stat-label{font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.stat-name{font-family:'Raleway',sans-serif;font-size:15px;font-weight:800;color:var(--dark);text-transform:uppercase;margin:8px 0 4px}
+.stat-team{font-size:11px;color:var(--muted)}
+.stat-view{display:inline-block;margin-top:12px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--orange);border:1px solid var(--orange);padding:6px 14px;transition:all .2s}
+.stat-view:hover{background:var(--orange);color:#fff}
+.stat-bar-wrap{height:4px;background:var(--border);border-radius:2px;margin-top:10px}
+.stat-bar{height:100%;background:linear-gradient(90deg,var(--orange),#ff9a3c);border-radius:2px}
+
+/* ── LEAGUE TABLE ── */
+.league-table{width:100%;border-collapse:collapse}
+.league-table thead tr{background:var(--dark)}
+.league-table thead th{padding:10px 12px;font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.6);text-align:center}
+.league-table thead th:first-child,.league-table thead th:nth-child(2){text-align:left}
+.league-table tbody tr{border-bottom:1px solid var(--border);transition:background .15s}
+.league-table tbody tr:hover{background:#fff8f4}
+.league-table tbody tr:nth-child(1) .lt-pos{background:var(--orange);color:#fff;font-weight:900}
+.league-table tbody td{padding:10px 12px;font-size:13px;text-align:center}
+.lt-pos{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--border);font-weight:700;font-size:12px;color:var(--dark)}
+.lt-team{font-weight:700;color:var(--dark);text-align:left;font-size:13px}
+.lt-team small{display:block;font-weight:400;font-size:11px;color:var(--muted)}
+.lt-ptt{font-weight:900;color:var(--orange);font-family:'Raleway',sans-serif;font-size:15px}
+.lt-w{color:#2d6a4f;font-weight:700}
+.lt-l{color:#c8102e;font-weight:700}
+
+/* ── SIDEBAR ── */
+.sidebar-card{background:#fff;border:1px solid var(--border)}
+.sidebar-card-head{background:var(--dark);padding:12px 16px}
+.sidebar-card-head h4{font-family:'Raleway',sans-serif;font-size:13px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.1em}
+.sidebar-card-body{padding:16px}
+
+/* mini results */
+.mini-result{padding:10px 0;border-bottom:1px solid var(--border)}
+.mini-result:last-child{border:none}
+.mini-result-date{font-size:10px;color:var(--muted);margin-bottom:4px;letter-spacing:.05em}
+.mini-result-row{display:flex;justify-content:space-between;align-items:center;font-size:12px}
+.mini-result-team{font-weight:700;color:var(--dark)}
+.mini-result-score{font-family:'Raleway',sans-serif;font-size:14px;font-weight:900;color:var(--orange)}
+.mini-result-venue{font-size:10px;color:var(--muted);text-align:center;margin-bottom:4px}
+
+/* upcoming */
+.upcoming-item{padding:10px 0;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:center}
+.upcoming-item:last-child{border:none}
+.upcoming-date-box{background:var(--orange);color:#fff;min-width:44px;text-align:center;padding:6px 0}
+.upcoming-date-day{font-family:'Raleway',sans-serif;font-size:22px;font-weight:900;line-height:1}
+.upcoming-date-mon{font-size:9px;font-weight:700;letter-spacing:.15em;text-transform:uppercase}
+.upcoming-info h5{font-size:13px;font-weight:700;color:var(--dark);margin-bottom:2px}
+.upcoming-info span{font-size:11px;color:var(--muted)}
+
+/* news sidebar */
+.news-item{padding:10px 0;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:flex-start}
+.news-item:last-child{border:none}
+.news-thumb{width:56px;height:48px;background:linear-gradient(135deg,var(--dark),#333);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px}
+.news-info h5{font-size:12px;font-weight:700;color:var(--dark);line-height:1.4;margin-bottom:4px}
+.news-info span{font-size:10px;color:var(--muted)}
+
+/* ── VIDEOS ── */
+.videos-section{background:var(--light);padding:48px 0}
+.videos-inner{max-width:1200px;margin:0 auto;padding:0 20px}
+.videos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:4px}
+.video-card{background:#fff;border:1px solid var(--border);overflow:hidden;cursor:pointer;transition:box-shadow .2s}
+.video-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.12)}
+.video-thumb{position:relative;background:var(--dark);padding-top:56%;overflow:hidden}
+.video-thumb-inner{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0d0d1f,#1a1a2e)}
+.video-thumb-text{font-size:32px;opacity:.3}
+.video-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.video-play-btn{width:48px;height:48px;background:var(--orange);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:transform .2s}
+.video-card:hover .video-play-btn{transform:scale(1.1)}
+.video-play-icon{color:#fff;font-size:16px;margin-left:3px}
+.video-info{padding:14px}
+.video-title{font-size:13px;font-weight:700;color:var(--dark);line-height:1.4;margin-bottom:6px}
+.video-meta{font-size:11px;color:var(--muted)}
+
+/* ── STATS FULL-WIDTH SECTION ── */
+.stats-section{background:var(--dark);padding:48px 0}
+.stats-section-inner{max-width:1200px;margin:0 auto;padding:0 20px}
+.stats-section .sec-title h3{background:var(--orange)}
+.big-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(255,255,255,.1);margin-top:4px}
+.big-stat{background:var(--dark);padding:28px 20px;text-align:center}
+.big-stat-num{font-family:'Raleway',sans-serif;font-size:52px;font-weight:900;color:var(--orange);line-height:1}
+.big-stat-label{font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#666;margin-top:6px}
+
+/* ── FAN CLUB BANNER ── */
+.fanclub{background:linear-gradient(135deg,var(--orange) 0%,#c84f02 100%);padding:56px 20px;text-align:center}
+.fanclub-inner{max-width:700px;margin:0 auto}
+.fanclub h2{font-family:'Raleway',sans-serif;font-size:36px;font-weight:900;color:#fff;text-transform:uppercase;line-height:1.2;margin-bottom:12px}
+.fanclub p{color:rgba(255,255,255,.8);font-size:14px;line-height:1.7;margin-bottom:24px}
+.fanclub-btn{display:inline-flex;align-items:center;gap:8px;background:#fff;color:var(--orange);padding:14px 36px;font-family:'Raleway',sans-serif;font-size:13px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;border:none;cursor:pointer;transition:all .2s}
+.fanclub-btn:hover{background:var(--dark);color:#fff}
+
+/* ── FOOTER ── */
+.footer{background:var(--darker);padding:48px 20px 0}
+.footer-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1.5fr;gap:40px;padding-bottom:40px;border-bottom:1px solid #1f1f1f}
+.footer-brand h3{font-family:'Raleway',sans-serif;font-size:22px;font-weight:900;color:#fff;margin-bottom:12px}
+.footer-brand h3 em{color:var(--orange);font-style:normal}
+.footer-brand p{font-size:12px;color:#666;line-height:1.8;margin-bottom:16px}
+.footer-social{display:flex;gap:8px}
+.footer-social a{width:32px;height:32px;background:#1a1a1a;border:1px solid #2a2a2a;display:flex;align-items:center;justify-content:center;color:#666;font-size:12px;transition:all .2s}
+.footer-social a:hover{background:var(--orange);border-color:var(--orange);color:#fff}
+.footer-col h4{font-family:'Raleway',sans-serif;font-size:13px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.1em;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--orange)}
+.footer-links{display:flex;flex-direction:column;gap:8px}
+.footer-links a{font-size:12px;color:#666;transition:color .2s;display:flex;align-items:center;gap:6px}
+.footer-links a::before{content:'›';color:var(--orange)}
+.footer-links a:hover{color:var(--orange)}
+.footer-contact-item{display:flex;gap:10px;margin-bottom:12px}
+.footer-contact-icon{color:var(--orange);font-size:14px;margin-top:1px;flex-shrink:0}
+.footer-contact-text{font-size:12px;color:#666;line-height:1.5}
+.footer-newsletter{display:flex;gap:0;margin-top:8px}
+.footer-newsletter input{flex:1;background:#1a1a1a;border:1px solid #2a2a2a;border-right:none;padding:10px 14px;font-size:12px;color:#fff;outline:none}
+.footer-newsletter input::placeholder{color:#555}
+.footer-newsletter button{background:var(--orange);color:#fff;border:none;padding:10px 16px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+.footer-bottom{max-width:1200px;margin:0 auto;padding:16px 0;display:flex;justify-content:space-between;align-items:center}
+.footer-bottom p{font-size:11px;color:#444}
+.footer-bottom p a{color:var(--orange)}
+.footer-bottom-links{display:flex;gap:16px}
+.footer-bottom-links a{font-size:11px;color:#444;transition:color .2s}
+.footer-bottom-links a:hover{color:var(--orange)}
+
+/* responsive */
+@media(max-width:900px){
+  .main{grid-template-columns:1fr}
+  .roster-grid{grid-template-columns:repeat(2,1fr)}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .videos-grid{grid-template-columns:repeat(2,1fr)}
+  .big-stats{grid-template-columns:repeat(2,1fr)}
+  .footer-inner{grid-template-columns:1fr 1fr}
+  .countdown{gap:8px}
+  .cd-block{min-width:70px;padding:14px 16px}
+  .cd-num{font-size:32px}
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="topbar-left">
+      <div class="topbar-item">
+        <span class="icon">👥</span>
+        <div>
+          <strong>加入我們</strong>
+          <a href="#">join@allin-basketball.hk</a>
+        </div>
+      </div>
+      <div class="topbar-item">
+        <span class="icon">📧</span>
+        <div>
+          <strong>聯絡我們</strong>
+          <a href="#">info@allin-basketball.hk</a>
+        </div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <a href="#">FB</a>
+      <a href="#">IG</a>
+      <a href="#">YT</a>
+      <a href="#">WhatsApp</a>
+      <div class="topbar-cart"><span class="icon">🛒</span> 購物車 (0)</div>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <div class="nav-logo">
+      <h1>ALL<em>IN</em></h1>
+      <small>Basketball League · HK · Season 1</small>
+    </div>
+    <div class="nav-links">
+      <a href="#" class="active">主頁</a>
+      <a href="#">賽程</a>
+      <a href="#">積分榜</a>
+      <a href="#">球員</a>
+      <a href="#">球隊</a>
+      <a href="#">新聞</a>
+      <a href="#">聯絡</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-date">05月10日 (六) · 晚上8:00 · 銅鑼灣體育館</div>
+    <h2>全押籃球聯賽<br><span>第一屆賽季</span> 季後賽</h2>
+    <div class="countdown">
+      <div class="cd-block"><span class="cd-num" id="cd-d">02</span><span class="cd-label">日</span></div>
+      <div class="cd-block"><span class="cd-num" id="cd-h">14</span><span class="cd-label">時</span></div>
+      <div class="cd-block"><span class="cd-num" id="cd-m">35</span><span class="cd-label">分</span></div>
+      <div class="cd-block"><span class="cd-num" id="cd-s">00</span><span class="cd-label">秒</span></div>
+    </div>
+    <a href="#" class="hero-cta">🎟 立即購票 · Book Tickets</a>
+    <div class="hero-meta">
+      <div class="hero-meta-item"><strong>龍城 Eagles</strong> VS 火球 Fireballs</div>
+      <div class="hero-meta-item"><strong>銅鑼灣</strong>體育館</div>
+      <div class="hero-meta-item"><strong>S1</strong>季後賽</div>
+    </div>
+  </div>
+</section>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+
+  <!-- LEFT COLUMN -->
+  <div class="main-left">
+
+    <!-- LATEST RESULTS -->
+    <div>
+      <div class="sec-title"><h3>最新比賽結果</h3><div class="sec-title-line"></div></div>
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th>日期</th>
+            <th>主隊</th>
+            <th style="text-align:center">比分</th>
+            <th>客隊</th>
+            <th style="text-align:center">場地</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="td-date">05月07日</td>
+            <td class="td-team td-winner">火球</td>
+            <td class="td-score">112 : 95</td>
+            <td class="td-team">煤氣鬼</td>
+            <td class="td-venue">銅鑼灣</td>
+          </tr>
+          <tr>
+            <td class="td-date">05月06日</td>
+            <td class="td-team td-winner">海嘯</td>
+            <td class="td-score">91 : 88</td>
+            <td class="td-team">龍城</td>
+            <td class="td-venue">旺角</td>
+          </tr>
+          <tr>
+            <td class="td-date">05月05日</td>
+            <td class="td-team">閃電</td>
+            <td class="td-score">78 : 82</td>
+            <td class="td-team td-winner">黑豹</td>
+            <td class="td-venue">沙田</td>
+          </tr>
+          <tr>
+            <td class="td-date">05月04日</td>
+            <td class="td-team td-winner">龍城</td>
+            <td class="td-score">104 : 98</td>
+            <td class="td-team">海嘯</td>
+            <td class="td-venue">觀塘</td>
+          </tr>
+          <tr>
+            <td class="td-date">05月03日</td>
+            <td class="td-team">煤氣鬼</td>
+            <td class="td-score">65 : 71</td>
+            <td class="td-team td-winner">火球</td>
+            <td class="td-venue">銅鑼灣</td>
+          </tr>
+          <tr>
+            <td class="td-date">05月02日</td>
+            <td class="td-team td-winner">黑豹</td>
+            <td class="td-score">88 : 75</td>
+            <td class="td-team">閃電</td>
+            <td class="td-venue">屯門</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- TODAY'S MATCHES -->
+    <div>
+      <div class="sec-title"><h3>今日賽事</h3><div class="sec-title-line"></div></div>
+      <div class="matches-grid">
+        <div class="match-card">
+          <div class="match-team match-team-home">
+            <div class="match-team-name">龍城 Eagles</div>
+            <div class="match-team-rec">10勝 4負</div>
+          </div>
+          <div class="match-vs">
+            <div class="match-vs-time">8:00</div>
+            <div class="match-vs-label">PM · 今晚</div>
+            <div class="match-vs-venue">銅鑼灣</div>
+          </div>
+          <div class="match-team match-team-away">
+            <div class="match-team-name">火球 Fireballs</div>
+            <div class="match-team-rec">12勝 2負</div>
+          </div>
+        </div>
+        <div class="match-card">
+          <div class="match-team match-team-home">
+            <div class="match-team-name">海嘯 Tsunami</div>
+            <div class="match-team-rec">11勝 3負</div>
+          </div>
+          <div class="match-vs">
+            <div class="match-vs-time">10:00</div>
+            <div class="match-vs-label">PM · 今晚</div>
+            <div class="match-vs-venue">旺角</div>
+          </div>
+          <div class="match-team match-team-away">
+            <div class="match-team-name">煤氣鬼 Ghosts</div>
+            <div class="match-team-rec">6勝 8負</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROSTER -->
+    <div>
+      <div class="sec-title"><h3>第一隊陣容</h3><div class="sec-title-line"></div></div>
+      <div class="roster-grid">
+        <div class="player-card">
+          <div class="player-num">23</div>
+          <div class="player-avatar">KJ</div>
+          <div class="player-name">King James</div>
+          <div class="player-pos">Small Forward</div>
+        </div>
+        <div class="player-card">
+          <div class="player-num">11</div>
+          <div class="player-avatar">DL</div>
+          <div class="player-name">Dragon Lee</div>
+          <div class="player-pos">Point Guard</div>
+        </div>
+        <div class="player-card">
+          <div class="player-num">7</div>
+          <div class="player-avatar">TH</div>
+          <div class="player-name">Tsunami Ho</div>
+          <div class="player-pos">Shooting Guard</div>
+        </div>
+        <div class="player-card">
+          <div class="player-num">32</div>
+          <div class="player-avatar">BK</div>
+          <div class="player-name">Big Ken Chan</div>
+          <div class="player-pos">Power Forward</div>
+        </div>
+      </div>
+      <div style="text-align:center">
+        <a href="#" class="join-team-btn">👥 加入我們的球隊</a>
+      </div>
+    </div>
+
+    <!-- PLAYER STATS -->
+    <div>
+      <div class="sec-title"><h3>球員數據</h3><div class="sec-title-line"></div></div>
+      <div class="stats-tabs">
+        <div class="stats-tab active" onclick="switchTab(this,'fg')">得分</div>
+        <div class="stats-tab" onclick="switchTab(this,'reb')">籃板</div>
+        <div class="stats-tab" onclick="switchTab(this,'ast')">助攻</div>
+        <div class="stats-tab" onclick="switchTab(this,'blk')">封蓋</div>
+      </div>
+      <div class="stats-grid" id="stats-fg">
+        <div class="stat-card">
+          <div class="stat-label">本季平均得分</div>
+          <div class="stat-points">28.4</div>
+          <div class="stat-name">King James</div>
+          <div class="stat-team">火球 Fireballs</div>
+          <div class="stat-bar-wrap"><div class="stat-bar" style="width:95%"></div></div>
+          <a href="#" class="stat-view">查看資料</a>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">本季平均得分</div>
+          <div class="stat-points">25.1</div>
+          <div class="stat-name">Dragon Lee</div>
+          <div class="stat-team">龍城 Eagles</div>
+          <div class="stat-bar-wrap"><div class="stat-bar" style="width:84%"></div></div>
+          <a href="#" class="stat-view">查看資料</a>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">本季平均得分</div>
+          <div class="stat-points">23.7</div>
+          <div class="stat-name">Tsunami Ho</div>
+          <div class="stat-team">海嘯 Tsunami</div>
+          <div class="stat-bar-wrap"><div class="stat-bar" style="width:79%"></div></div>
+          <a href="#" class="stat-view">查看資料</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEAGUE TABLE -->
+    <div>
+      <div class="sec-title"><h3>積分榜</h3><div class="sec-title-line"></div></div>
+      <table class="league-table">
+        <thead>
+          <tr>
+            <th>排名</th>
+            <th>球隊</th>
+            <th>勝</th>
+            <th>負</th>
+            <th>場數</th>
+            <th>積分</th>
+            <th>勝率</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="lt-pos">1</span></td>
+            <td class="lt-team">火球 Fireballs<small>Causeway Bay</small></td>
+            <td class="lt-w">12</td><td class="lt-l">2</td><td>14</td>
+            <td class="lt-ptt">36</td><td>86%</td>
+          </tr>
+          <tr>
+            <td><span class="lt-pos">2</span></td>
+            <td class="lt-team">海嘯 Tsunami<small>Mong Kok</small></td>
+            <td class="lt-w">11</td><td class="lt-l">3</td><td>14</td>
+            <td class="lt-ptt">33</td><td>79%</td>
+          </tr>
+          <tr>
+            <td><span class="lt-pos">3</span></td>
+            <td class="lt-team">龍城 Eagles<small>Kwun Tong</small></td>
+            <td class="lt-w">10</td><td class="lt-l">4</td><td>14</td>
+            <td class="lt-ptt">30</td><td>71%</td>
+          </tr>
+          <tr>
+            <td><span class="lt-pos">4</span></td>
+            <td class="lt-team">黑豹 Panthers<small>Sha Tin</small></td>
+            <td class="lt-w">8</td><td class="lt-l">6</td><td>14</td>
+            <td class="lt-ptt">24</td><td>57%</td>
+          </tr>
+          <tr>
+            <td><span class="lt-pos">5</span></td>
+            <td class="lt-team">閃電 Lightning<small>Tuen Mun</small></td>
+            <td class="lt-w">7</td><td class="lt-l">7</td><td>14</td>
+            <td class="lt-ptt">21</td><td>50%</td>
+          </tr>
+          <tr>
+            <td><span class="lt-pos">6</span></td>
+            <td class="lt-team">煤氣鬼 Ghosts<small>Wan Chai</small></td>
+            <td class="lt-w">6</td><td class="lt-l">8</td><td>14</td>
+            <td class="lt-ptt">18</td><td>43%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div><!-- /main-left -->
+
+  <!-- RIGHT SIDEBAR -->
+  <div class="main-right">
+
+    <!-- UPCOMING -->
+    <div class="sidebar-card">
+      <div class="sidebar-card-head"><h4>📅 即將賽事</h4></div>
+      <div class="sidebar-card-body">
+        <div class="upcoming-item">
+          <div class="upcoming-date-box"><div class="upcoming-date-day">10</div><div class="upcoming-date-mon">MAY</div></div>
+          <div class="upcoming-info"><h5>龍城 vs 火球</h5><span>晚上 8:00 · 銅鑼灣體育館</span></div>
+        </div>
+        <div class="upcoming-item">
+          <div class="upcoming-date-box"><div class="upcoming-date-day">12</div><div class="upcoming-date-mon">MAY</div></div>
+          <div class="upcoming-info"><h5>海嘯 vs 煤氣鬼</h5><span>晚上 7:30 · 旺角球場</span></div>
+        </div>
+        <div class="upcoming-item">
+          <div class="upcoming-date-box"><div class="upcoming-date-day">14</div><div class="upcoming-date-mon">MAY</div></div>
+          <div class="upcoming-info"><h5>黑豹 vs 閃電</h5><span>晚上 8:00 · 沙田體育館</span></div>
+        </div>
+        <div class="upcoming-item">
+          <div class="upcoming-date-box"><div class="upcoming-date-day">17</div><div class="upcoming-date-mon">MAY</div></div>
+          <div class="upcoming-info"><h5>季後賽 Semi-Final</h5><span>TBC · 待定場地</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUICK RESULTS -->
+    <div class="sidebar-card">
+      <div class="sidebar-card-head"><h4>🏀 近期結果</h4></div>
+      <div class="sidebar-card-body">
+        <div class="mini-result">
+          <div class="mini-result-date">05/07 · 銅鑼灣</div>
+          <div class="mini-result-row"><span class="mini-result-team" style="color:var(--orange)">火球 ▲</span><span class="mini-result-score">112 : 95</span><span class="mini-result-team">煤氣鬼</span></div>
+        </div>
+        <div class="mini-result">
+          <div class="mini-result-date">05/06 · 旺角</div>
+          <div class="mini-result-row"><span class="mini-result-team" style="color:var(--orange)">海嘯 ▲</span><span class="mini-result-score">91 : 88</span><span class="mini-result-team">龍城</span></div>
+        </div>
+        <div class="mini-result">
+          <div class="mini-result-date">05/05 · 沙田</div>
+          <div class="mini-result-row"><span class="mini-result-team">閃電</span><span class="mini-result-score">78 : 82</span><span class="mini-result-team" style="color:var(--orange)">▲ 黑豹</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LATEST NEWS -->
+    <div class="sidebar-card">
+      <div class="sidebar-card-head"><h4>📰 最新消息</h4></div>
+      <div class="sidebar-card-body">
+        <div class="news-item">
+          <div class="news-thumb">🏀</div>
+          <div class="news-info"><h5>火球連勝8場，穩坐榜首</h5><span>05月07日 · 聯賽資訊</span></div>
+        </div>
+        <div class="news-item">
+          <div class="news-thumb">⭐</div>
+          <div class="news-info"><h5>King James 連續5場30+分</h5><span>05月06日 · 球員動態</span></div>
+        </div>
+        <div class="news-item">
+          <div class="news-thumb">📋</div>
+          <div class="news-info"><h5>季後賽名單正式公佈</h5><span>05月05日 · 聯賽公告</span></div>
+        </div>
+        <div class="news-item">
+          <div class="news-thumb">🏟</div>
+          <div class="news-info"><h5>新球場加入！觀塘室內場地</h5><span>05月03日 · 場地資訊</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATS SNAPSHOT -->
+    <div class="sidebar-card">
+      <div class="sidebar-card-head"><h4>📊 本季數據</h4></div>
+      <div class="sidebar-card-body">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:12px;font-weight:700;color:var(--dark)">得分王 King James</span><span style="font-size:13px;font-weight:900;color:var(--orange)">28.4</span></div>
+            <div style="height:5px;background:var(--border);border-radius:3px"><div style="width:95%;height:100%;background:var(--orange);border-radius:3px"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:12px;font-weight:700;color:var(--dark)">籃板王 Big Ken Chan</span><span style="font-size:13px;font-weight:900;color:var(--orange)">12.3</span></div>
+            <div style="height:5px;background:var(--border);border-radius:3px"><div style="width:82%;height:100%;background:var(--orange);border-radius:3px"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:12px;font-weight:700;color:var(--dark)">助攻王 Dragon Lee</span><span style="font-size:13px;font-weight:900;color:var(--orange)">9.8</span></div>
+            <div style="height:5px;background:var(--border);border-radius:3px"><div style="width:65%;height:100%;background:var(--orange);border-radius:3px"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:12px;font-weight:700;color:var(--dark)">封蓋王 Tsunami Ho</span><span style="font-size:13px;font-weight:900;color:var(--orange)">3.2</span></div>
+            <div style="height:5px;background:var(--border);border-radius:3px"><div style="width:43%;height:100%;background:var(--orange);border-radius:3px"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main-right -->
+
+</div><!-- /main -->
+
+<!-- BIG STATS SECTION -->
+<section class="stats-section">
+  <div class="stats-section-inner">
+    <div class="sec-title"><h3>全季數據一覽</h3><div class="sec-title-line"></div></div>
+    <div class="big-stats">
+      <div class="big-stat"><div class="big-stat-num">8</div><div class="big-stat-label">球隊 Teams</div></div>
+      <div class="big-stat"><div class="big-stat-num">128</div><div class="big-stat-label">球員 Players</div></div>
+      <div class="big-stat"><div class="big-stat-num">42</div><div class="big-stat-label">場次 Games Played</div></div>
+      <div class="big-stat"><div class="big-stat-num">S1</div><div class="big-stat-label">賽季 Season</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- VIDEOS -->
+<section class="videos-section">
+  <div class="videos-inner">
+    <div class="sec-title"><h3>最新精華片段</h3><div class="sec-title-line"></div></div>
+    <div class="videos-grid">
+      <div class="video-card">
+        <div class="video-thumb">
+          <div class="video-thumb-inner"><div class="video-thumb-text">🏀</div></div>
+          <div class="video-play"><div class="video-play-btn"><span class="video-play-icon">▶</span></div></div>
+        </div>
+        <div class="video-info">
+          <div class="video-title">火球 vs 龍城 — 精華重溫 Game 7 Highlights</div>
+          <div class="video-meta">05月07日 · 4.2K 觀看</div>
+        </div>
+      </div>
+      <div class="video-card">
+        <div class="video-thumb">
+          <div class="video-thumb-inner"><div class="video-thumb-text">⭐</div></div>
+          <div class="video-play"><div class="video-play-btn"><span class="video-play-icon">▶</span></div></div>
+        </div>
+        <div class="video-info">
+          <div class="video-title">King James — 全季最佳10大入樽 Top 10 Dunks</div>
+          <div class="video-meta">05月05日 · 8.7K 觀看</div>
+        </div>
+      </div>
+      <div class="video-card">
+        <div class="video-thumb">
+          <div class="video-thumb-inner"><div class="video-thumb-text">🏆</div></div>
+          <div class="video-play"><div class="video-play-btn"><span class="video-play-icon">▶</span></div></div>
+        </div>
+        <div class="video-info">
+          <div class="video-title">Season 1 積分榜分析 — 誰能奪冠？Championship Preview</div>
+          <div class="video-meta">05月03日 · 3.1K 觀看</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAN CLUB -->
+<section class="fanclub">
+  <div class="fanclub-inner">
+    <h2>加入全押球迷會<br>即享免費入場券</h2>
+    <p>成為全押籃球聯賽官方球迷會會員，享有免費入場、優先購票、獨家球員見面會等會員專屬福利。</p>
+    <a href="#" class="fanclub-btn">📝 立即登記 Register Now</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <h3>ALL<em>IN</em> Basketball</h3>
+      <p>香港全押籃球聯賽，致力推動本地業餘籃球運動的發展，為球員提供一個高質素、專業的競技平台。</p>
+      <div class="footer-social">
+        <a href="#">f</a><a href="#">in</a><a href="#">yt</a><a href="#">ig</a><a href="#">wa</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>快速導覽</h4>
+      <div class="footer-links">
+        <a href="#">主頁</a>
+        <a href="#">賽程表</a>
+        <a href="#">積分榜</a>
+        <a href="#">球員資料</a>
+        <a href="#">球隊介紹</a>
+        <a href="#">最新消息</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>聯賽資訊</h4>
+      <div class="footer-links">
+        <a href="#">賽例規則</a>
+        <a href="#">報名參賽</a>
+        <a href="#">場地資訊</a>
+        <a href="#">球員守則</a>
+        <a href="#">球隊管理</a>
+        <a href="#">媒體中心</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>聯絡我們</h4>
+      <div class="footer-contact-item">
+        <div class="footer-contact-icon">📍</div>
+        <div class="footer-contact-text">香港銅鑼灣<br>Causeway Bay, Hong Kong</div>
+      </div>
+      <div class="footer-contact-item">
+        <div class="footer-contact-icon">📞</div>
+        <div class="footer-contact-text">+852 9XXX XXXX</div>
+      </div>
+      <div class="footer-contact-item">
+        <div class="footer-contact-icon">📧</div>
+        <div class="footer-contact-text">info@allin-basketball.hk</div>
+      </div>
+      <div style="margin-top:14px">
+        <div style="font-size:11px;font-weight:700;color:#666;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">訂閱最新消息</div>
+        <div class="footer-newsletter">
+          <input type="email" placeholder="你的電郵地址">
+          <button>訂閱</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 All-In Basketball League. All rights reserved. | <a href="#">私隱政策</a> | <a href="#">使用條款</a></p>
+    <div class="footer-bottom-links">
+      <a href="#">關於我們</a><a href="#">聯絡我們</a><a href="#">網站地圖</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Countdown to next match: May 10, 2026 20:00 HKT
+const target = new Date('2026-05-10T20:00:00+08:00');
+function updateCountdown(){
+  const now = new Date();
+  const diff = target - now;
+  if(diff <= 0){
+    document.getElementById('cd-d').textContent='00';
+    document.getElementById('cd-h').textContent='00';
+    document.getElementById('cd-m').textContent='00';
+    document.getElementById('cd-s').textContent='00';
+    return;
+  }
+  const d = Math.floor(diff/86400000);
+  const h = Math.floor((diff%86400000)/3600000);
+  const m = Math.floor((diff%3600000)/60000);
+  const s = Math.floor((diff%60000)/1000);
+  document.getElementById('cd-d').textContent=String(d).padStart(2,'0');
+  document.getElementById('cd-h').textContent=String(h).padStart(2,'0');
+  document.getElementById('cd-m').textContent=String(m).padStart(2,'0');
+  document.getElementById('cd-s').textContent=String(s).padStart(2,'0');
+}
+updateCountdown();
+setInterval(updateCountdown,1000);
+
+// Stats tab switching
+function switchTab(el, key){
+  document.querySelectorAll('.stats-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
+</script>
+</body>
+</html>

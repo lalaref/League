@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ALL-IN Design Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Bebas+Neue&family=Inter:wght@400;600;700;900&family=Playfair+Display:wght@700;900&family=Anton&family=Roboto+Condensed:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#111;font-family:'Inter',sans-serif;color:#fff;padding:40px 20px}
+h1{text-align:center;font-size:1.2rem;color:#888;letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px}
+.page-title{text-align:center;font-size:2rem;font-weight:900;color:#fff;margin-bottom:4px}
+.page-sub{text-align:center;color:#555;font-size:.85rem;margin-bottom:48px}
+.option-label{font-size:.75rem;letter-spacing:.3em;text-transform:uppercase;color:#555;text-align:center;margin-bottom:12px}
+.preview-wrap{max-width:1000px;margin:0 auto;display:flex;flex-direction:column;gap:64px}
+.pick-btn{display:block;width:100%;margin-top:16px;padding:12px;border:1px solid currentColor;background:transparent;cursor:pointer;font-size:.85rem;letter-spacing:.2em;text-transform:uppercase;transition:all .2s}
+
+/* ─────────────────────────────────────────
+   OPTION A — STREET COURT
+───────────────────────────────────────── */
+.a-wrap{background:#0a0a0a;border:2px solid #ff4500;overflow:hidden;font-family:'Anton',sans-serif}
+.a-nav{background:#0a0a0a;border-bottom:3px solid #ff4500;padding:14px 24px;display:flex;justify-content:space-between;align-items:center}
+.a-logo{color:#ff4500;font-size:1.3rem;letter-spacing:.1em}
+.a-nav-links{display:flex;gap:20px}
+.a-nav-links a{color:#ccc;text-decoration:none;font-family:'Inter',sans-serif;font-size:.75rem;letter-spacing:.15em;text-transform:uppercase}
+.a-hero{position:relative;background:#111;padding:48px 24px;text-align:center;overflow:hidden}
+.a-hero::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 48px,rgba(255,69,0,.08) 48px,rgba(255,69,0,.08) 50px),repeating-linear-gradient(90deg,transparent,transparent 48px,rgba(255,69,0,.08) 48px,rgba(255,69,0,.08) 50px)}
+.a-hero-tag{display:inline-block;background:#ff4500;color:#000;font-family:'Inter',sans-serif;font-size:.65rem;letter-spacing:.25em;padding:4px 12px;margin-bottom:16px;transform:skewX(-8deg)}
+.a-hero h1{font-size:5rem;line-height:.85;color:#fff;text-transform:uppercase;letter-spacing:-.02em;position:relative}
+.a-hero h1 span{color:#ff4500;display:block}
+.a-hero-sub{font-family:'Inter',sans-serif;color:#666;font-size:.8rem;letter-spacing:.3em;margin-top:12px;text-transform:uppercase}
+.a-content{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:#ff4500}
+.a-card{background:#111;padding:20px 24px}
+.a-card-label{color:#ff4500;font-family:'Inter',sans-serif;font-size:.65rem;letter-spacing:.25em;text-transform:uppercase;margin-bottom:8px}
+.a-card h3{font-size:1.4rem;color:#fff;margin-bottom:6px}
+.a-card p{font-family:'Inter',sans-serif;font-size:.75rem;color:#666;line-height:1.5}
+.a-table-row{display:grid;grid-template-columns:32px 1fr 40px 40px 40px 40px;gap:8px;padding:10px 24px;font-family:'Inter',sans-serif;font-size:.8rem;align-items:center;border-bottom:1px solid #1a1a1a}
+.a-table-row.header{color:#ff4500;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;border-bottom:1px solid #ff4500}
+.a-table-row:hover{background:#151515}
+.a-pick{background:#ff4500;color:#000;border:none;font-family:'Anton',sans-serif;font-size:.9rem;letter-spacing:.2em;text-transform:uppercase;padding:14px;cursor:pointer;width:100%;margin-top:2px}
+
+/* ─────────────────────────────────────────
+   OPTION B — SPORTS NEWSPAPER
+───────────────────────────────────────── */
+.b-wrap{background:#f5f0e8;color:#111;overflow:hidden;font-family:'Playfair Display',serif;border:1px solid #d4c9b0}
+.b-masthead{border-bottom:3px solid #111;padding:12px 24px;display:flex;flex-direction:column;align-items:center}
+.b-masthead-top{display:flex;justify-content:space-between;width:100%;font-family:'Inter',sans-serif;font-size:.65rem;color:#888;margin-bottom:8px}
+.b-masthead h1{font-size:2.2rem;font-weight:900;letter-spacing:.05em;text-transform:uppercase;line-height:1}
+.b-masthead-rule{width:100%;height:1px;background:#111;margin:8px 0 4px}
+.b-masthead-sub{font-family:'Inter',sans-serif;font-size:.65rem;letter-spacing:.3em;text-transform:uppercase;color:#888}
+.b-nav{background:#cc0000;padding:6px 24px;display:flex;gap:24px}
+.b-nav a{color:#fff;text-decoration:none;font-family:'Inter',sans-serif;font-size:.7rem;letter-spacing:.15em;text-transform:uppercase}
+.b-hero{display:grid;grid-template-columns:2fr 1fr;gap:0;border-bottom:2px solid #111}
+.b-hero-main{padding:24px;border-right:1px solid #ccc}
+.b-hero-label{font-family:'Inter',sans-serif;font-size:.6rem;letter-spacing:.25em;text-transform:uppercase;color:#cc0000;margin-bottom:8px}
+.b-hero-main h2{font-size:2.4rem;line-height:1.1;font-weight:900;margin-bottom:12px}
+.b-hero-main p{font-family:'Inter',sans-serif;font-size:.78rem;color:#444;line-height:1.7}
+.b-hero-side{padding:24px}
+.b-scores{display:flex;flex-direction:column;gap:12px}
+.b-score-item{border-bottom:1px solid #d4c9b0;padding-bottom:12px}
+.b-score-label{font-family:'Inter',sans-serif;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#888;margin-bottom:4px}
+.b-score-teams{font-size:1rem;font-weight:700;display:flex;justify-content:space-between}
+.b-score-num{color:#cc0000}
+.b-content{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-top:2px solid #111}
+.b-col{padding:20px;border-right:1px solid #ccc}
+.b-col:last-child{border-right:none}
+.b-col h3{font-size:1.1rem;margin-bottom:8px;border-bottom:2px solid #cc0000;padding-bottom:4px}
+.b-col p{font-family:'Inter',sans-serif;font-size:.72rem;color:#555;line-height:1.6}
+.b-pick{background:#cc0000;color:#fff;border:none;font-family:'Inter',sans-serif;font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;font-weight:700;padding:12px;cursor:pointer;width:100%;margin-top:2px}
+
+/* ─────────────────────────────────────────
+   OPTION C — CLEAN MODERN
+───────────────────────────────────────── */
+.c-wrap{background:#fff;color:#111;overflow:hidden;font-family:'Inter',sans-serif;border:1px solid #e5e7eb}
+.c-nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:16px 28px;display:flex;justify-content:space-between;align-items:center}
+.c-logo{font-weight:900;font-size:1.1rem;color:#111;letter-spacing:-.02em}
+.c-logo span{color:#e85d04}
+.c-nav-links{display:flex;gap:24px}
+.c-nav-links a{color:#6b7280;text-decoration:none;font-size:.8rem;font-weight:500}
+.c-hero{background:#0c1445;padding:56px 28px;display:flex;justify-content:space-between;align-items:center;gap:24px}
+.c-hero-text h1{font-size:3rem;font-weight:900;color:#fff;line-height:1;margin-bottom:12px}
+.c-hero-text h1 em{color:#e85d04;font-style:normal;display:block}
+.c-hero-text p{color:#93c5fd;font-size:.85rem;line-height:1.6;max-width:320px}
+.c-hero-cta{margin-top:20px;display:flex;gap:10px}
+.c-btn-primary{background:#e85d04;color:#fff;border:none;padding:10px 20px;font-weight:700;font-size:.8rem;letter-spacing:.05em;cursor:pointer;border-radius:4px}
+.c-btn-secondary{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.3);padding:10px 20px;font-weight:600;font-size:.8rem;cursor:pointer;border-radius:4px}
+.c-stats{display:flex;gap:28px}
+.c-stat{text-align:center;background:rgba(255,255,255,.08);padding:16px 20px;border-radius:8px}
+.c-stat-num{font-size:1.8rem;font-weight:900;color:#fff}
+.c-stat-label{font-size:.65rem;color:#93c5fd;text-transform:uppercase;letter-spacing:.1em;margin-top:2px}
+.c-content{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding:28px}
+.c-card{border:1px solid #e5e7eb;border-radius:8px;overflow:hidden}
+.c-card-head{background:#0c1445;padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
+.c-card-head span{color:#fff;font-weight:700;font-size:.85rem}
+.c-card-head small{color:#93c5fd;font-size:.7rem}
+.c-card-body{padding:16px}
+.c-game-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f3f4f6;font-size:.8rem}
+.c-game-row:last-child{border-bottom:none}
+.c-team-name{font-weight:600;color:#111}
+.c-score{font-weight:900;color:#e85d04;font-size:1rem}
+.c-pick{background:#0c1445;color:#fff;border:none;font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;font-weight:700;padding:13px;cursor:pointer;width:calc(100% - 56px);margin:0 28px 28px}
+
+/* ─────────────────────────────────────────
+   OPTION D — MONOCHROME BOLD
+───────────────────────────────────────── */
+.d-wrap{background:#000;color:#fff;overflow:hidden;font-family:'Bebas Neue',sans-serif;border:1px solid #222}
+.d-nav{padding:16px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #333}
+.d-logo{font-size:1.6rem;letter-spacing:.15em}
+.d-nav-links{display:flex;gap:16px}
+.d-nav-links a{color:#666;text-decoration:none;font-size:.9rem;letter-spacing:.15em}
+.d-hero{position:relative;overflow:hidden;padding:0}
+.d-hero-img{background:#111;height:200px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.d-hero-img::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#000 0%,transparent 60%),linear-gradient(to top,#000 0%,transparent 40%)}
+.d-hero-img .placeholder{font-size:8rem;opacity:.06;position:absolute;letter-spacing:.1em}
+.d-hero-text{position:absolute;bottom:0;left:0;padding:24px}
+.d-hero-text h1{font-size:5rem;line-height:.85;letter-spacing:-.01em}
+.d-hero-text h1 span{display:block;color:#fff;-webkit-text-stroke:1px #fff}
+.d-hero-text h1 span.outline{color:transparent;-webkit-text-stroke:1px #555}
+.d-accent-line{height:4px;background:#fff;width:60px;margin:12px 0}
+.d-hero-text p{font-family:'Inter',sans-serif;font-size:.75rem;color:#666;letter-spacing:.05em;text-transform:uppercase}
+.d-content{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#222;margin-top:1px}
+.d-cell{background:#000;padding:24px}
+.d-cell-num{font-size:4rem;line-height:1;color:#fff;opacity:.08}
+.d-cell-label{font-family:'Inter',sans-serif;font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:#555;margin:4px 0}
+.d-cell h3{font-size:1.8rem;color:#fff;margin-bottom:6px}
+.d-cell p{font-family:'Inter',sans-serif;font-size:.75rem;color:#555;line-height:1.5}
+.d-table-row{display:grid;grid-template-columns:28px 1fr 36px 36px 36px;gap:8px;padding:10px 24px;font-family:'Inter',sans-serif;font-size:.78rem;color:#888;border-bottom:1px solid #111}
+.d-table-row.header{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#444;border-bottom:1px solid #333}
+.d-rank{font-family:'Bebas Neue';font-size:1.2rem;color:#fff}
+.d-team{color:#fff;font-weight:600}
+.d-pick{background:#fff;color:#000;border:none;font-family:'Bebas Neue';font-size:1rem;letter-spacing:.2em;padding:14px;cursor:pointer;width:100%}
+
+/* ─────────────────────────────────────────
+   OPTION E — RETRO 90s
+───────────────────────────────────────── */
+.e-wrap{background:#0a1628;color:#f0c040;overflow:hidden;font-family:'Oswald',sans-serif;border:2px solid #f0c040}
+.e-topbar{background:#f0c040;padding:6px 24px;display:flex;justify-content:space-between;align-items:center}
+.e-topbar span{color:#0a1628;font-size:.65rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase}
+.e-nav{background:#0a1628;padding:14px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #f0c040}
+.e-logo{display:flex;align-items:center;gap:12px}
+.e-logo-badge{width:40px;height:40px;background:#f0c040;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#0a1628;font-size:.7rem;font-weight:700;text-align:center;line-height:1.1}
+.e-logo-text{font-size:1.3rem;color:#f0c040;letter-spacing:.1em}
+.e-nav-links{display:flex;gap:16px}
+.e-nav-links a{color:#f0c040;text-decoration:none;font-size:.8rem;letter-spacing:.1em;opacity:.7}
+.e-hero{position:relative;overflow:hidden;background:#0c1f40;padding:40px 24px;text-align:center}
+.e-hero-stripes{position:absolute;inset:0;background:repeating-linear-gradient(-45deg,transparent,transparent 20px,rgba(240,192,64,.04) 20px,rgba(240,192,64,.04) 22px);pointer-events:none}
+.e-hero-border{position:absolute;inset:8px;border:1px solid rgba(240,192,64,.2);pointer-events:none}
+.e-hero h1{font-size:4.5rem;line-height:.85;color:#f0c040;letter-spacing:.05em;text-transform:uppercase;position:relative}
+.e-hero h1 span{display:block;color:#fff;font-size:2.5rem;letter-spacing:.2em}
+.e-hero-stars{color:#f0c040;font-size:.8rem;letter-spacing:.5em;margin-top:12px;opacity:.6;position:relative}
+.e-divider{height:4px;background:linear-gradient(to right,transparent,#f0c040,transparent);margin:24px 0}
+.e-content{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#f0c040}
+.e-card{background:#0a1628;padding:20px 24px}
+.e-card-label{font-size:.65rem;letter-spacing:.3em;text-transform:uppercase;color:#f0c040;opacity:.6;margin-bottom:6px}
+.e-card h3{font-size:1.4rem;color:#f0c040;margin-bottom:8px}
+.e-card p{font-family:'Inter',sans-serif;font-size:.75rem;color:#7a8fa6;line-height:1.5}
+.e-score-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(240,192,64,.1);font-size:.9rem}
+.e-score-row:last-child{border:none}
+.e-score-num{color:#f0c040;font-size:1.2rem}
+.e-pick{background:#f0c040;color:#0a1628;border:none;font-family:'Oswald';font-size:1rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;padding:13px;cursor:pointer;width:100%}
+
+/* selector UI */
+.selected-badge{display:none;text-align:center;padding:8px;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:#4ade80;margin-top:6px}
+</style>
+</head>
+<body>
+
+<h1>Design Preview</h1>
+<p class="page-title">ALL-IN Basketball League</p>
+<p class="page-sub">Click a design to select it — scroll down to compare all 5 options</p>
+
+<div class="preview-wrap">
+
+  <!-- ── OPTION A ── -->
+  <div>
+    <p class="option-label">Option A — Street Court</p>
+    <div class="a-wrap">
+      <div class="a-nav">
+        <div class="a-logo">ALL-IN</div>
+        <div class="a-nav-links">
+          <a href="#">首頁</a><a href="#">賽程</a><a href="#">球隊</a><a href="#">排行榜</a>
+        </div>
+      </div>
+      <div class="a-hero">
+        <div class="a-hero-tag">2025–26 Season</div>
+        <h1>全力<span>以赴</span></h1>
+        <p class="a-hero-sub">ALL-IN Basketball League · Hong Kong</p>
+      </div>
+      <div class="a-content">
+        <div class="a-card">
+          <div class="a-card-label">即將比賽</div>
+          <h3>勇士 vs 雷霆</h3>
+          <p>05/12 · 沙田體育館 · 19:30</p>
+        </div>
+        <div class="a-card">
+          <div class="a-card-label">最新結果</div>
+          <h3>龍隊 <span style="color:#ff4500">88</span> — <span style="color:#ff4500">72</span> 鷹隊</h3>
+          <p>MVP：陳大文 · 28分 10籃板</p>
+        </div>
+      </div>
+      <div class="a-table-row header"><span>#</span><span>球隊</span><span>場</span><span>勝</span><span>負</span><span>積</span></div>
+      <div class="a-table-row"><span>1</span><span>龍隊</span><span>10</span><span>8</span><span>2</span><span>24</span></div>
+      <div class="a-table-row"><span>2</span><span>勇士</span><span>10</span><span>7</span><span>3</span><span>21</span></div>
+      <div class="a-table-row"><span>3</span><span>雷霆</span><span>10</span><span>5</span><span>5</span><span>15</span></div>
+    </div>
+    <button class="a-pick" onclick="selectDesign('A')">選擇 Option A</button>
+    <p class="selected-badge" id="badge-A">✓ Selected</p>
+  </div>
+
+  <!-- ── OPTION B ── -->
+  <div>
+    <p class="option-label">Option B — Sports Newspaper</p>
+    <div class="b-wrap">
+      <div class="b-masthead">
+        <div class="b-masthead-top"><span>第 12 期</span><span>2026年5月7日</span></div>
+        <h1>ALL-IN BASKETBALL</h1>
+        <div class="b-masthead-rule"></div>
+        <div class="b-masthead-sub">全港業餘籃球聯賽 · 全力以赴</div>
+      </div>
+      <div class="b-nav">
+        <a href="#">首頁</a><a href="#">賽程</a><a href="#">球隊</a><a href="#">球員</a><a href="#">排行榜</a>
+      </div>
+      <div class="b-hero">
+        <div class="b-hero-main">
+          <div class="b-hero-label">本週焦點</div>
+          <h2>龍隊主場大勝<br>保持榜首領先</h2>
+          <p>上周六於沙田體育館舉行的焦點賽事中，龍隊以88:72擊敗鷹隊，主力球員陳大文錄得全場最高28分及10個籃板，帶領球隊完成本季第八場勝利，穩坐聯賽榜首。</p>
+        </div>
+        <div class="b-hero-side">
+          <div class="b-hero-label">最新比分</div>
+          <div class="b-scores">
+            <div class="b-score-item">
+              <div class="b-score-label">昨日賽果</div>
+              <div class="b-score-teams"><span>龍隊</span><span class="b-score-num">88–72</span><span>鷹隊</span></div>
+            </div>
+            <div class="b-score-item">
+              <div class="b-score-label">前日賽果</div>
+              <div class="b-score-teams"><span>勇士</span><span class="b-score-num">95–80</span><span>雷霆</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="b-content">
+        <div class="b-col"><h3>即將賽程</h3><p>05/12 勇士 vs 龍隊<br>05/14 鷹隊 vs 雷霆<br>05/17 龍隊 vs 鯊魚</p></div>
+        <div class="b-col"><h3>球員排名</h3><p>1. 陳大文 28.4分<br>2. 李小強 24.1分<br>3. 黃志明 21.8分</p></div>
+        <div class="b-col"><h3>聯賽公告</h3><p>本季季後賽將於6月1日開始，請各球隊確認出席名單。</p></div>
+      </div>
+    </div>
+    <button class="b-pick" onclick="selectDesign('B')">選擇 Option B</button>
+    <p class="selected-badge" id="badge-B">✓ Selected</p>
+  </div>
+
+  <!-- ── OPTION C ── -->
+  <div>
+    <p class="option-label">Option C — Clean Modern</p>
+    <div class="c-wrap">
+      <div class="c-nav">
+        <div class="c-logo">ALL<span>-IN</span></div>
+        <div class="c-nav-links">
+          <a href="#">首頁</a><a href="#">賽程</a><a href="#">球隊</a><a href="#">球員</a><a href="#">排行榜</a>
+        </div>
+      </div>
+      <div class="c-hero">
+        <div class="c-hero-text">
+          <h1>全力<em>以赴</em></h1>
+          <p>香港業餘籃球聯賽 — 賽程、球隊、球員數據、即時排行榜一站搞定</p>
+          <div class="c-hero-cta">
+            <button class="c-btn-primary">查看賽程</button>
+            <button class="c-btn-secondary">了解更多</button>
+          </div>
+        </div>
+        <div class="c-stats">
+          <div class="c-stat"><div class="c-stat-num">8</div><div class="c-stat-label">支球隊</div></div>
+          <div class="c-stat"><div class="c-stat-num">42</div><div class="c-stat-label">場比賽</div></div>
+          <div class="c-stat"><div class="c-stat-num">96</div><div class="c-stat-label">名球員</div></div>
+        </div>
+      </div>
+      <div class="c-content">
+        <div class="c-card">
+          <div class="c-card-head"><span>即將賽程</span><small>本周</small></div>
+          <div class="c-card-body">
+            <div class="c-game-row"><span class="c-team-name">勇士 vs 龍隊</span><span class="c-score">05/12</span></div>
+            <div class="c-game-row"><span class="c-team-name">鷹隊 vs 雷霆</span><span class="c-score">05/14</span></div>
+            <div class="c-game-row"><span class="c-team-name">龍隊 vs 鯊魚</span><span class="c-score">05/17</span></div>
+          </div>
+        </div>
+        <div class="c-card">
+          <div class="c-card-head"><span>最新結果</span><small>最近3場</small></div>
+          <div class="c-card-body">
+            <div class="c-game-row"><span class="c-team-name">龍隊</span><span class="c-score">88–72</span><span class="c-team-name">鷹隊</span></div>
+            <div class="c-game-row"><span class="c-team-name">勇士</span><span class="c-score">95–80</span><span class="c-team-name">雷霆</span></div>
+            <div class="c-game-row"><span class="c-team-name">鯊魚</span><span class="c-score">67–71</span><span class="c-team-name">火鳳</span></div>
+          </div>
+        </div>
+        <div class="c-card">
+          <div class="c-card-head"><span>球隊排名</span><small>積分榜</small></div>
+          <div class="c-card-body">
+            <div class="c-game-row"><span class="c-team-name">1. 龍隊</span><span class="c-score">24分</span></div>
+            <div class="c-game-row"><span class="c-team-name">2. 勇士</span><span class="c-score">21分</span></div>
+            <div class="c-game-row"><span class="c-team-name">3. 雷霆</span><span class="c-score">15分</span></div>
+          </div>
+        </div>
+      </div>
+      <button class="c-pick" onclick="selectDesign('C')">選擇 Option C</button>
+    </div>
+    <p class="selected-badge" id="badge-C">✓ Selected</p>
+  </div>
+
+  <!-- ── OPTION D ── -->
+  <div>
+    <p class="option-label">Option D — Monochrome Bold</p>
+    <div class="d-wrap">
+      <div class="d-nav">
+        <div class="d-logo">ALL-IN</div>
+        <div class="d-nav-links">
+          <a href="#">首頁</a><a href="#">賽程</a><a href="#">球隊</a><a href="#">排行榜</a>
+        </div>
+      </div>
+      <div class="d-hero">
+        <div class="d-hero-img">
+          <div class="placeholder">BASKETBALL</div>
+          <div class="d-hero-text">
+            <h1><span>全力</span><span class="outline">以赴</span></h1>
+            <div class="d-accent-line"></div>
+            <p>ALL-IN Basketball League · HK</p>
+          </div>
+        </div>
+      </div>
+      <div class="d-content">
+        <div class="d-cell">
+          <div class="d-cell-num">01</div>
+          <div class="d-cell-label">即將賽事</div>
+          <h3>勇士 vs 龍隊</h3>
+          <p>05/12 · 沙田 · 19:30</p>
+        </div>
+        <div class="d-cell">
+          <div class="d-cell-num">02</div>
+          <div class="d-cell-label">最新結果</div>
+          <h3>龍隊 88–72</h3>
+          <p>陳大文 28pts 10reb</p>
+        </div>
+      </div>
+      <div class="d-table-row header"><span>#</span><span>球隊</span><span>勝</span><span>負</span><span>積</span></div>
+      <div class="d-table-row"><span class="d-rank">1</span><span class="d-team">龍隊</span><span>8</span><span>2</span><span>24</span></div>
+      <div class="d-table-row"><span class="d-rank">2</span><span class="d-team">勇士</span><span>7</span><span>3</span><span>21</span></div>
+      <div class="d-table-row"><span class="d-rank">3</span><span class="d-team">雷霆</span><span>5</span><span>5</span><span>15</span></div>
+      <button class="d-pick" onclick="selectDesign('D')">選擇 Option D</button>
+    </div>
+    <p class="selected-badge" id="badge-D">✓ Selected</p>
+  </div>
+
+  <!-- ── OPTION E ── -->
+  <div>
+    <p class="option-label">Option E — Retro 90s</p>
+    <div class="e-wrap">
+      <div class="e-topbar">
+        <span>2025–26 Season</span>
+        <span>★ Official League Site ★</span>
+      </div>
+      <div class="e-nav">
+        <div class="e-logo">
+          <div class="e-logo-badge">ALL<br>IN</div>
+          <div class="e-logo-text">BASKETBALL LEAGUE</div>
+        </div>
+        <div class="e-nav-links">
+          <a href="#">首頁</a><a href="#">賽程</a><a href="#">球隊</a><a href="#">排行榜</a>
+        </div>
+      </div>
+      <div class="e-hero">
+        <div class="e-hero-stripes"></div>
+        <div class="e-hero-border"></div>
+        <h1>全力以赴<span>ALL-IN</span></h1>
+        <p class="e-hero-stars">★ ★ ★ ★ ★</p>
+        <div class="e-divider"></div>
+      </div>
+      <div class="e-content">
+        <div class="e-card">
+          <div class="e-card-label">即將賽事</div>
+          <h3>本周賽程</h3>
+          <div class="e-score-row"><span>勇士 vs 龍隊</span><span>05/12</span></div>
+          <div class="e-score-row"><span>鷹隊 vs 雷霆</span><span>05/14</span></div>
+        </div>
+        <div class="e-card">
+          <div class="e-card-label">最新比分</div>
+          <h3>賽事結果</h3>
+          <div class="e-score-row"><span>龍隊</span><span class="e-score-num">88–72</span><span>鷹隊</span></div>
+          <div class="e-score-row"><span>勇士</span><span class="e-score-num">95–80</span><span>雷霆</span></div>
+        </div>
+      </div>
+      <button class="e-pick" onclick="selectDesign('E')">選擇 Option E</button>
+    </div>
+    <p class="selected-badge" id="badge-E">✓ Selected</p>
+  </div>
+
+</div>
+
+<!-- Selection summary -->
+<div id="selection-summary" style="display:none;position:fixed;bottom:24px;right:24px;background:#4ade80;color:#000;padding:16px 24px;font-family:'Inter',sans-serif;font-weight:700;font-size:.85rem;border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,.5)">
+  已選擇：<span id="selected-name"></span><br>
+  <span style="font-weight:400;font-size:.75rem;opacity:.7">請告知我們，我們將立即套用此設計</span>
+</div>
+
+<script>
+const names = {
+  A:'Option A — Street Court',
+  B:'Option B — Sports Newspaper',
+  C:'Option C — Clean Modern',
+  D:'Option D — Monochrome Bold',
+  E:'Option E — Retro 90s'
+};
+function selectDesign(id){
+  document.querySelectorAll('.selected-badge').forEach(el=>el.style.display='none');
+  const badge = document.getElementById('badge-'+id);
+  if(badge) badge.style.display='block';
+  const summary = document.getElementById('selection-summary');
+  document.getElementById('selected-name').textContent = names[id];
+  summary.style.display='block';
+}
+</script>
+</body>
+</html>

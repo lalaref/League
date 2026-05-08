@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ALL-IN Layout Templates</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Inter:wght@300;400;500;600;700;800;900&family=Anton&family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,700&family=DM+Sans:wght@400;500;700;900&family=Bebas+Neue&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0f0f0f;font-family:'Inter',sans-serif;color:#fff;padding:32px 16px}
+.pg{text-align:center;margin-bottom:40px}
+.pg h1{font-size:1.5rem;font-weight:800;margin-bottom:4px}
+.pg p{color:#555;font-size:.82rem}
+.stack{max-width:1000px;margin:0 auto;display:flex;flex-direction:column;gap:64px}
+.lbl{font-size:.65rem;letter-spacing:.3em;text-transform:uppercase;color:#444;margin-bottom:8px}
+.sel-btn{width:100%;padding:12px;font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;font-weight:700;border:none;cursor:pointer;font-family:'Inter',sans-serif}
+.badge{display:none;text-align:center;padding:6px;font-size:.68rem;letter-spacing:.2em;color:#4ade80}
+
+/* =====================================================
+   T1 — SPLIT SCREEN
+   Left: dark fixed sidebar nav + hero
+   Right: scrollable content panels
+===================================================== */
+.t1{display:grid;grid-template-columns:260px 1fr;min-height:520px;background:#fff;color:#111;font-family:'DM Sans',sans-serif;border:1px solid #e0e0e0;overflow:hidden}
+.t1-sidebar{background:#111;display:flex;flex-direction:column;padding:28px 24px}
+.t1-brand{margin-bottom:40px}
+.t1-brand-name{font-size:1.2rem;font-weight:900;color:#fff;letter-spacing:.05em}
+.t1-brand-sub{font-size:.6rem;color:#555;letter-spacing:.2em;text-transform:uppercase;margin-top:2px}
+.t1-nav{display:flex;flex-direction:column;gap:4px;flex:1}
+.t1-nav a{color:#666;text-decoration:none;font-size:.82rem;font-weight:500;padding:10px 12px;border-radius:6px;display:flex;align-items:center;gap:10px;transition:.15s}
+.t1-nav a.active{background:rgba(255,255,255,.08);color:#fff}
+.t1-nav-dot{width:6px;height:6px;border-radius:50%;background:#333;flex-shrink:0}
+.t1-nav a.active .t1-nav-dot{background:#e85d04}
+.t1-season{margin-top:auto;background:rgba(255,255,255,.04);border:1px solid #222;border-radius:6px;padding:12px}
+.t1-season-label{font-size:.55rem;color:#555;letter-spacing:.2em;text-transform:uppercase;margin-bottom:4px}
+.t1-season-val{font-size:.85rem;color:#fff;font-weight:700}
+.t1-main{display:flex;flex-direction:column;overflow:hidden}
+.t1-hero{background:#e85d04;padding:28px;position:relative;overflow:hidden;flex-shrink:0}
+.t1-hero::before{content:'ALL IN';position:absolute;right:-20px;bottom:-30px;font-family:'Anton';font-size:7rem;color:rgba(0,0,0,.12);letter-spacing:-.02em;pointer-events:none}
+.t1-hero h1{font-size:2.2rem;font-weight:900;color:#fff;line-height:.95;letter-spacing:-.03em;position:relative}
+.t1-hero p{color:rgba(255,255,255,.65);font-size:.78rem;margin-top:8px;position:relative}
+.t1-content{display:grid;grid-template-columns:1fr 1fr;flex:1}
+.t1-panel{padding:20px;border-right:1px solid #f0f0f0;border-top:1px solid #f0f0f0}
+.t1-panel:last-child{border-right:none}
+.t1-panel-title{font-size:.6rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#aaa;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #f0f0f0}
+.t1-game-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f8f8f8;font-size:.8rem;align-items:center}
+.t1-game-row:last-child{border:none}
+.t1-game-teams{font-weight:600;color:#111}
+.t1-game-meta{color:#aaa;font-size:.72rem}
+.t1-score-badge{background:#f5f5f5;padding:3px 8px;border-radius:4px;font-weight:800;color:#e85d04;font-size:.82rem}
+.t1-btn{background:#111;color:#fff}
+
+/* =====================================================
+   T2 — MAGAZINE EDITORIAL
+   Full-bleed hero with text overlay, article columns
+===================================================== */
+.t2{background:#f7f4ef;color:#111;font-family:'Inter',sans-serif;border:1px solid #e8e3d8;overflow:hidden}
+.t2-topbar{background:#111;padding:8px 28px;display:flex;justify-content:space-between;align-items:center}
+.t2-topbar-brand{font-family:'Anton';font-size:.9rem;color:#fff;letter-spacing:.15em}
+.t2-topbar-links{display:flex;gap:20px}
+.t2-topbar-links a{color:rgba(255,255,255,.4);text-decoration:none;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase}
+.t2-hero{position:relative;background:#111;height:280px;overflow:hidden;display:flex;align-items:flex-end}
+.t2-hero-bg{position:absolute;inset:0;background:linear-gradient(160deg,#1a1a2e 0%,#16213e 40%,#0f3460 100%)}
+.t2-hero-texture{position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(255,255,255,.015) 40px,rgba(255,255,255,.015) 42px)}
+.t2-hero-content{position:relative;z-index:1;padding:28px;width:100%}
+.t2-hero-eyebrow{display:inline-block;background:#e63946;color:#fff;font-size:.6rem;font-weight:700;letter-spacing:.25em;padding:3px 10px;text-transform:uppercase;margin-bottom:10px}
+.t2-hero-content h1{font-family:'Anton';font-size:3.5rem;line-height:.88;color:#fff;letter-spacing:.02em;text-transform:uppercase;max-width:500px}
+.t2-hero-content p{color:rgba(255,255,255,.5);font-size:.78rem;margin-top:10px;max-width:400px;line-height:1.6}
+.t2-hero-meta{display:flex;gap:24px;margin-top:14px}
+.t2-hero-stat{text-align:left}
+.t2-hero-stat-num{font-size:1.4rem;font-weight:900;color:#fff}
+.t2-hero-stat-lbl{font-size:.58rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.15em}
+.t2-articles{display:grid;grid-template-columns:2fr 1fr 1fr;gap:0;border-top:3px solid #111}
+.t2-article{padding:20px;border-right:1px solid #e8e3d8}
+.t2-article:last-child{border:none}
+.t2-article-tag{font-size:.58rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#e63946;margin-bottom:6px}
+.t2-article h3{font-family:'Anton';font-size:1.3rem;text-transform:uppercase;letter-spacing:.02em;margin-bottom:8px;line-height:1.1}
+.t2-article p{font-size:.75rem;color:#666;line-height:1.6}
+.t2-article-divider{width:30px;height:2px;background:#111;margin:10px 0}
+.t2-score-pill{display:flex;align-items:center;gap:8px;margin-top:8px}
+.t2-score-pill .team{font-size:.78rem;font-weight:700;color:#111}
+.t2-score-pill .score{background:#111;color:#fff;font-weight:800;font-size:.72rem;padding:2px 8px;border-radius:2px}
+.t2-btn{background:#e63946;color:#fff;font-family:'Anton';letter-spacing:.15em}
+
+/* =====================================================
+   T3 — CARD GRID / APP STYLE
+   Top hero strip → 2×2 action cards → standings strip
+===================================================== */
+.t3{background:#f0f2f5;color:#111;font-family:'DM Sans',sans-serif;border:1px solid #e0e4ea;overflow:hidden}
+.t3-nav{background:#fff;padding:0 20px;height:52px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e8ecf0;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.t3-logo{font-weight:900;font-size:1rem;color:#111;letter-spacing:-.02em;display:flex;align-items:center;gap:6px}
+.t3-logo-dot{width:8px;height:8px;border-radius:50%;background:#f97316}
+.t3-nav-pills{display:flex;gap:4px}
+.t3-nav-pills a{text-decoration:none;font-size:.72rem;font-weight:600;padding:6px 12px;border-radius:20px;color:#888}
+.t3-nav-pills a.active{background:#111;color:#fff}
+.t3-hero-strip{background:linear-gradient(135deg,#1e3a5f,#1a1a2e);padding:24px 20px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.t3-hero-left h2{font-size:1.8rem;font-weight:900;color:#fff;line-height:1;letter-spacing:-.03em}
+.t3-hero-left h2 span{color:#f97316}
+.t3-hero-left p{color:rgba(255,255,255,.4);font-size:.72rem;margin-top:6px}
+.t3-hero-chips{display:flex;gap:8px;margin-top:14px}
+.t3-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#fff;font-size:.68rem;font-weight:600;padding:5px 12px;border-radius:20px;cursor:pointer}
+.t3-chip.primary{background:#f97316;border-color:#f97316}
+.t3-hero-score-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:16px 20px;min-width:160px}
+.t3-hsc-label{font-size:.58rem;color:rgba(255,255,255,.4);letter-spacing:.2em;text-transform:uppercase;margin-bottom:8px}
+.t3-hsc-match{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.t3-hsc-team{font-size:.82rem;font-weight:700;color:#fff}
+.t3-hsc-score{font-size:1.1rem;font-weight:900;color:#f97316}
+.t3-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px}
+.t3-card{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.t3-card-header{padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
+.t3-card-title{font-size:.72rem;font-weight:700;color:#111;letter-spacing:.05em;text-transform:uppercase}
+.t3-card-more{font-size:.68rem;color:#f97316;font-weight:600;cursor:pointer}
+.t3-card-body{padding:0 16px 14px}
+.t3-match-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid #f5f5f5}
+.t3-match-item:first-child{border-top:none}
+.t3-match-teams{font-size:.78rem;font-weight:600;color:#333}
+.t3-match-time{background:#f0f2f5;border-radius:4px;padding:2px 7px;font-size:.68rem;font-weight:700;color:#555}
+.t3-match-score{font-size:.82rem;font-weight:900;color:#f97316}
+.t3-standings-strip{background:#fff;margin:0 16px 16px;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.08);overflow:hidden}
+.t3-strip-header{display:grid;grid-template-columns:32px 1fr 36px 36px 36px 36px;padding:10px 16px;font-size:.6rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:#aaa;border-bottom:1px solid #f5f5f5}
+.t3-strip-row{display:grid;grid-template-columns:32px 1fr 36px 36px 36px 36px;padding:10px 16px;font-size:.78rem;border-bottom:1px solid #f8f8f8;align-items:center}
+.t3-strip-row:last-child{border:none}
+.t3-strip-rank{font-weight:800;color:#111}
+.t3-strip-team{font-weight:600;color:#333}
+.t3-strip-num{text-align:center;color:#888}
+.t3-strip-pts{text-align:center;font-weight:800;color:#f97316}
+.t3-btn{background:#111;color:#fff}
+
+/* =====================================================
+   T4 — TIMELINE / SCHEDULE FOCUS
+   Left: vertical timeline of matches
+   Right: sticky standings + quick stats
+===================================================== */
+.t4{background:#fafafa;color:#111;font-family:'Inter',sans-serif;border:1px solid #eee;overflow:hidden}
+.t4-nav{background:#fff;padding:14px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #eee}
+.t4-logo{font-weight:900;font-size:1rem;letter-spacing:-.02em;display:flex;align-items:center;gap:8px}
+.t4-logo-bar{width:3px;height:18px;background:#0071ce;border-radius:2px}
+.t4-nav-links a{color:#888;text-decoration:none;font-size:.75rem;font-weight:500;margin-left:20px}
+.t4-body{display:grid;grid-template-columns:1fr 280px;gap:0}
+.t4-timeline{padding:24px;border-right:1px solid #eee}
+.t4-timeline-title{font-size:.6rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#aaa;margin-bottom:20px}
+.t4-month{font-size:.65rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:#0071ce;margin:16px 0 8px;display:flex;align-items:center;gap:8px}
+.t4-month::after{content:'';flex:1;height:1px;background:#e8f0ff}
+.t4-event{display:flex;gap:14px;padding:0 0 16px 0;position:relative}
+.t4-event-line{width:2px;background:#e0e0e0;position:absolute;left:15px;top:24px;bottom:-8px;z-index:0}
+.t4-event-dot{width:12px;height:12px;border-radius:50%;background:#fff;border:2px solid #e0e0e0;flex-shrink:0;margin-top:4px;position:relative;z-index:1}
+.t4-event-dot.done{background:#0071ce;border-color:#0071ce}
+.t4-event-dot.live{background:#ef4444;border-color:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,.2)}
+.t4-event-dot.upcoming{background:#fff;border-color:#0071ce}
+.t4-event-card{background:#fff;border:1px solid #eee;border-radius:8px;padding:12px 14px;flex:1;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.t4-event-card.done{opacity:.7}
+.t4-event-card.live{border-color:#ef4444;box-shadow:0 0 0 2px rgba(239,68,68,.1)}
+.t4-event-meta{font-size:.62rem;color:#aaa;letter-spacing:.08em;margin-bottom:4px;display:flex;gap:10px}
+.t4-event-teams{font-size:.9rem;font-weight:700;color:#111;display:flex;justify-content:space-between;align-items:center}
+.t4-event-score{font-size:1rem;font-weight:900;color:#0071ce}
+.t4-live-badge{background:#ef4444;color:#fff;font-size:.55rem;font-weight:700;letter-spacing:.15em;padding:2px 6px;border-radius:3px;margin-left:6px}
+.t4-sidebar{padding:24px;background:#fff;border-left:1px solid #eee}
+.t4-sidebar-section{margin-bottom:24px}
+.t4-sidebar-title{font-size:.6rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#aaa;margin-bottom:12px}
+.t4-rank-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f5f5f5}
+.t4-rank-item:last-child{border:none}
+.t4-rank-pos{width:20px;font-size:.75rem;font-weight:800;color:#0071ce}
+.t4-rank-name{flex:1;font-size:.8rem;font-weight:600;color:#333}
+.t4-rank-pts{font-size:.78rem;font-weight:800;color:#111}
+.t4-rank-bar-wrap{width:40px;height:3px;background:#f0f0f0;border-radius:2px;overflow:hidden;margin-left:6px}
+.t4-rank-bar{height:100%;background:#0071ce;border-radius:2px}
+.t4-btn{background:#0071ce;color:#fff}
+
+/* =====================================================
+   T5 — SCOREBOARD FIRST / LIVE FOCUS
+   Giant live score hero → ticker → content
+===================================================== */
+.t5{background:#0a0e17;color:#fff;font-family:'Space Grotesk',sans-serif;overflow:hidden;border:1px solid #111}
+.t5-nav{padding:12px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #131926}
+.t5-logo-wrap{display:flex;align-items:center;gap:10px}
+.t5-logo-icon{width:28px;height:28px;background:#00b4d8;display:flex;align-items:center;justify-content:center;font-family:'Anton';font-size:.65rem;color:#000;letter-spacing:.05em}
+.t5-logo-text{font-size:.9rem;font-weight:700}
+.t5-nav-center{display:flex;gap:0}
+.t5-nav-tab{font-size:.7rem;font-weight:600;color:#3a4a5a;padding:6px 14px;border-bottom:2px solid transparent;cursor:pointer;letter-spacing:.05em}
+.t5-nav-tab.active{color:#00b4d8;border-bottom-color:#00b4d8}
+.t5-scoreboard{background:linear-gradient(180deg,#0f1829 0%,#0a0e17 100%);padding:32px 20px;text-align:center;border-bottom:1px solid #131926;position:relative}
+.t5-sb-label{font-size:.58rem;letter-spacing:.3em;color:#3a4a5a;text-transform:uppercase;margin-bottom:16px}
+.t5-sb-main{display:flex;justify-content:center;align-items:center;gap:28px}
+.t5-sb-team{text-align:center}
+.t5-sb-team-name{font-size:1rem;font-weight:700;letter-spacing:.08em;margin-bottom:4px;color:rgba(255,255,255,.7)}
+.t5-sb-score{font-family:'Bebas Neue';font-size:5rem;line-height:1;color:#fff;letter-spacing:.05em}
+.t5-sb-score.home{color:#00b4d8}
+.t5-sb-divider{font-family:'Bebas Neue';font-size:2.5rem;color:#1e2d40;align-self:center;padding-bottom:8px}
+.t5-sb-meta{font-size:.65rem;color:#3a4a5a;letter-spacing:.15em;text-transform:uppercase;margin-top:8px}
+.t5-sb-status{display:inline-flex;align-items:center;gap:5px;background:#ef4444;padding:3px 10px;font-size:.58rem;font-weight:700;letter-spacing:.2em;margin-bottom:10px}
+.t5-sb-status-dot{width:5px;height:5px;border-radius:50%;background:#fff;animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.t5-ticker{background:#00b4d8;overflow:hidden;padding:5px 0}
+.t5-ticker-inner{display:flex;gap:40px;white-space:nowrap;animation:scroll 14s linear infinite}
+@keyframes scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.t5-tick{font-size:.65rem;font-weight:700;color:#000;letter-spacing:.1em;text-transform:uppercase}
+.t5-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:#131926}
+.t5-cell{background:#0a0e17;padding:18px 20px}
+.t5-cell-title{font-size:.58rem;letter-spacing:.25em;text-transform:uppercase;color:#3a4a5a;margin-bottom:10px}
+.t5-match-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #0d1420;font-size:.78rem}
+.t5-match-row:last-child{border:none}
+.t5-match-name{color:#8899aa}
+.t5-match-val{color:#00b4d8;font-weight:600}
+.t5-btn{background:#00b4d8;color:#000;font-family:'Space Grotesk'}
+
+/* =====================================================
+   T6 — FULL PHOTO HERO / MAGAZINE COVER
+   Tall hero with number-heavy overlay, horizontal scroll cards
+===================================================== */
+.t6{background:#111;color:#fff;font-family:'Barlow Condensed',sans-serif;border:1px solid #222;overflow:hidden}
+.t6-nav{padding:14px 24px;display:flex;justify-content:space-between;align-items:center}
+.t6-logo{font-size:1.3rem;font-weight:800;letter-spacing:.08em;color:#fff}
+.t6-logo em{color:#f59e0b;font-style:normal}
+.t6-nav-links{display:flex;gap:20px}
+.t6-nav-links a{color:#666;text-decoration:none;font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.t6-hero{background:linear-gradient(to bottom,#1a1a1a 0%,#0d0d0d 100%);padding:40px 24px;display:grid;grid-template-columns:1fr 1fr;gap:24px;border-top:1px solid #222}
+.t6-hero-left{display:flex;flex-direction:column;justify-content:flex-end}
+.t6-score-big{font-size:6rem;font-weight:800;line-height:.85;letter-spacing:-.03em;color:#fff}
+.t6-score-big em{color:#f59e0b;font-style:normal}
+.t6-score-sub{font-family:'Inter',sans-serif;font-size:.72rem;color:#555;letter-spacing:.15em;text-transform:uppercase;margin-top:10px}
+.t6-score-teams{font-size:1.6rem;font-weight:700;color:#ccc;letter-spacing:.05em;margin-top:4px}
+.t6-hero-right{display:flex;flex-direction:column;gap:14px}
+.t6-hero-tag{font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:#f59e0b;margin-bottom:2px}
+.t6-hero-h{font-size:3rem;font-weight:800;line-height:.9;color:#fff;letter-spacing:-.01em;text-transform:uppercase}
+.t6-hero-p{font-family:'Inter',sans-serif;font-size:.75rem;color:#555;line-height:1.6;margin-top:10px;max-width:280px}
+.t6-divider{width:40px;height:3px;background:#f59e0b}
+.t6-cards{display:flex;gap:1px;background:#222}
+.t6-card{flex:1;background:#111;padding:20px;display:flex;flex-direction:column;gap:6px}
+.t6-card-num{font-size:3rem;font-weight:800;color:#f59e0b;line-height:1}
+.t6-card-label{font-family:'Inter',sans-serif;font-size:.6rem;color:#555;letter-spacing:.15em;text-transform:uppercase}
+.t6-card-desc{font-family:'Inter',sans-serif;font-size:.75rem;color:#888;line-height:1.4;margin-top:4px}
+.t6-table{background:#0d0d0d;border-top:1px solid #222}
+.t6-tr{display:grid;grid-template-columns:36px 1fr 40px 40px 40px 40px;padding:11px 24px;border-bottom:1px solid #181818;font-family:'Inter',sans-serif;font-size:.78rem;align-items:center}
+.t6-tr.hd{font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:#444;border-bottom:1px solid #222;background:#080808}
+.t6-tr .rk{font-family:'Barlow Condensed';font-size:1.1rem;font-weight:700;color:#f59e0b}
+.t6-tr .tn{font-weight:700;color:#ddd;font-family:'Barlow Condensed';font-size:.95rem;letter-spacing:.05em}
+.t6-tr .nm{color:#444;text-align:center}
+.t6-btn{background:#f59e0b;color:#000;font-family:'Barlow Condensed';font-style:italic;letter-spacing:.15em}
+
+/* =====================================================
+   T7 — HORIZONTAL BAND STACKS
+   Each content type = a distinct full-width band
+===================================================== */
+.t7{background:#fff;color:#111;font-family:'Inter',sans-serif;border:1px solid #e0e0e0;overflow:hidden}
+.t7-nav{padding:0;background:#1d1d1d;display:flex;align-items:stretch}
+.t7-nav-logo{background:#e11d48;padding:0 24px;display:flex;align-items:center;font-family:'Oswald';font-size:1.2rem;font-weight:700;color:#fff;letter-spacing:.08em;min-height:48px}
+.t7-nav-links{display:flex;flex:1}
+.t7-nav-links a{color:rgba(255,255,255,.5);text-decoration:none;font-size:.72rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:0 18px;display:flex;align-items:center}
+.t7-nav-links a.active{color:#fff;background:rgba(255,255,255,.06)}
+.t7-band-hero{background:#e11d48;padding:0;display:grid;grid-template-columns:1fr 1fr;min-height:160px}
+.t7-band-hero-left{padding:28px 32px;display:flex;flex-direction:column;justify-content:center;border-right:1px solid rgba(255,255,255,.1)}
+.t7-band-hero-left h1{font-family:'Oswald';font-size:3rem;font-weight:700;color:#fff;text-transform:uppercase;line-height:.9;letter-spacing:.02em}
+.t7-band-hero-left p{color:rgba(255,255,255,.55);font-size:.75rem;margin-top:10px;line-height:1.5}
+.t7-band-hero-right{display:flex}
+.t7-band-score{flex:1;padding:24px;border-right:1px solid rgba(255,255,255,.1);display:flex;flex-direction:column;justify-content:center}
+.t7-band-score:last-child{border:none}
+.t7-band-score-label{font-size:.55rem;color:rgba(255,255,255,.4);letter-spacing:.2em;text-transform:uppercase;margin-bottom:6px}
+.t7-band-score-match{font-family:'Oswald';font-size:.95rem;color:#fff;letter-spacing:.05em;margin-bottom:2px}
+.t7-band-score-num{font-family:'Oswald';font-size:1.6rem;color:#fff;font-weight:700}
+.t7-band-upcoming{background:#f9f9f9;border-bottom:1px solid #e0e0e0}
+.t7-band-title{padding:14px 32px;font-size:.6rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#aaa;border-bottom:1px solid #e8e8e8;background:#fff;display:flex;justify-content:space-between}
+.t7-band-title span{color:#e11d48;font-size:.6rem;cursor:pointer}
+.t7-schedule-row{display:flex;align-items:center;padding:12px 32px;border-bottom:1px solid #f0f0f0;gap:20px}
+.t7-schedule-date{min-width:50px;text-align:center}
+.t7-schedule-date-day{font-size:1.4rem;font-weight:900;color:#111;line-height:1}
+.t7-schedule-date-mon{font-size:.6rem;color:#aaa;text-transform:uppercase;letter-spacing:.1em}
+.t7-schedule-info{flex:1}
+.t7-schedule-teams{font-size:.9rem;font-weight:700;color:#111}
+.t7-schedule-meta{font-size:.7rem;color:#aaa;margin-top:2px}
+.t7-schedule-status{font-size:.7rem;font-weight:700;background:#f0fdf4;color:#16a34a;padding:3px 8px;border-radius:3px}
+.t7-schedule-status.upcoming{background:#eff6ff;color:#2563eb}
+.t7-band-standings{border-bottom:1px solid #e0e0e0}
+.t7-stands-row{display:grid;grid-template-columns:36px 1fr 44px 44px 44px 44px 44px;padding:11px 32px;border-bottom:1px solid #f5f5f5;font-size:.8rem;align-items:center}
+.t7-stands-row.hd{font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#bbb;border-bottom:2px solid #e0e0e0;background:#fafafa}
+.t7-stands-row .rk{font-weight:900;color:#111}
+.t7-stands-row .tn{font-weight:700;color:#111}
+.t7-stands-row .n{color:#888;text-align:center}
+.t7-stands-row .p{font-weight:800;color:#e11d48;text-align:center}
+.t7-btn{background:#e11d48;color:#fff;font-family:'Oswald';letter-spacing:.15em}
+
+/* =====================================================
+   T8 — SQUAD CARDS / TEAM FOCUS
+   Teams displayed as large visual cards in a grid
+===================================================== */
+.t8{background:#0e1117;color:#fff;font-family:'DM Sans',sans-serif;border:1px solid #1a1f2e;overflow:hidden}
+.t8-nav{padding:14px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1a1f2e}
+.t8-logo{font-size:1rem;font-weight:900;letter-spacing:.05em}
+.t8-logo em{color:#38bdf8;font-style:normal}
+.t8-nav-links a{color:#3d4f63;text-decoration:none;font-size:.72rem;font-weight:600;margin-left:18px;text-transform:uppercase;letter-spacing:.1em}
+.t8-hero-bar{background:#131926;padding:20px 24px;border-bottom:1px solid #1a1f2e;display:flex;justify-content:space-between;align-items:center}
+.t8-hero-bar h1{font-size:1.6rem;font-weight:900;letter-spacing:-.02em}
+.t8-hero-bar h1 span{color:#38bdf8}
+.t8-hero-bar p{color:#3d4f63;font-size:.75rem;margin-top:4px}
+.t8-hero-bar-right{display:flex;gap:24px}
+.t8-stat{text-align:center}
+.t8-stat-num{font-size:1.5rem;font-weight:900;color:#38bdf8;line-height:1}
+.t8-stat-label{font-size:.58rem;color:#3d4f63;text-transform:uppercase;letter-spacing:.15em;margin-top:2px}
+.t8-team-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;padding:16px}
+.t8-team-card{background:#131926;border:1px solid #1a1f2e;border-radius:8px;padding:16px;text-align:center;position:relative;overflow:hidden;cursor:pointer;transition:.15s}
+.t8-team-card:hover{border-color:#38bdf8;background:#141e2e}
+.t8-team-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:#38bdf8}
+.t8-team-card.top::before{background:linear-gradient(to right,#f59e0b,#ef4444)}
+.t8-team-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#1e3a5f,#38bdf8);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:.75rem;font-weight:900;letter-spacing:.05em}
+.t8-team-name{font-size:.85rem;font-weight:800;margin-bottom:4px}
+.t8-team-record{font-size:.7rem;color:#3d4f63;margin-bottom:8px}
+.t8-team-pts{font-size:1.2rem;font-weight:900;color:#38bdf8;line-height:1}
+.t8-team-pts-label{font-size:.55rem;color:#3d4f63;text-transform:uppercase;letter-spacing:.12em}
+.t8-team-top-badge{position:absolute;top:8px;right:8px;background:linear-gradient(to right,#f59e0b,#ef4444);font-size:.5rem;font-weight:700;letter-spacing:.1em;padding:2px 6px;border-radius:3px;text-transform:uppercase}
+.t8-bottom{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#1a1f2e;border-top:1px solid #1a1f2e}
+.t8-bottom-cell{background:#0e1117;padding:18px 20px}
+.t8-bc-title{font-size:.6rem;letter-spacing:.25em;text-transform:uppercase;color:#3d4f63;margin-bottom:10px}
+.t8-bc-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #131926;font-size:.78rem}
+.t8-bc-row:last-child{border:none}
+.t8-bc-name{color:#aabbcc}
+.t8-bc-val{color:#38bdf8;font-weight:700}
+.t8-btn{background:#38bdf8;color:#000;font-family:'DM Sans'}
+
+/* =====================================================
+   T9 — NEWSPAPER MULTI-COLUMN
+   Classic broadsheet grid, strong rules + columns
+===================================================== */
+.t9{background:#fdf8f2;color:#111;font-family:'Inter',sans-serif;border:2px solid #111;overflow:hidden}
+.t9-head{background:#111;padding:16px 28px;display:flex;align-items:center;justify-content:space-between}
+.t9-head-title{font-family:'Anton';font-size:2rem;color:#fff;letter-spacing:.1em}
+.t9-head-sub{font-size:.6rem;color:rgba(255,255,255,.35);letter-spacing:.25em;text-transform:uppercase;margin-top:2px}
+.t9-head-date{font-size:.65rem;color:rgba(255,255,255,.35);letter-spacing:.1em;text-align:right}
+.t9-nav{background:#c8102e;padding:4px 28px;display:flex;gap:20px}
+.t9-nav a{color:rgba(255,255,255,.75);text-decoration:none;font-size:.65rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;padding:4px 0}
+.t9-body{display:grid;grid-template-columns:3px 1fr 3px 1fr 3px 1fr 3px;padding:24px 0;gap:0;border-bottom:2px solid #111}
+.t9-rule{background:#111}
+.t9-col{padding:0 20px}
+.t9-col-head{font-family:'Anton';font-size:1.4rem;text-transform:uppercase;letter-spacing:.03em;margin-bottom:8px;line-height:1.1}
+.t9-col-head em{color:#c8102e;font-style:normal}
+.t9-col p{font-size:.75rem;line-height:1.7;color:#444;margin-bottom:8px}
+.t9-col-rule{height:1px;background:#ccc;margin:12px 0}
+.t9-score-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.t9-score-teams{font-size:.82rem;font-weight:700;color:#111}
+.t9-score-num{font-size:1rem;font-weight:900;color:#c8102e;font-family:'Anton';letter-spacing:.05em}
+.t9-standings-table{width:100%;border-collapse:collapse;font-size:.72rem}
+.t9-standings-table th{text-align:left;font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;color:#aaa;padding:5px 0;border-bottom:1px solid #ddd}
+.t9-standings-table td{padding:5px 0;border-bottom:1px solid #f0f0f0;color:#333}
+.t9-standings-table td:first-child{font-weight:700;color:#111}
+.t9-standings-table td:last-child{font-weight:800;color:#c8102e;text-align:center}
+.t9-btn{background:#c8102e;color:#fff;font-family:'Anton';letter-spacing:.2em}
+
+/* =====================================================
+   T10 — COMPACT DARK PRO
+   Dense information layout, pro sports stats feel
+===================================================== */
+.t10{background:#0c0c0c;color:#fff;font-family:'Space Grotesk',sans-serif;border:1px solid #1a1a1a;overflow:hidden}
+.t10-header{background:#141414;padding:0;display:flex;align-items:stretch;border-bottom:1px solid #1e1e1e}
+.t10-logo-block{background:#ff6b00;padding:0 20px;display:flex;align-items:center;min-height:48px}
+.t10-logo-text{font-family:'Anton';font-size:1rem;color:#000;letter-spacing:.1em}
+.t10-header-nav{display:flex;flex:1}
+.t10-header-nav a{color:#3a3a3a;text-decoration:none;font-size:.68rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:0 16px;display:flex;align-items:center;border-right:1px solid #1e1e1e}
+.t10-header-nav a.active{color:#fff;background:#1e1e1e}
+.t10-header-right{padding:0 16px;display:flex;align-items:center;gap:8px;margin-left:auto}
+.t10-live-dot{width:6px;height:6px;border-radius:50%;background:#ef4444;animation:blink 1s infinite}
+.t10-live-text{font-size:.6rem;color:#ef4444;font-weight:700;letter-spacing:.15em;text-transform:uppercase}
+.t10-body{display:grid;grid-template-columns:1fr 320px}
+.t10-main{border-right:1px solid #1a1a1a}
+.t10-score-hero{background:#141414;padding:24px 20px;border-bottom:1px solid #1a1a1a}
+.t10-sh-label{font-size:.55rem;letter-spacing:.25em;text-transform:uppercase;color:#333;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.t10-sh-label::after{content:'';flex:1;height:1px;background:#1e1e1e}
+.t10-sh-match{display:flex;align-items:center;justify-content:center;gap:20px}
+.t10-sh-team{text-align:center;min-width:80px}
+.t10-sh-team-abbr{font-family:'Anton';font-size:2rem;letter-spacing:.1em;color:#fff}
+.t10-sh-team-name{font-size:.58rem;color:#444;letter-spacing:.1em;text-transform:uppercase;margin-top:2px}
+.t10-sh-score{font-family:'Bebas Neue';font-size:4.5rem;color:#fff;line-height:1;min-width:100px;text-align:center}
+.t10-sh-score em{color:#ff6b00;font-style:normal}
+.t10-sh-meta{text-align:center;font-size:.6rem;color:#333;letter-spacing:.15em;text-transform:uppercase;margin-top:6px}
+.t10-tabs{display:flex;border-bottom:1px solid #1a1a1a}
+.t10-tab{padding:10px 16px;font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#333;border-bottom:2px solid transparent;cursor:pointer}
+.t10-tab.active{color:#ff6b00;border-bottom-color:#ff6b00}
+.t10-table{padding:0 0 4px}
+.t10-tr{display:grid;grid-template-columns:28px 1fr 36px 36px 36px 36px 40px;padding:9px 16px;border-bottom:1px solid #141414;font-size:.72rem;align-items:center}
+.t10-tr.hd{font-size:.55rem;letter-spacing:.18em;text-transform:uppercase;color:#2a2a2a;border-bottom:1px solid #1e1e1e;background:#101010}
+.t10-tr:hover{background:#111}
+.t10-tr .rk{color:#ff6b00;font-weight:700;font-size:.8rem}
+.t10-tr .tn{color:#ddd;font-weight:600}
+.t10-tr .nm{color:#2a2a2a;text-align:center}
+.t10-tr .pts{color:#ff6b00;font-weight:800;text-align:center}
+.t10-sidebar{background:#0e0e0e}
+.t10-sb-block{padding:16px;border-bottom:1px solid #1a1a1a}
+.t10-sb-title{font-size:.55rem;letter-spacing:.25em;text-transform:uppercase;color:#2a2a2a;margin-bottom:10px}
+.t10-game-item{padding:10px;background:#141414;border:1px solid #1e1e1e;margin-bottom:6px;border-radius:4px}
+.t10-gi-meta{font-size:.58rem;color:#333;margin-bottom:5px;display:flex;gap:8px}
+.t10-gi-meta span{background:#1e1e1e;padding:2px 6px;border-radius:2px}
+.t10-gi-teams{display:flex;justify-content:space-between;font-size:.78rem;font-weight:700;color:#ddd}
+.t10-gi-score{color:#ff6b00}
+.t10-btn{background:#ff6b00;color:#000;font-family:'Space Grotesk'}
+
+/* shared */
+#summary{display:none;position:fixed;bottom:20px;right:20px;background:#4ade80;color:#000;padding:12px 20px;font-family:'Inter';font-weight:700;font-size:.8rem;border-radius:6px;box-shadow:0 8px 32px rgba(0,0,0,.6);z-index:9999}
+#summary small{display:block;font-weight:400;font-size:.7rem;opacity:.6;margin-top:2px}
+</style>
+</head>
+<body>
+
+<div class="pg">
+  <h1>ALL-IN — Layout Templates</h1>
+  <p>10 structurally different designs · Scroll to compare · Click to select</p>
+</div>
+
+<div class="stack">
+
+<!-- T1 SPLIT SCREEN -->
+<div>
+<p class="lbl">T1 — Split Screen Sidebar</p>
+<div class="t1">
+  <div class="t1-sidebar">
+    <div class="t1-brand">
+      <div class="t1-brand-name">ALL-IN</div>
+      <div class="t1-brand-sub">Basketball League</div>
+    </div>
+    <nav class="t1-nav">
+      <a href="#" class="active"><span class="t1-nav-dot"></span>首頁</a>
+      <a href="#"><span class="t1-nav-dot"></span>賽程</a>
+      <a href="#"><span class="t1-nav-dot"></span>球隊</a>
+      <a href="#"><span class="t1-nav-dot"></span>球員</a>
+      <a href="#"><span class="t1-nav-dot"></span>排行榜</a>
+      <a href="#"><span class="t1-nav-dot"></span>比賽章程</a>
+      <a href="#"><span class="t1-nav-dot"></span>歷史檔案</a>
+    </nav>
+    <div class="t1-season">
+      <div class="t1-season-label">Current Season</div>
+      <div class="t1-season-val">2025–26</div>
+    </div>
+  </div>
+  <div class="t1-main">
+    <div class="t1-hero">
+      <h1>全力以赴</h1>
+      <p>ALL-IN Basketball League · Hong Kong</p>
+    </div>
+    <div class="t1-content">
+      <div class="t1-panel">
+        <div class="t1-panel-title">即將賽程</div>
+        <div class="t1-game-row"><span class="t1-game-teams">勇士 vs 龍隊</span><span class="t1-score-badge">05/12</span></div>
+        <div class="t1-game-row"><span class="t1-game-teams">鷹隊 vs 雷霆</span><span class="t1-score-badge">05/14</span></div>
+        <div class="t1-game-row"><span class="t1-game-teams">龍隊 vs 鯊魚</span><span class="t1-score-badge">05/17</span></div>
+      </div>
+      <div class="t1-panel">
+        <div class="t1-panel-title">最新結果</div>
+        <div class="t1-game-row"><span class="t1-game-teams">龍隊 vs 鷹隊</span><span class="t1-score-badge">88–72</span></div>
+        <div class="t1-game-row"><span class="t1-game-teams">勇士 vs 雷霆</span><span class="t1-score-badge">95–80</span></div>
+        <div class="t1-game-row"><span class="t1-game-teams">鯊魚 vs 火鳳</span><span class="t1-score-badge">67–71</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<button class="sel-btn t1-btn" onclick="sel('T1','T1 — Split Screen Sidebar')">選擇 T1</button>
+<p class="badge" id="b-T1">✓ Selected</p>
+</div>
+
+<!-- T2 MAGAZINE -->
+<div>
+<p class="lbl">T2 — Magazine Editorial</p>
+<div class="t2">
+  <div class="t2-topbar">
+    <div class="t2-topbar-brand">ALL-IN BASKETBALL LEAGUE</div>
+    <div class="t2-topbar-links">
+      <a href="#">首頁</a><a href="#">賽程</a><a href="#">球隊</a><a href="#">排行榜</a>
+    </div>
+  </div>
+  <div class="t2-hero">
+    <div class="t2-hero-bg"></div>
+    <div class="t2-hero-texture"></div>
+    <div class="t2-hero-content">
+      <div class="t2-hero-eyebrow">2025–26 Season Highlight</div>
+      <h1>全力以赴<br>ALL-IN</h1>
+      <p>香港業餘籃球聯賽，提供即時賽程、球隊數據與排行榜</p>
+      <div class="t2-hero-meta">
+        <div class="t2-hero-stat"><div class="t2-hero-stat-num">8</div><div class="t2-hero-stat-lbl">球隊</div></div>
+        <div class="t2-hero-stat"><div class="t2-hero-stat-num">42</div><div class="t2-hero-stat-lbl">場賽事</div></div>
+        <div class="t2-hero-stat"><div class="t2-hero-stat-num">96</div><div class="t2-hero-stat-lbl">球員</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="t2-articles">
+    <div class="t2-article">
+      <div class="t2-article-tag">本週焦點</div>
+      <h3>龍隊主場大勝保持榜首</h3>
+      <div class="t2-article-divider"></div>
+      <p>沙田體育館舉行的焦點賽事，龍隊以88:72擊敗鷹隊，球員陳大文錄得28分及10個籃板，帶領球隊完成本季第八場勝利。</p>
+      <div class="t2-score-pill"><span class="team">龍隊</span><span class="score">88–72</span><span class="team">鷹隊</span></div>
+    </div>
+    <div class="t2-article">
+      <div class="t2-article-tag">即將賽程</div>
+      <h3>本周重頭戲</h3>
+      <div class="t2-article-divider"></div>
+      <p>05/12 勇士 vs 龍隊<br>05/14 鷹隊 vs 雷霆<br>05/17 龍隊 vs 鯊魚</p>
+    </div>
+    <div class="t2-article">
+      <div class="t2-article-tag">積分榜</div>
+      <h3>排名一覽</h3>
+      <div class="t2-article-divider"></div>
+      <p>1. 龍隊 — 24分<br>2. 勇士 — 21分<br>3. 雷霆 — 15分<br>4. 鷹隊 — 12分</p>
+    </div>
+  </div>
+</div>
+<button class="sel-btn t2-btn" onclick="sel('T2','T2 — Magazine Editorial')">選擇 T2</button>
+<p class="badge" id="b-T2">✓ Selected</p>
+</div>
+
+<!-- T3 APP STYLE -->
+<div>
+<p class="lbl">T3 — App-style Card Grid</p>
+<div class="t3">
+  <div class="t3-nav">
+    <div class="t3-logo"><span class="t3-logo-dot"></span>ALL-IN</div>
+    <div class="t3-nav-pills">
+      <a href="#" class="active">首頁</a><a href="#">賽程</a><a href="#">球隊</a><a href="#">球員</a><a href="#">排行榜</a>
+    </div>
+  </div>
+  <div class="t3-hero-strip">
+    <div class="t3-hero-left">
+      <h2>全力<span>以赴</span></h2>
+      <p>ALL-IN Basketball League</p>
+      <div class="t3-hero-chips">
+        <div class="t3-chip primary">查看賽程</div>
+        <div class="t3-chip">了解球隊</div>
+      </div>
+    </div>
+    <div class="t3-hero-score-card">
+      <div class="t3-hsc-label">最新賽果</div>
+      <div class="t3-hsc-match"><span class="t3-hsc-team">龍隊</span><span class="t3-hsc-score">88</span></div>
+      <div class="t3-hsc-match"><span class="t3-hsc-team">鷹隊</span><span class="t3-hsc-score">72</span></div>
+    </div>
+  </div>
+  <div class="t3-cards">
+    <div class="t3-card">
+      <div class="t3-card-header"><span class="t3-card-title">即將賽程</span><span class="t3-card-more">查看全部 →</span></div>
+      <div class="t3-card-body">
+        <div class="t3-match-item"><span class="t3-match-teams">勇士 vs 龍隊</span><span class="t3-match-time">05/12</span></div>
+        <div class="t3-match-item"><span class="t3-match-teams">鷹隊 vs 雷霆</span><span class="t3-match-time">05/14</span></div>
+        <div class="t3-match-item"><span class="t3-match-teams">龍隊 vs 鯊魚</span><span class="t3-match-time">05/17</span></div>
+      </div>
+    </div>
+    <div class="t3-card">
+      <div class="t3-card-header"><span class="t3-card-title">最近結果</span><span class="t3-card-more">查看全部 →</span></div>
+      <div class="t3-card-body">
+        <div class="t3-match-item"><span class="t3-match-teams">龍隊 vs 鷹隊</span><span class="t3-match-score">88–72</span></div>
+        <div class="t3-match-item"><span class="t3-match-teams">勇士 vs 雷霆</span><span class="t3-match-score">95–80</span></div>
+        <div class="t3-match-item"><span class="t3-match-teams">鯊魚 vs 火鳳</span><span class="t3-match-score">67–71</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="t3-standings-strip">
+    <div class="t3-strip-header"><span>#</span><span>球隊</span><span>場</span><span>勝</span><span>負</span><span>積</span></div>
+    <div class="t3-strip-row"><span class="t3-strip-rank">1</span><span class="t3-strip-team">龍隊</span><span class="t3-strip-num">10</span><span class="t3-strip-num">8</span><span class="t3-strip-num">2</span><span class="t3-strip-pts">24</span></div>
+    <div class="t3-strip-row"><span class="t3-strip-rank">2</span><span class="t3-strip-team">勇士</span><span class="t3-strip-num">10</span><span class="t3-strip-num">7</span><span class="t3-strip-num">3</span><span class="t3-strip-pts">21</span></div>
+    <div class="t3-strip-row"><span class="t3-strip-rank">3</span><span class="t3-strip-team">雷霆</span><span class="t3-strip-num">10</span><span class="t3-strip-num">5</span><span class="t3-strip-num">5</span><span class="t3-strip-pts">15</span></div>
+  </div>
+</div>
+<button class="sel-btn t3-btn" onclick="sel('T3','T3 — App-style Card Grid')">選擇 T3</button>
+<p class="badge" id="b-T3">✓ Selected</p>
+</div>
+
+<!-- T4 TIMELINE -->
+<div>
+<p class="lbl">T4 — Timeline / Schedule Focus</p>
+<div class="t4">
+  <div class="t4-nav">
+    <div class="t4-logo"><div class="t4-logo-bar"></div>ALL-IN Basketball</div>
+    <div><a class="t4-nav-links" href="#">首頁</a><a class="t4-nav-links" href="#">賽程</a><a class="t4-nav-links" href="#">球隊</a><a class="t4-nav-links" href="#">排行榜</a></div>
+  </div>
+  <div class="t4-body">
+    <div class="t4-timeline">
+      <div class="t4-timeline-title">賽事時間表</div>
+      <div class="t4-month">五月 2026</div>
+      <div class="t4-event">
+        <div style="width:12px;flex-shrink:0">
+          <div class="t4-event-dot done"></div>
+          <div class="t4-event-line"></div>
+        </div>
+        <div class="t4-event-card done">
+          <div class="t4-event-meta"><span>05/05</span><span>沙田體育館</span></div>
+          <div class="t4-event-teams"><span>龍隊 vs 鷹隊</span><span class="t4-event-score">88–72</span></div>
+        </div>
+      </div>
+      <div class="t4-event">
+        <div style="width:12px;flex-shrink:0">
+          <div class="t4-event-dot live"></div>
+          <div class="t4-event-line"></div>
+        </div>
+        <div class="t4-event-card live">
+          <div class="t4-event-meta"><span>05/07</span><span>將軍澳</span><span class="t4-live-badge">LIVE</span></div>
+          <div class="t4-event-teams"><span>勇士 vs 火鳳</span><span class="t4-event-score">62–55</span></div>
+        </div>
+      </div>
+      <div class="t4-event">
+        <div style="width:12px;flex-shrink:0">
+          <div class="t4-event-dot upcoming"></div>
+        </div>
+        <div class="t4-event-card">
+          <div class="t4-event-meta"><span>05/12</span><span>沙田體育館</span></div>
+          <div class="t4-event-teams"><span>勇士 vs 龍隊</span><span style="font-size:.7rem;color:#aaa">19:30</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="t4-sidebar">
+      <div class="t4-sidebar-section">
+        <div class="t4-sidebar-title">積分榜</div>
+        <div class="t4-rank-item"><span class="t4-rank-pos">1</span><span class="t4-rank-name">龍隊</span><span class="t4-rank-pts">24</span><div class="t4-rank-bar-wrap"><div class="t4-rank-bar" style="width:100%"></div></div></div>
+        <div class="t4-rank-item"><span class="t4-rank-pos">2</span><span class="t4-rank-name">勇士</span><span class="t4-rank-pts">21</span><div class="t4-rank-bar-wrap"><div class="t4-rank-bar" style="width:87%"></div></div></div>
+        <div class="t4-rank-item"><span class="t4-rank-pos">3</span><span class="t4-rank-name">雷霆</span><span class="t4-rank-pts">15</span><div class="t4-rank-bar-wrap"><div class="t4-rank-bar" style="width:62%"></div></div></div>
+        <div class="t4-rank-item"><span class="t4-rank-pos">4</span><span class="t4-rank-name">鷹隊</span><span class="t4-rank-pts">12</span><div class="t4-rank-bar-wrap"><div class="t4-rank-bar" style="width:50%"></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+<button class="sel-btn t4-btn" onclick="sel('T4','T4 — Timeline / Schedule Focus')">選擇 T4</button>
+<p class="badge" id="b-T4">✓ Selected</p>
+</div>
+
+<!-- T5 SCOREBOARD FIRST -->
+<div>
+<p class="lbl">T5 — Scoreboard First / Live Focus</p>
+<div class="t5">
+  <div class="t5-nav">
+    <div class="t5-logo-wrap">
+      <div class="t5-logo-icon">ALL IN</div>
+      <div class="t5-logo-text">ALL-IN Basketball</div>
+    </div>
+    <div class="t5-nav-center">
+      <div class="t5-nav-tab active">首頁</div>
+      <div class="t5-nav-tab">賽程</div>
+      <div class="t5-nav-tab">球隊</div>
+      <div class="t5-nav-tab">排行榜</div>
+    </div>
+  </div>
+  <div class="t5-scoreboard">
+    <div class="t5-sb-label">現正進行</div>
+    <div style="margin-bottom:8px"><span class="t5-sb-status"><span class="t5-sb-status-dot"></span>LIVE</span></div>
+    <div class="t5-sb-main">
+      <div class="t5-sb-team">
+        <div class="t5-sb-team-name">龍隊</div>
+        <div class="t5-sb-score home">88</div>
+      </div>
+      <div class="t5-sb-divider">–</div>
+      <div class="t5-sb-team">
+        <div class="t5-sb-team-name">鷹隊</div>
+        <div class="t5-sb-score">72</div>
+      </div>
+    </div>
+    <div class="t5-sb-meta">Q4 · 02:14 · 沙田體育館</div>
+  </div>
+  <div class="t5-ticker">
+    <div class="t5-ticker-inner">
+      <span class="t5-tick">龍隊 88–72 鷹隊 |</span><span class="t5-tick">勇士 95–80 雷霆 |</span><span class="t5-tick">下場 05/12 勇士 vs 龍隊 |</span><span class="t5-tick">MVP 陳大文 28pts |</span>
+      <span class="t5-tick">龍隊 88–72 鷹隊 |</span><span class="t5-tick">勇士 95–80 雷霆 |</span><span class="t5-tick">下場 05/12 勇士 vs 龍隊 |</span><span class="t5-tick">MVP 陳大文 28pts |</span>
+    </div>
+  </div>
+  <div class="t5-grid">
+    <div class="t5-cell">
+      <div class="t5-cell-title">即將賽程</div>
+      <div class="t5-match-row"><span class="t5-match-name">勇士 vs 龍隊</span><span class="t5-match-val">05/12</span></div>
+      <div class="t5-match-row"><span class="t5-match-name">鷹隊 vs 雷霆</span><span class="t5-match-val">05/14</span></div>
+    </div>
+    <div class="t5-cell">
+      <div class="t5-cell-title">積分榜</div>
+      <div class="t5-match-row"><span class="t5-match-name">1. 龍隊</span><span class="t5-match-val">24分</span></div>
+      <div class="t5-match-row"><span class="t5-match-name">2. 勇士</span><span class="t5-match-val">21分</span></div>
+    </div>
+    <div class="t5-cell">
+      <div class="t5-cell-title">公告</div>
+      <div class="t5-match-row"><span class="t5-match-name">季後賽報名</span><span class="t5-match-val">05/30</span></div>
+      <div class="t5-match-row"><span class="t5-match-name">轉會窗口</span><span class="t5-match-val">開放</span></div>
+    </div>
+  </div>
+</div>
+<button class="sel-btn t5-btn" onclick="sel('T5','T5 — Scoreboard First / Live Focus')">選擇 T5</button>
+<p class="badge" id="b-T5">✓ Selected</p>
+</div>
+
+<!-- T6 PHOTO HERO -->
+<div>
+<p class="lbl">T6 — Big Number Hero + Stats Cards</p>
+<div class="t6">
+  <div class="t6-nav">
+    <div class="t6-logo">ALL-<em>IN</em></div>
+    <div class="t6-nav-links">
+      <a href="#">首頁</a><a href="#">賽程</a><a href="#">球隊</a><a href="#">球員</a><a href="#">排行榜</a>
+    </div>
+  </div>
+  <div class="t6-hero">
+    <div class="t6-hero-left">
+      <div class="t6-score-big"><em>88</em>–72</div>
+      <div class="t6-score-sub">最新賽果 · 05/05</div>
+      <div class="t6-score-teams">龍隊 vs 鷹隊</div>
+    </div>
+    <div class="t6-hero-right">
+      <div class="t6-hero-tag">2025–26 Season</div>
+      <div class="t6-hero-h">全力<br>以赴</div>
+      <div class="t6-divider"></div>
+      <div class="t6-hero-p">香港業餘籃球聯賽 — 賽程、球隊、球員數據一站搞定</div>
+    </div>
+  </div>
+  <div class="t6-cards">
+    <div class="t6-card"><div class="t6-card-num">8</div><div class="t6-card-label">支球隊</div><div class="t6-card-desc">本季參賽球隊</div></div>
+    <div class="t6-card"><div class="t6-card-num">42</div><div class="t6-card-label">場賽事</div><div class="t6-card-desc">本季總賽事數</div></div>
+    <div class="t6-card"><div class="t6-card-num">96</div><div class="t6-card-label">名球員</div><div class="t6-card-desc">已登記球員</div></div>
+    <div class="t6-card"><div class="t6-card-num">38</div><div class="t6-card-label">最高單場</div><div class="t6-card-desc">陳大文 · 龍隊</div></div>
+  </div>
+  <div class="t6-table">
+    <div class="t6-tr hd"><span>#</span><span>球隊</span><span>場</span><span>勝</span><span>負</span><span>積</span></div>
+    <div class="t6-tr"><span class="rk">1</span><span class="tn">龍隊</span><span class="nm">10</span><span class="nm">8</span><span class="nm">2</span><span class="nm" style="color:#f59e0b;font-weight:800">24</span></div>
+    <div class="t6-tr"><span class="rk">2</span><span class="tn">勇士</span><span class="nm">10</span><span class="nm">7</span><span class="nm">3</span><span class="nm" style="color:#f59e0b;font-weight:800">21</span></div>
+    <div class="t6-tr"><span class="rk">3</span><span class="tn">雷霆</span><span class="nm">10</span><span class="nm">5</span><span class="nm">5</span><span class="nm" style="color:#f59e0b;font-weight:800">15</span></div>
+  </div>
+</div>
+<button class="sel-btn t6-btn" onclick="sel('T6','T6 — Big Number Hero + Stats Cards')">選擇 T6</button>
+<p class="badge" id="b-T6">✓ Selected</p>
+</div>
+
+<!-- T7 HORIZONTAL BANDS -->
+<div>
+<p class="lbl">T7 — Horizontal Band Stacks</p>
+<div class="t7">
+  <div class="t7-nav">
+    <div class="t7-nav-logo">ALL-IN</div>
+    <div class="t7-nav-links">
+      <a href="#" class="active">首頁</a><a href="#">賽程</a><a href="#">球隊</a><a href="#">球員</a><a href="#">排行榜</a>
+    </div>
+  </div>
+  <div class="t7-band-hero">
+    <div class="t7-band-hero-left">
+      <h1>全力<br>以赴</h1>
+      <p>ALL-IN Basketball League · Hong Kong</p>
+    </div>
+    <div class="t7-band-hero-right">
+      <div class="t7-band-score">
+        <div class="t7-band-score-label">最新賽果</div>
+        <div class="t7-band-score-match">龍隊 vs 鷹隊</div>
+        <div class="t7-band-score-num">88–72</div>
+      </div>
+      <div class="t7-band-score">
+        <div class="t7-band-score-label">次新賽果</div>
+        <div class="t7-band-score-match">勇士 vs 雷霆</div>
+        <div class="t7-band-score-num">95–80</div>
+      </div>
+    </div>
+  </div>
+  <div class="t7-band-upcoming">
+    <div class="t7-band-title">即將賽程 <span>查看全部</span></div>
+    <div class="t7-schedule-row">
+      <div class="t7-schedule-date"><div class="t7-schedule-date-day">12</div><div class="t7-schedule-date-mon">MAY</div></div>
+      <div class="t7-schedule-info"><div class="t7-schedule-teams">勇士 vs 龍隊</div><div class="t7-schedule-meta">沙田體育館 · 19:30</div></div>
+      <div class="t7-schedule-status upcoming">待進行</div>
+    </div>
+    <div class="t7-schedule-row">
+      <div class="t7-schedule-date"><div class="t7-schedule-date-day">14</div><div class="t7-schedule-date-mon">MAY</div></div>
+      <div class="t7-schedule-info"><div class="t7-schedule-teams">鷹隊 vs 雷霆</div><div class="t7-schedule-meta">將軍澳體育館 · 19:00</div></div>
+      <div class="t7-schedule-status upcoming">待進行</div>
+    </div>
+  </div>
+  <div class="t7-band-standings">
+    <div class="t7-band-title">球隊積分榜</div>
+    <div class="t7-stands-row hd"><span>#</span><span>球隊</span><span>場</span><span>勝</span><span>負</span><span>得失</span><span>積</span></div>
+    <div class="t7-stands-row"><span class="rk">1</span><span class="tn">龍隊</span><span class="n">10</span><span class="n">8</span><span class="n">2</span><span class="n">+42</span><span class="p">24</span></div>
+    <div class="t7-stands-row"><span class="rk">2</span><span class="tn">勇士</span><span class="n">10</span><span class="n">7</span><span class="n">3</span><span class="n">+28</span><span class="p">21</span></div>
+    <div class="t7-stands-row"><span class="rk">3</span><span class="tn">雷霆</span><span class="n">10</span><span class="n">5</span><span class="n">5</span><span class="n">+5</span><span class="p">15</span></div>
+  </div>
+</div>
+<button class="sel-btn t7-btn" onclick="sel('T7','T7 — Horizontal Band Stacks')">選擇 T7</button>
+<p class="badge" id="b-T7">✓ Selected</p>
+</div>
+
+<!-- T8 TEAM CARDS -->
+<div>
+<p class="lbl">T8 — Team Card Grid Focus</p>
+<div class="t8">
+  <div class="t8-nav">
+    <div class="t8-logo">ALL<em>-IN</em></div>
+    <div><a class="t8-nav-links" href="#">首頁</a><a class="t8-nav-links" href="#">賽程</a><a class="t8-nav-links" href="#">球隊</a><a class="t8-nav-links" href="#">排行榜</a></div>
+  </div>
+  <div class="t8-hero-bar">
+    <div><h1>全力<span>以赴</span></h1><p>ALL-IN Basketball League · 2025–26</p></div>
+    <div class="t8-hero-bar-right">
+      <div class="t8-stat"><div class="t8-stat-num">8</div><div class="t8-stat-label">球隊</div></div>
+      <div class="t8-stat"><div class="t8-stat-num">42</div><div class="t8-stat-label">賽事</div></div>
+      <div class="t8-stat"><div class="t8-stat-num">96</div><div class="t8-stat-label">球員</div></div>
+    </div>
+  </div>
+  <div class="t8-team-grid">
+    <div class="t8-team-card top"><div class="t8-team-top-badge">榜首</div><div class="t8-team-avatar">龍</div><div class="t8-team-name">龍隊</div><div class="t8-team-record">8W–2L</div><div class="t8-team-pts">24</div><div class="t8-team-pts-label">積分</div></div>
+    <div class="t8-team-card"><div class="t8-team-avatar" style="background:linear-gradient(135deg,#1e3a5f,#60a5fa)">勇</div><div class="t8-team-name">勇士</div><div class="t8-team-record">7W–3L</div><div class="t8-team-pts">21</div><div class="t8-team-pts-label">積分</div></div>
+    <div class="t8-team-card"><div class="t8-team-avatar" style="background:linear-gradient(135deg,#1f2937,#6b7280)">霆</div><div class="t8-team-name">雷霆</div><div class="t8-team-record">5W–5L</div><div class="t8-team-pts">15</div><div class="t8-team-pts-label">積分</div></div>
+    <div class="t8-team-card"><div class="t8-team-avatar" style="background:linear-gradient(135deg,#7c2d12,#ea580c)">鷹</div><div class="t8-team-name">鷹隊</div><div class="t8-team-record">4W–6L</div><div class="t8-team-pts">12</div><div class="t8-team-pts-label">積分</div></div>
+  </div>
+  <div class="t8-bottom">
+    <div class="t8-bottom-cell">
+      <div class="t8-bc-title">即將賽程</div>
+      <div class="t8-bc-row"><span class="t8-bc-name">勇士 vs 龍隊</span><span class="t8-bc-val">05/12</span></div>
+      <div class="t8-bc-row"><span class="t8-bc-name">鷹隊 vs 雷霆</span><span class="t8-bc-val">05/14</span></div>
+    </div>
+    <div class="t8-bottom-cell">
+      <div class="t8-bc-title">最新賽果</div>
+      <div class="t8-bc-row"><span class="t8-bc-name">龍隊 vs 鷹隊</span><span class="t8-bc-val">88–72</span></div>
+      <div class="t8-bc-row"><span class="t8-bc-name">勇士 vs 雷霆</span><span class="t8-bc-val">95–80</span></div>
+    </div>
+  </div>
+</div>
+<button class="sel-btn t8-btn" onclick="sel('T8','T8 — Team Card Grid Focus')">選擇 T8</button>
+<p class="badge" id="b-T8">✓ Selected</p>
+</div>
+
+<!-- T9 NEWSPAPER -->
+<div>
+<p class="lbl">T9 — Broadsheet Newspaper</p>
+<div class="t9">
+  <div class="t9-head">
+    <div><div class="t9-head-title">ALL-IN BASKETBALL</div><div class="t9-head-sub">全港業餘籃球聯賽 · 全力以赴</div></div>
+    <div class="t9-head-date"><div>2026年5月7日</div><div style="margin-top:2px">第 28 期</div></div>
+  </div>
+  <div class="t9-nav">
+    <a href="#">首頁</a><a href="#">賽程</a><a href="#">球隊</a><a href="#">球員</a><a href="#">排行榜</a><a href="#">歷史檔案</a>
+  </div>
+  <div class="t9-body">
+    <div class="t9-rule"></div>
+    <div class="t9-col">
+      <div class="t9-col-head">龍隊主場大勝<br><em>保持榜首</em></div>
+      <p>上周六於沙田體育館，龍隊以88:72擊敗鷹隊，主力球員陳大文錄得28分及10籃板，帶領球隊完成本季第八場勝利，穩坐聯賽榜首。</p>
+      <div class="t9-col-rule"></div>
+      <p>勇士隊同日亦以95:80擊敗雷霆，緊追龍隊積分，兩隊將於本月12日上演直接對決。</p>
+    </div>
+    <div class="t9-rule"></div>
+    <div class="t9-col">
+      <div class="t9-col-head">最新<em>賽果</em></div>
+      <div class="t9-score-row"><span class="t9-score-teams">龍隊 vs 鷹隊</span><span class="t9-score-num">88–72</span></div>
+      <div class="t9-score-row"><span class="t9-score-teams">勇士 vs 雷霆</span><span class="t9-score-num">95–80</span></div>
+      <div class="t9-score-row"><span class="t9-score-teams">鯊魚 vs 火鳳</span><span class="t9-score-num">67–71</span></div>
+      <div class="t9-col-rule"></div>
+      <div class="t9-col-head" style="font-size:.9rem">即將賽程</div>
+      <p>05/12 勇士 vs 龍隊<br>05/14 鷹隊 vs 雷霆<br>05/17 龍隊 vs 鯊魚</p>
+    </div>
+    <div class="t9-rule"></div>
+    <div class="t9-col">
+      <div class="t9-col-head">積分<em>排行</em></div>
+      <table class="t9-standings-table">
+        <tr><th>#</th><th>球隊</th><th>勝</th><th>負</th><th>積</th></tr>
+        <tr><td>1</td><td>龍隊</td><td>8</td><td>2</td><td>24</td></tr>
+        <tr><td>2</td><td>勇士</td><td>7</td><td>3</td><td>21</td></tr>
+        <tr><td>3</td><td>雷霆</td><td>5</td><td>5</td><td>15</td></tr>
+        <tr><td>4</td><td>鷹隊</td><td>4</td><td>6</td><td>12</td></tr>
+      </table>
+    </div>
+    <div class="t9-rule"></div>
+  </div>
+</div>
+<button class="sel-btn t9-btn" onclick="sel('T9','T9 — Broadsheet Newspaper')">選擇 T9</button>
+<p class="badge" id="b-T9">✓ Selected</p>
+</div>
+
+<!-- T10 COMPACT PRO -->
+<div>
+<p class="lbl">T10 — Compact Dark Pro</p>
+<div class="t10">
+  <div class="t10-header">
+    <div class="t10-logo-block"><div class="t10-logo-text">ALL-IN</div></div>
+    <div class="t10-header-nav">
+      <a href="#" class="active">首頁</a><a href="#">賽程</a><a href="#">球隊</a><a href="#">球員</a><a href="#">排行榜</a>
+    </div>
+    <div class="t10-header-right">
+      <div class="t10-live-dot"></div>
+      <div class="t10-live-text">Live</div>
+    </div>
+  </div>
+  <div class="t10-body">
+    <div class="t10-main">
+      <div class="t10-score-hero">
+        <div class="t10-sh-label">現正進行</div>
+        <div class="t10-sh-match">
+          <div class="t10-sh-team"><div class="t10-sh-team-abbr">龍</div><div class="t10-sh-team-name">龍隊</div></div>
+          <div class="t10-sh-score"><em>88</em>–72</div>
+          <div class="t10-sh-team"><div class="t10-sh-team-abbr">鷹</div><div class="t10-sh-team-name">鷹隊</div></div>
+        </div>
+        <div class="t10-sh-meta">Q4 · 02:14 · 沙田體育館</div>
+      </div>
+      <div class="t10-tabs">
+        <div class="t10-tab active">積分榜</div>
+        <div class="t10-tab">賽程</div>
+        <div class="t10-tab">球員數據</div>
+      </div>
+      <div class="t10-table">
+        <div class="t10-tr hd"><span>#</span><span>球隊</span><span>場</span><span>勝</span><span>負</span><span>得失</span><span>積</span></div>
+        <div class="t10-tr"><span class="rk">1</span><span class="tn">龍隊</span><span class="nm">10</span><span class="nm">8</span><span class="nm">2</span><span class="nm">+42</span><span class="pts">24</span></div>
+        <div class="t10-tr"><span class="rk">2</span><span class="tn">勇士</span><span class="nm">10</span><span class="nm">7</span><span class="nm">3</span><span class="nm">+28</span><span class="pts">21</span></div>
+        <div class="t10-tr"><span class="rk">3</span><span class="tn">雷霆</span><span class="nm">10</span><span class="nm">5</span><span class="nm">5</span><span class="nm">+5</span><span class="pts">15</span></div>
+        <div class="t10-tr"><span class="rk">4</span><span class="tn">鷹隊</span><span class="nm">10</span><span class="nm">4</span><span class="nm">6</span><span class="nm">−8</span><span class="pts">12</span></div>
+      </div>
+    </div>
+    <div class="t10-sidebar">
+      <div class="t10-sb-block">
+        <div class="t10-sb-title">即將賽程</div>
+        <div class="t10-game-item">
+          <div class="t10-gi-meta"><span>05/12</span><span>沙田</span></div>
+          <div class="t10-gi-teams"><span>勇士 vs 龍隊</span><span class="t10-gi-score">19:30</span></div>
+        </div>
+        <div class="t10-game-item">
+          <div class="t10-gi-meta"><span>05/14</span><span>將軍澳</span></div>
+          <div class="t10-gi-teams"><span>鷹隊 vs 雷霆</span><span class="t10-gi-score">19:00</span></div>
+        </div>
+        <div class="t10-game-item">
+          <div class="t10-gi-meta"><span>05/17</span><span>沙田</span></div>
+          <div class="t10-gi-teams"><span>龍隊 vs 鯊魚</span><span class="t10-gi-score">20:00</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<button class="sel-btn t10-btn" onclick="sel('T10','T10 — Compact Dark Pro')">選擇 T10</button>
+<p class="badge" id="b-T10">✓ Selected</p>
+</div>
+
+</div><!-- stack -->
+
+<div id="summary">
+  已選擇：<strong id="sel-name"></strong>
+  <small>告知我們，立即套用此設計</small>
+</div>
+
+<script>
+function sel(id,name){
+  document.querySelectorAll('.badge').forEach(e=>e.style.display='none');
+  const b=document.getElementById('b-'+id);if(b)b.style.display='block';
+  document.getElementById('sel-name').textContent=name;
+  document.getElementById('summary').style.display='block';
+}
+</script>
+</body>
+</html>

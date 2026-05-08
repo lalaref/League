@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ALL-IN Design Preview 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800;900&family=Anton&family=Roboto+Condensed:ital,wght@0,700;1,700&family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,700&family=Space+Grotesk:wght@400;500;700&family=DM+Serif+Display&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#1a1a1a;font-family:'Inter',sans-serif;color:#fff;padding:40px 16px}
+.page-header{text-align:center;margin-bottom:48px}
+.page-header h1{font-size:1.8rem;font-weight:900;margin-bottom:6px}
+.page-header p{color:#666;font-size:.85rem}
+.preview-wrap{max-width:960px;margin:0 auto;display:flex;flex-direction:column;gap:56px}
+.option-label{font-size:.7rem;letter-spacing:.3em;text-transform:uppercase;color:#555;margin-bottom:10px}
+.pick-btn{width:100%;padding:13px;font-size:.8rem;letter-spacing:.2em;text-transform:uppercase;font-weight:700;border:none;cursor:pointer;margin-top:2px;font-family:'Inter',sans-serif;transition:opacity .15s}
+.pick-btn:hover{opacity:.85}
+.badge{display:none;text-align:center;padding:7px;font-size:.7rem;letter-spacing:.2em;color:#4ade80;font-family:'Inter',sans-serif}
+
+/* ══════════════════════════════════
+   F — Nike Sport / Performance
+══════════════════════════════════ */
+.f{background:#f5f5f5;color:#111;font-family:'Barlow Condensed',sans-serif}
+.f-nav{background:#111;padding:0 24px;display:flex;justify-content:space-between;align-items:stretch;height:52px}
+.f-nav-logo{color:#fff;font-size:1.4rem;font-weight:800;letter-spacing:.05em;display:flex;align-items:center}
+.f-nav-logo em{color:#ff2800;font-style:normal}
+.f-nav-links{display:flex;gap:0}
+.f-nav-links a{color:rgba(255,255,255,.5);text-decoration:none;font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:0 16px;display:flex;align-items:center;border-left:1px solid rgba(255,255,255,.07)}
+.f-nav-links a:hover,.f-nav-links a.active{color:#fff;background:rgba(255,255,255,.05)}
+.f-hero{display:grid;grid-template-columns:3fr 2fr;min-height:220px}
+.f-hero-left{background:#111;padding:36px 32px;display:flex;flex-direction:column;justify-content:flex-end;position:relative;overflow:hidden}
+.f-hero-left::before{content:'ALL IN';position:absolute;right:-20px;top:-20px;font-size:9rem;font-weight:800;color:rgba(255,255,255,.03);letter-spacing:-.05em;line-height:1;pointer-events:none}
+.f-tag{display:inline-block;background:#ff2800;color:#fff;font-size:.6rem;font-weight:700;letter-spacing:.25em;padding:3px 10px;margin-bottom:12px;text-transform:uppercase}
+.f-hero-left h1{font-size:3.8rem;line-height:.9;color:#fff;font-weight:800;text-transform:uppercase;letter-spacing:-.01em}
+.f-hero-left p{color:rgba(255,255,255,.4);font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;margin-top:10px;font-family:'Inter',sans-serif;font-weight:400}
+.f-hero-right{background:#ff2800;padding:24px;display:flex;flex-direction:column;gap:12px}
+.f-hero-right h3{font-size:.65rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.7);margin-bottom:4px;font-family:'Inter',sans-serif}
+.f-score-box{background:rgba(0,0,0,.2);padding:12px 14px}
+.f-score-box .teams{display:flex;justify-content:space-between;font-size:1.1rem;font-weight:700;color:#fff;letter-spacing:.05em}
+.f-score-box .meta{font-family:'Inter',sans-serif;font-size:.65rem;color:rgba(255,255,255,.5);margin-top:4px}
+.f-strip{background:#f0f0f0;display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:linear-gradient(to right,#e0e0e0 0%,#e0e0e0 100%)}
+.f-strip-item{background:#f5f5f5;padding:16px 20px;text-align:center}
+.f-strip-num{font-size:2rem;font-weight:800;color:#111;line-height:1}
+.f-strip-label{font-family:'Inter',sans-serif;font-size:.6rem;color:#888;text-transform:uppercase;letter-spacing:.15em;margin-top:2px}
+.f-table{background:#fff}
+.f-tr{display:grid;grid-template-columns:36px 1fr 44px 44px 44px 44px;padding:11px 20px;border-bottom:1px solid #f0f0f0;align-items:center;font-size:.82rem}
+.f-tr.hd{font-size:.6rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#aaa;border-bottom:2px solid #e0e0e0;background:#fafafa}
+.f-tr .rank{font-size:1rem;font-weight:800;color:#111;font-family:'Barlow Condensed'}
+.f-tr .team{font-weight:700;color:#111;font-family:'Barlow Condensed';font-size:.95rem;letter-spacing:.03em}
+.f-btn{background:#111;color:#fff}
+
+/* ══════════════════════════════════
+   G — Dark Teal / Esports Meets Basketball
+══════════════════════════════════ */
+.g{background:#060d16;color:#fff;font-family:'Space Grotesk',sans-serif;border:1px solid #0d2233}
+.g-nav{padding:14px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #0d2233}
+.g-logo{font-size:1.1rem;font-weight:700;letter-spacing:.05em}
+.g-logo span{color:#00e5cc}
+.g-nav-links{display:flex;gap:20px}
+.g-nav-links a{color:#4a6880;text-decoration:none;font-size:.75rem;font-weight:500}
+.g-hero{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#0d2233}
+.g-hero-main{background:#060d16;padding:32px 28px;position:relative;overflow:hidden}
+.g-hero-main::after{content:'';position:absolute;top:0;right:0;width:200px;height:100%;background:linear-gradient(to left,rgba(0,229,204,.04),transparent);pointer-events:none}
+.g-label{font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:#00e5cc;margin-bottom:10px;opacity:.8}
+.g-hero-main h1{font-size:2.8rem;font-weight:700;line-height:1;color:#fff;margin-bottom:10px}
+.g-hero-main h1 span{color:#00e5cc}
+.g-hero-main p{color:#4a6880;font-size:.78rem;line-height:1.6}
+.g-cta-row{display:flex;gap:8px;margin-top:16px}
+.g-btn-p{background:#00e5cc;color:#060d16;border:none;padding:9px 18px;font-size:.75rem;font-weight:700;cursor:pointer;font-family:'Space Grotesk'}
+.g-btn-s{background:transparent;color:#00e5cc;border:1px solid #00e5cc;padding:9px 18px;font-size:.75rem;font-weight:700;cursor:pointer;font-family:'Space Grotesk'}
+.g-hero-side{background:#060d16;padding:24px 20px}
+.g-score-title{font-size:.6rem;letter-spacing:.25em;text-transform:uppercase;color:#4a6880;margin-bottom:14px}
+.g-score-item{padding:12px;background:#080f1a;border:1px solid #0d2233;margin-bottom:8px;border-left:2px solid #00e5cc}
+.g-score-item .teams{display:flex;justify-content:space-between;font-size:.85rem;font-weight:600}
+.g-score-item .score{color:#00e5cc;font-size:.85rem}
+.g-score-item .meta{font-size:.62rem;color:#4a6880;margin-top:4px}
+.g-content{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#0d2233}
+.g-cell{background:#060d16;padding:18px 20px}
+.g-cell h3{font-size:.85rem;font-weight:600;margin-bottom:10px;color:#fff}
+.g-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #0a1929;font-size:.75rem;color:#4a6880}
+.g-row .hi{color:#fff;font-weight:500}
+.g-row .hi2{color:#00e5cc;font-weight:600}
+.g-btn{background:#00e5cc;color:#060d16}
+
+/* ══════════════════════════════════
+   H — Minimal / Japanese Aesthetic
+══════════════════════════════════ */
+.h{background:#fff;color:#111;font-family:'Inter',sans-serif;border:1px solid #e8e8e8}
+.h-nav{padding:16px 28px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e8e8e8}
+.h-logo{font-size:.9rem;font-weight:700;letter-spacing:.3em;text-transform:uppercase}
+.h-nav-links{display:flex;gap:28px}
+.h-nav-links a{color:#aaa;text-decoration:none;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;font-weight:500}
+.h-hero{padding:48px 28px 32px;display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid #e8e8e8}
+.h-hero-left{max-width:400px}
+.h-season{font-size:.65rem;letter-spacing:.35em;text-transform:uppercase;color:#aaa;margin-bottom:20px}
+.h-hero-left h1{font-size:3.8rem;font-weight:800;line-height:.9;color:#111;letter-spacing:-.04em}
+.h-hero-left h1 small{display:block;font-size:1.2rem;font-weight:300;letter-spacing:.05em;color:#bbb;margin-top:8px}
+.h-divider{width:40px;height:2px;background:#111;margin:20px 0}
+.h-hero-left p{font-size:.8rem;color:#888;line-height:1.7;max-width:280px}
+.h-hero-right{display:flex;flex-direction:column;gap:0;min-width:220px}
+.h-stat-row{display:flex;align-items:baseline;gap:8px;padding:12px 0;border-bottom:1px solid #f0f0f0}
+.h-stat-row:first-child{border-top:1px solid #f0f0f0}
+.h-stat-num{font-size:2rem;font-weight:800;letter-spacing:-.04em}
+.h-stat-label{font-size:.65rem;color:#aaa;letter-spacing:.15em;text-transform:uppercase}
+.h-content{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid #e8e8e8}
+.h-col{padding:24px 28px;border-right:1px solid #e8e8e8}
+.h-col:last-child{border-right:none}
+.h-col-title{font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:#aaa;margin-bottom:14px}
+.h-col-item{padding:10px 0;border-bottom:1px solid #f5f5f5;font-size:.8rem;color:#333;display:flex;justify-content:space-between;line-height:1.4}
+.h-col-item:last-child{border:none}
+.h-col-item span{color:#aaa;font-size:.75rem}
+.h-btn{background:#111;color:#fff;font-family:'Inter'}
+
+/* ══════════════════════════════════
+   I — LED Scoreboard
+══════════════════════════════════ */
+.i{background:#050505;color:#fff;font-family:'Oswald',sans-serif;border:2px solid #111}
+.i-nav{background:#0a0a0a;padding:12px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1a1a1a}
+.i-logo{color:#ffd700;font-size:1.2rem;letter-spacing:.2em}
+.i-clock{font-family:'Inter',sans-serif;font-size:.65rem;color:#333;letter-spacing:.15em}
+.i-nav-links{display:flex;gap:16px}
+.i-nav-links a{color:#444;text-decoration:none;font-size:.75rem;letter-spacing:.12em}
+.i-hero{background:#000;padding:32px 20px;text-align:center;position:relative;border-bottom:2px solid #1a1a1a}
+.i-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(255,215,0,.06) 0%,transparent 70%);pointer-events:none}
+.i-board-frame{display:inline-block;background:#111;border:2px solid #222;padding:24px 40px;position:relative}
+.i-board-frame::before{content:'';position:absolute;inset:4px;border:1px solid rgba(255,215,0,.1)}
+.i-live{display:inline-block;background:#ff2800;color:#fff;font-family:'Inter',sans-serif;font-size:.55rem;letter-spacing:.3em;padding:2px 8px;margin-bottom:10px;animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.i-match{display:flex;align-items:center;gap:24px}
+.i-team{text-align:center}
+.i-team-name{font-size:1.8rem;letter-spacing:.1em;color:#ffd700}
+.i-team-score{font-size:4rem;color:#fff;line-height:1;font-weight:400}
+.i-vs{font-size:.8rem;color:#333;letter-spacing:.2em;font-family:'Inter',sans-serif}
+.i-match-meta{font-family:'Inter',sans-serif;font-size:.6rem;color:#333;letter-spacing:.2em;text-transform:uppercase;margin-top:10px}
+.i-ticker{background:#ffd700;padding:6px 0;overflow:hidden;position:relative}
+.i-ticker-inner{display:flex;gap:48px;white-space:nowrap;animation:ticker 12s linear infinite}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.i-ticker-item{font-family:'Inter',sans-serif;font-size:.65rem;font-weight:700;color:#000;letter-spacing:.1em;text-transform:uppercase}
+.i-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#111;margin-top:1px}
+.i-cell{background:#050505;padding:20px}
+.i-cell-title{font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:#333;margin-bottom:12px;font-family:'Inter',sans-serif}
+.i-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #111;font-size:.85rem}
+.i-row .name{color:#888}
+.i-row .val{color:#ffd700}
+.i-row .val.w{color:#fff}
+.i-btn{background:#ffd700;color:#000;font-family:'Oswald';letter-spacing:.2em}
+
+/* ══════════════════════════════════
+   J — Chicago Red / Aggressive
+══════════════════════════════════ */
+.j{background:#fff;color:#111;font-family:'Roboto Condensed',sans-serif;border:1px solid #e0e0e0}
+.j-nav{background:#cc0000;padding:0 0 0 0;display:flex;align-items:stretch}
+.j-logo{background:#000;padding:0 24px;display:flex;align-items:center;color:#fff;font-size:1.2rem;font-weight:700;letter-spacing:.05em;min-height:50px}
+.j-logo em{color:#cc0000;font-style:normal;margin-right:4px}
+.j-nav-links{display:flex;flex:1}
+.j-nav-links a{color:rgba(255,255,255,.75);text-decoration:none;font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:0 18px;display:flex;align-items:center;border-left:1px solid rgba(255,255,255,.1)}
+.j-nav-links a:hover{background:rgba(0,0,0,.2);color:#fff}
+.j-hero{display:grid;grid-template-columns:1fr 1fr;min-height:200px}
+.j-hero-left{background:#000;padding:36px 28px;display:flex;flex-direction:column;justify-content:flex-end;position:relative;overflow:hidden}
+.j-hero-left::before{content:'';position:absolute;top:0;right:-60px;width:200px;height:100%;background:#cc0000;transform:skewX(-12deg)}
+.j-hero-left::after{content:'';position:absolute;top:0;right:-100px;width:80px;height:100%;background:#aa0000;transform:skewX(-12deg)}
+.j-hero-left h1{font-size:4rem;line-height:.85;color:#fff;font-weight:700;font-style:italic;text-transform:uppercase;position:relative;z-index:1}
+.j-hero-left p{color:rgba(255,255,255,.4);font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;margin-top:10px;font-family:'Inter',sans-serif;position:relative;z-index:1}
+.j-hero-right{background:#cc0000;padding:24px;display:flex;flex-direction:column;justify-content:center;gap:14px}
+.j-hero-right h3{color:rgba(255,255,255,.7);font-size:.65rem;letter-spacing:.3em;text-transform:uppercase;font-family:'Inter',sans-serif;margin-bottom:-4px}
+.j-score{background:rgba(0,0,0,.3);padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
+.j-score .teams{color:#fff;font-size:1rem;font-weight:700;letter-spacing:.05em}
+.j-score .num{color:#fff;font-size:1.3rem;font-weight:700;background:rgba(0,0,0,.3);padding:2px 8px}
+.j-bottom{display:grid;grid-template-columns:1fr 1fr 1fr;border-top:3px solid #cc0000}
+.j-bottom-col{padding:20px 24px;border-right:1px solid #e0e0e0}
+.j-bottom-col:last-child{border:none}
+.j-bottom-col h4{font-size:1rem;font-weight:700;font-style:italic;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;color:#cc0000}
+.j-bottom-col .item{font-family:'Inter',sans-serif;font-size:.75rem;color:#444;padding:5px 0;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between}
+.j-bottom-col .item:last-child{border:none}
+.j-btn{background:#cc0000;color:#fff;font-family:'Roboto Condensed';font-style:italic}
+
+/* ══════════════════════════════════
+   K — Deep Purple / Evening Court
+══════════════════════════════════ */
+.k{background:#0d0118;color:#fff;font-family:'Inter',sans-serif;border:1px solid #1a0530}
+.k-nav{padding:14px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1a0530}
+.k-logo{font-weight:800;font-size:1.1rem;letter-spacing:-.02em}
+.k-logo span{color:#a855f7}
+.k-nav-links a{color:#4a3060;text-decoration:none;font-size:.75rem;font-weight:500;margin-left:20px}
+.k-hero{padding:48px 28px;background:linear-gradient(135deg,#0d0118 0%,#1a0530 50%,#0d0118 100%);border-bottom:1px solid #1a0530;position:relative;overflow:hidden}
+.k-hero::before{content:'';position:absolute;top:-80px;right:-80px;width:400px;height:400px;background:radial-gradient(circle,rgba(168,85,247,.15) 0%,transparent 70%);pointer-events:none}
+.k-hero-content{position:relative;z-index:1;max-width:480px}
+.k-hero-tag{display:inline-block;border:1px solid rgba(168,85,247,.4);color:#a855f7;font-size:.6rem;letter-spacing:.25em;padding:4px 10px;text-transform:uppercase;margin-bottom:16px}
+.k-hero-content h1{font-size:3.2rem;font-weight:900;line-height:.95;letter-spacing:-.03em;margin-bottom:14px}
+.k-hero-content h1 span{background:linear-gradient(135deg,#a855f7,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.k-hero-content p{color:#6b4a8a;font-size:.82rem;line-height:1.6}
+.k-cta{display:flex;gap:10px;margin-top:20px}
+.k-btn-p{background:linear-gradient(135deg,#a855f7,#ec4899);color:#fff;border:none;padding:10px 20px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:'Inter'}
+.k-btn-s{background:transparent;color:#a855f7;border:1px solid rgba(168,85,247,.3);padding:10px 20px;font-size:.78rem;cursor:pointer;font-family:'Inter'}
+.k-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#1a0530}
+.k-card{background:#0d0118;padding:20px}
+.k-card-title{font-size:.6rem;letter-spacing:.25em;text-transform:uppercase;color:#4a3060;margin-bottom:12px}
+.k-item{padding:9px 0;border-bottom:1px solid #120025;font-size:.8rem;display:flex;justify-content:space-between}
+.k-item:last-child{border:none}
+.k-item .name{color:#c4b5d8}
+.k-item .val{color:#a855f7;font-weight:600}
+.k-btn-pick{background:linear-gradient(135deg,#a855f7,#ec4899);color:#fff;font-family:'Inter'}
+
+/* ══════════════════════════════════
+   L — Brutalist / Raw
+══════════════════════════════════ */
+.l{background:#f0ece0;color:#000;font-family:'Anton',sans-serif;border:3px solid #000}
+.l-nav{background:#000;padding:0;display:flex;align-items:stretch}
+.l-logo-box{background:#fff;padding:0 20px;display:flex;align-items:center;font-size:1.1rem;letter-spacing:.05em;border-right:3px solid #000;min-height:48px}
+.l-nav-links{display:flex}
+.l-nav-links a{color:#fff;text-decoration:none;font-size:.75rem;letter-spacing:.15em;padding:0 18px;display:flex;align-items:center;border-right:1px solid #333}
+.l-hero{display:grid;grid-template-columns:2fr 1fr;min-height:180px}
+.l-hero-main{background:#000;padding:32px 24px;border-right:3px solid #000;display:flex;flex-direction:column;justify-content:flex-end}
+.l-hero-main h1{font-size:5rem;line-height:.8;color:#fff;text-transform:uppercase;letter-spacing:-.02em}
+.l-hero-main h1 em{color:#f0ece0;font-style:normal;display:block;font-size:2.5rem;letter-spacing:.1em}
+.l-hero-side{background:#f0ece0;padding:24px;display:flex;flex-direction:column;justify-content:flex-end;border-bottom:3px solid #000}
+.l-hero-side h3{font-size:1.2rem;text-transform:uppercase;margin-bottom:6px}
+.l-hero-side p{font-family:'Inter',sans-serif;font-size:.72rem;color:#555;line-height:1.5}
+.l-grid{display:grid;grid-template-columns:1fr 1fr 1fr;border-top:3px solid #000}
+.l-cell{padding:20px;border-right:3px solid #000;font-size:.9rem}
+.l-cell:last-child{border-right:none}
+.l-cell-label{font-size:.55rem;letter-spacing:.3em;text-transform:uppercase;font-family:'Inter',sans-serif;color:#888;margin-bottom:6px}
+.l-cell h3{font-size:1.5rem;text-transform:uppercase;margin-bottom:6px}
+.l-cell p{font-family:'Inter',sans-serif;font-size:.72rem;color:#555;line-height:1.5}
+.l-table-row{display:grid;grid-template-columns:28px 1fr 40px 40px 40px;padding:10px 20px;font-family:'Inter',sans-serif;font-size:.78rem;border-top:1px solid #000}
+.l-table-row.hd{font-size:.58rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#888;border-top:3px solid #000;background:#e0dcd0}
+.l-table-row:hover{background:#e0dcd0}
+.l-rank{font-family:'Anton';font-size:1rem}
+.l-btn{background:#000;color:#f0ece0;font-family:'Anton';letter-spacing:.15em}
+
+/* ══════════════════════════════════
+   M — Forest Green / Classic
+══════════════════════════════════ */
+.m{background:#f8f9f4;color:#1a2e1a;font-family:'Inter',sans-serif;border:1px solid #d4ddd4}
+.m-topbar{background:#1a2e1a;padding:5px 24px;display:flex;justify-content:space-between}
+.m-topbar span{font-size:.6rem;color:rgba(255,255,255,.4);letter-spacing:.15em;text-transform:uppercase}
+.m-nav{background:#fff;padding:14px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #1a2e1a}
+.m-logo{font-weight:800;font-size:1.1rem;color:#1a2e1a;letter-spacing:-.02em}
+.m-logo span{color:#4a7c4a}
+.m-nav-links a{color:#6b8a6b;text-decoration:none;font-size:.75rem;font-weight:600;margin-left:20px;text-transform:uppercase;letter-spacing:.08em}
+.m-hero{background:#1a2e1a;padding:44px 28px;display:grid;grid-template-columns:3fr 2fr;gap:32px;align-items:center}
+.m-hero h1{font-size:3rem;font-weight:900;color:#fff;line-height:1;margin-bottom:10px;letter-spacing:-.03em}
+.m-hero h1 span{color:#6abf6a;display:block}
+.m-hero p{color:rgba(255,255,255,.45);font-size:.8rem;line-height:1.6}
+.m-hero-cta{margin-top:20px;display:flex;gap:10px}
+.m-btn-p{background:#6abf6a;color:#0a1a0a;border:none;padding:10px 20px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:'Inter'}
+.m-btn-s{background:transparent;color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.2);padding:10px 20px;font-size:.78rem;cursor:pointer;font-family:'Inter'}
+.m-stats{display:flex;flex-direction:column;gap:10px}
+.m-stat-item{background:rgba(255,255,255,.05);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;border-left:3px solid #6abf6a}
+.m-stat-item .num{font-size:1.6rem;font-weight:900;color:#fff}
+.m-stat-item .lbl{font-size:.65rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.15em}
+.m-content{display:grid;grid-template-columns:2fr 1fr;gap:0;border-top:2px solid #1a2e1a}
+.m-left{padding:24px}
+.m-left h3{font-size:.85rem;font-weight:700;color:#1a2e1a;text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #1a2e1a}
+.m-game-item{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #e8eee8;font-size:.8rem}
+.m-game-item .match{font-weight:600;color:#1a2e1a}
+.m-game-item .info{color:#888}
+.m-right{background:#1a2e1a;padding:24px}
+.m-right h3{font-size:.75rem;text-transform:uppercase;letter-spacing:.15em;color:rgba(255,255,255,.3);margin-bottom:14px}
+.m-rank-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.8rem}
+.m-rank-row .pos{color:#6abf6a;font-weight:800;width:20px}
+.m-rank-row .name{color:#fff;font-weight:600;flex:1;padding:0 8px}
+.m-rank-row .pts{color:#6abf6a;font-weight:700}
+.m-btn{background:#1a2e1a;color:#fff;font-family:'Inter'}
+
+/* ══════════════════════════════════
+   N — Glassmorphism / Premium
+══════════════════════════════════ */
+.n{background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 50%,#0f172a 100%);color:#fff;font-family:'Inter',sans-serif;border:1px solid rgba(255,255,255,.05);position:relative;overflow:hidden}
+.n::before{content:'';position:absolute;top:-150px;left:-100px;width:500px;height:500px;background:radial-gradient(circle,rgba(99,102,241,.2) 0%,transparent 70%);pointer-events:none}
+.n::after{content:'';position:absolute;bottom:-100px;right:-100px;width:400px;height:400px;background:radial-gradient(circle,rgba(236,72,153,.15) 0%,transparent 70%);pointer-events:none}
+.n-nav{padding:14px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,.05);position:relative;z-index:1;backdrop-filter:blur(20px);background:rgba(15,23,42,.4)}
+.n-logo{font-weight:800;font-size:1.1rem;letter-spacing:-.02em}
+.n-logo em{background:linear-gradient(135deg,#6366f1,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-style:normal}
+.n-nav-links a{color:rgba(255,255,255,.4);text-decoration:none;font-size:.75rem;font-weight:500;margin-left:20px}
+.n-hero{padding:48px 28px;position:relative;z-index:1}
+.n-glass-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(20px);padding:32px;max-width:500px;margin-bottom:28px}
+.n-tag{font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(99,102,241,.8);margin-bottom:12px}
+.n-glass-card h1{font-size:3rem;font-weight:900;line-height:.95;letter-spacing:-.04em;margin-bottom:12px}
+.n-glass-card h1 em{background:linear-gradient(135deg,#6366f1,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-style:normal}
+.n-glass-card p{font-size:.8rem;color:rgba(255,255,255,.45);line-height:1.6}
+.n-stats-row{display:flex;gap:16px;position:relative;z-index:1}
+.n-stat{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(20px);padding:16px 20px;flex:1;text-align:center}
+.n-stat-num{font-size:2rem;font-weight:900;background:linear-gradient(135deg,#6366f1,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.n-stat-label{font-size:.6rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.15em;margin-top:2px}
+.n-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:20px 28px;position:relative;z-index:1}
+.n-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);backdrop-filter:blur(10px);padding:18px}
+.n-card-title{font-size:.6rem;letter-spacing:.25em;text-transform:uppercase;color:rgba(99,102,241,.6);margin-bottom:10px}
+.n-item{padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.78rem;display:flex;justify-content:space-between}
+.n-item:last-child{border:none}
+.n-item .name{color:rgba(255,255,255,.6)}
+.n-item .val{color:#6366f1;font-weight:600}
+.n-btn{background:linear-gradient(135deg,#6366f1,#ec4899);color:#fff;font-family:'Inter'}
+
+/* ══════════════════════════════════
+   O — Warm Sunset / Urban
+══════════════════════════════════ */
+.o{background:#0a0a0a;color:#fff;font-family:'Syne',sans-serif;border:1px solid #1a1a1a}
+.o-nav{padding:14px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1a1a1a}
+.o-logo{font-size:1.1rem;font-weight:800;letter-spacing:.05em}
+.o-logo span{background:linear-gradient(to right,#f97316,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.o-nav-links a{color:#444;text-decoration:none;font-size:.72rem;font-weight:700;margin-left:18px;letter-spacing:.1em;text-transform:uppercase}
+.o-hero{background:linear-gradient(to bottom right,#0a0a0a,#1a0a00);padding:52px 28px;display:flex;justify-content:space-between;align-items:flex-end;border-bottom:1px solid #1a0a00;position:relative;overflow:hidden}
+.o-hero::before{content:'';position:absolute;top:0;right:0;width:400px;height:400px;background:radial-gradient(circle at top right,rgba(249,115,22,.15) 0%,transparent 60%);pointer-events:none}
+.o-hero-text{position:relative;z-index:1}
+.o-hero-text h1{font-size:4.5rem;font-weight:800;line-height:.85;letter-spacing:-.03em}
+.o-hero-text h1 em{display:block;background:linear-gradient(to right,#f97316,#ef4444,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-style:normal}
+.o-hero-text p{color:#666;font-size:.78rem;margin-top:14px;font-family:'Inter';line-height:1.6;max-width:300px}
+.o-hero-score{position:relative;z-index:1;background:rgba(255,255,255,.03);border:1px solid rgba(249,115,22,.2);padding:20px 24px;min-width:180px}
+.o-hero-score h4{font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(249,115,22,.6);font-family:'Inter';margin-bottom:10px}
+.o-score-line{display:flex;justify-content:space-between;font-size:.9rem;color:#fff;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);font-family:'Inter';font-weight:500}
+.o-score-line span{background:linear-gradient(to right,#f97316,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:700}
+.o-score-line:last-child{border:none}
+.o-content{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#1a0a00}
+.o-col{background:#0a0a0a;padding:20px}
+.o-col-title{font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:#444;margin-bottom:12px;font-family:'Inter'}
+.o-row{padding:9px 0;border-bottom:1px solid #111;font-size:.8rem;display:flex;justify-content:space-between;font-family:'Inter'}
+.o-row:last-child{border:none}
+.o-row .n2{color:#ccc}
+.o-row .v2{background:linear-gradient(to right,#f97316,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:700}
+.o-btn{background:linear-gradient(to right,#f97316,#ef4444);color:#fff;font-family:'Syne'}
+
+/* ══════════════════════════════════
+   P — Data Dashboard
+══════════════════════════════════ */
+.p{background:#0b0f1a;color:#fff;font-family:'Space Grotesk',sans-serif;border:1px solid #1a2035}
+.p-nav{background:#060a12;padding:12px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1a2035}
+.p-logo{font-size:.95rem;font-weight:700;letter-spacing:.05em;display:flex;align-items:center;gap:8px}
+.p-logo::before{content:'';display:inline-block;width:8px;height:8px;background:#3b82f6;border-radius:50%}
+.p-nav-links a{color:#334155;text-decoration:none;font-size:.7rem;font-weight:500;margin-left:16px}
+.p-hero{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:#1a2035;border-bottom:1px solid #1a2035}
+.p-kpi{background:#0b0f1a;padding:18px 20px}
+.p-kpi-label{font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:#334155;margin-bottom:6px}
+.p-kpi-val{font-size:2rem;font-weight:700;color:#fff;line-height:1}
+.p-kpi-sub{font-size:.65rem;color:#3b82f6;margin-top:4px}
+.p-kpi-bar{height:2px;background:#1a2035;margin-top:10px;border-radius:1px;overflow:hidden}
+.p-kpi-bar-fill{height:100%;background:#3b82f6;border-radius:1px}
+.p-body{display:grid;grid-template-columns:2fr 1fr;gap:1px;background:#1a2035}
+.p-table-wrap{background:#0b0f1a;padding:20px}
+.p-table-title{font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:#334155;margin-bottom:12px;display:flex;justify-content:space-between}
+.p-table-title span{color:#3b82f6}
+.p-tr{display:grid;grid-template-columns:28px 1fr 36px 36px 36px 36px 36px;gap:4px;padding:9px 0;border-bottom:1px solid #0f1624;font-size:.75rem;align-items:center}
+.p-tr.hd{font-size:.58rem;letter-spacing:.15em;text-transform:uppercase;color:#334155;border-bottom:1px solid #1a2035}
+.p-tr .rank{color:#3b82f6;font-weight:700}
+.p-tr .team{color:#e2e8f0;font-weight:600}
+.p-tr .num{color:#64748b;text-align:center}
+.p-tr .pts{color:#3b82f6;font-weight:700;text-align:center}
+.p-sidebar{background:#0b0f1a;padding:20px}
+.p-sidebar-title{font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:#334155;margin-bottom:12px}
+.p-game-card{background:#0f1624;border:1px solid #1a2035;padding:12px;margin-bottom:8px}
+.p-game-card .versus{display:flex;justify-content:space-between;font-size:.8rem;font-weight:600;margin-bottom:4px}
+.p-game-card .versus .score{color:#3b82f6}
+.p-game-card .meta{font-size:.62rem;color:#334155}
+.p-btn{background:#3b82f6;color:#fff;font-family:'Space Grotesk'}
+
+/* selector floating */
+#sel-summary{display:none;position:fixed;bottom:24px;right:24px;background:#4ade80;color:#000;padding:14px 20px;font-family:'Inter',sans-serif;font-weight:700;font-size:.82rem;border-radius:6px;box-shadow:0 8px 32px rgba(0,0,0,.6);z-index:999}
+#sel-summary small{display:block;font-weight:400;opacity:.6;font-size:.7rem;margin-top:2px}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>ALL-IN Basketball League</h1>
+  <p>Design Preview #2 — 10 new directions &nbsp;|&nbsp; Click a button to select</p>
+</div>
+
+<div class="preview-wrap">
+
+<!-- ── F ── -->
+<div>
+  <p class="option-label">F — Nike Sport / Performance</p>
+  <div class="f">
+    <div class="f-nav">
+      <div class="f-nav-logo">ALL<em>-IN</em></div>
+      <div class="f-nav-links">
+        <a href="#" class="active">首頁</a><a href="#">賽程</a><a href="#">球隊</a><a href="#">球員</a><a href="#">排行榜</a>
+      </div>
+    </div>
+    <div class="f-hero">
+      <div class="f-hero-left">
+        <div class="f-tag">2025–26 Season</div>
+        <h1>全力<br>以赴</h1>
+        <p>ALL-IN Basketball League · Hong Kong</p>
+      </div>
+      <div class="f-hero-right">
+        <h3>最新比分</h3>
+        <div class="f-score-box">
+          <div class="teams"><span>龍隊</span><span>88–72</span><span>鷹隊</span></div>
+          <div class="meta">05/05 · 沙田體育館 · 決定性勝利</div>
+        </div>
+        <div class="f-score-box">
+          <div class="teams"><span>勇士</span><span>95–80</span><span>雷霆</span></div>
+          <div class="meta">05/04 · 將軍澳體育館</div>
+        </div>
+      </div>
+    </div>
+    <div class="f-strip">
+      <div class="f-strip-item"><div class="f-strip-num">8</div><div class="f-strip-label">支球隊</div></div>
+      <div class="f-strip-item"><div class="f-strip-num">42</div><div class="f-strip-label">場賽事</div></div>
+      <div class="f-strip-item"><div class="f-strip-num">96</div><div class="f-strip-label">名球員</div></div>
+      <div class="f-strip-item"><div class="f-strip-num">S6</div><div class="f-strip-label">本季賽季</div></div>
+    </div>
+    <div class="f-table">
+      <div class="f-tr hd"><span>#</span><span>球隊</span><span>場</span><span>勝</span><span>負</span><span>積分</span></div>
+      <div class="f-tr"><span class="rank">1</span><span class="team">龍隊</span><span>10</span><span>8</span><span>2</span><span>24</span></div>
+      <div class="f-tr"><span class="rank">2</span><span class="team">勇士</span><span>10</span><span>7</span><span>3</span><span>21</span></div>
+      <div class="f-tr"><span class="rank">3</span><span class="team">雷霆</span><span>10</span><span>5</span><span>5</span><span>15</span></div>
+    </div>
+  </div>
+  <button class="pick-btn f-btn" onclick="pick('F','F — Nike Sport / Performance')">選擇 F</button>
+  <p class="badge" id="b-F">✓ Selected</p>
+</div>
+
+<!-- ── G ── -->
+<div>
+  <p class="option-label">G — Dark Teal / Esports Meets Basketball</p>
+  <div class="g">
+    <div class="g-nav">
+      <div class="g-logo">ALL<span>-IN</span></div>
+      <div class="g-nav-links">
+        <a href="#">首頁</a><a href="#">賽程</a><a href="#">球隊</a><a href="#">球員</a><a href="#">排行榜</a>
+      </div>
+    </div>
+    <div class="g-hero">
+      <div class="g-hero-main">
+        <div class="g-label">2025–26 Season</div>
+        <h1>全力<span>以赴</span></h1>
+        <p>香港業餘籃球聯賽 — 即時比分、球隊數據、積分排行</p>
+        <div class="g-cta-row">
+          <button class="g-btn-p">查看賽程</button>
+          <button class="g-btn-s">了解更多</button>
+        </div>
+      </div>
+      <div class="g-hero-side">
+        <div class="g-score-title">最新賽果</div>
+        <div class="g-score-item">
+          <div class="teams"><span>龍隊</span><span class="score">88–72</span><span>鷹隊</span></div>
+          <div class="meta">05/05 · 沙田體育館</div>
+        </div>
+        <div class="g-score-item">
+          <div class="teams"><span>勇士</span><span class="score">95–80</span><span>雷霆</span></div>
+          <div class="meta">05/04 · 將軍澳</div>
+        </div>
+      </div>
+    </div>
+    <div class="g-content">
+      <div class="g-cell">
+        <h3>即將賽程</h3>
+        <div class="g-row"><span class="hi">勇士 vs 龍隊</span><span class="hi2">05/12</span></div>
+        <div class="g-row"><span class="hi">鷹隊 vs 雷霆</span><span class="hi2">05/14</span></div>
+        <div class="g-row"><span class="hi">鯊魚 vs 火鳳</span><span class="hi2">05/17</span></div>
+      </div>
+      <div class="g-cell">
+        <h3>積分榜</h3>
+        <div class="g-row"><span class="hi">1. 龍隊</span><span class="hi2">24分</span></div>
+        <div class="g-row"><span class="hi">2. 勇士</span><span class="hi2">21分</span></div>
+        <div class="g-row"><span class="hi">3. 雷霆</span><span class="hi2">15分</span></div>
+      </div>
+      <div class="g-cell">
+        <h3>聯賽公告</h3>
+        <div class="g-row"><span>季後賽報名截止</span><span class="hi2">05/30</span></div>
+        <div class="g-row"><span>球員轉會期</span><span class="hi2">已開放</span></div>
+        <div class="g-row"><span>場地確認</span><span class="hi2">已更新</span></div>
+      </div>
+    </div>
+  </div>
+  <button class="pick-btn g-btn" onclick="pick('G','G — Dark Teal / Esports')">選擇 G</button>
+  <p class="badge" id="b-G">✓ Selected</p>
+</div>
+
+<!-- ── H ── -->
+<div>
+  <p class="option-label">H — Minimal / Japanese Aesthetic</p>
+  <div class="h">
+    <div class="h-nav">
+      <div class="h-logo">ALL-IN</div>
+      <div class="h-nav-links">
+        <a href="#">首頁</a><a href="#">賽程</a><a href="#">球隊</a><a href="#">球員</a><a href="#">排行榜</a>
+      </div>
+    </div>
+    <div class="h-hero">
+      <div class="h-hero-left">
+        <div class="h-season">2025–26 Season</div>
+        <h1>全力以赴<small>ALL-IN Basketball League</small></h1>
+        <div class="h-divider"></div>
+        <p>香港業餘籃球聯賽，提供即時賽程、球員數據與積分排行。</p>
+      </div>
+      <div class="h-hero-right">
+        <div class="h-stat-row"><span class="h-stat-num">8</span><span class="h-stat-label">支球隊</span></div>
+        <div class="h-stat-row"><span class="h-stat-num">42</span><span class="h-stat-label">場賽事</span></div>
+        <div class="h-stat-row"><span class="h-stat-num">96</span><span class="h-stat-label">名球員</span></div>
+      </div>
+    </div>
+    <div class="h-content">
+      <div class="h-col">
+        <div class="h-col-title">即將賽程</div>
+        <div class="h-col-item">勇士 vs 龍隊<span>05/12</span></div>
+        <div class="h-col-item">鷹隊 vs 雷霆<span>05/14</span></div>
+        <div class="h-col-item">龍隊 vs 鯊魚<span>05/17</span></div>
+      </div>
+      <div class="h-col">
+        <div class="h-col-title">最近結果</div>
+        <div class="h-col-item">龍隊 88–72 鷹隊<span>05/05</span></div>
+        <div class="h-col-item">勇士 95–80 雷霆<span>05/04</span></div>
+        <div class="h-col-item">鯊魚 67–71 火鳳<span>05/02</span></div>
+      </div>
+      <div class="h-col">
+        <div class="h-col-title">積分榜</div>
+        <div class="h-col-item">1. 龍隊<span>24</span></div>
+        <div class="h-col-item">2. 勇士<span>21</span></div>
+        <div class="h-col-item">3. 雷霆<span>15</span></div>
+      </div>
+    </div>
+  </div>
+  <button class="pick-btn h-btn" onclick="pick('H','H — Minimal / Japanese')">選擇 H</button>
+  <p class="badge" id="b-H">✓ Selected</p>
+</div>
+
+<!-- ── I ── -->
+<div>
+  <p class="option-label">I — LED Scoreboard</p>
+  <div class="i">
+    <div class="i-nav">
+      <div class="i-logo">ALL-IN</div>
+      <div class="i-clock">WED 07 MAY 2026 · 19:42</div>
+      <div class="i-nav-links">
+        <a href="#">首頁</a><a href="#">賽程</a><a href="#">排行榜</a>
+      </div>
+    </div>
+    <div class="i-hero">
+      <div class="i-board-frame">
+        <div class="i-live">● LIVE</div>
+        <div class="i-match">
+          <div class="i-team">
+            <div class="i-team-name">龍隊</div>
+            <div class="i-team-score">88</div>
+          </div>
+          <div class="i-vs">VS</div>
+          <div class="i-team">
+            <div class="i-team-name">鷹隊</div>
+            <div class="i-team-score">72</div>
+          </div>
+        </div>
+        <div class="i-match-meta">Q4 · 02:14 · 沙田體育館</div>
+      </div>
+    </div>
+    <div class="i-ticker">
+      <div class="i-ticker-inner">
+        <span class="i-ticker-item">龍隊 88–72 鷹隊 &nbsp;|</span>
+        <span class="i-ticker-item">勇士 95–80 雷霆 &nbsp;|</span>
+        <span class="i-ticker-item">下場：05/12 勇士 vs 龍隊 19:30 &nbsp;|</span>
+        <span class="i-ticker-item">MVP：陳大文 28pts &nbsp;|</span>
+        <span class="i-ticker-item">龍隊 88–72 鷹隊 &nbsp;|</span>
+        <span class="i-ticker-item">勇士 95–80 雷霆 &nbsp;|</span>
+        <span class="i-ticker-item">下場：05/12 勇士 vs 龍隊 19:30 &nbsp;|</span>
+        <span class="i-ticker-item">MVP：陳大文 28pts &nbsp;|</span>
+      </div>
+    </div>
+    <div class="i-grid">
+      <div class="i-cell">
+        <div class="i-cell-title">即將賽程</div>
+        <div class="i-row"><span class="name">勇士 vs 龍隊</span><span class="val">05/12 19:30</span></div>
+        <div class="i-row"><span class="name">鷹隊 vs 雷霆</span><span class="val">05/14 19:00</span></div>
+        <div class="i-row"><span class="name">龍隊 vs 鯊魚</span><span class="val">05/17 20:00</span></div>
+      </div>
+      <div class="i-cell">
+        <div class="i-cell-title">積分榜</div>
+        <div class="i-row"><span class="name">1. 龍隊</span><span class="val w">8W 2L</span></div>
+        <div class="i-row"><span class="name">2. 勇士</span><span class="val w">7W 3L</span></div>
+        <div class="i-row"><span class="name">3. 雷霆</span><span class="val w">5W 5L</span></div>
+      </div>
+    </div>
+  </div>
+  <button class="pick-btn i-btn" onclick="pick('I','I — LED Scoreboard')">選擇 I</button>
+  <p class="badge" id="b-I">✓ Selected</p>
+</div>
+
+<!-- ── J ── -->
+<div>
+  <p class="option-label">J — Chicago Red / Aggressive</p>
+  <div class="j">
+    <div class="j-nav">
+      <div class="j-logo"><em>ALL</em>-IN</div>
+      <div class="j-nav-links">
+        <a href="#">首頁</a><a href="#">賽程</a><a href="#">球隊</a><a href="#">球員</a><a href="#">排行榜</a>
+      </div>
+    </div>
+    <div class="j-hero">
+      <div class="j-hero-left">
+        <h1>全力<br>以赴</h1>
+        <p>ALL-IN Basketball League · HK</p>
+      </div>
+      <div class="j-hero-right">
+        <h3>最新賽果</h3>
+        <div class="j-score">
+          <span class="teams">龍隊 vs 鷹隊</span>
+          <span class="num">88–72</span>
+        </div>
+        <div class="j-score">
+          <span class="teams">勇士 vs 雷霆</span>
+          <span class="num">95–80</span>
+        </div>
+      </div>
+    </div>
+    <div class="j-bottom">
+      <div class="j-bottom-col">
+        <h4>即將賽程</h4>
+        <div class="item"><span>勇士 vs 龍隊</span><span>05/12</span></div>
+        <div class="item"><span>鷹隊 vs 雷霆</span><span>05/14</span></div>
+        <div class="item"><span>龍隊 vs 鯊魚</span><span>05/17</span></div>
+      </div>
+      <div class="j-bottom-col">
+        <h4>積分排行</h4>
+        <div class="item"><span>1. 龍隊</span><span style="color:#cc0000;font-weight:700">24</span></div>
+        <div class="item"><span>2. 勇士</span><span style="color:#cc0000;font-weight:700">21</span></div>
+        <div class="item"><span>3. 雷霆</span><span style="color:#cc0000;font-weight:700">15</span></div>
+      </div>
+      <div class="j-bottom-col">
+        <h4>公告</h4>
+        <div class="item"><span>季後賽開始</span><span>06/01</span></div>
+        <div class="item"><span>轉會窗口</span><span>開放中</span></div>
+      </div>
+    </div>
+  </div>
+  <button class="pick-btn j-btn" onclick="pick('J','J — Chicago Red / Aggressive')">選擇 J</button>
+  <p class="badge" id="b-J">✓ Selected</p>
+</div>
+
+<!-- ── K ── -->
+<div>
+  <p class="option-label">K — Deep Purple / Evening Court</p>
+  <div class="k">
+    <div class="k-nav">
+      <div class="k-logo">ALL<span>-IN</span></div>
+      <div class="k-nav-links">
+        <a href="#">首頁</a><a href="#">賽程</a><a href="#">球隊</a><a href="#">排行榜</a>
+      </div>
+    </div>
+    <div class="k-hero">
+      <div class="k-hero-content">
+        <div class="k-hero-tag">2025–26 Season</div>
+        <h1>全力<span>以赴</span></h1>
+        <p>香港業餘籃球聯賽 — 賽程、球隊、球員數據、積分排行一站搞定</p>
+        <div class="k-cta">
+          <button class="k-btn-p">查看賽程</button>
+          <button class="k-btn-s">了解更多</button>
+        </div>
+      </div>
+    </div>
+    <div class="k-cards">
+      <div class="k-card">
+        <div class="k-card-title">即將賽程</div>
+        <div class="k-item"><span class="name">勇士 vs 龍隊</span><span class="val">05/12</span></div>
+        <div class="k-item"><span class="name">鷹隊 vs 雷霆</span><span class="val">05/14</span></div>
+        <div class="k-item"><span class="name">龍隊 vs 鯊魚</span><span class="val">05/17</span></div>
+      </div>
+      <div class="k-card">
+        <div class="k-card-title">最近結果</div>
+        <div class="k-item"><span class="name">龍隊 vs 鷹隊</span><span class="val">88–72</span></div>
+        <div class="k-item"><span class="name">勇士 vs 雷霆</span><span class="val">95–80</span></div>
+        <div class="k-item"><span class="name">鯊魚 vs 火鳳</span><span class="val">67–71</span></div>
+      </div>
+      <div class="k-card">
+        <div class="k-card-title">積分榜</div>
+        <div class="k-item"><span class="name">1. 龍隊</span><span class="val">24</span></div>
+        <div class="k-item"><span class="name">2. 勇士</span><span class="val">21</span></div>
+        <div class="k-item"><span class="name">3. 雷霆</span><span class="val">15</span></div>
+      </div>
+    </div>
+  </div>
+  <button class="pick-btn k-btn-pick" onclick="pick('K','K — Deep Purple / Evening Court')">選擇 K</button>
+  <p class="badge" id="b-K">✓ Selected</p>
+</div>
+
+<!-- ── L ── -->
+<div>
+  <p class="option-label">L — Brutalist / Raw Typography</p>
+  <div class="l">
+    <div class="l-nav">
+      <div class="l-logo-box">ALL-IN</div>
+      <div class="l-nav-links">
+        <a href="#">首頁</a><a href="#">賽程</a><a href="#">球隊</a><a href="#">球員</a><a href="#">排行榜</a>
+      </div>
+    </div>
+    <div class="l-hero">
+      <div class="l-hero-main">
+        <h1>全力<em>以赴</em></h1>
+      </div>
+      <div class="l-hero-side">
+        <h3>最新賽果</h3>
+        <p>龍隊 88–72 鷹隊<br>05/05 · 沙田體育館</p>
+      </div>
+    </div>
+    <div class="l-grid">
+      <div class="l-cell">
+        <div class="l-cell-label">即將賽程</div>
+        <h3>勇士 vs 龍隊</h3>
+        <p>05/12 · 19:30 · 沙田</p>
+      </div>
+      <div class="l-cell">
+        <div class="l-cell-label">最近結果</div>
+        <h3>88 – 72</h3>
+        <p>龍隊 大勝 鷹隊</p>
+      </div>
+      <div class="l-cell">
+        <div class="l-cell-label">公告</div>
+        <h3>季後賽</h3>
+        <p>06/01 開始報名</p>
+      </div>
+    </div>
+    <div class="l-table-row hd"><span>#</span><span>球隊</span><span>勝</span><span>負</span><span>積</span></div>
+    <div class="l-table-row"><span class="l-rank">1</span><span>龍隊</span><span>8</span><span>2</span><span>24</span></div>
+    <div class="l-table-row"><span class="l-rank">2</span><span>勇士</span><span>7</span><span>3</span><span>21</span></div>
+    <div class="l-table-row"><span class="l-rank">3</span><span>雷霆</span><span>5</span><span>5</span><span>15</span></div>
+  </div>
+  <button class="pick-btn l-btn" onclick="pick('L','L — Brutalist / Raw Typography')">選擇 L</button>
+  <p class="badge" id="b-L">✓ Selected</p>
+</div>
+
+<!-- ── M ── -->
+<div>
+  <p class="option-label">M — Forest Green / Classic Sports</p>
+  <div class="m">
+    <div class="m-topbar">
+      <span>ALL-IN Basketball League</span><span>2025–26 Season</span>
+    </div>
+    <div class="m-nav">
+      <div class="m-logo">ALL<span>-IN</span></div>
+      <div>
+        <a class="m-nav-links" href="#">首頁</a>
+        <a class="m-nav-links" href="#">賽程</a>
+        <a class="m-nav-links" href="#">球隊</a>
+        <a class="m-nav-links" href="#">排行榜</a>
+      </div>
+    </div>
+    <div class="m-hero">
+      <div>
+        <h1>全力<span>以赴</span></h1>
+        <p>香港業餘籃球聯賽，提供即時賽程、球隊數據與排行榜。</p>
+        <div class="m-hero-cta">
+          <button class="m-btn-p">查看賽程</button>
+          <button class="m-btn-s">了解更多</button>
+        </div>
+      </div>
+      <div class="m-stats">
+        <div class="m-stat-item"><div class="num">8</div><div class="lbl">支球隊</div></div>
+        <div class="m-stat-item"><div class="num">42</div><div class="lbl">場賽事</div></div>
+        <div class="m-stat-item"><div class="num">96</div><div class="lbl">名球員</div></div>
+      </div>
+    </div>
+    <div class="m-content">
+      <div class="m-left">
+        <h3>即將賽程</h3>
+        <div class="m-game-item"><span class="match">勇士 vs 龍隊</span><span class="info">05/12 · 19:30 · 沙田</span></div>
+        <div class="m-game-item"><span class="match">鷹隊 vs 雷霆</span><span class="info">05/14 · 19:00 · 將軍澳</span></div>
+        <div class="m-game-item"><span class="match">龍隊 vs 鯊魚</span><span class="info">05/17 · 20:00 · 沙田</span></div>
+      </div>
+      <div class="m-right">
+        <div class="m-right h3">積分榜</div>
+        <div class="m-rank-row"><span class="pos">1</span><span class="name">龍隊</span><span class="pts">24</span></div>
+        <div class="m-rank-row"><span class="pos">2</span><span class="name">勇士</span><span class="pts">21</span></div>
+        <div class="m-rank-row"><span class="pos">3</span><span class="name">雷霆</span><span class="pts">15</span></div>
+        <div class="m-rank-row"><span class="pos">4</span><span class="name">鷹隊</span><span class="pts">12</span></div>
+      </div>
+    </div>
+  </div>
+  <button class="pick-btn m-btn" onclick="pick('M','M — Forest Green / Classic Sports')">選擇 M</button>
+  <p class="badge" id="b-M">✓ Selected</p>
+</div>
+
+<!-- ── N ── -->
+<div>
+  <p class="option-label">N — Glassmorphism / Premium</p>
+  <div class="n">
+    <div class="n-nav">
+      <div class="n-logo">ALL<em>-IN</em></div>
+      <div>
+        <a class="n-nav-links" href="#">首頁</a>
+        <a class="n-nav-links" href="#">賽程</a>
+        <a class="n-nav-links" href="#">球隊</a>
+        <a class="n-nav-links" href="#">排行榜</a>
+      </div>
+    </div>
+    <div class="n-hero">
+      <div class="n-glass-card">
+        <div class="n-tag">2025–26 Season</div>
+        <h1>全力<em>以赴</em></h1>
+        <p>香港業餘籃球聯賽 — 賽程、球隊、球員數據一站搞定</p>
+      </div>
+      <div class="n-stats-row">
+        <div class="n-stat"><div class="n-stat-num">8</div><div class="n-stat-label">球隊</div></div>
+        <div class="n-stat"><div class="n-stat-num">42</div><div class="n-stat-label">場賽事</div></div>
+        <div class="n-stat"><div class="n-stat-num">96</div><div class="n-stat-label">球員</div></div>
+      </div>
+    </div>
+    <div class="n-cards">
+      <div class="n-card">
+        <div class="n-card-title">即將賽程</div>
+        <div class="n-item"><span class="name">勇士 vs 龍隊</span><span class="val">05/12</span></div>
+        <div class="n-item"><span class="name">鷹隊 vs 雷霆</span><span class="val">05/14</span></div>
+        <div class="n-item"><span class="name">龍隊 vs 鯊魚</span><span class="val">05/17</span></div>
+      </div>
+      <div class="n-card">
+        <div class="n-card-title">最近結果</div>
+        <div class="n-item"><span class="name">龍隊 vs 鷹隊</span><span class="val">88–72</span></div>
+        <div class="n-item"><span class="name">勇士 vs 雷霆</span><span class="val">95–80</span></div>
+        <div class="n-item"><span class="name">鯊魚 vs 火鳳</span><span class="val">67–71</span></div>
+      </div>
+      <div class="n-card">
+        <div class="n-card-title">積分榜</div>
+        <div class="n-item"><span class="name">1. 龍隊</span><span class="val">24分</span></div>
+        <div class="n-item"><span class="name">2. 勇士</span><span class="val">21分</span></div>
+        <div class="n-item"><span class="name">3. 雷霆</span><span class="val">15分</span></div>
+      </div>
+    </div>
+  </div>
+  <button class="pick-btn n-btn" onclick="pick('N','N — Glassmorphism / Premium')">選擇 N</button>
+  <p class="badge" id="b-N">✓ Selected</p>
+</div>
+
+<!-- ── O ── -->
+<div>
+  <p class="option-label">O — Warm Sunset / Urban</p>
+  <div class="o">
+    <div class="o-nav">
+      <div class="o-logo">ALL<span>-IN</span></div>
+      <div>
+        <a class="o-nav-links" href="#">首頁</a>
+        <a class="o-nav-links" href="#">賽程</a>
+        <a class="o-nav-links" href="#">球隊</a>
+        <a class="o-nav-links" href="#">排行榜</a>
+      </div>
+    </div>
+    <div class="o-hero">
+      <div class="o-hero-text">
+        <h1>全力<em>以赴</em></h1>
+        <p>香港業餘籃球聯賽 — 賽程、球隊、球員數據一站搞定</p>
+      </div>
+      <div class="o-hero-score">
+        <h4>最新賽果</h4>
+        <div class="o-score-line"><span>龍隊 88</span>—<span>72 鷹隊</span></div>
+        <div class="o-score-line"><span>勇士 95</span>—<span>80 雷霆</span></div>
+      </div>
+    </div>
+    <div class="o-content">
+      <div class="o-col">
+        <div class="o-col-title">即將賽程</div>
+        <div class="o-row"><span class="n2">勇士 vs 龍隊</span><span class="v2">05/12</span></div>
+        <div class="o-row"><span class="n2">鷹隊 vs 雷霆</span><span class="v2">05/14</span></div>
+        <div class="o-row"><span class="n2">龍隊 vs 鯊魚</span><span class="v2">05/17</span></div>
+      </div>
+      <div class="o-col">
+        <div class="o-col-title">積分榜</div>
+        <div class="o-row"><span class="n2">1. 龍隊</span><span class="v2">24分</span></div>
+        <div class="o-row"><span class="n2">2. 勇士</span><span class="v2">21分</span></div>
+        <div class="o-row"><span class="n2">3. 雷霆</span><span class="v2">15分</span></div>
+      </div>
+      <div class="o-col">
+        <div class="o-col-title">公告</div>
+        <div class="o-row"><span class="n2">季後賽報名</span><span class="v2">05/30截止</span></div>
+        <div class="o-row"><span class="n2">轉會窗口</span><span class="v2">已開放</span></div>
+        <div class="o-row"><span class="n2">場地確認</span><span class="v2">已更新</span></div>
+      </div>
+    </div>
+  </div>
+  <button class="pick-btn o-btn" onclick="pick('O','O — Warm Sunset / Urban')">選擇 O</button>
+  <p class="badge" id="b-O">✓ Selected</p>
+</div>
+
+<!-- ── P ── -->
+<div>
+  <p class="option-label">P — Data Dashboard</p>
+  <div class="p">
+    <div class="p-nav">
+      <div class="p-logo">ALL-IN Basketball League</div>
+      <div>
+        <a class="p-nav-links" href="#">首頁</a>
+        <a class="p-nav-links" href="#">賽程</a>
+        <a class="p-nav-links" href="#">球隊</a>
+        <a class="p-nav-links" href="#">排行榜</a>
+      </div>
+    </div>
+    <div class="p-hero">
+      <div class="p-kpi">
+        <div class="p-kpi-label">參賽球隊</div>
+        <div class="p-kpi-val">8</div>
+        <div class="p-kpi-sub">↑ 本季新增 2 隊</div>
+        <div class="p-kpi-bar"><div class="p-kpi-bar-fill" style="width:80%"></div></div>
+      </div>
+      <div class="p-kpi">
+        <div class="p-kpi-label">完成賽事</div>
+        <div class="p-kpi-val">28</div>
+        <div class="p-kpi-sub">共 42 場 · 67%</div>
+        <div class="p-kpi-bar"><div class="p-kpi-bar-fill" style="width:67%"></div></div>
+      </div>
+      <div class="p-kpi">
+        <div class="p-kpi-label">登記球員</div>
+        <div class="p-kpi-val">96</div>
+        <div class="p-kpi-sub">↑ +12 較上季</div>
+        <div class="p-kpi-bar"><div class="p-kpi-bar-fill" style="width:90%"></div></div>
+      </div>
+      <div class="p-kpi">
+        <div class="p-kpi-label">最高單場得分</div>
+        <div class="p-kpi-val">38</div>
+        <div class="p-kpi-sub">陳大文 · 龍隊</div>
+        <div class="p-kpi-bar"><div class="p-kpi-bar-fill" style="width:55%"></div></div>
+      </div>
+    </div>
+    <div class="p-body">
+      <div class="p-table-wrap">
+        <div class="p-table-title"><span>積分榜</span><span>本季排名</span></div>
+        <div class="p-tr hd"><span>#</span><span>球隊</span><span>場</span><span>勝</span><span>負</span><span>得失</span><span>積</span></div>
+        <div class="p-tr"><span class="rank">1</span><span class="team">龍隊</span><span class="num">10</span><span class="num">8</span><span class="num">2</span><span class="num">+42</span><span class="pts">24</span></div>
+        <div class="p-tr"><span class="rank">2</span><span class="team">勇士</span><span class="num">10</span><span class="num">7</span><span class="num">3</span><span class="num">+28</span><span class="pts">21</span></div>
+        <div class="p-tr"><span class="rank">3</span><span class="team">雷霆</span><span class="num">10</span><span class="num">5</span><span class="num">5</span><span class="num">+5</span><span class="pts">15</span></div>
+        <div class="p-tr"><span class="rank">4</span><span class="team">鷹隊</span><span class="num">10</span><span class="num">4</span><span class="num">6</span><span class="num">−8</span><span class="pts">12</span></div>
+      </div>
+      <div class="p-sidebar">
+        <div class="p-sidebar-title">即將賽程</div>
+        <div class="p-game-card">
+          <div class="versus"><span>勇士 vs 龍隊</span><span class="score">05/12</span></div>
+          <div class="meta">19:30 · 沙田體育館</div>
+        </div>
+        <div class="p-game-card">
+          <div class="versus"><span>鷹隊 vs 雷霆</span><span class="score">05/14</span></div>
+          <div class="meta">19:00 · 將軍澳體育館</div>
+        </div>
+        <div class="p-game-card">
+          <div class="versus"><span>龍隊 vs 鯊魚</span><span class="score">05/17</span></div>
+          <div class="meta">20:00 · 沙田體育館</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <button class="pick-btn p-btn" onclick="pick('P','P — Data Dashboard')">選擇 P</button>
+  <p class="badge" id="b-P">✓ Selected</p>
+</div>
+
+</div><!-- end preview-wrap -->
+
+<div id="sel-summary">
+  已選擇：<strong id="sel-name"></strong>
+  <small>告知我們，立即套用此設計</small>
+</div>
+
+<script>
+function pick(id, name){
+  document.querySelectorAll('.badge').forEach(el=>el.style.display='none');
+  const b = document.getElementById('b-'+id);
+  if(b) b.style.display='block';
+  document.getElementById('sel-name').textContent = name;
+  document.getElementById('sel-summary').style.display='block';
+  window.scrollTo({behavior:'smooth'});
+}
+</script>
+</body>
+</html>

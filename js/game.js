@@ -213,10 +213,13 @@
    * @param {Object} game
    */
   function _renderQuarterScores(game) {
-    var hasQS = game.homeQ1 || game.homeQ2 || game.homeQ3 || game.homeQ4 ||
-                game.awayQ1 || game.awayQ2 || game.awayQ3 || game.awayQ4;
     var container = document.getElementById('quarter-scores-display');
-    if (!container || !hasQS) return;
+    if (!container) return;
+    // Show for completed games or whenever any Q value is present
+    var hasQS = game.status === 'completed' || game.homeScore != null || game.awayScore != null ||
+                game.homeQ1 || game.homeQ2 || game.homeQ3 || game.homeQ4 ||
+                game.awayQ1 || game.awayQ2 || game.awayQ3 || game.awayQ4;
+    if (!hasQS) return;
 
     // Always derive totals from Q1–Q4 so the Total column is self-consistent
     var homeTotal = (parseInt(game.homeQ1, 10) || 0) + (parseInt(game.homeQ2, 10) || 0) +

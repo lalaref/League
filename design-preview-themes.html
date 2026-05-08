@@ -1,0 +1,780 @@
+﻿<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ALL-IN — 10 Design Theme Previews</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800;900&family=Anton&family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,800&family=Space+Mono:wght@400;700&family=Syne:wght@700;800&family=Playfair+Display:wght@700;900&family=Noto+Sans+HK:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0c0c0c;font-family:'Inter',sans-serif;color:#fff;padding:40px 16px}
+
+/* ── PAGE HEADER ── */
+.page-header{text-align:center;margin-bottom:56px}
+.page-header .kicker{font-size:.65rem;letter-spacing:.4em;text-transform:uppercase;color:#555;margin-bottom:8px}
+.page-header h1{font-size:2.2rem;font-weight:900;letter-spacing:-.02em}
+.page-header h1 span{color:#ff4500}
+.page-header p{color:#555;font-size:.85rem;margin-top:8px}
+
+.stack{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:80px}
+.theme-wrap{display:flex;flex-direction:column;gap:0}
+.theme-label{font-size:.62rem;letter-spacing:.35em;text-transform:uppercase;color:#444;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.theme-label::after{content:'';flex:1;height:1px;background:#1f1f1f}
+.theme-num{font-size:2.5rem;font-weight:900;color:#1a1a1a;line-height:1}
+.pick-bar{margin-top:2px}
+.pick-bar button{width:100%;padding:13px;font-size:.72rem;letter-spacing:.25em;text-transform:uppercase;font-weight:700;border:none;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity .15s}
+.pick-bar button:hover{opacity:.8}
+
+/* ══════════════════════════════════════════
+   THEME 1 — NBA DARK PRESTIGE
+══════════════════════════════════════════ */
+.t1{background:#080808;overflow:hidden;border:1px solid #1a1a1a}
+.t1-nav{background:#080808;border-bottom:1px solid #1c1c1c;padding:0 28px;height:52px;display:flex;justify-content:space-between;align-items:center}
+.t1-logo{font-family:'Anton',sans-serif;font-size:1.3rem;letter-spacing:.08em;color:#fff}
+.t1-logo em{color:#c8102e;font-style:normal}
+.t1-nav-links{display:flex;gap:28px}
+.t1-nav-links a{color:rgba(255,255,255,.4);text-decoration:none;font-size:.7rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase}
+.t1-ticker{background:#c8102e;padding:7px 28px;display:flex;gap:32px;overflow:hidden}
+.t1-ticker span{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;white-space:nowrap}
+.t1-ticker span em{color:#fff;font-style:normal}
+.t1-ticker span strong{font-weight:900}
+.t1-hero{position:relative;background:#0d0d0d;padding:56px 28px 48px;overflow:hidden}
+.t1-hero::after{content:'';position:absolute;top:0;right:0;bottom:0;width:40%;background:linear-gradient(135deg,#c8102e22,#c8102e08)}
+.t1-hero-tag{display:inline-block;background:#c8102e;color:#fff;font-size:.6rem;letter-spacing:.3em;padding:4px 12px;font-weight:700;margin-bottom:14px;text-transform:uppercase}
+.t1-hero h1{font-family:'Anton',sans-serif;font-size:5.5rem;line-height:.82;color:#fff;letter-spacing:-.01em;position:relative;z-index:1}
+.t1-hero h1 span{display:block;color:#c8102e}
+.t1-hero-sub{color:#444;font-size:.78rem;letter-spacing:.2em;margin-top:14px;text-transform:uppercase}
+.t1-scores{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#1a1a1a;margin-top:1px}
+.t1-sc{background:#0d0d0d;padding:18px 20px}
+.t1-sc-label{font-size:.55rem;letter-spacing:.25em;text-transform:uppercase;color:#444;margin-bottom:8px}
+.t1-sc-match{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.t1-sc-team{font-size:.82rem;font-weight:700;color:#ccc}
+.t1-sc-score{font-family:'Anton',sans-serif;font-size:1.5rem;color:#fff}
+.t1-sc-score.winner{color:#c8102e}
+.t1-sc-status{font-size:.6rem;color:#555;letter-spacing:.15em;text-transform:uppercase;margin-top:6px}
+.t1-btn{background:#c8102e;color:#fff}
+
+/* ══════════════════════════════════════════
+   THEME 2 — NEON STREET COURT
+══════════════════════════════════════════ */
+.t2{background:#0a0a12;overflow:hidden;border:2px solid #00ff87}
+.t2-nav{padding:0 24px;height:52px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,255,135,.15)}
+.t2-logo{font-family:'Anton',sans-serif;font-size:1.3rem;letter-spacing:.1em}
+.t2-logo em{color:#00ff87;font-style:normal}
+.t2-nav-links{display:flex;gap:0}
+.t2-nav-links a{color:rgba(255,255,255,.35);text-decoration:none;font-size:.68rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;padding:0 14px;line-height:52px}
+.t2-hero{position:relative;padding:52px 28px 44px;overflow:hidden}
+.t2-hero::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent,transparent 60px,rgba(0,255,135,.03) 60px,rgba(0,255,135,.03) 61px),repeating-linear-gradient(0deg,transparent,transparent 60px,rgba(0,255,135,.03) 60px,rgba(0,255,135,.03) 61px)}
+.t2-tag{display:inline-flex;align-items:center;gap:8px;margin-bottom:16px}
+.t2-tag-dot{width:8px;height:8px;border-radius:50%;background:#00ff87;box-shadow:0 0 10px #00ff87}
+.t2-tag-text{font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:#00ff87}
+.t2-hero h1{font-family:'Barlow Condensed',sans-serif;font-size:6rem;font-weight:800;line-height:.82;color:#fff;position:relative;z-index:1}
+.t2-hero h1 em{font-style:normal;-webkit-text-stroke:2px #00ff87;color:transparent}
+.t2-hero h1 .orange{color:#ff6b00}
+.t2-hero-desc{color:#444;font-size:.78rem;line-height:1.6;margin-top:14px;max-width:400px}
+.t2-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(0,255,135,.1);margin-top:1px;border-top:1px solid rgba(0,255,135,.2)}
+.t2-cell{background:#0a0a12;padding:20px}
+.t2-cell-num{font-family:'Anton',sans-serif;font-size:2.8rem;color:#fff;line-height:1}
+.t2-cell-num em{color:#00ff87;font-style:normal}
+.t2-cell-label{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#444;margin-top:4px}
+.t2-btn{background:#00ff87;color:#0a0a12}
+
+/* ══════════════════════════════════════════
+   THEME 3 — BOSTON HURRICANES (Prestige Red)
+══════════════════════════════════════════ */
+.t3{background:#0e0505;overflow:hidden;border:1px solid #2a0a0a}
+.t3-hero{position:relative;overflow:hidden;min-height:260px;background:linear-gradient(135deg,#1a0000 0%,#2c0505 40%,#0e0505 100%)}
+.t3-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 80% 50%,rgba(176,0,32,.35),transparent 60%)}
+.t3-hero-content{position:relative;z-index:1;padding:40px 32px}
+.t3-eyebrow{font-size:.58rem;letter-spacing:.4em;text-transform:uppercase;color:#a05050;margin-bottom:14px}
+.t3-hero h1{font-family:'Anton',sans-serif;font-size:5rem;line-height:.85;color:#fff;letter-spacing:-.01em}
+.t3-hero h1 span{color:#c8102e;display:block}
+.t3-hero-rule{width:56px;height:3px;background:#d4af37;margin:16px 0}
+.t3-hero-desc{color:#7a4040;font-size:.78rem;line-height:1.6;max-width:380px}
+.t3-badges{display:flex;gap:12px;margin-top:20px}
+.t3-badge{border:1px solid rgba(212,175,55,.4);padding:6px 14px;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#d4af37}
+.t3-bottom{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#1a0000;margin-top:1px}
+.t3-panel{background:#0e0505;padding:24px 28px}
+.t3-panel-title{font-size:.58rem;letter-spacing:.3em;text-transform:uppercase;color:#d4af37;border-bottom:1px solid #1f0808;padding-bottom:10px;margin-bottom:14px}
+.t3-player-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #160404;font-size:.78rem}
+.t3-player-row:last-child{border:none}
+.t3-player-name{font-weight:700;color:#ccc}
+.t3-player-stat{font-family:'Anton',sans-serif;font-size:1.1rem;color:#c8102e}
+.t3-player-label{font-size:.6rem;color:#553030;margin-top:1px;text-transform:uppercase;letter-spacing:.1em}
+.t3-nav{background:#0e0505;border-top:1px solid #1f0808;padding:0 28px;height:50px;display:flex;justify-content:space-between;align-items:center}
+.t3-logo{font-family:'Anton',sans-serif;font-size:1.2rem;letter-spacing:.08em}
+.t3-logo em{color:#c8102e;font-style:normal}
+.t3-logo .gold{color:#d4af37}
+.t3-nav-links{display:flex;gap:24px}
+.t3-nav-links a{color:rgba(255,255,255,.35);text-decoration:none;font-size:.68rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase}
+.t3-btn{background:linear-gradient(135deg,#c8102e,#8b0000);color:#fff}
+
+/* ══════════════════════════════════════════
+   THEME 4 — GLASSMORPHISM
+══════════════════════════════════════════ */
+.t4{background:linear-gradient(135deg,#0a1628 0%,#071020 50%,#0d1f35 100%);overflow:hidden;border:1px solid rgba(0,200,255,.12);position:relative}
+.t4::before{content:'';position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(0,200,255,.12),transparent 70%);top:-100px;right:-100px;pointer-events:none}
+.t4::after{content:'';position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(100,0,255,.1),transparent 70%);bottom:-50px;left:-50px;pointer-events:none}
+.t4-nav{position:relative;z-index:2;padding:0 28px;height:56px;display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,.3);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,200,255,.1)}
+.t4-logo{font-family:'Anton',sans-serif;font-size:1.2rem;letter-spacing:.1em}
+.t4-logo em{color:#00c8ff;font-style:normal}
+.t4-nav-links{display:flex;gap:24px}
+.t4-nav-links a{color:rgba(255,255,255,.45);text-decoration:none;font-size:.7rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase}
+.t4-hero{position:relative;z-index:1;padding:52px 32px 40px;text-align:center}
+.t4-hero h1{font-family:'Anton',sans-serif;font-size:4.5rem;line-height:.85;color:#fff;letter-spacing:-.01em;margin-bottom:12px}
+.t4-hero h1 em{font-style:normal;color:#00c8ff;text-shadow:0 0 40px rgba(0,200,255,.5)}
+.t4-hero p{color:rgba(255,255,255,.4);font-size:.82rem;line-height:1.6;max-width:480px;margin:0 auto}
+.t4-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;padding:24px 28px}
+.t4-card{background:rgba(255,255,255,.04);border:1px solid rgba(0,200,255,.12);backdrop-filter:blur(8px);padding:20px;border-radius:12px;position:relative;overflow:hidden}
+.t4-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,200,255,.4),transparent)}
+.t4-card-label{font-size:.58rem;letter-spacing:.25em;text-transform:uppercase;color:#00c8ff;margin-bottom:10px}
+.t4-card-num{font-family:'Anton',sans-serif;font-size:3rem;color:#fff;line-height:1}
+.t4-card-sub{font-size:.7rem;color:rgba(255,255,255,.35);margin-top:4px}
+.t4-card-bar{height:3px;background:rgba(255,255,255,.06);border-radius:2px;margin-top:12px}
+.t4-card-bar-fill{height:100%;background:linear-gradient(90deg,#00c8ff,#6400ff);border-radius:2px}
+.t4-btn{background:linear-gradient(135deg,rgba(0,200,255,.2),rgba(100,0,255,.2));color:#00c8ff;border-top:1px solid rgba(0,200,255,.2) !important}
+
+/* ══════════════════════════════════════════
+   THEME 5 — NEON HYPE / NFT STYLE
+══════════════════════════════════════════ */
+.t5{background:#08000f;overflow:hidden;border:1px solid #2a0040}
+.t5-nav{padding:0 24px;height:56px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(123,47,255,.25)}
+.t5-logo{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;letter-spacing:.05em}
+.t5-logo em{background:linear-gradient(90deg,#7b2fff,#ff2d78);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-style:normal}
+.t5-nav-links{display:flex;gap:20px}
+.t5-nav-links a{color:rgba(255,255,255,.3);text-decoration:none;font-size:.68rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase}
+.t5-hero{position:relative;overflow:hidden;padding:56px 28px 44px;text-align:center}
+.t5-hero::before{content:'';position:absolute;inset:0;background:conic-gradient(from 180deg at 50% 50%,rgba(123,47,255,.08) 0deg,rgba(255,45,120,.08) 180deg,rgba(123,47,255,.08) 360deg)}
+.t5-hero::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:600px;height:1px;background:linear-gradient(90deg,transparent,rgba(123,47,255,.5),rgba(255,45,120,.5),transparent)}
+.t5-hero-tag{display:inline-block;background:linear-gradient(90deg,#7b2fff,#ff2d78);padding:4px 14px;font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;font-weight:700;border-radius:20px;margin-bottom:16px}
+.t5-hero h1{font-family:'Syne',sans-serif;font-size:5rem;font-weight:800;line-height:.85;position:relative;z-index:1}
+.t5-hero h1 .grad{background:linear-gradient(135deg,#fff 30%,rgba(255,255,255,.4));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.t5-hero h1 .purple{background:linear-gradient(90deg,#7b2fff,#ff2d78);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.t5-hero-sub{font-size:.75rem;color:rgba(255,255,255,.3);letter-spacing:.15em;text-transform:uppercase;margin-top:14px}
+.t5-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:16px 20px}
+.t5-card{background:rgba(123,47,255,.08);border:1px solid rgba(123,47,255,.2);padding:18px;position:relative;overflow:hidden}
+.t5-card::after{content:'';position:absolute;top:-20px;right:-20px;width:60px;height:60px;border-radius:50%;background:radial-gradient(circle,rgba(123,47,255,.3),transparent 70%)}
+.t5-card-rank{font-size:.58rem;letter-spacing:.3em;color:#7b2fff;text-transform:uppercase;margin-bottom:6px}
+.t5-card h3{font-family:'Syne',sans-serif;font-size:1rem;font-weight:800;color:#fff;margin-bottom:4px}
+.t5-card-stat{font-family:'Anton',sans-serif;font-size:2rem;background:linear-gradient(90deg,#7b2fff,#ff2d78);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1}
+.t5-card-sub{font-size:.65rem;color:rgba(255,255,255,.3);margin-top:2px}
+.t5-btn{background:linear-gradient(90deg,#7b2fff,#ff2d78);color:#fff}
+
+/* ══════════════════════════════════════════
+   THEME 6 — BRUTALIST RETRO
+══════════════════════════════════════════ */
+.t6{background:#f2ede3;color:#111;overflow:hidden;border:3px solid #111}
+.t6-topbar{background:#e8000b;padding:5px 20px;display:flex;justify-content:space-between}
+.t6-topbar span{font-size:.62rem;font-weight:800;letter-spacing:.25em;text-transform:uppercase;color:#fff}
+.t6-nav{background:#f2ede3;padding:0 20px;height:60px;display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #111}
+.t6-logo{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;line-height:1}
+.t6-logo em{color:#e8000b;font-style:normal}
+.t6-nav-links{display:flex;gap:0;border:2px solid #111}
+.t6-nav-links a{color:#111;text-decoration:none;font-size:.65rem;font-weight:800;letter-spacing:.15em;text-transform:uppercase;padding:8px 14px;border-left:2px solid #111;line-height:1}
+.t6-nav-links a:first-child{border-left:none}
+.t6-hero{display:grid;grid-template-columns:3fr 2fr;border-bottom:3px solid #111}
+.t6-hero-main{padding:28px 24px;border-right:3px solid #111}
+.t6-hero-label{font-size:.58rem;font-weight:800;letter-spacing:.3em;text-transform:uppercase;color:#e8000b;margin-bottom:10px}
+.t6-hero-main h1{font-family:'Playfair Display',serif;font-size:3.2rem;font-weight:900;line-height:1.05;margin-bottom:16px}
+.t6-hero-main p{font-size:.8rem;color:#555;line-height:1.7;max-width:360px}
+.t6-hero-side{padding:28px 24px;display:flex;flex-direction:column;gap:0}
+.t6-score-box{border:2px solid #111;padding:12px 14px;margin-bottom:-2px}
+.t6-score-box-label{font-size:.55rem;font-weight:800;letter-spacing:.25em;text-transform:uppercase;color:#e8000b;margin-bottom:6px}
+.t6-score-box-match{display:flex;justify-content:space-between;align-items:baseline}
+.t6-score-box-teams{font-family:'Playfair Display',serif;font-size:.95rem;font-weight:700}
+.t6-score-box-num{font-family:'Anton',sans-serif;font-size:1.4rem;color:#e8000b}
+.t6-bottom{display:grid;grid-template-columns:repeat(4,1fr);border-top:0}
+.t6-cell{padding:16px 18px;border-right:2px solid #111;border-top:2px solid #111}
+.t6-cell:last-child{border-right:none}
+.t6-cell-num{font-family:'Anton',sans-serif;font-size:2.8rem;color:#111;line-height:1}
+.t6-cell-label{font-size:.6rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:#e8000b;margin-top:2px}
+.t6-btn{background:#111;color:#f2ede3}
+
+/* ══════════════════════════════════════════
+   THEME 7 — COMMUNITY SPORTS WARM
+══════════════════════════════════════════ */
+.t7{background:#fffcf7;color:#1a1a1a;overflow:hidden;border:1px solid #e8dcc8}
+.t7-nav{background:#fff;border-bottom:2px solid #e8dcc8;padding:0 24px;height:56px;display:flex;justify-content:space-between;align-items:center}
+.t7-logo{font-family:'Anton',sans-serif;font-size:1.2rem;letter-spacing:.08em;color:#1a1a1a}
+.t7-logo em{color:#ff8c00;font-style:normal}
+.t7-nav-links{display:flex;gap:24px}
+.t7-nav-links a{color:#888;text-decoration:none;font-size:.75rem;font-weight:600;letter-spacing:.08em}
+.t7-hero{background:linear-gradient(135deg,#fff8f0 0%,#fff3e0 100%);padding:40px 28px;display:grid;grid-template-columns:3fr 2fr;gap:24px;border-bottom:2px solid #e8dcc8}
+.t7-hero-tag{display:inline-block;background:#ff8c00;color:#fff;font-size:.58rem;font-weight:700;letter-spacing:.25em;text-transform:uppercase;padding:4px 12px;border-radius:3px;margin-bottom:12px}
+.t7-hero h1{font-family:'Barlow Condensed',sans-serif;font-size:3.5rem;font-weight:800;line-height:.9;color:#1a1a1a;margin-bottom:12px}
+.t7-hero h1 em{color:#ff8c00;font-style:normal}
+.t7-hero p{font-size:.8rem;color:#777;line-height:1.7}
+.t7-cta{display:flex;gap:10px;margin-top:18px}
+.t7-btn-primary{background:#ff8c00;color:#fff;border:none;padding:10px 20px;font-weight:700;font-size:.78rem;border-radius:6px;cursor:pointer}
+.t7-btn-outline{background:transparent;color:#1a1a1a;border:2px solid #ddd;padding:10px 20px;font-weight:600;font-size:.78rem;border-radius:6px;cursor:pointer}
+.t7-aside{display:flex;flex-direction:column;gap:12px}
+.t7-event-card{background:#fff;border:1px solid #e8dcc8;border-radius:8px;padding:14px 16px;display:flex;gap:14px;align-items:center}
+.t7-event-date{background:#ff8c00;color:#fff;border-radius:6px;width:44px;min-width:44px;text-align:center;padding:8px 0}
+.t7-event-date-day{font-family:'Anton',sans-serif;font-size:1.5rem;line-height:1}
+.t7-event-date-mon{font-size:.55rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase}
+.t7-event-info h4{font-size:.82rem;font-weight:700;color:#1a1a1a;margin-bottom:3px}
+.t7-event-info span{font-size:.68rem;color:#aaa}
+.t7-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:20px 24px}
+.t7-card{background:#fff;border:1px solid #e8dcc8;border-radius:8px;overflow:hidden}
+.t7-card-head{background:#2d6a4f;padding:10px 14px;display:flex;justify-content:space-between;align-items:center}
+.t7-card-head span{color:#fff;font-weight:700;font-size:.82rem}
+.t7-card-head small{color:rgba(255,255,255,.6);font-size:.65rem}
+.t7-card-body{padding:12px 14px}
+.t7-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #f5f0e8;font-size:.78rem}
+.t7-row:last-child{border:none}
+.t7-row .name{font-weight:600;color:#333}
+.t7-row .val{font-weight:800;color:#ff8c00}
+.t7-main-btn{background:#ff8c00;color:#fff}
+
+/* ══════════════════════════════════════════
+   THEME 8 — GOLD CHAMPIONSHIP
+══════════════════════════════════════════ */
+.t8{background:#070707;overflow:hidden;border:1px solid #2a2210}
+.t8-nav{background:#070707;border-bottom:1px solid rgba(212,175,55,.15);padding:0 28px;height:54px;display:flex;justify-content:space-between;align-items:center}
+.t8-logo{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:900;letter-spacing:.08em}
+.t8-logo em{color:#d4af37;font-style:normal}
+.t8-nav-links{display:flex;gap:28px}
+.t8-nav-links a{color:rgba(255,255,255,.3);text-decoration:none;font-size:.68rem;letter-spacing:.15em;text-transform:uppercase}
+.t8-hero{position:relative;overflow:hidden;padding:56px 32px 44px;text-align:center;background:radial-gradient(ellipse at 50% 80%,rgba(212,175,55,.1),transparent 60%)}
+.t8-hero::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 80px,rgba(212,175,55,.02) 80px,rgba(212,175,55,.02) 82px)}
+.t8-crown{font-size:2.5rem;margin-bottom:8px;line-height:1}
+.t8-hero h1{font-family:'Playfair Display',serif;font-size:4rem;font-weight:900;line-height:.9;position:relative;z-index:1}
+.t8-hero h1 .gold{background:linear-gradient(135deg,#d4af37,#f7e7ce,#d4af37);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.t8-hero h1 .white{color:#fff}
+.t8-divider{display:flex;align-items:center;gap:12px;margin:16px auto;max-width:320px}
+.t8-divider-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(212,175,55,.4))}
+.t8-divider-line.r{background:linear-gradient(90deg,rgba(212,175,55,.4),transparent)}
+.t8-divider-icon{color:#d4af37;font-size:.8rem}
+.t8-hero p{color:rgba(255,255,255,.3);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase}
+.t8-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(212,175,55,.1);margin-top:1px}
+.t8-card{background:#070707;padding:22px 20px;text-align:center}
+.t8-card-rank{width:28px;height:28px;border-radius:50%;border:1px solid rgba(212,175,55,.4);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:.8rem;color:#d4af37;margin:0 auto 10px}
+.t8-card h3{font-family:'Playfair Display',serif;font-size:1rem;color:#fff;margin-bottom:6px}
+.t8-card-stat{font-family:'Anton',sans-serif;font-size:2.4rem;background:linear-gradient(135deg,#d4af37,#f7e7ce);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1}
+.t8-card-label{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(212,175,55,.4);margin-top:4px}
+.t8-btn{background:linear-gradient(135deg,#d4af37,#b8941e);color:#070707}
+
+/* ══════════════════════════════════════════
+   THEME 9 — HALFTIME NEON DARK (Arena Vibes)
+══════════════════════════════════════════ */
+.t9{background:#050505;overflow:hidden;border:1px solid #1a0a0a}
+.t9-nav{background:rgba(5,5,5,.9);padding:0 24px;height:52px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,69,69,.15)}
+.t9-logo{font-family:'Anton',sans-serif;font-size:1.3rem;letter-spacing:.1em}
+.t9-logo em{color:#ff4545;font-style:normal}
+.t9-nav-links{display:flex;gap:20px}
+.t9-nav-links a{color:rgba(255,255,255,.3);text-decoration:none;font-size:.68rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase}
+.t9-hero{position:relative;overflow:hidden;padding:48px 28px 40px}
+.t9-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(255,69,69,.12),transparent 60%),radial-gradient(ellipse at 80% 30%,rgba(0,168,255,.08),transparent 50%)}
+.t9-live-badge{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(255,69,69,.4);padding:4px 12px;border-radius:3px;margin-bottom:16px}
+.t9-live-dot{width:6px;height:6px;border-radius:50%;background:#ff4545;animation:pulse-red 1.2s ease-in-out infinite}
+@keyframes pulse-red{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.t9-live-text{font-size:.6rem;font-weight:700;letter-spacing:.3em;color:#ff4545;text-transform:uppercase}
+.t9-hero h1{font-family:'Anton',sans-serif;font-size:5.5rem;line-height:.82;position:relative;z-index:1}
+.t9-hero h1 .red{color:#ff4545;text-shadow:0 0 30px rgba(255,69,69,.4)}
+.t9-hero h1 .blue{color:#00a8ff;text-shadow:0 0 30px rgba(0,168,255,.4)}
+.t9-hero h1 .white{color:#fff}
+.t9-score-strip{display:flex;gap:1px;background:rgba(255,69,69,.1);border-top:1px solid rgba(255,69,69,.15);border-bottom:1px solid rgba(255,69,69,.15);margin-top:1px}
+.t9-sc{flex:1;background:#050505;padding:16px 18px;text-align:center}
+.t9-sc-label{font-size:.55rem;letter-spacing:.3em;text-transform:uppercase;color:#333;margin-bottom:8px}
+.t9-sc-num{font-family:'Anton',sans-serif;font-size:2.5rem;line-height:1}
+.t9-sc-num.red{color:#ff4545;text-shadow:0 0 20px rgba(255,69,69,.3)}
+.t9-sc-num.blue{color:#00a8ff;text-shadow:0 0 20px rgba(0,168,255,.3)}
+.t9-sc-sub{font-size:.62rem;color:#444;margin-top:4px;letter-spacing:.1em;text-transform:uppercase}
+.t9-sc-divider{display:flex;align-items:center;justify-content:center;background:#050505;padding:0 12px}
+.t9-sc-divider span{font-family:'Anton',sans-serif;font-size:1rem;color:#333;letter-spacing:.1em}
+.t9-btn{background:linear-gradient(90deg,#ff4545,#ff0000);color:#fff}
+
+/* ══════════════════════════════════════════
+   THEME 10 — ASIAN STREET / HK PRIDE
+══════════════════════════════════════════ */
+.t10{background:#0a0000;overflow:hidden;border:2px solid #d62828}
+.t10-topbar{background:#d62828;padding:6px 20px;display:flex;justify-content:space-between;align-items:center}
+.t10-topbar span{font-family:'Noto Sans HK',sans-serif;font-size:.62rem;font-weight:700;letter-spacing:.1em;color:#fff}
+.t10-topbar .en{font-family:'Inter',sans-serif;font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.6)}
+.t10-nav{background:#0a0000;padding:0 24px;height:56px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(214,40,40,.25)}
+.t10-logo{display:flex;align-items:center;gap:12px}
+.t10-logo-icon{width:36px;height:36px;background:#d62828;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Anton',sans-serif;font-size:.85rem;color:#fff;letter-spacing:.05em}
+.t10-logo-text{display:flex;flex-direction:column;line-height:1.2}
+.t10-logo-cn{font-family:'Noto Sans HK',sans-serif;font-size:.85rem;font-weight:900;color:#fff}
+.t10-logo-en{font-size:.55rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.4)}
+.t10-nav-links{display:flex;gap:0}
+.t10-nav-links a{color:rgba(255,255,255,.35);text-decoration:none;font-size:.68rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:0 12px;line-height:56px}
+.t10-nav-links a span{font-family:'Noto Sans HK',sans-serif;font-size:.72rem}
+.t10-hero{position:relative;overflow:hidden;padding:44px 28px;display:grid;grid-template-columns:5fr 4fr;gap:24px;align-items:center}
+.t10-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(214,40,40,.15),transparent 50%)}
+.t10-hero-text h1{font-size:4rem;line-height:.85;position:relative;z-index:1}
+.t10-hero-text h1 .cn{font-family:'Noto Sans HK',sans-serif;font-weight:900;color:#d62828;display:block;font-size:3.5rem}
+.t10-hero-text h1 .en{font-family:'Anton',sans-serif;color:#fff;letter-spacing:-.01em;font-size:3rem}
+.t10-hero-text .rule{width:48px;height:3px;background:#fcbf49;margin:14px 0}
+.t10-hero-text p{font-size:.78rem;color:#555;line-height:1.7;max-width:340px}
+.t10-hero-text p .cn-p{font-family:'Noto Sans HK',sans-serif;color:#888;font-size:.75rem;display:block;margin-bottom:4px}
+.t10-aside{display:flex;flex-direction:column;gap:10px;position:relative;z-index:1}
+.t10-info-card{background:rgba(214,40,40,.08);border:1px solid rgba(214,40,40,.2);padding:14px 16px}
+.t10-info-card-label{display:flex;justify-content:space-between;margin-bottom:6px}
+.t10-info-card-label .cn-l{font-family:'Noto Sans HK',sans-serif;font-size:.7rem;color:#d62828;font-weight:700}
+.t10-info-card-label .en-l{font-size:.58rem;letter-spacing:.15em;text-transform:uppercase;color:#444}
+.t10-info-card-val{font-family:'Anton',sans-serif;font-size:1.8rem;color:#fff;line-height:1}
+.t10-info-card-sub{font-size:.65rem;color:#555;margin-top:3px}
+.t10-bottom{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(214,40,40,.15);margin-top:1px;border-top:1px solid rgba(214,40,40,.2)}
+.t10-cell{background:#0a0000;padding:16px 18px}
+.t10-cell-num{font-family:'Anton',sans-serif;font-size:2.2rem;color:#d62828;line-height:1}
+.t10-cell-cn{font-family:'Noto Sans HK',sans-serif;font-size:.72rem;font-weight:700;color:#888;margin-top:2px}
+.t10-cell-en{font-size:.58rem;letter-spacing:.15em;text-transform:uppercase;color:#333}
+.t10-btn{background:#d62828;color:#fff}
+
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="kicker">ALL-IN Basketball League</div>
+  <h1>10 Design <span>Theme</span> Previews</h1>
+  <p>Click a theme to explore — scroll down to compare all 10</p>
+</div>
+
+<div class="stack">
+
+  <!-- ══ THEME 1 ══ -->
+  <div>
+    <div class="theme-label"><span class="theme-num">01</span> NBA Dark Prestige — Official League Feel</div>
+    <div class="t1">
+      <nav class="t1-nav">
+        <div class="t1-logo">ALL<em>IN</em></div>
+        <div class="t1-nav-links">
+          <a href="#">賽程</a><a href="#">積分榜</a><a href="#">球員</a><a href="#">球隊</a><a href="#">新聞</a>
+        </div>
+      </nav>
+      <div class="t1-ticker">
+        <span><em>煤氣鬼 95</em> <strong>火球 112</strong> · 終場</span>
+        <span><em>龍城 88</em> <strong>海嘯 91</strong> · 終場</span>
+        <span><strong>今晚 8:00</strong> 龍城 vs 火球 · 銅鑼灣</span>
+        <span><em>龍城 95</em> <strong>火球 112</strong> · 終場</span>
+      </div>
+      <div class="t1-hero">
+        <div class="t1-hero-tag">2025–26 賽季</div>
+        <h1 style="font-family:'Anton',sans-serif">ALL<span>IN</span><br>BASKETBALL</h1>
+        <div class="t1-hero-sub">Hong Kong's Premier League · Season 1</div>
+      </div>
+      <div class="t1-scores">
+        <div class="t1-sc">
+          <div class="t1-sc-label">最新比賽</div>
+          <div class="t1-sc-match"><span class="t1-sc-team">火球</span><span class="t1-sc-score winner">112</span></div>
+          <div class="t1-sc-match"><span class="t1-sc-team">煤氣鬼</span><span class="t1-sc-score">95</span></div>
+          <div class="t1-sc-status">終場 · 05/07</div>
+        </div>
+        <div class="t1-sc">
+          <div class="t1-sc-label">最新比賽</div>
+          <div class="t1-sc-match"><span class="t1-sc-team">海嘯</span><span class="t1-sc-score winner">91</span></div>
+          <div class="t1-sc-match"><span class="t1-sc-team">龍城</span><span class="t1-sc-score">88</span></div>
+          <div class="t1-sc-status">終場 · 05/06</div>
+        </div>
+        <div class="t1-sc">
+          <div class="t1-sc-label">下場比賽</div>
+          <div class="t1-sc-match"><span class="t1-sc-team">龍城</span><span class="t1-sc-score" style="color:#555">—</span></div>
+          <div class="t1-sc-match"><span class="t1-sc-team">火球</span><span class="t1-sc-score" style="color:#555">—</span></div>
+          <div class="t1-sc-status">05/10 · 8:00PM</div>
+        </div>
+      </div>
+    </div>
+    <div class="pick-bar"><button class="t1-btn" style="color:#fff;background:#c8102e">選擇此主題 · Select This Theme →</button></div>
+  </div>
+
+  <!-- ══ THEME 2 ══ -->
+  <div>
+    <div class="theme-label"><span class="theme-num">02</span> Neon Street Court — Urban / Streetball Energy</div>
+    <div class="t2">
+      <nav class="t2-nav">
+        <div class="t2-logo"><em>ALL</em>IN</div>
+        <div class="t2-nav-links">
+          <a href="#">GAMES</a><a href="#">STANDINGS</a><a href="#">PLAYERS</a><a href="#">TEAMS</a>
+        </div>
+      </nav>
+      <div class="t2-hero">
+        <div class="t2-tag"><span class="t2-tag-dot"></span><span class="t2-tag-text">Season 1 · Now Live</span></div>
+        <h1>ALL<br><em>IN</em><br><span class="orange">BBALL</span></h1>
+        <div class="t2-hero-desc">Hong Kong's underground basketball league. Real courts. Real players. No filter.</div>
+      </div>
+      <div class="t2-grid">
+        <div class="t2-cell"><div class="t2-cell-num"><em>8</em></div><div class="t2-cell-label">Teams</div></div>
+        <div class="t2-cell"><div class="t2-cell-num"><em>42</em></div><div class="t2-cell-label">Games Played</div></div>
+        <div class="t2-cell"><div class="t2-cell-num"><em>128</em></div><div class="t2-cell-label">Players</div></div>
+        <div class="t2-cell"><div class="t2-cell-num"><em>6</em></div><div class="t2-cell-label">Weeks Left</div></div>
+      </div>
+    </div>
+    <div class="pick-bar"><button class="t2-btn" style="background:#00ff87;color:#0a0a12">選擇此主題 · Select This Theme →</button></div>
+  </div>
+
+  <!-- ══ THEME 3 ══ -->
+  <div>
+    <div class="theme-label"><span class="theme-num">03</span> Boston Hurricanes Prestige — Championship Red & Gold</div>
+    <div class="t3">
+      <nav class="t3-nav">
+        <div class="t3-logo">ALL<em>IN</em> <span class="gold">·</span></div>
+        <div class="t3-nav-links">
+          <a href="#">賽程</a><a href="#">積分榜</a><a href="#">球員</a><a href="#">球隊</a>
+        </div>
+      </nav>
+      <div class="t3-hero">
+        <div class="t3-hero-content">
+          <div class="t3-eyebrow">2025–26 Hong Kong Basketball League</div>
+          <h1>ALL<span>IN</span><br>LEAGUE</h1>
+          <div class="t3-hero-rule"></div>
+          <div class="t3-hero-desc">香港頂尖籃球聯賽，第一屆賽季。每場比賽，燃燒鬥志。</div>
+          <div class="t3-badges">
+            <div class="t3-badge">Season 1</div>
+            <div class="t3-badge">8 Teams</div>
+            <div class="t3-badge">Championship</div>
+          </div>
+        </div>
+      </div>
+      <div class="t3-bottom">
+        <div class="t3-panel">
+          <div class="t3-panel-title">積分榜 Standings</div>
+          <div class="t3-player-row"><span class="t3-player-name">🥇 火球</span><div><div class="t3-player-stat">12-2</div><div class="t3-player-label">W-L</div></div></div>
+          <div class="t3-player-row"><span class="t3-player-name">🥈 海嘯</span><div><div class="t3-player-stat">11-3</div><div class="t3-player-label">W-L</div></div></div>
+          <div class="t3-player-row"><span class="t3-player-name">🥉 龍城</span><div><div class="t3-player-stat">10-4</div><div class="t3-player-label">W-L</div></div></div>
+        </div>
+        <div class="t3-panel">
+          <div class="t3-panel-title">得分王 Top Scorers</div>
+          <div class="t3-player-row"><span class="t3-player-name">King James</span><div><div class="t3-player-stat">28.4</div><div class="t3-player-label">PPG</div></div></div>
+          <div class="t3-player-row"><span class="t3-player-name">Dragon Lee</span><div><div class="t3-player-stat">25.1</div><div class="t3-player-label">PPG</div></div></div>
+          <div class="t3-player-row"><span class="t3-player-name">Tsunami Ho</span><div><div class="t3-player-stat">23.7</div><div class="t3-player-label">PPG</div></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="pick-bar"><button style="background:linear-gradient(135deg,#c8102e,#8b0000);color:#fff">選擇此主題 · Select This Theme →</button></div>
+  </div>
+
+  <!-- ══ THEME 4 ══ -->
+  <div>
+    <div class="theme-label"><span class="theme-num">04</span> Glassmorphism — Futuristic Tech Feel</div>
+    <div class="t4">
+      <nav class="t4-nav">
+        <div class="t4-logo">ALL<em>IN</em></div>
+        <div class="t4-nav-links">
+          <a href="#">Games</a><a href="#">Standings</a><a href="#">Players</a><a href="#">Schedule</a>
+        </div>
+      </nav>
+      <div class="t4-hero">
+        <h1>ALL<em>IN</em><br>BASKETBALL</h1>
+        <p>香港籃球聯賽 · Season 1 · The glass is always full for those who play with heart.</p>
+      </div>
+      <div class="t4-cards">
+        <div class="t4-card">
+          <div class="t4-card-label">Teams</div>
+          <div class="t4-card-num">8</div>
+          <div class="t4-card-sub">Active this season</div>
+          <div class="t4-card-bar"><div class="t4-card-bar-fill" style="width:100%"></div></div>
+        </div>
+        <div class="t4-card">
+          <div class="t4-card-label">Games Played</div>
+          <div class="t4-card-num">42</div>
+          <div class="t4-card-sub">of 56 total</div>
+          <div class="t4-card-bar"><div class="t4-card-bar-fill" style="width:75%"></div></div>
+        </div>
+        <div class="t4-card">
+          <div class="t4-card-label">Top Scorer</div>
+          <div class="t4-card-num" style="font-size:1.8rem;line-height:1.2">King<br>James</div>
+          <div class="t4-card-sub">28.4 PPG · 火球</div>
+          <div class="t4-card-bar"><div class="t4-card-bar-fill" style="width:88%"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="pick-bar"><button style="background:linear-gradient(135deg,rgba(0,200,255,.3),rgba(100,0,255,.3));color:#00c8ff;border-top:1px solid rgba(0,200,255,.2)">選擇此主題 · Select This Theme →</button></div>
+  </div>
+
+  <!-- ══ THEME 5 ══ -->
+  <div>
+    <div class="theme-label"><span class="theme-num">05</span> Neon Hype / NFT Style — Gen Z & Gaming Crossover</div>
+    <div class="t5">
+      <nav class="t5-nav">
+        <div class="t5-logo"><em>ALL·IN</em></div>
+        <div class="t5-nav-links">
+          <a href="#">LEAGUE</a><a href="#">TEAMS</a><a href="#">PLAYERS</a><a href="#">LIVE</a>
+        </div>
+      </nav>
+      <div class="t5-hero">
+        <div class="t5-hero-tag">Season 1 · Now Live</div>
+        <h1><span class="grad">ALL</span><br><span class="purple">IN BBALL</span></h1>
+        <div class="t5-hero-sub">Hong Kong · 8 Teams · 1 Champion</div>
+      </div>
+      <div class="t5-grid">
+        <div class="t5-card">
+          <div class="t5-card-rank">#1 Scorer</div>
+          <h3>King James</h3>
+          <div class="t5-card-stat">28.4</div>
+          <div class="t5-card-sub">Points Per Game · 火球</div>
+        </div>
+        <div class="t5-card">
+          <div class="t5-card-rank">#1 Team</div>
+          <h3>火球 Fireballs</h3>
+          <div class="t5-card-stat">12W</div>
+          <div class="t5-card-sub">2 losses · Top of table</div>
+        </div>
+        <div class="t5-card">
+          <div class="t5-card-rank">Next Game</div>
+          <h3>龍城 vs 火球</h3>
+          <div class="t5-card-stat">SAT</div>
+          <div class="t5-card-sub">May 10 · 8:00PM</div>
+        </div>
+      </div>
+    </div>
+    <div class="pick-bar"><button style="background:linear-gradient(90deg,#7b2fff,#ff2d78);color:#fff">選擇此主題 · Select This Theme →</button></div>
+  </div>
+
+  <!-- ══ THEME 6 ══ -->
+  <div>
+    <div class="theme-label"><span class="theme-num">06</span> Brutalist Retro — Anti-Design, Underground League</div>
+    <div class="t6">
+      <div class="t6-topbar">
+        <span>All-In Basketball League · Season 1 · Hong Kong</span>
+        <span>賽季第一屆 · 香港籃球</span>
+      </div>
+      <nav class="t6-nav">
+        <div class="t6-logo">ALL<em>IN</em></div>
+        <div class="t6-nav-links">
+          <a href="#">賽程</a><a href="#">積分榜</a><a href="#">球員</a><a href="#">球隊</a><a href="#">新聞</a>
+        </div>
+      </nav>
+      <div class="t6-hero">
+        <div class="t6-hero-main">
+          <div class="t6-hero-label">今日頭條 · Top Story</div>
+          <h1>火球連勝<br>稱霸聯賽<br>榜首</h1>
+          <p>Fireballs extend winning streak to 8 games, cementing their position at the top of the All-In Basketball League standings heading into the final stretch of the season.</p>
+        </div>
+        <div class="t6-hero-side">
+          <div class="t6-score-box">
+            <div class="t6-score-box-label">昨晚結果</div>
+            <div class="t6-score-box-match"><span class="t6-score-box-teams">火球 vs 煤氣鬼</span><span class="t6-score-box-num">112–95</span></div>
+          </div>
+          <div class="t6-score-box">
+            <div class="t6-score-box-label">昨晚結果</div>
+            <div class="t6-score-box-match"><span class="t6-score-box-teams">海嘯 vs 龍城</span><span class="t6-score-box-num">91–88</span></div>
+          </div>
+          <div class="t6-score-box">
+            <div class="t6-score-box-label">下場比賽</div>
+            <div class="t6-score-box-match"><span class="t6-score-box-teams">龍城 vs 火球</span><span class="t6-score-box-num">05/10</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="t6-bottom">
+        <div class="t6-cell"><div class="t6-cell-num">8</div><div class="t6-cell-label">球隊 Teams</div></div>
+        <div class="t6-cell"><div class="t6-cell-num">42</div><div class="t6-cell-label">場次 Games</div></div>
+        <div class="t6-cell"><div class="t6-cell-num">128</div><div class="t6-cell-label">球員 Players</div></div>
+        <div class="t6-cell"><div class="t6-cell-num">S1</div><div class="t6-cell-label">賽季 Season</div></div>
+      </div>
+    </div>
+    <div class="pick-bar"><button style="background:#111;color:#f2ede3">選擇此主題 · Select This Theme →</button></div>
+  </div>
+
+  <!-- ══ THEME 7 ══ -->
+  <div>
+    <div class="theme-label"><span class="theme-num">07</span> Community Sports Warm — Friendly, Inclusive, Local</div>
+    <div class="t7">
+      <nav class="t7-nav">
+        <div class="t7-logo">ALL<em>IN</em></div>
+        <div class="t7-nav-links">
+          <a href="#">賽程</a><a href="#">球隊</a><a href="#">球員</a><a href="#">報名</a>
+        </div>
+      </nav>
+      <div class="t7-hero">
+        <div class="t7-hero-text">
+          <div class="t7-hero-tag">2025–26 賽季</div>
+          <h1>香港籃球<br><em>All In</em><br>League</h1>
+          <p>歡迎所有熱愛籃球的朋友！不論水平，一起在球場上燃燒熱情。</p>
+          <div class="t7-cta">
+            <button class="t7-btn-primary">立即報名</button>
+            <button class="t7-btn-outline">查看賽程</button>
+          </div>
+        </div>
+        <div class="t7-aside">
+          <div class="t7-event-card">
+            <div class="t7-event-date"><div class="t7-event-date-day">10</div><div class="t7-event-date-mon">MAY</div></div>
+            <div class="t7-event-info"><h4>龍城 vs 火球</h4><span>銅鑼灣 · 晚上 8:00</span></div>
+          </div>
+          <div class="t7-event-card">
+            <div class="t7-event-date" style="background:#2d6a4f"><div class="t7-event-date-day">12</div><div class="t7-event-date-mon">MAY</div></div>
+            <div class="t7-event-info"><h4>海嘯 vs 煤氣鬼</h4><span>旺角 · 晚上 7:30</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="t7-cards">
+        <div class="t7-card">
+          <div class="t7-card-head"><span>積分榜</span><small>Standings</small></div>
+          <div class="t7-card-body">
+            <div class="t7-row"><span class="name">🥇 火球</span><span class="val">12-2</span></div>
+            <div class="t7-row"><span class="name">🥈 海嘯</span><span class="val">11-3</span></div>
+            <div class="t7-row"><span class="name">🥉 龍城</span><span class="val">10-4</span></div>
+          </div>
+        </div>
+        <div class="t7-card">
+          <div class="t7-card-head"><span>得分王</span><small>Top Scorers</small></div>
+          <div class="t7-card-body">
+            <div class="t7-row"><span class="name">King James</span><span class="val">28.4</span></div>
+            <div class="t7-row"><span class="name">Dragon Lee</span><span class="val">25.1</span></div>
+            <div class="t7-row"><span class="name">Tsunami Ho</span><span class="val">23.7</span></div>
+          </div>
+        </div>
+        <div class="t7-card">
+          <div class="t7-card-head" style="background:#ff8c00"><span>最新消息</span><small>News</small></div>
+          <div class="t7-card-body">
+            <div class="t7-row"><span class="name">火球連勝8場</span><span class="val">🔥</span></div>
+            <div class="t7-row"><span class="name">新球員加盟</span><span class="val">👏</span></div>
+            <div class="t7-row"><span class="name">季後賽名單</span><span class="val">📋</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pick-bar"><button style="background:#ff8c00;color:#fff">選擇此主題 · Select This Theme →</button></div>
+  </div>
+
+  <!-- ══ THEME 8 ══ -->
+  <div>
+    <div class="theme-label"><span class="theme-num">08</span> Gold Championship — Luxury, Trophy, Prestige</div>
+    <div class="t8">
+      <nav class="t8-nav">
+        <div class="t8-logo">ALL<em>IN</em></div>
+        <div class="t8-nav-links">
+          <a href="#">Season</a><a href="#">Champions</a><a href="#">Players</a><a href="#">Awards</a>
+        </div>
+      </nav>
+      <div class="t8-hero">
+        <div class="t8-crown">🏆</div>
+        <h1><span class="gold">ALL IN</span><br><span class="white">BASKETBALL</span><br><span class="gold">LEAGUE</span></h1>
+        <div class="t8-divider">
+          <div class="t8-divider-line"></div>
+          <div class="t8-divider-icon">★</div>
+          <div class="t8-divider-line r"></div>
+        </div>
+        <p>Season Eight · Hong Kong's Premier Basketball Championship</p>
+      </div>
+      <div class="t8-cards">
+        <div class="t8-card">
+          <div class="t8-card-rank">1</div>
+          <h3>火球 Fireballs</h3>
+          <div class="t8-card-stat">12–2</div>
+          <div class="t8-card-label">Win · Loss Record</div>
+        </div>
+        <div class="t8-card">
+          <div class="t8-card-rank">★</div>
+          <h3>King James</h3>
+          <div class="t8-card-stat">28.4</div>
+          <div class="t8-card-label">Points Per Game</div>
+        </div>
+        <div class="t8-card">
+          <div class="t8-card-rank">S1</div>
+          <h3>Season Eight</h3>
+          <div class="t8-card-stat">42</div>
+          <div class="t8-card-label">Games Completed</div>
+        </div>
+      </div>
+    </div>
+    <div class="pick-bar"><button style="background:linear-gradient(135deg,#d4af37,#b8941e);color:#070707">選擇此主題 · Select This Theme →</button></div>
+  </div>
+
+  <!-- ══ THEME 9 ══ -->
+  <div>
+    <div class="theme-label"><span class="theme-num">09</span> Halftime Show / Arena Vibes — Playoff Intensity</div>
+    <div class="t9">
+      <nav class="t9-nav">
+        <div class="t9-logo">ALL<em>IN</em></div>
+        <div class="t9-nav-links">
+          <a href="#">LIVE</a><a href="#">GAMES</a><a href="#">STANDINGS</a><a href="#">PLAYERS</a>
+        </div>
+      </nav>
+      <div class="t9-hero">
+        <div class="t9-live-badge"><span class="t9-live-dot"></span><span class="t9-live-text">Live · Season 1</span></div>
+        <h1><span class="red">ALL</span><br><span class="blue">IN</span><br><span class="white">BBALL</span></h1>
+      </div>
+      <div class="t9-score-strip">
+        <div class="t9-sc">
+          <div class="t9-sc-label">火球</div>
+          <div class="t9-sc-num red">112</div>
+          <div class="t9-sc-sub">Winner</div>
+        </div>
+        <div class="t9-sc-divider"><span>VS</span></div>
+        <div class="t9-sc">
+          <div class="t9-sc-label">煤氣鬼</div>
+          <div class="t9-sc-num blue">95</div>
+          <div class="t9-sc-sub">Final</div>
+        </div>
+        <div class="t9-sc-divider"><span>·</span></div>
+        <div class="t9-sc">
+          <div class="t9-sc-label">海嘯</div>
+          <div class="t9-sc-num red">91</div>
+          <div class="t9-sc-sub">Winner</div>
+        </div>
+        <div class="t9-sc-divider"><span>VS</span></div>
+        <div class="t9-sc">
+          <div class="t9-sc-label">龍城</div>
+          <div class="t9-sc-num blue">88</div>
+          <div class="t9-sc-sub">Final</div>
+        </div>
+      </div>
+    </div>
+    <div class="pick-bar"><button style="background:linear-gradient(90deg,#ff4545,#ff0000);color:#fff">選擇此主題 · Select This Theme →</button></div>
+  </div>
+
+  <!-- ══ THEME 10 ══ -->
+  <div>
+    <div class="theme-label"><span class="theme-num">10</span> Asian Street / HK Pride — Local Identity, Bilingual</div>
+    <div class="t10">
+      <div class="t10-topbar">
+        <span>全押籃球聯賽 · 第一屆賽季</span>
+        <span class="en">All-In Basketball League · Season 1 · HK</span>
+      </div>
+      <nav class="t10-nav">
+        <div class="t10-logo">
+          <div class="t10-logo-icon">AI</div>
+          <div class="t10-logo-text">
+            <div class="t10-logo-cn">全押籃球</div>
+            <div class="t10-logo-en">All-In Basketball League</div>
+          </div>
+        </div>
+        <div class="t10-nav-links">
+          <a href="#"><span>賽程</span></a>
+          <a href="#"><span>積分榜</span></a>
+          <a href="#"><span>球員</span></a>
+          <a href="#"><span>球隊</span></a>
+        </div>
+      </nav>
+      <div class="t10-hero">
+        <div class="t10-hero-text">
+          <h1><span class="cn">全押出擊</span><span class="en">ALL IN</span></h1>
+          <div class="rule"></div>
+          <p>
+            <span class="cn-p">香港最頂尖的街頭籃球聯賽，第一屆賽季正式開始。</span>
+            Hong Kong's most competitive amateur basketball league. 8 teams. 1 champion. All heart.
+          </p>
+        </div>
+        <div class="t10-aside">
+          <div class="t10-info-card">
+            <div class="t10-info-card-label"><span class="cn-l">榜首</span><span class="en-l">Leader</span></div>
+            <div class="t10-info-card-val">火球</div>
+            <div class="t10-info-card-sub">12勝 2負 · Fireballs</div>
+          </div>
+          <div class="t10-info-card">
+            <div class="t10-info-card-label"><span class="cn-l">得分王</span><span class="en-l">Top Scorer</span></div>
+            <div class="t10-info-card-val">28.4</div>
+            <div class="t10-info-card-sub">King James · 火球</div>
+          </div>
+        </div>
+      </div>
+      <div class="t10-bottom">
+        <div class="t10-cell"><div class="t10-cell-num">8</div><div class="t10-cell-cn">球隊</div><div class="t10-cell-en">Teams</div></div>
+        <div class="t10-cell"><div class="t10-cell-num">42</div><div class="t10-cell-cn">場次</div><div class="t10-cell-en">Games</div></div>
+        <div class="t10-cell"><div class="t10-cell-num">128</div><div class="t10-cell-cn">球員</div><div class="t10-cell-en">Players</div></div>
+        <div class="t10-cell"><div class="t10-cell-num">S1</div><div class="t10-cell-cn">賽季</div><div class="t10-cell-en">Season</div></div>
+      </div>
+    </div>
+    <div class="pick-bar"><button style="background:#d62828;color:#fff">選擇此主題 · Select This Theme →</button></div>
+  </div>
+
+</div>
+
+<div style="text-align:center;margin:64px 0 24px;color:#333;font-size:.72rem;letter-spacing:.2em;text-transform:uppercase">
+  All-In Basketball League · Design Preview · 10 Themes
+</div>
+
+</body>
+</html>

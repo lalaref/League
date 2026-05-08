@@ -1,0 +1,819 @@
+﻿<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ALL-IN — Street Basketball Designs</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Permanent+Marker&family=Black+Han+Sans&family=Barlow+Condensed:ital,wght@0,700;0,800;0,900;1,700;1,900&family=Oswald:wght@700&family=Inter:wght@400;600;700;800;900&family=Russo+One&family=Righteous&family=Boogaloo&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#111;font-family:'Inter',sans-serif;color:#fff;padding:32px 16px}
+.pg{text-align:center;margin-bottom:40px}
+.pg h1{font-size:1.5rem;font-weight:800;margin-bottom:4px}
+.pg p{color:#555;font-size:.82rem}
+.stack{max-width:1000px;margin:0 auto;display:flex;flex-direction:column;gap:64px}
+.lbl{font-size:.65rem;letter-spacing:.3em;text-transform:uppercase;color:#444;margin-bottom:8px}
+.sel-btn{width:100%;padding:14px;font-size:.8rem;letter-spacing:.15em;text-transform:uppercase;font-weight:700;border:none;cursor:pointer;transition:opacity .15s}
+.sel-btn:hover{opacity:.85}
+.badge{display:none;text-align:center;padding:6px;font-size:.68rem;letter-spacing:.2em;color:#4ade80}
+
+/* ============================================
+   S1 — CONCRETE WALL
+   Raw concrete texture, spray-paint headers
+============================================ */
+.s1{overflow:hidden;border:3px solid #222;font-family:'Permanent Marker',cursive}
+.s1-bg{background:#2a2a28;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E")}
+.s1-nav{background:rgba(0,0,0,.7);backdrop-filter:blur(4px);padding:12px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #ff4400}
+.s1-logo{font-size:1.6rem;color:#ff4400;text-shadow:3px 3px 0 #000,-1px -1px 0 #ff8800;transform:rotate(-1deg);display:inline-block}
+.s1-nav-links{display:flex;gap:16px}
+.s1-nav-links a{color:#ccc;text-decoration:none;font-size:.85rem;transform:rotate(-1deg);display:inline-block}
+.s1-hero{padding:40px 28px;position:relative;overflow:hidden;min-height:240px;display:flex;align-items:flex-end;background:#252520}
+.s1-hero::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 58px,rgba(255,255,255,.015) 58px,rgba(255,255,255,.015) 60px),repeating-linear-gradient(90deg,transparent,transparent 58px,rgba(255,255,255,.015) 58px,rgba(255,255,255,.015) 60px)}
+.s1-tag{position:absolute;top:20px;right:28px;background:#ff4400;color:#000;font-size:.6rem;font-weight:900;font-family:'Anton';letter-spacing:.2em;padding:4px 12px;transform:rotate(2deg)}
+.s1-hero-text{position:relative;z-index:1}
+.s1-hero h1{font-size:5.5rem;line-height:.8;color:#fff;text-shadow:4px 4px 0 #ff4400, 8px 8px 0 rgba(0,0,0,.5);transform:rotate(-2deg);display:inline-block;letter-spacing:-.02em}
+.s1-hero h1 em{display:block;color:#ff4400;font-style:normal;-webkit-text-stroke:2px #ff8800}
+.s1-hero-sub{font-family:'Anton';font-size:.75rem;letter-spacing:.3em;color:rgba(255,255,255,.4);margin-top:14px;text-transform:uppercase}
+.s1-content{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-top:3px solid #ff4400}
+.s1-col{padding:20px 24px;border-right:2px solid #333;background:#1e1e1c}
+.s1-col:last-child{border-right:none}
+.s1-col-title{color:#ff4400;font-size:1rem;margin-bottom:10px;transform:rotate(-1deg);display:inline-block}
+.s1-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed #333;font-family:'Inter',sans-serif;font-size:.78rem}
+.s1-row:last-child{border:none}
+.s1-row .n{color:#bbb}
+.s1-row .v{color:#ff4400;font-weight:700}
+.s1-btn{background:#ff4400;color:#000;font-family:'Permanent Marker';font-size:.9rem}
+
+/* ============================================
+   S2 — SPRAY CAN DRIPS
+   Dripping paint letters, bold tag style
+============================================ */
+.s2{background:#0d0d0d;overflow:hidden;border:2px solid #1a1a1a;font-family:'Barlow Condensed',sans-serif}
+.s2-nav{padding:12px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1a1a1a}
+.s2-logo{font-family:'Russo One',sans-serif;font-size:1.3rem;letter-spacing:.05em;position:relative}
+.s2-logo::after{content:'ALL-IN';position:absolute;left:2px;top:2px;color:#00ff88;opacity:.4;font-size:inherit;font-family:inherit;letter-spacing:inherit}
+.s2-nav-links a{color:#444;text-decoration:none;font-size:.78rem;font-weight:700;margin-left:16px;letter-spacing:.1em;text-transform:uppercase}
+.s2-hero{position:relative;padding:32px 24px 0;overflow:hidden;background:linear-gradient(180deg,#0d0d0d 0%,#111 100%)}
+.s2-graffiti{font-family:'Permanent Marker',cursive;font-size:7rem;line-height:.85;color:transparent;-webkit-text-stroke:2px #00ff88;text-shadow:0 0 40px rgba(0,255,136,.3),4px 4px 0 rgba(0,255,136,.1);position:relative;z-index:1}
+.s2-graffiti em{display:block;font-style:normal;-webkit-text-stroke:2px #ff3300;color:transparent;text-shadow:0 0 40px rgba(255,51,0,.3)}
+.s2-drip{position:absolute;bottom:0;width:100%;height:40px;background:linear-gradient(to bottom,transparent,#0d0d0d)}
+.s2-hero-sub{font-family:'Inter',sans-serif;font-size:.7rem;letter-spacing:.3em;color:#333;text-transform:uppercase;margin:16px 0 32px;position:relative;z-index:1}
+.s2-content{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#1a1a1a}
+.s2-cell{background:#0d0d0d;padding:20px 24px}
+.s2-cell-title{font-family:'Russo One';font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;color:#00ff88;margin-bottom:10px;border-bottom:1px solid #00ff8833;padding-bottom:6px}
+.s2-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #111;font-family:'Inter',sans-serif;font-size:.78rem}
+.s2-row .n{color:#555}
+.s2-row .v{color:#00ff88;font-weight:700}
+.s2-table{display:grid;grid-template-columns:28px 1fr 36px 36px 36px;padding:8px 0;font-family:'Inter',sans-serif;font-size:.75rem;border-bottom:1px solid #111;align-items:center}
+.s2-table.hd{font-size:.58rem;letter-spacing:.15em;text-transform:uppercase;color:#333}
+.s2-table .rk{color:#00ff88;font-weight:800;font-family:'Russo One';font-size:.9rem}
+.s2-table .tn{font-weight:600;color:#ccc}
+.s2-table .nm{color:#333;text-align:center}
+.s2-btn{background:#00ff88;color:#000;font-family:'Russo One';letter-spacing:.1em}
+
+/* ============================================
+   S3 — BLACKTOP COURT LINES
+   Basketball court markings, orange on black
+============================================ */
+.s3{background:#111;overflow:hidden;border:3px solid #ff6b00;font-family:'Anton',sans-serif}
+.s3-nav{background:#000;padding:0 24px;height:50px;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #ff6b00}
+.s3-logo{font-size:1.4rem;letter-spacing:.1em;color:#ff6b00}
+.s3-nav-links a{color:#555;text-decoration:none;font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;margin-left:16px;font-family:'Barlow Condensed';font-weight:700}
+.s3-hero{position:relative;overflow:hidden;min-height:220px;background:#0a0a0a;display:flex;align-items:center;justify-content:center;text-align:center;border-bottom:2px solid #222}
+/* court arc */
+.s3-court-arc{position:absolute;bottom:-80px;left:50%;width:500px;height:500px;border-radius:50%;border:2px solid rgba(255,107,0,.15);transform:translateX(-50%)}
+.s3-court-arc2{position:absolute;bottom:-120px;left:50%;width:350px;height:350px;border-radius:50%;border:1px solid rgba(255,107,0,.08);transform:translateX(-50%)}
+.s3-three-line{position:absolute;bottom:0;left:0;right:0;height:2px;background:rgba(255,107,0,.1)}
+.s3-paint{position:absolute;bottom:0;left:50%;width:140px;height:120px;border:2px solid rgba(255,107,0,.12);transform:translateX(-50%)}
+.s3-hero-content{position:relative;z-index:1}
+.s3-hero h1{font-size:5rem;color:#fff;line-height:.85;text-transform:uppercase;letter-spacing:.02em}
+.s3-hero h1 em{color:#ff6b00;font-style:normal;display:block;-webkit-text-stroke:1px #ff9933}
+.s3-badge{display:inline-block;background:#ff6b00;color:#000;font-size:.6rem;letter-spacing:.3em;padding:4px 14px;margin-top:12px;transform:skewX(-6deg)}
+.s3-stats{display:flex;justify-content:center;gap:0;margin-top:0;border-top:2px solid #ff6b00}
+.s3-stat{flex:1;padding:16px;text-align:center;border-right:1px solid #1a1a1a;background:#0d0d0d}
+.s3-stat:last-child{border-right:none}
+.s3-stat-num{font-size:2.5rem;color:#ff6b00;line-height:1}
+.s3-stat-label{font-family:'Inter',sans-serif;font-size:.58rem;color:#444;letter-spacing:.2em;text-transform:uppercase;margin-top:2px}
+.s3-content{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-top:1px solid #222}
+.s3-col{padding:20px;border-right:1px solid #1a1a1a;background:#0a0a0a}
+.s3-col:last-child{border-right:none}
+.s3-col-title{font-size:1rem;color:#ff6b00;letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #ff6b0033}
+.s3-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #111;font-family:'Inter',sans-serif;font-size:.77rem}
+.s3-row .n{color:#777}
+.s3-row .v{color:#ff6b00;font-weight:700}
+.s3-btn{background:#ff6b00;color:#000;font-family:'Anton';letter-spacing:.15em}
+
+/* ============================================
+   S4 — WILDSTYLE TAGS
+   Multi-color wildstyle graffiti energy
+============================================ */
+.s4{background:#0e0e0e;overflow:hidden;border:2px solid #2a2a2a;font-family:'Righteous',cursive}
+.s4-nav{padding:12px 24px;display:flex;justify-content:space-between;align-items:center;background:#080808;border-bottom:2px solid #2a2a2a}
+.s4-logo{font-size:1.4rem;letter-spacing:.06em;background:linear-gradient(135deg,#ff0080,#ff8c00,#40e0d0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 8px rgba(255,140,0,.4))}
+.s4-nav-links a{color:#333;text-decoration:none;font-size:.72rem;font-weight:600;margin-left:16px;letter-spacing:.08em}
+.s4-hero{padding:36px 24px;position:relative;overflow:hidden;background:#0a0a0a;border-bottom:2px solid #1a1a1a}
+.s4-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(255,0,128,.06) 0%,transparent 60%),radial-gradient(ellipse at 70% 50%,rgba(64,224,208,.06) 0%,transparent 60%)}
+.s4-hero h1{font-size:4.5rem;line-height:.88;position:relative;z-index:1;letter-spacing:.02em}
+.s4-hero h1 .line1{background:linear-gradient(to right,#ff0080,#ff8c00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:block;filter:drop-shadow(2px 2px 0 rgba(255,0,128,.3))}
+.s4-hero h1 .line2{background:linear-gradient(to right,#ff8c00,#40e0d0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:block;filter:drop-shadow(2px 2px 0 rgba(64,224,208,.3))}
+.s4-hero-row{display:flex;align-items:flex-end;gap:28px}
+.s4-score-box{background:rgba(255,255,255,.03);border:1px solid rgba(255,140,0,.2);padding:14px 18px;position:relative;z-index:1}
+.s4-score-label{font-family:'Inter',sans-serif;font-size:.58rem;letter-spacing:.25em;color:#333;text-transform:uppercase;margin-bottom:4px}
+.s4-score-match{font-size:.95rem;color:#ccc;letter-spacing:.03em}
+.s4-score-num{font-family:'Bebas Neue';font-size:2.5rem;background:linear-gradient(to right,#ff8c00,#ff0080);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;margin-top:2px}
+.s4-content{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:#1a1a1a}
+.s4-cell{background:#0a0a0a;padding:18px 20px}
+.s4-cell-title{font-size:.82rem;letter-spacing:.05em;margin-bottom:10px;background:linear-gradient(to right,#ff0080,#ff8c00);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.s4-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #111;font-family:'Inter',sans-serif;font-size:.76rem}
+.s4-row .n{color:#444}
+.s4-row .v{font-weight:700;background:linear-gradient(to right,#ff8c00,#ff0080);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.s4-btn{background:linear-gradient(to right,#ff0080,#ff8c00);color:#000;font-family:'Righteous'}
+
+/* ============================================
+   S5 — HANDBALL COURT / BROOKLYN ASPHALT
+   Faded asphalt look, chalk markings
+============================================ */
+.s5{background:#1a1a17;overflow:hidden;border:2px solid #2d2d2a;font-family:'Barlow Condensed',sans-serif}
+.s5-nav{background:#141410;padding:13px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #2d2d2a}
+.s5-logo{font-size:1.3rem;font-weight:900;font-style:italic;color:#f5f0e0;letter-spacing:.04em}
+.s5-logo em{color:#f5c518;font-style:normal}
+.s5-nav-links a{color:#4a4a44;text-decoration:none;font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-left:16px}
+.s5-hero{background:#111110;padding:36px 28px;display:grid;grid-template-columns:1fr 1fr;gap:24px;border-bottom:2px solid #2d2d2a;position:relative;overflow:hidden}
+/* chalk circle */
+.s5-hero::before{content:'';position:absolute;right:-60px;top:-60px;width:280px;height:280px;border-radius:50%;border:2px dashed rgba(245,197,24,.08)}
+.s5-hero::after{content:'';position:absolute;right:20px;top:20px;width:140px;height:140px;border-radius:50%;border:1px dashed rgba(245,197,24,.05)}
+.s5-hero-left{display:flex;flex-direction:column;justify-content:flex-end}
+.s5-season-tag{display:inline-block;background:#f5c518;color:#000;font-size:.58rem;font-weight:900;letter-spacing:.25em;padding:3px 10px;margin-bottom:14px;transform:rotate(-1deg);width:fit-content}
+.s5-hero h1{font-size:4.2rem;font-weight:900;font-style:italic;line-height:.85;color:#f5f0e0;letter-spacing:-.01em}
+.s5-hero h1 em{color:#f5c518;font-style:normal;display:block;text-shadow:2px 2px 0 rgba(0,0,0,.5)}
+.s5-hero-p{font-family:'Inter',sans-serif;color:#3a3a34;font-size:.74rem;margin-top:10px;line-height:1.5}
+.s5-hero-right{display:flex;flex-direction:column;gap:10px;justify-content:center;position:relative;z-index:1}
+.s5-score-item{background:#1e1e1a;border:1px solid #2d2d2a;border-left:3px solid #f5c518;padding:12px 14px}
+.s5-si-label{font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;color:#3a3a34;margin-bottom:5px;font-family:'Inter',sans-serif}
+.s5-si-teams{font-size:.95rem;font-weight:700;font-style:italic;color:#f5f0e0;display:flex;justify-content:space-between}
+.s5-si-score{color:#f5c518;font-size:1.2rem;font-family:'Bebas Neue';letter-spacing:.05em}
+.s5-content{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border-top:1px solid #2d2d2a}
+.s5-col{padding:18px 22px;border-right:1px solid #2d2d2a;background:#141410}
+.s5-col:last-child{border-right:none}
+.s5-col-title{font-size:.88rem;font-weight:900;font-style:italic;color:#f5c518;letter-spacing:.05em;margin-bottom:10px;text-transform:uppercase}
+.s5-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #1e1e1a;font-family:'Inter',sans-serif;font-size:.76rem}
+.s5-row .n{color:#4a4a40}
+.s5-row .v{color:#f5f0e0;font-weight:600}
+.s5-btn{background:#f5c518;color:#000;font-family:'Barlow Condensed';font-weight:900;font-style:italic;font-size:.85rem;letter-spacing:.15em}
+
+/* ============================================
+   S6 — SUBWAY THROW-UP
+   Metro tile grid, old-school subway vibe
+============================================ */
+.s6{background:#1c1c1c;overflow:hidden;border:3px solid #000;font-family:'Boogaloo',cursive}
+.s6-nav{background:#111;padding:12px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #000}
+.s6-logo{font-size:1.6rem;color:#fff;text-shadow:2px 2px 0 #e63946,-2px -2px 0 #457b9d;letter-spacing:.04em}
+.s6-nav-links a{color:#888;text-decoration:none;font-size:.9rem;margin-left:16px}
+.s6-hero{background:#141414;border-bottom:3px solid #000;position:relative;overflow:hidden;padding:0}
+.s6-tiles{display:grid;grid-template-columns:repeat(6,1fr);height:12px}
+.s6-tile{height:12px}
+.s6-hero-main{padding:32px 24px;display:flex;gap:24px;align-items:flex-end}
+.s6-hero-text{flex:1}
+.s6-hero-text h1{font-size:5rem;line-height:.85;letter-spacing:.02em}
+.s6-hero-text h1 .w1{color:#e63946;-webkit-text-stroke:2px #000;display:block}
+.s6-hero-text h1 .w2{color:#457b9d;-webkit-text-stroke:2px #000;display:block}
+.s6-hero-text h1 .w3{color:#f1faee;-webkit-text-stroke:1px #000;display:block;font-size:2.5rem;letter-spacing:.1em}
+.s6-hero-scores{display:flex;flex-direction:column;gap:8px;min-width:180px}
+.s6-score-tile{background:#222;border:2px solid #333;padding:10px 14px;border-radius:2px}
+.s6-st-label{font-family:'Inter',sans-serif;font-size:.55rem;color:#666;letter-spacing:.2em;text-transform:uppercase;margin-bottom:4px}
+.s6-st-match{font-size:.95rem;display:flex;justify-content:space-between;align-items:center}
+.s6-st-score{font-family:'Bebas Neue';font-size:1.4rem;color:#e63946}
+.s6-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px;background:#000;border-top:3px solid #000}
+.s6-cell{background:#1c1c1c;padding:18px 20px}
+.s6-cell-title{font-size:1rem;margin-bottom:8px}
+.s6-cell-title.r{color:#e63946}
+.s6-cell-title.b{color:#457b9d}
+.s6-cell-title.w{color:#f1faee}
+.s6-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #222;font-family:'Inter',sans-serif;font-size:.75rem}
+.s6-row .n{color:#666}
+.s6-row .v{font-weight:700;color:#ccc}
+.s6-btn{background:#e63946;color:#fff;font-family:'Boogaloo';font-size:.95rem;letter-spacing:.1em}
+
+/* ============================================
+   S7 — HANDBALL COURT WIRE FENCE
+   Chain-link fence pattern, faded urban
+============================================ */
+.s7{background:#0f1208;overflow:hidden;border:2px solid #1e2410;font-family:'Oswald',sans-serif}
+.s7-nav{background:#080a04;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1e2410}
+.s7-logo{font-size:1.2rem;letter-spacing:.1em;color:#a8cc00}
+.s7-nav-links a{color:#2a3010;text-decoration:none;font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;margin-left:16px}
+.s7-hero{background:#0b0e06;padding:40px 28px;display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #1e2410;position:relative;overflow:hidden}
+/* fence pattern */
+.s7-hero::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,rgba(168,204,0,.03) 0,rgba(168,204,0,.03) 1px,transparent 0,transparent 50%),repeating-linear-gradient(-45deg,rgba(168,204,0,.03) 0,rgba(168,204,0,.03) 1px,transparent 0,transparent 50%);background-size:24px 24px}
+.s7-hero-text{position:relative;z-index:1}
+.s7-hero h1{font-size:4.5rem;font-weight:700;line-height:.85;text-transform:uppercase;letter-spacing:.04em}
+.s7-hero h1 em{color:#a8cc00;font-style:normal;display:block;text-shadow:0 0 20px rgba(168,204,0,.3)}
+.s7-hero-tag{display:inline-block;border:2px solid #a8cc00;color:#a8cc00;font-size:.58rem;letter-spacing:.3em;padding:3px 10px;margin-top:12px;text-transform:uppercase;font-family:'Inter',sans-serif}
+.s7-hero-side{position:relative;z-index:1;display:flex;flex-direction:column;gap:8px;min-width:200px}
+.s7-hs-row{background:#111408;border:1px solid #1e2410;padding:12px 14px;border-left:3px solid #a8cc00}
+.s7-hs-label{font-family:'Inter',sans-serif;font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;color:#2a3010;margin-bottom:4px}
+.s7-hs-teams{font-size:.95rem;color:#ccd9a8;display:flex;justify-content:space-between}
+.s7-hs-score{color:#a8cc00;font-family:'Bebas Neue';font-size:1.3rem}
+.s7-content{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:#1e2410}
+.s7-cell{background:#0b0e06;padding:18px 20px}
+.s7-cell-title{font-size:.82rem;letter-spacing:.1em;text-transform:uppercase;color:#a8cc00;margin-bottom:10px;border-bottom:1px solid #1e2410;padding-bottom:6px}
+.s7-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #0f1208;font-family:'Inter',sans-serif;font-size:.76rem}
+.s7-row .n{color:#2a3010}
+.s7-row .v{color:#a8cc00;font-weight:600}
+.s7-btn{background:#a8cc00;color:#000;font-family:'Oswald';letter-spacing:.15em}
+
+/* ============================================
+   S8 — THROWBACK STREETBALL POSTER
+   Bold halftone dots, retro street poster
+============================================ */
+.s8{background:#f7f0e0;color:#111;overflow:hidden;border:3px solid #111;font-family:'Anton',sans-serif}
+.s8-nav{background:#111;padding:0 24px;height:48px;display:flex;justify-content:space-between;align-items:center}
+.s8-logo{color:#f7f0e0;font-size:1.2rem;letter-spacing:.08em}
+.s8-logo em{color:#ff4422;font-style:normal}
+.s8-nav-links a{color:rgba(247,240,224,.4);text-decoration:none;font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;margin-left:14px;font-family:'Barlow Condensed';font-weight:700}
+.s8-hero{background:#111;padding:0;display:grid;grid-template-columns:3fr 2fr;border-bottom:3px solid #ff4422}
+.s8-hero-left{padding:32px 28px;position:relative;overflow:hidden}
+/* halftone */
+.s8-hero-left::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle,rgba(255,68,34,.06) 1px,transparent 1px);background-size:12px 12px}
+.s8-hero-left h1{font-size:4.5rem;line-height:.85;color:#f7f0e0;text-transform:uppercase;letter-spacing:.01em;position:relative;z-index:1}
+.s8-hero-left h1 em{color:#ff4422;font-style:normal;display:block;-webkit-text-stroke:1px #ff6644}
+.s8-hero-sub{font-family:'Barlow Condensed',sans-serif;font-size:.72rem;letter-spacing:.25em;text-transform:uppercase;color:rgba(247,240,224,.3);margin-top:10px;position:relative;z-index:1}
+.s8-hero-right{background:#ff4422;padding:24px;display:flex;flex-direction:column;gap:12px;justify-content:center}
+.s8-stat-item{background:rgba(0,0,0,.2);padding:12px 14px}
+.s8-stat-num{font-size:2.2rem;color:#f7f0e0;line-height:1}
+.s8-stat-label{font-family:'Barlow Condensed',sans-serif;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(247,240,224,.6);margin-top:2px}
+.s8-content{display:grid;grid-template-columns:1fr 1fr 1fr;border-top:none}
+.s8-col{padding:20px;border-right:2px solid #111;background:#f7f0e0}
+.s8-col:last-child{border-right:none}
+.s8-col-title{font-size:1rem;color:#ff4422;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #111}
+.s8-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #e0d8c8;font-family:'Barlow Condensed',sans-serif;font-size:.82rem;font-weight:700}
+.s8-row .n{color:#555}
+.s8-row .v{color:#ff4422}
+.s8-btn{background:#111;color:#ff4422;font-family:'Anton';letter-spacing:.15em}
+
+/* ============================================
+   S9 — HOOPS UNDERGROUND
+   Deep basement court feel, gritty & raw
+============================================ */
+.s9{background:#0c0c0c;overflow:hidden;border:2px solid #1a1a1a;font-family:'Bebas Neue',sans-serif}
+.s9-topstrip{height:6px;background:repeating-linear-gradient(90deg,#e63946 0,#e63946 40px,#ffd60a 40px,#ffd60a 80px,#2d6a4f 80px,#2d6a4f 120px,#023e8a 120px,#023e8a 160px)}
+.s9-nav{background:#080808;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1a1a1a}
+.s9-logo{font-size:1.4rem;letter-spacing:.12em;color:#fff;text-shadow:2px 0 #e63946}
+.s9-nav-links a{color:#333;text-decoration:none;font-size:.78rem;letter-spacing:.12em;margin-left:14px}
+.s9-hero{background:#0a0a0a;padding:0;display:grid;grid-template-columns:1fr 1fr;min-height:200px;border-bottom:3px solid #1a1a1a}
+.s9-hero-left{padding:32px 28px;background:linear-gradient(135deg,#0a0a0a,#111);border-right:1px solid #1a1a1a;display:flex;flex-direction:column;justify-content:flex-end;position:relative;overflow:hidden}
+.s9-hero-left::before{content:'3PT';position:absolute;right:-10px;bottom:-10px;font-size:8rem;color:rgba(255,255,255,.02);letter-spacing:-.05em;pointer-events:none}
+.s9-season{display:inline-block;border:1px solid #e63946;color:#e63946;font-family:'Inter',sans-serif;font-size:.55rem;letter-spacing:.3em;padding:3px 8px;margin-bottom:10px;text-transform:uppercase}
+.s9-hero-left h1{font-size:4.5rem;line-height:.85;color:#fff;text-transform:uppercase;letter-spacing:.03em}
+.s9-hero-left h1 em{color:#e63946;font-style:normal;display:block}
+.s9-hero-right{display:flex;flex-direction:column}
+.s9-score-hero{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:24px;background:#0d0d0d;position:relative}
+.s9-score-hero::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 28px,rgba(230,57,70,.04) 28px,rgba(230,57,70,.04) 30px)}
+.s9-live{background:#e63946;color:#fff;font-family:'Inter',sans-serif;font-size:.55rem;font-weight:700;letter-spacing:.2em;padding:2px 8px;margin-bottom:10px;display:inline-block;animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.4}}
+.s9-sh-match{font-size:1rem;color:rgba(255,255,255,.5);letter-spacing:.05em;margin-bottom:6px}
+.s9-sh-score{font-size:4.5rem;color:#fff;line-height:1;letter-spacing:.05em}
+.s9-sh-score em{color:#e63946;font-style:normal}
+.s9-sh-meta{font-family:'Inter',sans-serif;font-size:.62rem;color:#333;letter-spacing:.15em;text-transform:uppercase;margin-top:6px}
+.s9-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#1a1a1a;border-top:1px solid #1a1a1a}
+.s9-cell{background:#0c0c0c;padding:16px 20px}
+.s9-cell-title{font-size:.85rem;letter-spacing:.1em;color:#e63946;margin-bottom:8px;border-bottom:1px solid #1a1a1a;padding-bottom:5px}
+.s9-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #111;font-family:'Inter',sans-serif;font-size:.75rem}
+.s9-row .n{color:#333}
+.s9-row .v{color:#ccc;font-weight:600}
+.s9-btn{background:#e63946;color:#fff;font-family:'Bebas Neue';letter-spacing:.2em}
+
+/* ============================================
+   S10 — NEON SIGNS / NIGHT COURT
+   Downtown night court with glowing signs
+============================================ */
+.s10{background:#030308;overflow:hidden;border:2px solid #0a0a18;font-family:'Barlow Condensed',sans-serif}
+.s10-nav{background:#02020a;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #0a0a18}
+.s10-logo{font-size:1.3rem;font-weight:900;font-style:italic;letter-spacing:.06em;color:#ff3cac;text-shadow:0 0 10px rgba(255,60,172,.8),0 0 30px rgba(255,60,172,.4)}
+.s10-nav-links a{color:#1a1a2e;text-decoration:none;font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-left:16px}
+.s10-hero{background:#030308;padding:40px 28px;text-align:center;border-bottom:1px solid #0a0a18;position:relative;overflow:hidden}
+.s10-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(255,60,172,.08) 0%,transparent 60%)}
+.s10-hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(to right,transparent,rgba(255,60,172,.5),rgba(78,205,196,.5),transparent)}
+.s10-hero-neon{font-size:.65rem;font-family:'Inter',sans-serif;letter-spacing:.5em;text-transform:uppercase;color:#ff3cac;text-shadow:0 0 8px rgba(255,60,172,.8);margin-bottom:16px;opacity:.8}
+.s10-hero h1{font-size:5.5rem;font-weight:900;font-style:italic;line-height:.85;letter-spacing:-.01em;position:relative;z-index:1}
+.s10-hero h1 .g1{color:#ff3cac;text-shadow:0 0 20px rgba(255,60,172,.7),0 0 60px rgba(255,60,172,.3);display:block}
+.s10-hero h1 .g2{color:#4ecdc4;text-shadow:0 0 20px rgba(78,205,196,.7),0 0 60px rgba(78,205,196,.3);display:block}
+.s10-hero-rule{height:1px;background:linear-gradient(to right,transparent,rgba(255,60,172,.4),rgba(78,205,196,.4),transparent);margin:20px 0;position:relative;z-index:1}
+.s10-stats-row{display:flex;justify-content:center;gap:32px;position:relative;z-index:1}
+.s10-stat{text-align:center}
+.s10-stat-num{font-size:2.5rem;font-weight:800;font-style:italic;color:#ff3cac;text-shadow:0 0 15px rgba(255,60,172,.5);line-height:1}
+.s10-stat-label{font-family:'Inter',sans-serif;font-size:.55rem;color:#1a1a2e;letter-spacing:.25em;text-transform:uppercase;margin-top:4px}
+.s10-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:#0a0a18}
+.s10-cell{background:#030308;padding:18px 20px}
+.s10-cell-title{font-size:.82rem;font-weight:800;font-style:italic;letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px;color:#4ecdc4;text-shadow:0 0 8px rgba(78,205,196,.4)}
+.s10-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #07070f;font-family:'Inter',sans-serif;font-size:.76rem}
+.s10-row .n{color:#1a1a2e}
+.s10-row .v{color:#ff3cac;font-weight:600;text-shadow:0 0 6px rgba(255,60,172,.4)}
+.s10-score-row{padding:8px 0;border-bottom:1px solid #07070f;font-family:'Inter',sans-serif;font-size:.78rem;display:flex;justify-content:space-between;align-items:center}
+.s10-score-row .match{color:#2a2a3e}
+.s10-score-row .score{color:#4ecdc4;font-weight:700;font-size:.9rem;text-shadow:0 0 8px rgba(78,205,196,.4)}
+.s10-btn{background:transparent;color:#ff3cac;border:1px solid #ff3cac;font-family:'Barlow Condensed';font-weight:900;font-style:italic;text-shadow:0 0 8px rgba(255,60,172,.6);box-shadow:0 0 10px rgba(255,60,172,.1)}
+
+/* shared */
+#summary{display:none;position:fixed;bottom:20px;right:20px;background:#4ade80;color:#000;padding:12px 20px;font-family:'Inter';font-weight:700;font-size:.8rem;border-radius:6px;box-shadow:0 8px 32px rgba(0,0,0,.6);z-index:9999}
+#summary small{display:block;font-weight:400;font-size:.7rem;opacity:.6;margin-top:2px}
+</style>
+</head>
+<body>
+
+<div class="pg">
+  <h1>ALL-IN — Street Basketball & Graffiti</h1>
+  <p>10 urban street designs · Scroll to compare · Click to select</p>
+</div>
+
+<div class="stack">
+
+<!-- S1 CONCRETE WALL -->
+<div>
+<p class="lbl">S1 — Concrete Wall</p>
+<div class="s1 s1-bg">
+  <div class="s1-nav">
+    <div class="s1-logo">ALL-IN</div>
+    <div class="s1-nav-links">
+      <a href="#">首頁</a><a href="#">賽程</a><a href="#">球隊</a><a href="#">排行榜</a>
+    </div>
+  </div>
+  <div class="s1-hero">
+    <div class="s1-tag">2025–26 SEASON</div>
+    <div class="s1-hero-text">
+      <h1>全力<em>以赴</em></h1>
+      <div class="s1-hero-sub">ALL-IN Basketball League · Hong Kong</div>
+    </div>
+  </div>
+  <div class="s1-content">
+    <div class="s1-col">
+      <div class="s1-col-title">即將賽程</div>
+      <div class="s1-row"><span class="n">勇士 vs 龍隊</span><span class="v">05/12</span></div>
+      <div class="s1-row"><span class="n">鷹隊 vs 雷霆</span><span class="v">05/14</span></div>
+      <div class="s1-row"><span class="n">龍隊 vs 鯊魚</span><span class="v">05/17</span></div>
+    </div>
+    <div class="s1-col">
+      <div class="s1-col-title">最新結果</div>
+      <div class="s1-row"><span class="n">龍隊 vs 鷹隊</span><span class="v">88–72</span></div>
+      <div class="s1-row"><span class="n">勇士 vs 雷霆</span><span class="v">95–80</span></div>
+      <div class="s1-row"><span class="n">鯊魚 vs 火鳳</span><span class="v">67–71</span></div>
+    </div>
+    <div class="s1-col">
+      <div class="s1-col-title">積分榜</div>
+      <div class="s1-row"><span class="n">1. 龍隊</span><span class="v">24</span></div>
+      <div class="s1-row"><span class="n">2. 勇士</span><span class="v">21</span></div>
+      <div class="s1-row"><span class="n">3. 雷霆</span><span class="v">15</span></div>
+    </div>
+  </div>
+</div>
+<button class="sel-btn s1-btn" onclick="sel('S1','S1 — Concrete Wall')">選擇 S1</button>
+<p class="badge" id="b-S1">✓ Selected</p>
+</div>
+
+<!-- S2 SPRAY DRIPS -->
+<div>
+<p class="lbl">S2 — Spray Can Drips</p>
+<div class="s2">
+  <div class="s2-nav">
+    <div class="s2-logo">ALL-IN</div>
+    <div class="s2-nav-links">
+      <a href="#">首頁</a><a href="#">賽程</a><a href="#">球隊</a><a href="#">排行榜</a>
+    </div>
+  </div>
+  <div class="s2-hero">
+    <div class="s2-graffiti">全力<em>以赴</em></div>
+    <div class="s2-hero-sub">ALL-IN Basketball League · 2025–26</div>
+    <div class="s2-drip"></div>
+  </div>
+  <div class="s2-content">
+    <div class="s2-cell">
+      <div class="s2-cell-title">即將賽程</div>
+      <div class="s2-row"><span class="n">勇士 vs 龍隊</span><span class="v">05/12</span></div>
+      <div class="s2-row"><span class="n">鷹隊 vs 雷霆</span><span class="v">05/14</span></div>
+      <div class="s2-row"><span class="n">龍隊 vs 鯊魚</span><span class="v">05/17</span></div>
+    </div>
+    <div class="s2-cell">
+      <div class="s2-cell-title">積分榜</div>
+      <div class="s2-table hd"><span>#</span><span>球隊</span><span>勝</span><span>負</span><span>積</span></div>
+      <div class="s2-table"><span class="rk">1</span><span class="tn">龍隊</span><span class="nm">8</span><span class="nm">2</span><span class="nm" style="color:#00ff88;font-weight:800">24</span></div>
+      <div class="s2-table"><span class="rk">2</span><span class="tn">勇士</span><span class="nm">7</span><span class="nm">3</span><span class="nm" style="color:#00ff88;font-weight:800">21</span></div>
+      <div class="s2-table"><span class="rk">3</span><span class="tn">雷霆</span><span class="nm">5</span><span class="nm">5</span><span class="nm" style="color:#00ff88;font-weight:800">15</span></div>
+    </div>
+  </div>
+</div>
+<button class="sel-btn s2-btn" onclick="sel('S2','S2 — Spray Can Drips')">選擇 S2</button>
+<p class="badge" id="b-S2">✓ Selected</p>
+</div>
+
+<!-- S3 BLACKTOP COURT -->
+<div>
+<p class="lbl">S3 — Blacktop Court Lines</p>
+<div class="s3">
+  <div class="s3-nav">
+    <div class="s3-logo">ALL-IN</div>
+    <div class="s3-nav-links">
+      <a href="#">首頁</a><a href="#">賽程</a><a href="#">球隊</a><a href="#">排行榜</a>
+    </div>
+  </div>
+  <div class="s3-hero">
+    <div class="s3-court-arc"></div>
+    <div class="s3-court-arc2"></div>
+    <div class="s3-three-line"></div>
+    <div class="s3-paint"></div>
+    <div class="s3-hero-content">
+      <h1>全力<em>以赴</em></h1>
+      <div class="s3-badge">ALL-IN Basketball League · HK</div>
+    </div>
+  </div>
+  <div class="s3-stats">
+    <div class="s3-stat"><div class="s3-stat-num">8</div><div class="s3-stat-label">球隊</div></div>
+    <div class="s3-stat"><div class="s3-stat-num">42</div><div class="s3-stat-label">賽事</div></div>
+    <div class="s3-stat"><div class="s3-stat-num">96</div><div class="s3-stat-label">球員</div></div>
+    <div class="s3-stat"><div class="s3-stat-num">S6</div><div class="s3-stat-label">本季</div></div>
+  </div>
+  <div class="s3-content">
+    <div class="s3-col">
+      <div class="s3-col-title">即將賽程</div>
+      <div class="s3-row"><span class="n">勇士 vs 龍隊</span><span class="v">05/12</span></div>
+      <div class="s3-row"><span class="n">鷹隊 vs 雷霆</span><span class="v">05/14</span></div>
+    </div>
+    <div class="s3-col">
+      <div class="s3-col-title">最新結果</div>
+      <div class="s3-row"><span class="n">龍隊 vs 鷹隊</span><span class="v">88–72</span></div>
+      <div class="s3-row"><span class="n">勇士 vs 雷霆</span><span class="v">95–80</span></div>
+    </div>
+    <div class="s3-col">
+      <div class="s3-col-title">積分榜</div>
+      <div class="s3-row"><span class="n">1. 龍隊</span><span class="v">24</span></div>
+      <div class="s3-row"><span class="n">2. 勇士</span><span class="v">21</span></div>
+    </div>
+  </div>
+</div>
+<button class="sel-btn s3-btn" onclick="sel('S3','S3 — Blacktop Court Lines')">選擇 S3</button>
+<p class="badge" id="b-S3">✓ Selected</p>
+</div>
+
+<!-- S4 WILDSTYLE -->
+<div>
+<p class="lbl">S4 — Wildstyle Multi-Color Tags</p>
+<div class="s4">
+  <div class="s4-nav">
+    <div class="s4-logo">ALL-IN</div>
+    <div class="s4-nav-links">
+      <a href="#">首頁</a><a href="#">賽程</a><a href="#">球隊</a><a href="#">排行榜</a>
+    </div>
+  </div>
+  <div class="s4-hero">
+    <div class="s4-hero-row">
+      <h1><span class="line1">全力</span><span class="line2">以赴</span></h1>
+      <div style="flex:1;padding-left:24px;position:relative;z-index:1">
+        <div class="s4-score-box">
+          <div class="s4-score-label">最新賽果</div>
+          <div class="s4-score-match">龍隊 vs 鷹隊</div>
+          <div class="s4-score-num">88–72</div>
+        </div>
+      </div>
+      <div style="min-width:160px;position:relative;z-index:1">
+        <div class="s4-score-box">
+          <div class="s4-score-label">即將賽事</div>
+          <div class="s4-score-match">勇士 vs 龍隊</div>
+          <div class="s4-score-num" style="background:linear-gradient(to right,#ff8c00,#40e0d0);-webkit-background-clip:text;-webkit-text-fill-color:transparent">05/12</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="s4-content">
+    <div class="s4-cell">
+      <div class="s4-cell-title">即將賽程</div>
+      <div class="s4-row"><span class="n">勇士 vs 龍隊</span><span class="v">05/12</span></div>
+      <div class="s4-row"><span class="n">鷹隊 vs 雷霆</span><span class="v">05/14</span></div>
+      <div class="s4-row"><span class="n">龍隊 vs 鯊魚</span><span class="v">05/17</span></div>
+    </div>
+    <div class="s4-cell">
+      <div class="s4-cell-title">最新結果</div>
+      <div class="s4-row"><span class="n">龍隊 vs 鷹隊</span><span class="v">88–72</span></div>
+      <div class="s4-row"><span class="n">勇士 vs 雷霆</span><span class="v">95–80</span></div>
+      <div class="s4-row"><span class="n">鯊魚 vs 火鳳</span><span class="v">67–71</span></div>
+    </div>
+    <div class="s4-cell">
+      <div class="s4-cell-title">積分榜</div>
+      <div class="s4-row"><span class="n">1. 龍隊</span><span class="v">24</span></div>
+      <div class="s4-row"><span class="n">2. 勇士</span><span class="v">21</span></div>
+      <div class="s4-row"><span class="n">3. 雷霆</span><span class="v">15</span></div>
+    </div>
+  </div>
+</div>
+<button class="sel-btn s4-btn" onclick="sel('S4','S4 — Wildstyle Multi-Color Tags')">選擇 S4</button>
+<p class="badge" id="b-S4">✓ Selected</p>
+</div>
+
+<!-- S5 BROOKLYN ASPHALT -->
+<div>
+<p class="lbl">S5 — Brooklyn Asphalt / Chalk Court</p>
+<div class="s5">
+  <div class="s5-nav">
+    <div class="s5-logo">ALL-<em>IN</em></div>
+    <div class="s5-nav-links">
+      <a href="#">首頁</a><a href="#">賽程</a><a href="#">球隊</a><a href="#">排行榜</a>
+    </div>
+  </div>
+  <div class="s5-hero">
+    <div class="s5-hero-left">
+      <div class="s5-season-tag">2025–26 SEASON</div>
+      <h1>全力<em>以赴</em></h1>
+      <p class="s5-hero-p">ALL-IN Basketball League · Hong Kong · 全港業餘籃球聯賽</p>
+    </div>
+    <div class="s5-hero-right">
+      <div class="s5-score-item">
+        <div class="s5-si-label">最新賽果</div>
+        <div class="s5-si-teams"><span>龍隊 vs 鷹隊</span><span class="s5-si-score">88–72</span></div>
+      </div>
+      <div class="s5-score-item">
+        <div class="s5-si-label">即將賽事</div>
+        <div class="s5-si-teams"><span>勇士 vs 龍隊</span><span class="s5-si-score" style="color:#f5c518">05/12</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="s5-content">
+    <div class="s5-col">
+      <div class="s5-col-title">即將賽程</div>
+      <div class="s5-row"><span class="n">勇士 vs 龍隊</span><span class="v">05/12</span></div>
+      <div class="s5-row"><span class="n">鷹隊 vs 雷霆</span><span class="v">05/14</span></div>
+      <div class="s5-row"><span class="n">龍隊 vs 鯊魚</span><span class="v">05/17</span></div>
+    </div>
+    <div class="s5-col">
+      <div class="s5-col-title">最新結果</div>
+      <div class="s5-row"><span class="n">龍隊 vs 鷹隊</span><span class="v">88–72</span></div>
+      <div class="s5-row"><span class="n">勇士 vs 雷霆</span><span class="v">95–80</span></div>
+    </div>
+    <div class="s5-col">
+      <div class="s5-col-title">積分榜</div>
+      <div class="s5-row"><span class="n">1. 龍隊</span><span class="v">24</span></div>
+      <div class="s5-row"><span class="n">2. 勇士</span><span class="v">21</span></div>
+      <div class="s5-row"><span class="n">3. 雷霆</span><span class="v">15</span></div>
+    </div>
+  </div>
+</div>
+<button class="sel-btn s5-btn" onclick="sel('S5','S5 — Brooklyn Asphalt / Chalk Court')">選擇 S5</button>
+<p class="badge" id="b-S5">✓ Selected</p>
+</div>
+
+<!-- S6 SUBWAY THROW-UP -->
+<div>
+<p class="lbl">S6 — Subway Throw-Up</p>
+<div class="s6">
+  <div class="s6-nav">
+    <div class="s6-logo">ALL-IN</div>
+    <div class="s6-nav-links">
+      <a href="#">首頁</a><a href="#">賽程</a><a href="#">球隊</a><a href="#">排行榜</a>
+    </div>
+  </div>
+  <div class="s6-hero">
+    <!-- color tiles -->
+    <div class="s6-tiles">
+      <div class="s6-tile" style="background:#e63946"></div>
+      <div class="s6-tile" style="background:#457b9d"></div>
+      <div class="s6-tile" style="background:#f1faee"></div>
+      <div class="s6-tile" style="background:#e63946"></div>
+      <div class="s6-tile" style="background:#457b9d"></div>
+      <div class="s6-tile" style="background:#f1faee"></div>
+    </div>
+    <div class="s6-hero-main">
+      <div class="s6-hero-text">
+        <h1><span class="w1">全力</span><span class="w2">以赴</span><span class="w3">ALL-IN</span></h1>
+      </div>
+      <div class="s6-hero-scores">
+        <div class="s6-score-tile">
+          <div class="s6-st-label">最新賽果</div>
+          <div class="s6-st-match"><span>龍隊 vs 鷹隊</span><span class="s6-st-score">88–72</span></div>
+        </div>
+        <div class="s6-score-tile">
+          <div class="s6-st-label">即將賽事</div>
+          <div class="s6-st-match"><span>勇士 vs 龍隊</span><span class="s6-st-score" style="color:#457b9d">05/12</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="s6-grid">
+    <div class="s6-cell">
+      <div class="s6-cell-title r">即將賽程</div>
+      <div class="s6-row"><span class="n">勇士 vs 龍隊</span><span class="v">05/12</span></div>
+      <div class="s6-row"><span class="n">鷹隊 vs 雷霆</span><span class="v">05/14</span></div>
+    </div>
+    <div class="s6-cell">
+      <div class="s6-cell-title b">最新結果</div>
+      <div class="s6-row"><span class="n">龍隊 vs 鷹隊</span><span class="v">88–72</span></div>
+      <div class="s6-row"><span class="n">勇士 vs 雷霆</span><span class="v">95–80</span></div>
+    </div>
+    <div class="s6-cell">
+      <div class="s6-cell-title w">積分榜</div>
+      <div class="s6-row"><span class="n">1. 龍隊</span><span class="v">24</span></div>
+      <div class="s6-row"><span class="n">2. 勇士</span><span class="v">21</span></div>
+    </div>
+  </div>
+</div>
+<button class="sel-btn s6-btn" onclick="sel('S6','S6 — Subway Throw-Up')">選擇 S6</button>
+<p class="badge" id="b-S6">✓ Selected</p>
+</div>
+
+<!-- S7 WIRE FENCE -->
+<div>
+<p class="lbl">S7 — Wire Fence / Urban Court</p>
+<div class="s7">
+  <div class="s7-nav">
+    <div class="s7-logo">ALL-IN</div>
+    <div><a class="s7-nav-links" href="#">首頁</a><a class="s7-nav-links" href="#">賽程</a><a class="s7-nav-links" href="#">球隊</a><a class="s7-nav-links" href="#">排行榜</a></div>
+  </div>
+  <div class="s7-hero">
+    <div class="s7-hero-text">
+      <h1>全力<em>以赴</em></h1>
+      <div class="s7-hero-tag">ALL-IN Basketball League · HK</div>
+    </div>
+    <div class="s7-hero-side">
+      <div class="s7-hs-row">
+        <div class="s7-hs-label">最新賽果</div>
+        <div class="s7-hs-teams"><span>龍隊 vs 鷹隊</span><span class="s7-hs-score">88–72</span></div>
+      </div>
+      <div class="s7-hs-row">
+        <div class="s7-hs-label">即將賽事</div>
+        <div class="s7-hs-teams"><span>勇士 vs 龍隊</span><span class="s7-hs-score" style="color:#a8cc00;font-size:.95rem">05/12</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="s7-content">
+    <div class="s7-cell">
+      <div class="s7-cell-title">即將賽程</div>
+      <div class="s7-row"><span class="n">勇士 vs 龍隊</span><span class="v">05/12</span></div>
+      <div class="s7-row"><span class="n">鷹隊 vs 雷霆</span><span class="v">05/14</span></div>
+      <div class="s7-row"><span class="n">龍隊 vs 鯊魚</span><span class="v">05/17</span></div>
+    </div>
+    <div class="s7-cell">
+      <div class="s7-cell-title">最新結果</div>
+      <div class="s7-row"><span class="n">龍隊 vs 鷹隊</span><span class="v">88–72</span></div>
+      <div class="s7-row"><span class="n">勇士 vs 雷霆</span><span class="v">95–80</span></div>
+    </div>
+    <div class="s7-cell">
+      <div class="s7-cell-title">積分榜</div>
+      <div class="s7-row"><span class="n">1. 龍隊</span><span class="v">24</span></div>
+      <div class="s7-row"><span class="n">2. 勇士</span><span class="v">21</span></div>
+      <div class="s7-row"><span class="n">3. 雷霆</span><span class="v">15</span></div>
+    </div>
+  </div>
+</div>
+<button class="sel-btn s7-btn" onclick="sel('S7','S7 — Wire Fence / Urban Court')">選擇 S7</button>
+<p class="badge" id="b-S7">✓ Selected</p>
+</div>
+
+<!-- S8 THROWBACK POSTER -->
+<div>
+<p class="lbl">S8 — Throwback Streetball Poster</p>
+<div class="S1">
+  <div class="s8-nav">
+    <div class="s8-logo">ALL-<em>IN</em></div>
+    <div class="s8-nav-links">
+      <a href="#">首頁</a><a href="#">賽程</a><a href="#">球隊</a><a href="#">排行榜</a>
+    </div>
+  </div>
+  <div class="s8-hero">
+    <div class="s8-hero-left">
+      <h1>全力<em>以赴</em></h1>
+      <div class="s8-hero-sub">ALL-IN Basketball League · HK · 2025–26</div>
+    </div>
+    <div class="s8-hero-right">
+      <div class="s8-stat-item"><div class="s8-stat-num">8</div><div class="s8-stat-label">支球隊</div></div>
+      <div class="s8-stat-item"><div class="s8-stat-num">96</div><div class="s8-stat-label">名球員</div></div>
+      <div class="s8-stat-item"><div class="s8-stat-num">42</div><div class="s8-stat-label">場賽事</div></div>
+    </div>
+  </div>
+  <div class="s8-content">
+    <div class="s8-col">
+      <div class="s8-col-title">即將賽程</div>
+      <div class="s8-row"><span class="n">勇士 vs 龍隊</span><span class="v">05/12</span></div>
+      <div class="s8-row"><span class="n">鷹隊 vs 雷霆</span><span class="v">05/14</span></div>
+      <div class="s8-row"><span class="n">龍隊 vs 鯊魚</span><span class="v">05/17</span></div>
+    </div>
+    <div class="s8-col">
+      <div class="s8-col-title">最新結果</div>
+      <div class="s8-row"><span class="n">龍隊 vs 鷹隊</span><span class="v">88–72</span></div>
+      <div class="s8-row"><span class="n">勇士 vs 雷霆</span><span class="v">95–80</span></div>
+      <div class="s8-row"><span class="n">鯊魚 vs 火鳳</span><span class="v">67–71</span></div>
+    </div>
+    <div class="s8-col">
+      <div class="s8-col-title">積分榜</div>
+      <div class="s8-row"><span class="n">1. 龍隊</span><span class="v">24</span></div>
+      <div class="s8-row"><span class="n">2. 勇士</span><span class="v">21</span></div>
+      <div class="s8-row"><span class="n">3. 雷霆</span><span class="v">15</span></div>
+    </div>
+  </div>
+</div>
+<button class="sel-btn s8-btn" onclick="sel('S1','S8 — Throwback Streetball Poster')">選擇 S8</button>
+<p class="badge" id="b-S8">✓ Selected</p>
+</div>
+
+<!-- S9 HOOPS UNDERGROUND -->
+<div>
+<p class="lbl">S9 — Hoops Underground</p>
+<div class="s9">
+  <div class="s9-topstrip"></div>
+  <div class="s9-nav">
+    <div class="s9-logo">ALL-IN</div>
+    <div><a class="s9-nav-links" href="#">首頁</a><a class="s9-nav-links" href="#">賽程</a><a class="s9-nav-links" href="#">球隊</a><a class="s9-nav-links" href="#">排行榜</a></div>
+  </div>
+  <div class="s9-hero">
+    <div class="s9-hero-left">
+      <div class="s9-season">2025–26 SEASON</div>
+      <h1>全力<em>以赴</em></h1>
+    </div>
+    <div class="s9-hero-right">
+      <div class="s9-score-hero">
+        <span class="s9-live">● LIVE</span>
+        <div class="s9-sh-match">龍隊 vs 鷹隊</div>
+        <div class="s9-sh-score"><em>88</em>–72</div>
+        <div class="s9-sh-meta">Q4 · 沙田體育館</div>
+      </div>
+    </div>
+  </div>
+  <div class="s9-grid">
+    <div class="s9-cell">
+      <div class="s9-cell-title">即將賽程</div>
+      <div class="s9-row"><span class="n">勇士 vs 龍隊</span><span class="v">05/12</span></div>
+      <div class="s9-row"><span class="n">鷹隊 vs 雷霆</span><span class="v">05/14</span></div>
+      <div class="s9-row"><span class="n">龍隊 vs 鯊魚</span><span class="v">05/17</span></div>
+    </div>
+    <div class="s9-cell">
+      <div class="s9-cell-title">最新結果</div>
+      <div class="s9-row"><span class="n">龍隊 vs 鷹隊</span><span class="v">88–72</span></div>
+      <div class="s9-row"><span class="n">勇士 vs 雷霆</span><span class="v">95–80</span></div>
+    </div>
+    <div class="s9-cell">
+      <div class="s9-cell-title">積分榜</div>
+      <div class="s9-row"><span class="n">1. 龍隊</span><span class="v">24</span></div>
+      <div class="s9-row"><span class="n">2. 勇士</span><span class="v">21</span></div>
+      <div class="s9-row"><span class="n">3. 雷霆</span><span class="v">15</span></div>
+    </div>
+  </div>
+</div>
+<button class="sel-btn s9-btn" onclick="sel('S9','S9 — Hoops Underground')">選擇 S9</button>
+<p class="badge" id="b-S9">✓ Selected</p>
+</div>
+
+<!-- S10 NEON NIGHT COURT -->
+<div>
+<p class="lbl">S10 — Neon Night Court</p>
+<div class="s10">
+  <div class="s10-nav">
+    <div class="s10-logo">ALL-IN</div>
+    <div><a class="s10-nav-links" href="#">首頁</a><a class="s10-nav-links" href="#">賽程</a><a class="s10-nav-links" href="#">球隊</a><a class="s10-nav-links" href="#">排行榜</a></div>
+  </div>
+  <div class="s10-hero">
+    <div class="s10-hero-neon">★ All-In Basketball League ★</div>
+    <h1><span class="g1">全力</span><span class="g2">以赴</span></h1>
+    <div class="s10-hero-rule"></div>
+    <div class="s10-stats-row">
+      <div class="s10-stat"><div class="s10-stat-num">8</div><div class="s10-stat-label">球隊</div></div>
+      <div class="s10-stat"><div class="s10-stat-num">42</div><div class="s10-stat-label">賽事</div></div>
+      <div class="s10-stat"><div class="s10-stat-num">96</div><div class="s10-stat-label">球員</div></div>
+    </div>
+  </div>
+  <div class="s10-grid">
+    <div class="s10-cell">
+      <div class="s10-cell-title">即將賽程</div>
+      <div class="s10-row"><span class="n">勇士 vs 龍隊</span><span class="v">05/12</span></div>
+      <div class="s10-row"><span class="n">鷹隊 vs 雷霆</span><span class="v">05/14</span></div>
+      <div class="s10-row"><span class="n">龍隊 vs 鯊魚</span><span class="v">05/17</span></div>
+    </div>
+    <div class="s10-cell">
+      <div class="s10-cell-title">最新賽果</div>
+      <div class="s10-score-row"><span class="match">龍隊 vs 鷹隊</span><span class="score">88–72</span></div>
+      <div class="s10-score-row"><span class="match">勇士 vs 雷霆</span><span class="score">95–80</span></div>
+      <div class="s10-score-row"><span class="match">鯊魚 vs 火鳳</span><span class="score">67–71</span></div>
+    </div>
+    <div class="s10-cell">
+      <div class="s10-cell-title">積分榜</div>
+      <div class="s10-row"><span class="n">1. 龍隊</span><span class="v">24</span></div>
+      <div class="s10-row"><span class="n">2. 勇士</span><span class="v">21</span></div>
+      <div class="s10-row"><span class="n">3. 雷霆</span><span class="v">15</span></div>
+    </div>
+  </div>
+</div>
+<button class="sel-btn s10-btn" onclick="sel('S10','S10 — Neon Night Court')">選擇 S10</button>
+<p class="badge" id="b-S10">✓ Selected</p>
+</div>
+
+</div>
+
+<div id="summary">
+  已選擇：<strong id="sel-name"></strong>
+  <small>告知我們，立即套用此設計</small>
+</div>
+
+<script>
+function sel(id,name){
+  document.querySelectorAll('.badge').forEach(e=>e.style.display='none');
+  const b=document.getElementById('b-'+id);if(b)b.style.display='block';
+  document.getElementById('sel-name').textContent=name;
+  document.getElementById('summary').style.display='block';
+}
+</script>
+</body>
+</html>

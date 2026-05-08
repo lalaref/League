@@ -139,10 +139,207 @@
   // --- Team data cache for jersey colors on home page ---
   var _teamsMap = {};
 
+  /** Extract colour palette for a team (shared by logo + card bg) */
+  function _teamPalette(name) {
+    var palettes = [
+      ['#cc0000','#ff4444','#660000'],
+      ['#1144cc','#4488ff','#082288'],
+      ['#118800','#44cc00','#065500'],
+      ['#cc6600','#ff9900','#883300'],
+      ['#7700cc','#aa44ff','#440088'],
+      ['#007788','#00bbdd','#003344'],
+      ['#cc3300','#ff6633','#882200'],
+      ['#224488','#3366cc','#0a1f44']
+    ];
+    var hash = 0;
+    for (var i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) & 0xffffffff;
+    return palettes[Math.abs(hash) % palettes.length];
+  }
+
+  /** Generate street graffiti art style SVG logo from team name */
+  function _teamLogo(name) {
+    var palettes = [
+      ['#cc0000','#ff4444','#660000'],
+      ['#1144cc','#4488ff','#082288'],
+      ['#118800','#44cc00','#065500'],
+      ['#cc6600','#ff9900','#883300'],
+      ['#7700cc','#aa44ff','#440088'],
+      ['#007788','#00bbdd','#003344'],
+      ['#cc3300','#ff6633','#882200'],
+      ['#224488','#3366cc','#0a1f44']
+    ];
+    var hash = 0;
+    for (var i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) & 0xffffffff;
+    var h = Math.abs(hash);
+    var p = palettes[h % palettes.length];
+    var style = h % 8;
+    var gid = 'tlg' + (h % 99991);
+    var words = name.trim().split(/\s+/);
+    var initials = words.slice(0,2).map(function(w){return w[0]||'';}).join('').toUpperCase() || '?';
+    var initSize = initials.length > 1 ? '28' : '36';
+    var ty = '46';
+    var bg = '', extras = '';
+
+    if (style === 0) {
+      // Spray Burst: radial rays + dot halo around circle
+      var rays = '';
+      for (var r = 0; r < 16; r++) {
+        var ang = r * 22.5 * Math.PI / 180;
+        var rx1 = Math.round((40 + 16 * Math.cos(ang)) * 10) / 10;
+        var ry1 = Math.round((40 + 16 * Math.sin(ang)) * 10) / 10;
+        var rx2 = Math.round((40 + 37 * Math.cos(ang)) * 10) / 10;
+        var ry2 = Math.round((40 + 37 * Math.sin(ang)) * 10) / 10;
+        rays += '<line x1="' + rx1 + '" y1="' + ry1 + '" x2="' + rx2 + '" y2="' + ry2 + '" stroke="' + p[0] + '" stroke-width="' + (r%2===0?'4':'2') + '" opacity=".55"/>';
+      }
+      var sprayDots = '';
+      var dAngles = [0,23,47,68,91,112,135,158,180,203,226,248,270,293,315,337];
+      for (var d = 0; d < dAngles.length; d++) {
+        var da = dAngles[d] * Math.PI / 180;
+        var dr = 33 + (d % 4) - 2;
+        sprayDots += '<circle cx="' + Math.round((40+dr*Math.cos(da))*10)/10 + '" cy="' + Math.round((40+dr*Math.sin(da))*10)/10 + '" r="' + (0.7+(d%3)*0.5) + '" fill="rgba(255,255,255,.45)"/>';
+      }
+      bg = '<circle cx="40" cy="40" r="38" fill="#0d0d0d"/>' + rays + sprayDots;
+      extras = '<circle cx="40" cy="40" r="17" fill="' + p[2] + '"/>'
+        + '<circle cx="40" cy="40" r="38" fill="none" stroke="' + p[1] + '" stroke-width="2.5" stroke-dasharray="5,4"/>';
+    } else if (style === 1) {
+      // 3D Block: dark rect + bottom accent bar + corner diamond stars
+      bg = '<rect x="3" y="3" width="74" height="74" rx="3" fill="#0d0d0d"/>';
+      extras = '<rect x="3" y="57" width="74" height="8" fill="' + p[2] + '"/>'
+        + '<rect x="3" y="3" width="74" height="74" rx="3" fill="none" stroke="' + p[1] + '" stroke-width="3.5"/>'
+        + '<rect x="9" y="9" width="62" height="62" rx="2" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="1"/>'
+        + '<polygon points="8,8 10,5 12,8 10,11" fill="' + p[1] + '"/>'
+        + '<polygon points="68,8 70,5 72,8 70,11" fill="' + p[1] + '"/>'
+        + '<polygon points="8,68 10,65 12,68 10,71" fill="' + p[1] + '"/>'
+        + '<polygon points="68,68 70,65 72,68 70,71" fill="' + p[1] + '"/>';
+      ty = '40';
+    } else if (style === 2) {
+      // Crown Spikes: spiky crown silhouette pointing up
+      bg = '<path d="M4,76 L4,40 L18,22 L30,40 L40,18 L50,40 L62,22 L76,40 L76,76 Z" fill="#0d0d0d"/>';
+      extras = '<path d="M4,76 L4,40 L18,22 L30,40 L40,18 L50,40 L62,22 L76,40 L76,76 Z" fill="none" stroke="' + p[1] + '" stroke-width="3"/>'
+        + '<path d="M8,76 L8,44 L20,28 L31,44 L40,25 L49,44 L60,28 L72,44 L72,76 Z" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="1.5"/>'
+        + '<circle cx="18" cy="22" r="3.5" fill="' + p[1] + '"/>'
+        + '<circle cx="40" cy="18" r="4.5" fill="' + p[1] + '"/>'
+        + '<circle cx="62" cy="22" r="3.5" fill="' + p[1] + '"/>';
+      ty = '56';
+    } else if (style === 3) {
+      // Drip Tag: rectangle + paint drips hanging from bottom
+      bg = '<rect x="4" y="6" width="72" height="52" rx="5" fill="#0d0d0d"/>';
+      var drips = '';
+      var dxArr = [12,20,28,36,44,52,60,68];
+      var dhArr = [18,11,22,15,20,13,17,10];
+      for (var dp = 0; dp < dxArr.length; dp++) {
+        var ddx = dxArr[dp];
+        var ddh = dhArr[(dp + (h % 5)) % dhArr.length];
+        drips += '<rect x="' + (ddx-2.5) + '" y="58" width="5" height="' + ddh + '" fill="' + p[0] + '" rx="2.5"/>';
+        drips += '<circle cx="' + ddx + '" cy="' + (58+ddh) + '" r="3.5" fill="' + p[0] + '"/>';
+      }
+      extras = drips
+        + '<rect x="4" y="6" width="72" height="52" rx="5" fill="none" stroke="' + p[1] + '" stroke-width="3"/>'
+        + '<rect x="9" y="11" width="62" height="42" rx="3" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="1.5"/>';
+      ty = '33';
+    } else if (style === 4) {
+      // Sticker Bomb: thick-border rounded rect + scanlines + corner stars
+      bg = '<rect x="3" y="3" width="74" height="74" rx="10" fill="#0d0d0d"/>';
+      var scanlines = '';
+      for (var sl = 10; sl < 76; sl += 5) {
+        scanlines += '<line x1="3" y1="' + sl + '" x2="77" y2="' + sl + '" stroke="rgba(255,255,255,.03)" stroke-width="2"/>';
+      }
+      extras = scanlines
+        + '<rect x="3" y="3" width="74" height="74" rx="10" fill="none" stroke="#000" stroke-width="8"/>'
+        + '<rect x="3" y="3" width="74" height="74" rx="10" fill="none" stroke="' + p[1] + '" stroke-width="4"/>'
+        + '<rect x="12" y="12" width="56" height="56" rx="6" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="1.5"/>'
+        + '<polygon points="12,12 15,8 18,12 15,16" fill="' + p[1] + '"/>'
+        + '<polygon points="62,12 65,8 68,12 65,16" fill="' + p[1] + '"/>'
+        + '<polygon points="12,62 15,58 18,62 15,66" fill="' + p[1] + '"/>'
+        + '<polygon points="62,62 65,58 68,62 65,66" fill="' + p[1] + '"/>';
+    } else if (style === 5) {
+      // Circle Tag: dark circle + color fill + spray dot halo
+      bg = '<circle cx="40" cy="40" r="38" fill="#0d0d0d"/>'
+        + '<circle cx="40" cy="40" r="32" fill="' + p[2] + '"/>';
+      var haloDots = '';
+      var haloAng = [0,30,60,90,120,150,180,210,240,270,300,330];
+      for (var ha = 0; ha < haloAng.length; ha++) {
+        var haRad = haloAng[ha] * Math.PI / 180;
+        haloDots += '<circle cx="' + Math.round((40+35.5*Math.cos(haRad))*10)/10 + '" cy="' + Math.round((40+35.5*Math.sin(haRad))*10)/10 + '" r="' + (ha%3===0?'2':'1.2') + '" fill="' + p[1] + '" opacity=".7"/>';
+        var saOff = 15 * Math.PI / 180;
+        haloDots += '<circle cx="' + Math.round((40+37*Math.cos(haRad+saOff))*10)/10 + '" cy="' + Math.round((40+37*Math.sin(haRad+saOff))*10)/10 + '" r="0.7" fill="rgba(255,255,255,.4)"/>';
+      }
+      extras = haloDots
+        + '<circle cx="40" cy="40" r="38" fill="none" stroke="' + p[1] + '" stroke-width="2.5"/>'
+        + '<circle cx="40" cy="40" r="26" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="1.5"/>';
+    } else if (style === 6) {
+      // Arrow Banner: left-chevron banner shape + tip dot
+      bg = '<path d="M4,20 L62,20 L76,40 L62,60 L4,60 Z" fill="#0d0d0d"/>';
+      extras = '<path d="M4,20 L62,20 L76,40 L62,60 L4,60 Z" fill="none" stroke="' + p[1] + '" stroke-width="3"/>'
+        + '<path d="M8,25 L60,25 L71,40 L60,55 L8,55 Z" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="1.5"/>'
+        + '<circle cx="76" cy="40" r="5" fill="' + p[1] + '"/>'
+        + '<circle cx="76" cy="40" r="2.5" fill="#fff" opacity=".8"/>'
+        + '<circle cx="4" cy="40" r="4" fill="' + p[0] + '"/>';
+      ty = '44';
+    } else {
+      // Style 7: Chrome Pill + metallic highlight arc
+      bg = '<ellipse cx="40" cy="40" rx="37" ry="33" fill="#0d0d0d"/>'
+        + '<ellipse cx="40" cy="40" rx="33" ry="29" fill="' + p[2] + '"/>';
+      extras = '<ellipse cx="40" cy="40" rx="37" ry="33" fill="none" stroke="' + p[1] + '" stroke-width="3"/>'
+        + '<ellipse cx="40" cy="26" rx="22" ry="7" fill="rgba(255,255,255,.12)"/>'
+        + '<ellipse cx="40" cy="40" rx="26" ry="22" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="1.5"/>';
+    }
+
+    // Graffiti text: 4 layered strokes for street art 3D depth + italic bold
+    var tya = (parseInt(ty) + 4).toString();
+    var tf = 'Impact,Arial Black,Oswald,sans-serif';
+    var txt = '<text x="44" y="' + tya + '" text-anchor="middle" dominant-baseline="middle" font-family="' + tf + '" font-size="' + initSize + '" font-weight="900" font-style="italic" fill="rgba(0,0,0,.9)" stroke="rgba(0,0,0,.9)" stroke-width="8" stroke-linejoin="round" paint-order="stroke">' + initials + '</text>'
+      + '<text x="40" y="' + ty + '" text-anchor="middle" dominant-baseline="middle" font-family="' + tf + '" font-size="' + initSize + '" font-weight="900" font-style="italic" fill="' + p[0] + '" stroke="#000" stroke-width="6" stroke-linejoin="round" paint-order="stroke">' + initials + '</text>'
+      + '<text x="40" y="' + ty + '" text-anchor="middle" dominant-baseline="middle" font-family="' + tf + '" font-size="' + initSize + '" font-weight="900" font-style="italic" fill="' + p[1] + '">' + initials + '</text>'
+      + '<text x="40" y="' + ty + '" text-anchor="middle" dominant-baseline="middle" font-family="' + tf + '" font-size="' + initSize + '" font-weight="900" font-style="italic" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="1.5">' + initials + '</text>';
+    return '<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">'
+      + bg + extras + txt + '</svg>';
+  }
+
+  /** Render a single match VS card (large, for the coming-matches section) */
+  function renderComingMatchCard(game) {
+    var homeName = game.homeTeamName || game.homeTeamId || '—';
+    var awayName = game.awayTeamName || game.awayTeamId || '—';
+    var date = _formatDate(game.date);
+    var time = _formatTime(game.time);
+    var venue = game.venue || '';
+    var homeLogo = _teamLogo(homeName);
+    var awayLogo = _teamLogo(awayName);
+    var homeP = _teamPalette(homeName);
+    var awayP = _teamPalette(awayName);
+    var homeBg = 'linear-gradient(135deg,' + homeP[2] + ' 0%,rgba(0,0,0,.88) 100%)';
+    var awayBg = 'linear-gradient(225deg,' + awayP[2] + ' 0%,rgba(0,0,0,.88) 100%)';
+    var html = '<div class="cm-card">';
+    html += '<div class="cm-split">';
+    html += '<div class="cm-home" style="background:' + homeBg + '">';
+    html += '<div class="cm-logo">' + homeLogo + '</div>';
+    html += '<div class="cm-name">' + escapeHtml(homeName) + '</div>';
+    html += '</div>';
+    // VS badge
+    html += '<div class="cm-vs-wrap">';
+    html += '<div class="cm-vs-badge">';
+    html += '<svg class="cm-vs-bg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><polygon points="50,2 95,28 95,72 50,98 5,72 5,28" fill="#111"/><polygon points="50,2 95,28 95,72 50,98 5,72 5,28" fill="none" stroke="#cc0000" stroke-width="3"/></svg>';
+    html += '<span class="cm-vs-text">VS</span>';
+    html += '</div></div>';
+    html += '<div class="cm-away" style="background:' + awayBg + '">';
+    html += '<div class="cm-logo">' + awayLogo + '</div>';
+    html += '<div class="cm-name">' + escapeHtml(awayName) + '</div>';
+    html += '</div>';
+    html += '</div>';
+    html += '<div class="cm-info">';
+    if (date) html += '<div class="cm-info-item"><span class="cm-info-icon">📅</span><span>' + escapeHtml(date + (time ? ' ' + time : '')) + '</span></div>';
+    if (venue) html += '<div class="cm-info-item"><span class="cm-info-icon">📍</span><span>' + escapeHtml(venue) + '</span></div>';
+    html += '</div>';
+    html += '</div>';
+    return html;
+  }
+
   // --- 即將進行的賽程（需求 3.2）---
   function loadUpcomingGames() {
     if (!upcomingGamesEl) return;
     upcomingGamesEl.innerHTML = '<div class="loading" data-i18n="common.loading">' + I18n.t('common.loading') + '</div>';
+
+    var comingEl = document.getElementById('coming-matches-list');
 
     Promise.all([
       API.getSchedule(currentSeasonId),
@@ -158,6 +355,7 @@
 
         if (!games || games.length === 0) {
           upcomingGamesEl.innerHTML = '<p class="text-muted" data-i18n="common.noData">' + I18n.t('common.noData') + '</p>';
+          if (comingEl) comingEl.innerHTML = '<p class="text-muted">' + I18n.t('common.noData') + '</p>';
           return;
         }
 
@@ -178,8 +376,22 @@
 
         if (next.length === 0) {
           upcomingGamesEl.innerHTML = '<p class="text-muted" data-i18n="common.noData">' + I18n.t('common.noData') + '</p>';
+          if (comingEl) comingEl.innerHTML = '<p class="text-muted">暫無賽事</p>';
           return;
         }
+
+        // Render coming matches section with all upcoming games
+        if (comingEl) {
+          comingEl.innerHTML = next.map(renderComingMatchCard).join('');
+          // Update hero meta with first game date
+          var firstGame = next[0];
+          var metaEl = document.getElementById('hero-meta-text');
+          if (metaEl && firstGame.date) {
+            metaEl.textContent = _formatDate(firstGame.date) + ' · Season 1 · Hong Kong';
+          }
+        }
+
+        // Keep hidden upcoming-games-list populated for compatibility
         upcomingGamesEl.innerHTML = next.map(renderUpcomingCard).join('');
       })
       .catch(function () {
