@@ -13,13 +13,13 @@ var API = (function () {
   var API_KEY = 'my-allin-secret-2026';
 
   /** @type {number} GET 請求超時時間（毫秒） */
-  var TIMEOUT_MS = 15000;
+  var TIMEOUT_MS = 30000;
 
   /** @type {number} POST 請求超時時間（毫秒）— GAS 冷啟動可達 20 秒以上 */
   var POST_TIMEOUT_MS = 60000;
 
   /** @type {number} 最大重試次數 */
-  var MAX_RETRIES = 2;
+  var MAX_RETRIES = 3;
 
   /**
    * 設定 API 基礎 URL

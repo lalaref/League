@@ -37,7 +37,9 @@
   /**
    * 載入當前活躍賽季，然後載入所有儀表板數據
    */
-  function loadCurrentSeason() {
+  function loadCurrentSeason(retryCount) {
+    retryCount = retryCount || 0;
+    var comingEl = document.getElementById('coming-matches-list');
     API.getSeasons()
       .then(function (seasons) {
         if (!seasons || seasons.length === 0) {
@@ -63,7 +65,15 @@
         loadRecentAchievements();
       })
       .catch(function () {
-        showEmptyAll();
+        if (retryCount < 2) {
+          // Retry after delay (mobile cold start can be slow)
+          var delay = (retryCount + 1) * 5000;
+          if (comingEl) comingEl.innerHTML = '<div style="color:#aaa;text-align:center;padding:40px 0;font-size:13px">正在重新連線... (' + (retryCount + 1) + '/2)</div>';
+          setTimeout(function () { loadCurrentSeason(retryCount + 1); }, delay);
+        } else {
+          showEmptyAll();
+          if (comingEl) comingEl.innerHTML = '<div style="color:#aaa;text-align:center;padding:40px 0;font-size:13px">暫時無法載入資料<br><button onclick="location.reload()" style="margin-top:12px;padding:8px 20px;background:#cc0000;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:12px">重新載入</button></div>';
+        }
       });
   }
 
