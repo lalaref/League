@@ -178,7 +178,47 @@
     .cm-info{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;padding:14px 20px;background:linear-gradient(90deg,#fff 0%,#fff5f5 50%,#fff 100%);border-top:3px solid #cc0000}
     .cm-info-item{display:flex;align-items:center;gap:8px;font-size:12px;color:#444;font-weight:700;letter-spacing:.03em}
     .cm-info-icon{font-size:14px}
-    @media(max-width:700px){.cm-logo{width:70px;height:70px}.cm-vs-badge{width:64px;height:64px}.cm-vs-text{font-size:22px}.cm-home,.cm-away{padding:18px 12px}.cm-split{min-height:160px}}
+    /* --- Mobile: 480px and below --- */
+    @media(max-width:480px){
+      .cb-topbar{display:none}
+      .hero-section{min-height:260px}
+      .hero-inner{padding:36px 16px}
+      .hero-meta{font-size:10px;letter-spacing:.14em}
+      .hero-title{font-size:clamp(18px,6vw,28px);margin-bottom:20px}
+      .hero-cta-btn{padding:11px 24px;font-size:10px;letter-spacing:.15em}
+      .cm-split{min-height:130px}
+      .cm-home,.cm-away{padding:12px 8px;gap:8px}
+      .cm-logo{width:54px;height:54px}
+      .cm-name{font-size:10px;letter-spacing:.05em;max-width:90px}
+      .cm-vs-badge{width:50px;height:50px}
+      .cm-vs-text{font-size:17px}
+      .cm-info{padding:10px 14px;gap:12px}
+      .cm-info-item{font-size:11px}
+      .cb-stats-grid{grid-template-columns:repeat(2,1fr) !important;gap:10px !important}
+      .cb-stat{padding:20px 12px}
+      .cb-stat-num{font-size:38px !important}
+      .cb-fanclub{padding:40px 16px}
+      .cb-fanclub h2{font-size:22px}
+      .cb-fanclub p{font-size:13px}
+      .cb-fanclub-btn{padding:12px 28px;font-size:11px}
+      .footer-content{grid-template-columns:1fr !important;gap:24px !important;padding:28px 0 !important}
+    }
+    /* --- Mobile: 701px and below --- */
+    @media(max-width:700px){
+      .cb-topbar{display:none}
+      .hero-section{min-height:300px}
+      .hero-inner{padding:44px 18px}
+      .cb-stats-grid{grid-template-columns:repeat(2,1fr) !important;gap:12px !important}
+      .cb-stat{padding:24px 14px}
+      .cb-fanclub{padding:48px 18px}
+      .cb-fanclub h2{font-size:26px}
+      .cm-logo{width:62px;height:62px}
+      .cm-vs-badge{width:56px;height:56px}
+      .cm-vs-text{font-size:19px}
+      .cm-home,.cm-away{padding:16px 10px}
+      .cm-split{min-height:150px}
+      .cm-name{font-size:11px;max-width:110px}
+    }
     /* Hide old single-match card */
     #featured-match-content{display:none}
     /* Footer */

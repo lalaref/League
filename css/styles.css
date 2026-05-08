@@ -225,7 +225,7 @@ img {
 
 /* Info columns */
 .ht-info-wrap {
-    display: flex;
+    display: none; /* shown at 1024px+ via responsive.css */
     align-items: center;
     gap: 0;
     padding: 0 16px;
