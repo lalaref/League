@@ -473,7 +473,7 @@
                     });
                     // each game is shared by 2 teams; pick displayed value
                     var gEl = document.getElementById('cb-games-played');
-                    if(gEl && gEl.textContent === '—') gEl.textContent = rows[0] ? (document.querySelectorAll('#standings-table tbody tr')[0].querySelectorAll('td')[2].textContent) : '—';
+                    if(gEl && gEl.textContent === '—') { var firstCell = rows[0] && rows[0].querySelectorAll('td')[2]; if(firstCell) gEl.textContent = firstCell.textContent; }
                 }
                 var players = document.querySelectorAll('#player-stats-list .player-row, #player-list .player-row');
                 var pEl = document.getElementById('cb-players-count');
