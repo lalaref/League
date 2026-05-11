@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ALL-IN Basketball League - 第二屆ALL-IN全力以赴港島平日籃球聯賽章程與賽制資訊">
+    <meta name="theme-color" content="#1a1a2e">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-S64W9C7CYZ"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-S64W9C7CYZ');
+    </script>
+    <title>第二屆賽季 — ALL-IN Basketball League</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <style>
+        .rules-hero { text-align: center; padding: var(--spacing-2xl) 0 var(--spacing-lg); }
+        .rules-hero h1 { font-size: 2rem; margin-bottom: var(--spacing-sm); color: #1a1a2e; }
+        .rules-hero p { color: var(--color-text-secondary); margin: 0 auto; max-width: 900px; }
+
+        .rules-tag { display: inline-block; margin-top: var(--spacing-md); padding: 6px 12px; border-radius: 999px; border: 1px solid var(--color-border); background: rgba(37, 99, 235, 0.12); }
+
+        .season2-badge {
+            display: inline-block;
+            margin-bottom: var(--spacing-md);
+            padding: 6px 18px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #e94560 0%, #2563eb 100%);
+            color: #fff;
+            font-weight: var(--font-weight-bold);
+            font-size: 0.95rem;
+            letter-spacing: 0.05em;
+        }
+
+        .rules-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--spacing-lg);
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        @media (min-width: 900px) {
+            .rules-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        .rules-card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+        }
+
+        .rules-card h2 {
+            margin-bottom: var(--spacing-sm);
+            color: var(--color-text-inverse);
+            font-size: 1.2rem;
+        }
+
+        .rules-card p,
+        .rules-card li {
+            color: var(--color-text-secondary);
+            line-height: 1.8;
+        }
+
+        .rules-list {
+            margin: 0;
+            padding-left: 1.2rem;
+        }
+
+        .rules-highlight {
+            color: var(--color-accent);
+            font-weight: var(--font-weight-bold);
+        }
+
+        .rules-highlight--gold {
+            color: #f59e0b;
+            font-weight: var(--font-weight-bold);
+        }
+
+        .rules-cta {
+            margin-top: var(--spacing-xl);
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+        }
+
+        .rules-btn {
+            display: inline-block;
+            text-decoration: none;
+            padding: var(--spacing-sm) var(--spacing-lg);
+            border-radius: var(--radius-md);
+            font-weight: var(--font-weight-semibold);
+            border: 1px solid var(--color-border);
+            color: #fff;
+            background: var(--color-accent);
+        }
+
+        .rules-btn--outline {
+            background: transparent;
+            color: var(--color-text);
+        }
+
+        .rules-note {
+            max-width: 1000px;
+            margin: var(--spacing-xl) auto 0;
+            border-left: 3px solid var(--color-accent);
+            padding: var(--spacing-md);
+            background: rgba(233, 69, 96, 0.08);
+            border-radius: var(--radius-sm);
+            color: var(--color-text-secondary);
+        }
+
+        .rules-hashtags {
+            max-width: 1000px;
+            margin: var(--spacing-lg) auto 0;
+            color: var(--color-text-secondary);
+        }
+
+        /* Pricing card special styling */
+        .pricing-row {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-sm);
+        }
+
+        .pricing-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+        }
+
+        .pricing-item--earlybird {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.08);
+        }
+
+        .pricing-label {
+            color: var(--color-text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .pricing-amount {
+            font-weight: var(--font-weight-bold);
+            font-size: 1.1rem;
+        }
+
+        .pricing-deposit {
+            margin-top: var(--spacing-sm);
+            padding: 8px 14px;
+            background: rgba(37, 99, 235, 0.10);
+            border: 1px dashed #2563eb;
+            border-radius: var(--radius-sm);
+            color: var(--color-text-secondary);
+            font-size: 0.92rem;
+        }
+
+        /* Division highlight */
+        .division-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-sm);
+            margin-top: var(--spacing-sm);
+        }
+
+        .division-box {
+            text-align: center;
+            padding: var(--spacing-md) var(--spacing-sm);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-border);
+            background: rgba(37, 99, 235, 0.08);
+        }
+
+        .division-box .div-label {
+            font-size: 1.1rem;
+            font-weight: var(--font-weight-bold);
+            color: var(--color-text-inverse);
+        }
+
+        .division-box .div-sub {
+            font-size: 0.82rem;
+            color: var(--color-text-secondary);
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-top">
+            <div class="header-top-inner">
+                <div class="ht-logo-wrap">
+                    <a href="/" class="nav-logo" aria-label="ALL-IN Basketball League 首頁">
+                        <img src="images/logo.svg" alt="ALL-IN Basketball League" class="logo-img" width="36" height="36" loading="eager">
+                        <span class="logo-text">ALL-IN</span>
+                    </a>
+                </div>
+                <div class="ht-right">
+                    <div class="ht-info-wrap">
+                        <div class="ht-info-item">
+                            <svg class="ht-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.24h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.18 6.18l.91-.91a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                            <div>
+                                <strong>聯絡我們</strong>
+                                <a href="https://api.whatsapp.com/send?phone=85284330084" target="_blank" rel="noopener">+852 8433 0084</a>
+                            </div>
+                        </div>
+                        <div class="ht-info-item ht-info-item--last">
+                            <svg class="ht-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                            <div>
+                                <strong>賽季資訊</strong>
+                                <span>Season 2 &nbsp;·&nbsp; 2026</span>
+                            </div>
+                        </div>
+                    </div>
+                    <nav class="main-nav" aria-label="主導航">
+                        <button class="hamburger-btn" aria-label="開啟選單" aria-expanded="false" aria-controls="nav-menu">
+                            <span class="hamburger-line"></span>
+                            <span class="hamburger-line"></span>
+                            <span class="hamburger-line"></span>
+                        </button>
+                        <ul id="nav-menu" class="nav-links" role="menubar">
+                            <li role="none"><a href="/" class="nav-link" role="menuitem">首頁</a></li>
+                            <li role="none"><a href="schedule.html" class="nav-link" role="menuitem">賽程</a></li>
+                            <li role="none"><a href="team.html" class="nav-link" role="menuitem">球隊</a></li>
+                            <li role="none"><a href="player.html" class="nav-link" role="menuitem">球員</a></li>
+                            <li role="none"><a href="standings.html" class="nav-link" role="menuitem">排行榜</a></li>
+                            <li role="none"><a href="rules.html" class="nav-link" role="menuitem">比賽章程</a></li>
+                            <li role="none"><a href="archive.html" class="nav-link" role="menuitem">歷史檔案</a></li>
+                            <li role="none"><a href="season2.html" class="nav-link active" role="menuitem">第二屆賽季</a></li>
+                        </ul>
+                    </nav>
+                    <div class="ht-lang-wrap">
+                        <button class="lang-switch-btn" aria-label="切換語言">
+                            <span>EN</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <section class="section rules-hero">
+            <div class="container">
+                <div class="season2-badge">Season 2 · 第二屆</div>
+                <h1>🏀 第二屆 ALL-IN 全力以赴港島平日籃球聯賽</h1>
+                <p>【🇭🇰港島區籃球聯賽新勢力⭐️】AIBL / 全聯｜Division 分組制度全新登場</p>
+                <span class="rules-tag">目標 2026 年 7 月中 – 8 月初開季｜20:00 - 23:00｜星期一至五</span>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="container rules-grid">
+
+                <!-- 賽事資訊 -->
+                <article class="rules-card">
+                    <h2>賽事資訊</h2>
+                    <ul class="rules-list">
+                        <li>目標開季：<span class="rules-highlight">2026 年 7 月中 – 8 月初</span></li>
+                        <li>時間：20:00 - 23:00（星期一至五）</li>
+                        <li>地點：港島區康文署轄下室內籃球場</li>
+                        <li>網站：<a href="https://www.aiblhk.com/" target="_blank" rel="noopener">https://www.aiblhk.com/</a></li>
+                    </ul>
+                    <div class="rules-cta">
+                        <a class="rules-btn" href="https://api.whatsapp.com/send?phone=85284330084&text=我想查詢或報名ALL-IN第二屆港島平日籃球聯賽" target="_blank" rel="noopener">即時 WhatsApp 查詢及報名留位</a>
+                    </div>
+                </article>
+
+                <!-- 賽事特色 -->
+                <article class="rules-card">
+                    <h2>賽事特色與配套</h2>
+                    <p>延續第一屆的專業執法理念，新增 Division 分組賽制，讓各級別球隊都有更公平的競爭環境。</p>
+                    <ul class="rules-list">
+                        <li>球員數據統計</li>
+                        <li>比賽攝影</li>
+                        <li>賽事分析</li>
+                        <li>常規賽個人獎項</li>
+                        <li>獎杯及獎牌</li>
+                        <li>Game Day MVP 金腰帶</li>
+                        <li>Division 冠軍特別獎項</li>
+                    </ul>
+                </article>
+
+                <!-- 分組制度 -->
+                <article class="rules-card" style="grid-column: 1 / -1;">
+                    <h2>🏆 Division 分組制度（全新）</h2>
+                    <p>第二屆聯賽目標設立 <span class="rules-highlight">2 個或以上 Division</span>，讓不同實力的球隊在相應組別競爭，提升聯賽整體競爭性與公平性。</p>
+                    <ul class="rules-list" style="margin-top: var(--spacing-md);">
+                        <li>各 Division 獨立排名，按常規賽名次決定晉級 Playoff 資格。</li>
+                        <li>Division 數量及分組安排視最終報名隊數而定，賽會保留調整權。</li>
+                        <li>分組方式將於報名截止後由賽會公布。</li>
+                    </ul>
+                </article>
+
+                <!-- 賽制重點 -->
+                <article class="rules-card">
+                    <h2>賽制重點</h2>
+                    <ul class="rules-list">
+                        <li>每隊常規賽至少 <span class="rules-highlight">5 場賽事</span>（目標更多）。</li>
+                        <li>按各 Division 常規賽排名，頂級球隊晉身 <span class="rules-highlight">Playoff</span>。</li>
+                        <li>勝方得 3 分，和得 2 分，負方得 1 分，棄權得 0 分。</li>
+                        <li>每場比賽分 4 節，每節 10 分鐘。</li>
+                        <li>除暫停外，其他時間不停錶；第四節最後 2 分鐘死球停錶。</li>
+                        <li>常規賽法定時間打和，不設加時，各得 2 分。</li>
+                        <li>Playoff 加時 2 分鐘；再打和則黃金罰球，各射 1 球即時分勝負。</li>
+                    </ul>
+                </article>
+
+                <!-- 參賽費用 -->
+                <article class="rules-card">
+                    <h2>參賽費用</h2>
+                    <div class="pricing-row">
+                        <div class="pricing-item">
+                            <span class="pricing-label">正價報名費</span>
+                            <span class="pricing-amount rules-highlight">港幣 $5,800</span>
+                        </div>
+                        <div class="pricing-item pricing-item--earlybird">
+                            <span class="pricing-label">🐣 早鳥優惠價</span>
+                            <span class="pricing-amount rules-highlight--gold">港幣 $5,300</span>
+                        </div>
+                    </div>
+                    <div class="pricing-deposit">
+                        💰 訂金留位：<strong>港幣 $500</strong>（計入總費用內，先付訂金即可鎖定名額）
+                    </div>
+                    <p style="margin-top: var(--spacing-sm); font-size: 0.88rem;">早鳥優惠截止日期及詳情請留意官方公告。請完成報名後按聯賽指示繳費留位。</p>
+                </article>
+
+                <!-- 棄權與排名規則 -->
+                <article class="rules-card" style="grid-column: 1 / -1;">
+                    <h2>棄權與排名規則</h2>
+                    <p>有關棄權，若果參賽球隊於開賽法定時間過後十分鐘之內：</p>
+                    <ul class="rules-list">
+                        <li>仍不足 5 人或未能出場作賽；</li>
+                        <li>派出非登記球員出場；</li>
+                        <li>其中一方自動要求退出賽事；</li>
+                        <li>其中一方擾亂比賽秩序，令賽事無法進行（其中一方包括球員、教練或觀眾）。</li>
+                    </ul>
+                    <p>該隊將作自動棄權論，並以 20:0 的分數作為比賽結果，棄權隊伍得 0 分。</p>
+                    <p>如有 2 隊或以上同分，先以對賽往績決定常規賽排名；如仍未能確定，則以全組總得失球差再定排名。</p>
+                </article>
+
+                <!-- 球員資格 -->
+                <article class="rules-card">
+                    <h2>球員資格與註冊截止日</h2>
+                    <ul class="rules-list">
+                        <li>所有球員必須完成登記並獲聯賽確認，方可代表球隊出賽。</li>
+                        <li>球員名單提交及修訂截止日為聯賽章程公布之指定日期及時間。</li>
+                        <li>截止日後新增或更換球員，須經賽會書面批准，否則不可出賽。</li>
+                    </ul>
+                </article>
+
+                <!-- 保險責任 -->
+                <article class="rules-card">
+                    <h2>保險責任聲明</h2>
+                    <ul class="rules-list">
+                        <li>各隊及球員須自行評估身體狀況，並對個人健康與安全負責。</li>
+                        <li>建議所有參賽者自行購買合適的運動及人身保險。</li>
+                        <li>賽會對比賽期間因意外導致之受傷、財物損失或其他損害不承擔賠償責任。</li>
+                        <li>球隊報名即視為同意並接受本責任聲明。</li>
+                    </ul>
+                </article>
+
+                <!-- 改期機制 -->
+                <article class="rules-card">
+                    <h2>改期機制</h2>
+                    <ul class="rules-list">
+                        <li>如需申請改期，球隊須於原定開賽前至少 72 小時提出並說明原因。</li>
+                        <li>改期申請須由雙方球隊及賽會三方同意方可生效。</li>
+                        <li>每隊可申請改期次數及附加安排，以賽會當季公告為準。</li>
+                        <li>未依規定完成改期流程而缺席賽事，將按棄權處理。</li>
+                    </ul>
+                </article>
+
+                <!-- 惡劣天氣 -->
+                <article class="rules-card">
+                    <h2>惡劣天氣安排</h2>
+                    <ul class="rules-list">
+                        <li>如天文台發出八號或以上熱帶氣旋警告信號，或黑色暴雨警告，賽事將暫停或延期。</li>
+                        <li>是否如期舉行，以賽會於比賽日前或當日公告為最終決定。</li>
+                        <li>受天氣影響之場次，賽會將盡快公布補賽日期及安排。</li>
+                    </ul>
+                </article>
+
+            </div>
+
+            <div class="rules-note">
+                <strong>📢 第二屆賽季詳情仍在籌備中</strong>，部分安排（包括 Division 數量、早鳥截止日期、場地等）將於報名開啟後陸續公布。如有查詢請 WhatsApp 聯絡我們。
+            </div>
+
+            <p class="rules-hashtags">#籃球聯賽新勢力 #港島區籃球聯賽 #Division分組 #Playoff #2026Season2</p>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <img src="images/logo.svg" alt="ALL-IN Basketball League" class="footer-logo">
+                    <p class="footer-tagline">全力以赴</p>
+                </div>
+                <div class="footer-links">
+                    <a href="/">首頁</a>
+                    <a href="schedule.html">賽程</a>
+                    <a href="team.html">球隊</a>
+                    <a href="standings.html">排行榜</a>
+                    <a href="rules.html">第一屆章程</a>
+                </div>
+                <div class="footer-copyright">
+                    <p>&copy; <span id="current-year"></span> ALL-IN Basketball League. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
+    <script src="js/utils.js?v=20260410"></script>
+    <script src="js/api.js?v=20260410"></script>
+    <script src="js/i18n.js?v=20260410"></script>
+    <script src="js/navigation.js?v=20260410"></script>
+    <a class="wa-float" href="https://api.whatsapp.com/send?phone=85284330084&text=%E6%88%91%E6%83%B3%E6%9F%A5%E8%A9%A2%E6%88%96%E5%A0%B1%E5%90%8DALL-IN%E7%AC%AC%E4%BA%8C%E5%B1%86%E6%B8%AF%E5%B3%B6%E5%B9%B3%E6%97%A5%E7%B1%83%E7%90%83%E8%81%AF%E8%B3%BD" target="_blank" rel="noopener" aria-label="WhatsApp 查詢">
+        <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+            <path d="M19.11 17.33c-.27-.14-1.58-.78-1.83-.87-.24-.09-.42-.14-.6.14s-.69.87-.85 1.04c-.15.17-.31.19-.58.05-.27-.14-1.13-.42-2.16-1.33-.8-.71-1.35-1.59-1.51-1.86-.16-.27-.02-.41.12-.55.12-.12.27-.31.41-.46.14-.15.19-.26.29-.44.1-.17.05-.32-.02-.46-.07-.14-.6-1.45-.82-1.99-.22-.53-.44-.46-.6-.47h-.51c-.17 0-.46.07-.7.32-.24.26-.93.91-.93 2.23 0 1.31.95 2.58 1.08 2.76.14.17 1.86 2.84 4.5 3.99.63.27 1.12.43 1.5.56.63.2 1.2.17 1.65.1.5-.08 1.58-.64 1.8-1.25.22-.62.22-1.15.15-1.25-.06-.1-.24-.15-.51-.29zM16.01 4.8c-6.19 0-11.2 5.01-11.2 11.2 0 1.97.52 3.9 1.5 5.58L4.8 27.2l5.76-1.5a11.16 11.16 0 0 0 5.45 1.4h.01c6.18 0 11.19-5.01 11.19-11.2 0-2.99-1.16-5.79-3.28-7.91A11.12 11.12 0 0 0 16.01 4.8zm0 20.4h-.01c-1.68 0-3.33-.45-4.78-1.31l-.34-.2-3.42.89.91-3.33-.22-.34a9.28 9.28 0 0 1-1.42-4.91c0-5.11 4.16-9.27 9.28-9.27 2.47 0 4.79.96 6.53 2.7a9.18 9.18 0 0 1 2.72 6.57c0 5.12-4.16 9.28-9.27 9.28z"/>
+        </svg>
+    </a>
+</body>
+</html>

@@ -129,39 +129,18 @@
     .cb-left .game-card-team{font-weight:700;color:#111;font-size:14px}
     .cb-left .game-card-score{font-family:'Raleway',sans-serif;font-size:18px;font-weight:900;color:var(--cb-red);padding:0 12px}
 
-    @media(max-width:900px){
-      .cb-layout{grid-template-columns:1fr}
-      .cb-stats-grid{grid-template-columns:repeat(2,1fr)}
-      .footer-content{grid-template-columns:1fr !important}
-      .cb-topbar-left{display:none}
-    }
-
-    /* === ALL-IN Banner Scoped Styles === */
     /* === HERO SECTION === */
     .hero-section{position:relative;overflow:hidden;background:#080808;min-height:560px;display:flex;align-items:center;justify-content:center}
     .hero-section::before{content:'';position:absolute;inset:0;z-index:2;background:linear-gradient(to bottom,rgba(0,0,0,.35) 0%,rgba(0,0,0,.15) 40%,rgba(0,0,0,.5) 100%)}
-    /* Photo carousel */
     .hero-bg{position:absolute;inset:0;width:100%;height:100%;z-index:1;overflow:hidden}
     .hero-bg img{width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.48)}
     .hero-inner{position:relative;z-index:3;text-align:center;padding:80px 20px;max-width:860px;margin:0 auto}
     .hero-meta{color:rgba(255,255,255,.55);font-size:12px;letter-spacing:.22em;text-transform:uppercase;margin-bottom:14px;font-family:'Raleway',sans-serif}
     .hero-title{font-family:'Raleway',sans-serif;font-size:clamp(26px,4.5vw,52px);font-weight:900;color:#fff;text-transform:uppercase;line-height:1.1;margin-bottom:32px;text-shadow:0 2px 40px rgba(0,0,0,.9)}
     .hero-title em{color:#cc0000;font-style:normal;display:block;font-size:.72em}
-    /* Countdown */
-    .hero-countdown{display:flex;justify-content:center;align-items:flex-end;gap:6px;margin-bottom:36px;flex-wrap:wrap}
-    .cd-block{background:rgba(0,0,0,.55);border:1px solid rgba(204,0,0,.55);padding:18px 22px;min-width:84px;text-align:center;backdrop-filter:blur(4px)}
-    .cd-num{font-family:'Oswald',sans-serif;font-size:44px;font-weight:700;color:#fff;line-height:1;display:block;letter-spacing:-.02em}
-    .cd-label{font-size:9px;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-top:6px;display:block}
-    .cd-sep{font-family:'Oswald',sans-serif;font-size:32px;font-weight:700;color:#cc0000;line-height:1;padding-bottom:22px}
     .hero-cta-btn{display:inline-block;background:#cc0000;color:#fff;padding:15px 44px;font-family:'Raleway',sans-serif;font-size:12px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;border:none;cursor:pointer;transition:background .2s,transform .15s;text-decoration:none;outline:none}
     .hero-cta-btn:hover{background:#aa0000;color:#fff;transform:translateY(-2px)}
-    .hero-arrow{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.15);color:#fff;width:48px;height:48px;font-size:20px;cursor:pointer;z-index:10;transition:background .2s;display:flex;align-items:center;justify-content:center}
-    .hero-arrow:hover{background:rgba(204,0,0,.8)}
-    .hero-prev{left:16px}.hero-next{right:16px}
-    .hero-dots{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:10}
-    .hero-dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.25);cursor:pointer;transition:background .2s;border:none;padding:0}
-    .hero-dot.active{background:#cc0000}
-    /* COMING MATCHES — single-row full-width cards */
+    /* COMING MATCHES */
     .cm-list{display:flex;flex-direction:column;gap:18px}
     .cm-card{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.12);transition:box-shadow .25s,transform .2s}
     .cm-card:hover{box-shadow:0 10px 40px rgba(204,0,0,.22);transform:translateY(-3px)}
@@ -169,66 +148,89 @@
     .cm-home,.cm-away{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 20px;gap:14px}
     .cm-logo{width:100px;height:100px;flex-shrink:0;filter:drop-shadow(0 4px 16px rgba(0,0,0,.5))}
     .cm-name{font-family:'Oswald',sans-serif;font-size:13px;font-weight:600;color:#ccc;text-transform:uppercase;text-align:center;letter-spacing:.1em;line-height:1.4;max-width:140px}
-    /* VS badge */
-    .cm-vs-wrap{display:flex;align-items:center;justify-content:center;padding:0 16px;flex-shrink:0}
-    .cm-vs-badge{position:relative;width:90px;height:90px;display:flex;align-items:center;justify-content:center}
-    .cm-vs-bg{position:absolute;inset:0;width:100%;height:100%;filter:drop-shadow(0 0 12px rgba(204,0,0,.6))}
-    .cm-vs-text{position:relative;z-index:1;font-family:'Oswald',sans-serif;font-size:30px;font-weight:700;color:#fff;letter-spacing:-.03em;text-shadow:0 0 30px rgba(204,0,0,1),0 2px 0 rgba(0,0,0,.8)}
-    /* info bar */
+    .cm-vs-wrap{display:flex;align-items:center;justify-content:center;padding:0 12px;flex-shrink:0}
+    .cm-vs-badge{position:relative;width:100px;height:100px;display:flex;align-items:center;justify-content:center}
     .cm-info{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;padding:14px 20px;background:linear-gradient(90deg,#fff 0%,#fff5f5 50%,#fff 100%);border-top:3px solid #cc0000}
     .cm-info-item{display:flex;align-items:center;gap:8px;font-size:12px;color:#444;font-weight:700;letter-spacing:.03em}
     .cm-info-icon{font-size:14px}
-    /* --- Mobile: 480px and below --- */
-    @media(max-width:480px){
+    /* Table scroll wrapper */
+    .table-wrapper{overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .data-table{min-width:480px}
+    /* Hide old single-match card */
+    #featured-match-content{display:none}
+    /* Footer base */
+    .site-footer{background:linear-gradient(160deg,#040404,#0d0d0d) !important}
+
+    /* --- Tablet/Mobile: 900px and below --- */
+    @media(max-width:900px){
       .cb-topbar{display:none !important}
-      .hero-section{min-height:260px}
-      .hero-inner{padding:36px 16px}
-      .hero-meta{font-size:10px;letter-spacing:.14em}
-      .hero-title{font-size:clamp(18px,6vw,28px);margin-bottom:20px}
-      .hero-cta-btn{padding:11px 24px;font-size:10px;letter-spacing:.15em}
-      .cm-split{min-height:130px}
-      .cm-home,.cm-away{padding:12px 8px;gap:8px}
-      .cm-logo{width:54px;height:54px}
-      .cm-name{font-size:10px;letter-spacing:.05em;max-width:90px}
-      .cm-vs-badge{width:50px;height:50px}
-      .cm-vs-text{font-size:17px}
-      .cm-info{padding:10px 14px;gap:12px}
-      .cm-info-item{font-size:11px}
+      .cb-layout{grid-template-columns:1fr;padding:24px 16px;gap:24px}
+      .cb-left{gap:28px}
+      .cb-right{gap:16px}
+      .cb-stats-grid{grid-template-columns:repeat(2,1fr)}
+      .cb-stats-bar{padding:36px 0}
+      .cb-stats-inner{padding:0 16px}
+      .cb-stat{padding:24px 14px}
+      .cb-stat-num{font-size:40px !important}
+      .footer-content{grid-template-columns:1fr !important;gap:20px !important;padding:28px 0 !important}
+      .cb-topbar-left{display:none}
+      .hero-arrow{display:none}
+      .table-wrapper{overflow-x:auto;-webkit-overflow-scrolling:touch}
+      .data-table{min-width:520px}
+      .cb-card-body{padding:12px}
+      .cb-card-head{padding:11px 14px}
+      .cb-sec-title h3{font-size:12px}
+      .cm-card:hover{transform:none;box-shadow:0 4px 24px rgba(0,0,0,.12)}
+      .cb-fanclub{padding:44px 16px}
+      .cb-fanclub h2{font-size:26px}
+    }
+    /* --- Mobile: 700px and below --- */
+    @media(max-width:700px){
+      .cb-layout{padding:16px 12px;gap:20px}
+      .cb-left{gap:22px}
+      .hero-section{min-height:300px}
+      .hero-inner{padding:44px 16px}
       .cb-stats-grid{grid-template-columns:repeat(2,1fr) !important;gap:10px !important}
-      .cb-stat{padding:20px 12px}
-      .cb-stat-num{font-size:38px !important}
-      .cb-fanclub{padding:40px 16px}
+      .cb-stat{padding:20px 10px}
+      .cb-stat-num{font-size:36px !important}
+      .cb-stat-label{font-size:9px;letter-spacing:.14em}
+      .cb-fanclub{padding:40px 14px}
       .cb-fanclub h2{font-size:22px}
       .cb-fanclub p{font-size:13px}
       .cb-fanclub-btn{padding:12px 28px;font-size:11px}
-      .footer-content{grid-template-columns:1fr !important;gap:24px !important;padding:28px 0 !important}
-    }
-    /* --- Mobile: 701px and below --- */
-    @media(max-width:700px){
-      .cb-topbar{display:none !important}
-      .hero-section{min-height:300px}
-      .hero-inner{padding:44px 18px}
-      .cb-stats-grid{grid-template-columns:repeat(2,1fr) !important;gap:12px !important}
-      .cb-stat{padding:24px 14px}
-      .cb-fanclub{padding:48px 18px}
-      .cb-fanclub h2{font-size:26px}
+      .footer-content{gap:16px !important;padding:22px 0 !important}
       .cm-logo{width:62px;height:62px}
-      .cm-vs-badge{width:56px;height:56px}
-      .cm-vs-text{font-size:19px}
-      .cm-home,.cm-away{padding:16px 10px}
+      .cm-vs-badge{width:66px;height:66px}
+      .cm-home,.cm-away{padding:16px 8px}
       .cm-split{min-height:150px}
       .cm-name{font-size:11px;max-width:110px}
+      .cm-info{padding:10px 12px;gap:10px;flex-direction:column;align-items:center}
     }
-    /* Hide old single-match card */
-    #featured-match-content{display:none}
-    /* Footer */
-    .site-footer{background:linear-gradient(160deg,#040404,#0d0d0d) !important}
-    @media(max-width:900px){
-      .cb-layout{grid-template-columns:1fr}
-      .cb-stats-grid{grid-template-columns:repeat(2,1fr)}
-      .footer-content{grid-template-columns:1fr !important}
-      .cb-topbar-left{display:none}
-      .hero-arrow{display:none}
+    /* --- Mobile: 480px and below --- */
+    @media(max-width:480px){
+      .cb-layout{padding:12px 10px;gap:16px}
+      .cb-left{gap:18px}
+      .hero-section{min-height:240px}
+      .hero-inner{padding:32px 14px}
+      .hero-meta{font-size:10px;letter-spacing:.12em}
+      .hero-title{font-size:clamp(17px,5.5vw,26px);margin-bottom:18px}
+      .hero-cta-btn{padding:10px 20px;font-size:10px;letter-spacing:.12em}
+      .cm-split{min-height:120px}
+      .cm-home,.cm-away{padding:10px 6px;gap:6px}
+      .cm-logo{width:48px;height:48px}
+      .cm-name{font-size:9px;letter-spacing:.04em;max-width:80px}
+      .cm-vs-badge{width:54px;height:54px}
+      .cm-info{padding:8px 10px;gap:8px}
+      .cm-info-item{font-size:10px}
+      .cb-stats-grid{grid-template-columns:repeat(2,1fr) !important;gap:8px !important}
+      .cb-stat{padding:18px 10px}
+      .cb-stat-num{font-size:32px !important}
+      .cb-fanclub{padding:32px 12px}
+      .cb-fanclub h2{font-size:20px}
+      .cb-fanclub p{font-size:12px;margin-bottom:20px}
+      .cb-fanclub-btn{padding:10px 22px;font-size:10px}
+      .footer-content{grid-template-columns:1fr !important;gap:14px !important;padding:20px 0 !important}
+      .cb-sidebar-card{border-radius:10px}
     }
     </style>
 </head>
