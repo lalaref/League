@@ -32,16 +32,7 @@
     :root{--cb-red:#cc0000;--cb-orange:#cc0000;--cb-dark:#111111;--cb-darker:#000000;--cb-border:#e0e0e0}
 
     /* Top bar */
-    .cb-topbar{background:#0d0d1a;padding:7px 0;font-size:12px}
-    .cb-topbar-inner{max-width:1200px;margin:0 auto;padding:0 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
-    .cb-topbar-left{display:flex;gap:24px}
-    .cb-topbar-item{display:flex;align-items:center;gap:7px;color:#888}
-    .cb-topbar-item strong{color:#ccc;font-size:11px;letter-spacing:.06em;text-transform:uppercase;margin-right:2px}
-    .cb-topbar-item a{color:#999;font-size:11px;transition:color .2s}
-    .cb-topbar-item a:hover{color:var(--cb-red)}
-    .cb-topbar-right{display:flex;align-items:center;gap:16px}
-    .cb-topbar-right a{color:#666;font-size:11px;font-weight:600;letter-spacing:.05em;transition:color .2s}
-    .cb-topbar-right a:hover{color:var(--cb-red)}
+
 
     /* Section headings — colorlib style */
     .cb-sec-title{display:flex;align-items:center;gap:0;margin-bottom:20px}
@@ -85,20 +76,57 @@
     .cb-fanclub-btn{display:inline-block;background:#fff;color:var(--cb-red);padding:14px 44px;font-family:'Raleway',sans-serif;font-size:13px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;border:none;border-radius:50px;cursor:pointer;transition:all .25s;box-shadow:0 6px 24px rgba(0,0,0,.22)}
     .cb-fanclub-btn:hover{background:var(--cb-dark);color:#fff;transform:translateY(-2px);box-shadow:0 10px 32px rgba(0,0,0,.3)}
 
-    /* Footer enhancements */
-    .site-footer{background:linear-gradient(160deg,#060610,#0d0d1a) !important}
-    .footer-content{display:grid !important;grid-template-columns:2fr 1fr 1fr !important;gap:40px !important;padding:40px 0 !important;border-bottom:1px solid #1a1a1a !important}
-    .footer-brand{display:flex;flex-direction:column;gap:10px}
-    .footer-tagline{color:#666 !important;font-size:13px !important;line-height:1.7}
-    .footer-links{display:flex !important;flex-direction:column !important;gap:8px !important}
-    .footer-links a{font-size:12px !important;color:#666 !important;padding:0 !important;transition:color .2s !important;display:flex !important;align-items:center !important;gap:6px !important}
-    .footer-links a::before{content:'›';color:var(--cb-red)}
-    .footer-links a:hover{color:var(--cb-red) !important}
-    .footer-copyright{padding-top:16px;border-top:1px solid #1a1a1a;grid-column:1/-1}
-    .footer-copyright p{font-size:11px;color:#444}
-    .cb-footer-contact{display:flex;flex-direction:column;gap:10px}
-    .cb-footer-contact-item{display:flex;gap:10px;font-size:12px;color:#666;line-height:1.5}
-    .cb-footer-contact-icon{color:var(--cb-red);flex-shrink:0}
+    /* === FOOTER REDESIGN === */
+    .site-footer{background:none !important;padding:0 !important;margin-top:0 !important}
+    /* Pre-footer CTA strip */
+    .ft-cta{background:linear-gradient(135deg,#8a0000 0%,#cc0000 50%,#e50000 100%);padding:52px 0;text-align:center;position:relative;overflow:hidden}
+    .ft-cta::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,rgba(255,255,255,.04) 0,rgba(255,255,255,.04) 1px,transparent 1px,transparent 28px);pointer-events:none}
+    .ft-cta-inner{position:relative;z-index:1;max-width:740px;margin:0 auto;padding:0 24px}
+    .ft-cta-eyebrow{font-family:'Raleway',sans-serif;font-size:10px;font-weight:800;letter-spacing:.28em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:10px}
+    .ft-cta h2{font-family:'Raleway',sans-serif;font-size:clamp(20px,3.2vw,36px);font-weight:900;color:#fff;text-transform:uppercase;line-height:1.18;margin-bottom:8px;text-shadow:0 2px 24px rgba(0,0,0,.25)}
+    .ft-cta p{color:rgba(255,255,255,.72);font-size:13px;margin-bottom:26px;line-height:1.75}
+    .ft-cta-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+    .ft-cta-btn-pri{display:inline-block;background:#fff;color:#cc0000;padding:13px 34px;font-family:'Raleway',sans-serif;font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;border-radius:4px;text-decoration:none;transition:all .22s;box-shadow:0 4px 20px rgba(0,0,0,.22)}
+    .ft-cta-btn-pri:hover{background:#f2f2f2;transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.32)}
+    .ft-cta-btn-sec{display:inline-block;background:rgba(255,255,255,.1);color:#fff;border:1.5px solid rgba(255,255,255,.38);padding:12px 26px;font-family:'Raleway',sans-serif;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;border-radius:4px;text-decoration:none;transition:all .22s}
+    .ft-cta-btn-sec:hover{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.7)}
+    /* Main footer */
+    .ft-main{background:linear-gradient(170deg,#030306 0%,#080810 60%,#0c0c18 100%);padding:56px 0 0}
+    .ft-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:44px;padding-bottom:48px;border-bottom:1px solid rgba(255,255,255,.06)}
+    .ft-logo-wrap{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+    .ft-logo-img{width:42px;height:42px;flex-shrink:0}
+    .ft-logo-text{font-family:'Raleway',sans-serif;font-size:19px;font-weight:900;color:#fff;letter-spacing:.06em;text-transform:uppercase}
+    .ft-logo-text em{color:#cc0000;font-style:normal}
+    .ft-tagline{font-size:12px;color:rgba(255,255,255,.38);line-height:1.8;margin-bottom:16px;max-width:270px}
+    .ft-season-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(204,0,0,.14);border:1px solid rgba(204,0,0,.28);padding:5px 12px;border-radius:3px;font-family:'Raleway',sans-serif;font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#cc0000;margin-bottom:20px}
+    .ft-season-dot{width:7px;height:7px;border-radius:50%;background:#cc0000;animation:ft-pulse 1.8s ease-in-out infinite}
+    @keyframes ft-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.7)}}
+    .ft-social{display:flex;gap:8px}
+    .ft-social-btn{width:36px;height:36px;border-radius:8px;background:#0e0e18;border:1px solid #1c1c28;display:flex;align-items:center;justify-content:center;color:#505060;transition:all .22s;flex-shrink:0;text-decoration:none}
+    .ft-social-btn:hover{color:#fff;border-color:#2a2a3a;background:#16161e}
+    .ft-social-btn--wa:hover{background:#25d366;border-color:#25d366;color:#fff}
+    .ft-social-btn--ig:hover{background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);border-color:#dc2743;color:#fff}
+    .ft-social-btn--fb:hover{background:#1877f2;border-color:#1877f2;color:#fff}
+    .ft-social-btn--yt:hover{background:#ff0000;border-color:#ff0000;color:#fff}
+    .ft-col-title{font-family:'Raleway',sans-serif;font-size:11px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.18em;margin-bottom:18px;padding-bottom:10px;border-bottom:2px solid #cc0000;display:flex;align-items:center;gap:7px}
+    .ft-col-title svg{flex-shrink:0;opacity:.7}
+    .ft-links{display:flex;flex-direction:column;gap:5px}
+    .ft-links a{font-size:12px;color:rgba(255,255,255,.4);padding:4px 0;display:flex;align-items:center;gap:7px;text-decoration:none;transition:color .2s}
+    .ft-links a::before{content:'›';color:#cc0000;font-size:15px;line-height:1;flex-shrink:0}
+    .ft-links a:hover{color:#fff}
+    .ft-contact-list{display:flex;flex-direction:column;gap:14px}
+    .ft-contact-row{display:flex;gap:11px;align-items:flex-start}
+    .ft-contact-icon{width:30px;height:30px;border-radius:7px;background:#0e0e18;border:1px solid #1c1c28;display:flex;align-items:center;justify-content:center;color:#cc0000;flex-shrink:0;margin-top:1px}
+    .ft-contact-text{font-size:11px;color:rgba(255,255,255,.4);line-height:1.65}
+    .ft-contact-text a{color:rgba(255,255,255,.4);text-decoration:none;transition:color .2s}
+    .ft-contact-text a:hover{color:#cc0000}
+    .ft-contact-label{display:block;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.2);margin-bottom:2px}
+    /* Bottom bar */
+    .ft-bottom{display:flex;align-items:center;justify-content:space-between;padding:18px 0;flex-wrap:wrap;gap:10px}
+    .ft-bottom-copy{font-size:11px;color:rgba(255,255,255,.2);letter-spacing:.02em}
+    .ft-bottom-links{display:flex;gap:18px}
+    .ft-bottom-links a{font-size:11px;color:rgba(255,255,255,.2);text-decoration:none;transition:color .2s}
+    .ft-bottom-links a:hover{color:#cc0000}
 
     /* Upcoming game card tweaks for sidebar */
     .cb-right .game-card{border-left:3px solid var(--cb-red) !important;background:linear-gradient(135deg,#0d0d0d,#151515) !important;border-radius:0 10px 10px 0 !important;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,.25) !important}
@@ -140,32 +168,47 @@
     .hero-title em{color:#cc0000;font-style:normal;display:block;font-size:.72em}
     .hero-cta-btn{display:inline-block;background:#cc0000;color:#fff;padding:15px 44px;font-family:'Raleway',sans-serif;font-size:12px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;border:none;cursor:pointer;transition:background .2s,transform .15s;text-decoration:none;outline:none}
     .hero-cta-btn:hover{background:#aa0000;color:#fff;transform:translateY(-2px)}
-    /* COMING MATCHES */
-    .cm-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
-    .cm-card{background:#13151a;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.07);box-shadow:0 2px 16px rgba(0,0,0,.45);transition:box-shadow .25s,transform .2s;border-top:3px solid #cc0000}
-    .cm-card:hover{box-shadow:0 8px 36px rgba(204,0,0,.28);transform:translateY(-3px)}
-    .cm-header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px 8px}
-    .cm-upcoming-badge{font-size:9px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#cc0000;background:rgba(204,0,0,.1);padding:3px 8px;border-radius:4px;border:1px solid rgba(204,0,0,.25)}
-    .cm-date-header{font-size:11px;color:#888;font-weight:600;letter-spacing:.03em}
-    .cm-body{display:grid;grid-template-columns:1fr 52px 1fr;align-items:center;padding:12px 14px 14px;gap:4px}
-    .cm-team{display:flex;flex-direction:column;align-items:center;gap:8px}
-    .cm-logo{width:68px;height:68px;flex-shrink:0;filter:drop-shadow(0 2px 8px rgba(0,0,0,.55))}
-    .cm-name{font-family:'Oswald',sans-serif;font-size:12px;font-weight:600;color:#e0e0e0;text-transform:uppercase;text-align:center;letter-spacing:.06em;line-height:1.3;max-width:120px}
-    .cm-center{display:flex;flex-direction:column;align-items:center;gap:5px}
-    .cm-vs-text{font-family:'Impact','Arial Black',sans-serif;font-size:20px;font-weight:900;color:#cc0000;line-height:1;text-shadow:0 0 12px rgba(204,0,0,.5)}
-    .cm-time-text{font-size:11px;font-weight:700;color:#fff;letter-spacing:.05em;background:rgba(255,255,255,.07);padding:2px 7px;border-radius:4px}
-    .cm-footer{display:flex;align-items:center;gap:6px;padding:8px 14px;background:rgba(0,0,0,.25);border-top:1px solid rgba(255,255,255,.05);font-size:11px;color:#777;font-weight:600;letter-spacing:.02em}
+    /* COMING MATCHES — row layout */
+    .cm-list{display:flex;flex-direction:column;gap:0;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.07)}
+    .cm-row{display:grid;grid-template-columns:100px minmax(130px,1fr) auto minmax(130px,1fr) 130px;align-items:center;gap:0;background:#13151a;border-bottom:1px solid rgba(255,255,255,.05);transition:background .18s;min-height:90px}
+    .cm-row:last-child{border-bottom:none}
+    .cm-row:hover{background:#1a1c22}
+    .cm-row-date{padding:18px 14px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-right:1px solid rgba(255,255,255,.05);gap:3px}
+    .cm-row-date-day{font-family:'Raleway',sans-serif;font-size:28px;font-weight:900;color:#fff;line-height:1}
+    .cm-row-date-mon{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#cc0000}
+    .cm-row-date-dow{font-size:10px;color:#555;font-weight:600;letter-spacing:.07em;text-transform:uppercase}
+    .cm-row-home{display:flex;align-items:center;justify-content:flex-end;gap:14px;padding:18px 18px 18px 12px}
+    .cm-row-away{display:flex;align-items:center;justify-content:flex-start;gap:14px;padding:18px 12px 18px 18px}
+    .cm-row-logo{width:52px;height:52px;flex-shrink:0;filter:drop-shadow(0 2px 8px rgba(0,0,0,.55))}
+    .cm-row-team-name{font-family:'Raleway',sans-serif;font-size:16px;font-weight:800;color:#e8e8e8;text-transform:uppercase;letter-spacing:.04em;line-height:1.25}
+    .cm-row-vs{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:12px 10px;flex-shrink:0}
+    .cm-row-vs-text{font-family:'Impact','Arial Black',sans-serif;font-size:22px;font-weight:900;color:#cc0000;line-height:1;letter-spacing:.06em;text-shadow:0 0 14px rgba(204,0,0,.45)}
+    .cm-row-time{font-size:12px;font-weight:700;color:#fff;letter-spacing:.07em;background:rgba(255,255,255,.09);padding:4px 10px;border-radius:4px;white-space:nowrap}
+    .cm-row-meta{padding:18px 16px 18px 12px;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:6px;border-left:1px solid rgba(255,255,255,.05)}
+    .cm-row-venue{font-size:11px;color:#666;font-weight:600;letter-spacing:.02em;text-align:right;display:flex;align-items:center;gap:4px}
+    .cm-row-badge{font-size:9px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#cc0000;background:rgba(204,0,0,.1);padding:3px 8px;border-radius:3px;border:1px solid rgba(204,0,0,.22)}
+    @media(max-width:700px){
+      .cm-row{grid-template-columns:76px 1fr auto 1fr 96px;min-height:74px}
+      .cm-row-team-name{font-size:13px}
+      .cm-row-logo{width:40px;height:40px}
+      .cm-row-date-day{font-size:22px}
+    }
+    @media(max-width:480px){
+      .cm-row{grid-template-columns:64px 1fr 44px 1fr 0;min-height:64px}
+      .cm-row-meta{display:none}
+      .cm-row-team-name{font-size:11px;letter-spacing:.02em}
+      .cm-row-logo{width:32px;height:32px}
+      .cm-row-date{padding:12px 8px}
+      .cm-row-date-day{font-size:18px}
+    }
     /* Table scroll wrapper */
     .table-wrapper{overflow-x:auto;-webkit-overflow-scrolling:touch}
     .data-table{min-width:480px}
     /* Hide old single-match card */
     #featured-match-content{display:none}
-    /* Footer base */
-    .site-footer{background:linear-gradient(160deg,#040404,#0d0d0d) !important}
 
     /* --- Tablet/Mobile: 900px and below --- */
     @media(max-width:900px){
-      .cb-topbar{display:none !important}
       .cb-layout{grid-template-columns:1fr;padding:24px 16px;gap:24px}
       .cb-left{gap:28px}
       .cb-right{gap:16px}
@@ -174,8 +217,7 @@
       .cb-stats-inner{padding:0 16px}
       .cb-stat{padding:24px 14px}
       .cb-stat-num{font-size:40px !important}
-      .footer-content{grid-template-columns:1fr !important;gap:20px !important;padding:28px 0 !important}
-      .cb-topbar-left{display:none}
+      .ft-grid{grid-template-columns:1fr 1fr !important;gap:24px !important}
       .hero-arrow{display:none}
       .table-wrapper{overflow-x:auto;-webkit-overflow-scrolling:touch}
       .data-table{min-width:520px}
@@ -200,7 +242,7 @@
       .cb-fanclub h2{font-size:22px}
       .cb-fanclub p{font-size:13px}
       .cb-fanclub-btn{padding:12px 28px;font-size:11px}
-      .footer-content{gap:16px !important;padding:22px 0 !important}
+      .ft-grid{grid-template-columns:1fr !important;gap:22px !important}
       .cm-logo{width:62px;height:62px}
       .cm-vs-badge{width:66px;height:66px}
       .cm-home,.cm-away{padding:16px 8px}
@@ -231,29 +273,13 @@
       .cb-fanclub h2{font-size:20px}
       .cb-fanclub p{font-size:12px;margin-bottom:20px}
       .cb-fanclub-btn{padding:10px 22px;font-size:10px}
-      .footer-content{grid-template-columns:1fr !important;gap:14px !important;padding:20px 0 !important}
+      .ft-grid{grid-template-columns:1fr !important;gap:16px !important}
       .cb-sidebar-card{border-radius:10px}
     }
     </style>
 </head>
 <body>
     <!-- 頂部資訊條 -->
-    <div class="cb-topbar">
-        <div class="cb-topbar-inner">
-            <div class="cb-topbar-left">
-                <div class="cb-topbar-item">
-                    <span>👥</span>
-                    <div><strong>加入我們</strong> <a href="https://api.whatsapp.com/send?phone=85284330084&text=%E6%88%91%E6%9C%89%E8%88%88%E8%B6%A3%E5%A0%B1%E9%9A%8A%E5%8F%83%E5%8A%A0%E6%AF%94%E8%B3%BD" target="_blank" rel="noopener">WhatsApp 查詢</a></div>
-                </div>
-            </div>
-            <div class="cb-topbar-right">
-                <a href="schedule.html">賽程</a>
-                <a href="standings.html">排行榜</a>
-                <a href="player.html">球員</a>
-                <a href="rules.html">球季章程</a>
-            </div>
-        </div>
-    </div>
 
     <!-- 導航列 -->
     <header class="site-header">
@@ -492,42 +518,160 @@
     </main>
 
     <!-- 頁腳 -->
-    <footer class="site-footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-brand">
-                    <img src="images/logo.svg" alt="ALL-IN Basketball League" class="footer-logo" width="48" height="48" loading="lazy">
-                    <p class="footer-tagline" data-i18n="footer.tagline">全力以赴 — Hong Kong's Amateur Basketball League</p>
-                    <div class="footer-social">
-                        <a href="https://api.whatsapp.com/send?phone=85284330084" target="_blank" rel="noopener" aria-label="WhatsApp" class="footer-social-icon footer-social-icon--wa"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.125.555 4.122 1.526 5.855L.057 23.886a.5.5 0 00.619.612l6.162-1.618A11.942 11.942 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.89 0-3.66-.49-5.192-1.349l-.371-.214-3.854 1.011 1.03-3.742-.237-.373A9.956 9.956 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg></a>
-                        <a href="https://www.instagram.com/aiblhk" target="_blank" rel="noopener" aria-label="Instagram @AIBLHK" class="footer-social-icon footer-social-icon--ig"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
-                        <a href="https://www.facebook.com/share/1HUi2NpwzG/?mibextid=wwXIfr" target="_blank" rel="noopener" aria-label="Facebook" class="footer-social-icon footer-social-icon--fb"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
-                        <a href="https://www.youtube.com/@aiblhk" target="_blank" rel="noopener" aria-label="YouTube @AIBLHK" class="footer-social-icon footer-social-icon--yt"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg></a>
-                    </div>
-                </div>
-                <div>
-                    <div style="font-family:'Raleway',sans-serif;font-size:13px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #cc0000">快速導覽</div>
-                    <div class="footer-links">
-                        <a href="/" data-i18n="nav.home">首頁</a>
-                        <a href="schedule.html" data-i18n="nav.schedule">賽程</a>
-                        <a href="team.html" data-i18n="nav.teams">球隊</a>
-                        <a href="player.html" data-i18n="nav.players">球員</a>
-                        <a href="standings.html" data-i18n="nav.standings">排行榜</a>
-                        <a href="rules.html">球季章程</a>
-                        <a href="archive.html" data-i18n="nav.archive">歷史檔案</a>
-                    </div>
-                </div>
-                <div class="cb-footer-contact">
-                    <div style="font-family:'Raleway',sans-serif;font-size:13px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #cc0000">聯絡我們</div>
-                    <div class="cb-footer-contact-item"><span class="cb-footer-contact-icon">📱</span><span>WhatsApp: <a href="https://api.whatsapp.com/send?phone=85284330084" style="color:#888">+852 8433 0084</a></span></div>
-                    <div class="cb-footer-contact-item"><span class="cb-footer-contact-icon">📍</span><span>香港 Hong Kong</span></div>
-                    <div class="cb-footer-contact-item"><span class="cb-footer-contact-icon">🌐</span><span><a href="https://www.aiblhk.com" style="color:#888">www.aiblhk.com</a></span></div>
-                </div>
-                <div class="footer-copyright">
-                    <p>&copy; <span id="current-year"></span> ALL-IN Basketball League. All rights reserved.</p>
+    <footer class="site-footer" role="contentinfo">
+
+        <!-- Pre-footer CTA strip -->
+        <div class="ft-cta">
+            <div class="ft-cta-inner">
+                <p class="ft-cta-eyebrow">ALL-IN Basketball League · Hong Kong</p>
+                <h2>準備好加入 SEASON 2 嗎？</h2>
+                <p>本地業餘籃球聯賽 · 專業裁判執法 · 詳細球員數據 · 比賽攝影記錄<br>立即報名，感受真正的聯賽體驗</p>
+                <div class="ft-cta-btns">
+                    <a href="season2.html" class="ft-cta-btn-pri">查看 SEASON 2 詳情</a>
+                    <a href="https://api.whatsapp.com/send?phone=85284330084&amp;text=%E6%88%91%E6%9C%89%E8%88%88%E8%B6%A3%E5%A0%B1%E9%9A%8A%E5%8F%83%E5%8A%A0%E6%AF%94%E8%B3%BD" target="_blank" rel="noopener" class="ft-cta-btn-sec">WhatsApp 立即報名</a>
                 </div>
             </div>
         </div>
+
+        <!-- Main footer -->
+        <div class="ft-main">
+            <div class="container">
+                <div class="ft-grid">
+
+                    <!-- Brand column -->
+                    <div>
+                        <div class="ft-logo-wrap">
+                            <img src="images/logo.svg" alt="ALL-IN Basketball League" class="ft-logo-img" width="42" height="42" loading="lazy">
+                            <span class="ft-logo-text">ALL<em>-</em>IN</span>
+                        </div>
+                        <p class="ft-tagline">Hong Kong's amateur basketball league built on professionalism, passion, and fair play.</p>
+                        <div class="ft-season-badge">
+                            <span class="ft-season-dot"></span>
+                            Season 1 — 進行中
+                        </div>
+                        <div class="ft-social">
+                            <a href="https://api.whatsapp.com/send?phone=85284330084" target="_blank" rel="noopener" class="ft-social-btn ft-social-btn--wa" aria-label="WhatsApp">
+                                <svg width="16" height="16" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M19.11 17.33c-.27-.14-1.58-.78-1.83-.87-.24-.09-.42-.14-.6.14s-.69.87-.85 1.04c-.15.17-.31.19-.58.05-.27-.14-1.13-.42-2.16-1.33-.8-.71-1.35-1.59-1.51-1.86-.16-.27-.02-.41.12-.55.12-.12.27-.31.41-.46.14-.15.19-.26.29-.44.1-.17.05-.32-.02-.46-.07-.14-.6-1.45-.82-1.99-.22-.53-.44-.46-.6-.47h-.51c-.17 0-.46.07-.7.32-.24.26-.93.91-.93 2.23 0 1.31.95 2.58 1.08 2.76.14.17 1.86 2.84 4.5 3.99.63.27 1.12.43 1.5.56.63.2 1.2.17 1.65.1.5-.08 1.58-.64 1.8-1.25.22-.62.22-1.15.15-1.25-.06-.1-.24-.15-.51-.29zM16.01 4.8c-6.19 0-11.2 5.01-11.2 11.2 0 1.97.52 3.9 1.5 5.58L4.8 27.2l5.76-1.5a11.16 11.16 0 0 0 5.45 1.4h.01c6.18 0 11.19-5.01 11.19-11.2 0-2.99-1.16-5.79-3.28-7.91A11.12 11.12 0 0 0 16.01 4.8zm0 20.4h-.01c-1.68 0-3.33-.45-4.78-1.31l-.34-.2-3.42.89.91-3.33-.22-.34a9.28 9.28 0 0 1-1.42-4.91c0-5.11 4.16-9.27 9.28-9.27 2.47 0 4.79.96 6.53 2.7a9.18 9.18 0 0 1 2.72 6.57c0 5.12-4.16 9.28-9.27 9.28z"/></svg>
+                            </a>
+                            <a href="https://www.instagram.com/allin_basketball_league" target="_blank" rel="noopener" class="ft-social-btn ft-social-btn--ig" aria-label="Instagram">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                            </a>
+                            <a href="https://www.facebook.com" target="_blank" rel="noopener" class="ft-social-btn ft-social-btn--fb" aria-label="Facebook">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                            </a>
+                            <a href="https://www.youtube.com" target="_blank" rel="noopener" class="ft-social-btn ft-social-btn--yt" aria-label="YouTube">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.95A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" style="fill:#030306"/></svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Quick Nav -->
+                    <div>
+                        <div class="ft-col-title">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                            快速導覽
+                        </div>
+                        <nav class="ft-links" aria-label="頁腳導航">
+                            <a href="/">首頁</a>
+                            <a href="schedule.html">賽程表</a>
+                            <a href="team.html">球隊資料</a>
+                            <a href="player.html">球員數據</a>
+                            <a href="standings.html">排行榜</a>
+                            <a href="rules.html">比賽章程</a>
+                            <a href="archive.html">歷史檔案</a>
+                            <a href="season2.html" style="color:#f59e0b !important">SEASON 2 ★</a>
+                        </nav>
+                    </div>
+
+                    <!-- League info -->
+                    <div>
+                        <div class="ft-col-title">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            聯賽資訊
+                        </div>
+                        <div class="ft-contact-list">
+                            <div class="ft-contact-row">
+                                <div class="ft-contact-icon">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                                </div>
+                                <div class="ft-contact-text">
+                                    <span class="ft-contact-label">賽季</span>
+                                    Season 1 · 2026<br>平日夜場聯賽
+                                </div>
+                            </div>
+                            <div class="ft-contact-row">
+                                <div class="ft-contact-icon">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                </div>
+                                <div class="ft-contact-text">
+                                    <span class="ft-contact-label">時間</span>
+                                    20:00 – 23:00<br>星期一至五
+                                </div>
+                            </div>
+                            <div class="ft-contact-row">
+                                <div class="ft-contact-icon">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                                </div>
+                                <div class="ft-contact-text">
+                                    <span class="ft-contact-label">地點</span>
+                                    港島區康文署<br>室內籃球場
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact -->
+                    <div>
+                        <div class="ft-col-title">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.24h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.18 6.18l.91-.91a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                            聯絡我們
+                        </div>
+                        <div class="ft-contact-list">
+                            <div class="ft-contact-row">
+                                <div class="ft-contact-icon">
+                                    <svg width="14" height="14" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M19.11 17.33c-.27-.14-1.58-.78-1.83-.87-.24-.09-.42-.14-.6.14s-.69.87-.85 1.04c-.15.17-.31.19-.58.05-.27-.14-1.13-.42-2.16-1.33-.8-.71-1.35-1.59-1.51-1.86-.16-.27-.02-.41.12-.55.12-.12.27-.31.41-.46.14-.15.19-.26.29-.44.1-.17.05-.32-.02-.46-.07-.14-.6-1.45-.82-1.99-.22-.53-.44-.46-.6-.47h-.51c-.17 0-.46.07-.7.32-.24.26-.93.91-.93 2.23 0 1.31.95 2.58 1.08 2.76.14.17 1.86 2.84 4.5 3.99.63.27 1.12.43 1.5.56.63.2 1.2.17 1.65.1.5-.08 1.58-.64 1.8-1.25.22-.62.22-1.15.15-1.25-.06-.1-.24-.15-.51-.29zM16.01 4.8c-6.19 0-11.2 5.01-11.2 11.2 0 1.97.52 3.9 1.5 5.58L4.8 27.2l5.76-1.5a11.16 11.16 0 0 0 5.45 1.4h.01c6.18 0 11.19-5.01 11.19-11.2 0-2.99-1.16-5.79-3.28-7.91A11.12 11.12 0 0 0 16.01 4.8zm0 20.4h-.01c-1.68 0-3.33-.45-4.78-1.31l-.34-.2-3.42.89.91-3.33-.22-.34a9.28 9.28 0 0 1-1.42-4.91c0-5.11 4.16-9.27 9.28-9.27 2.47 0 4.79.96 6.53 2.7a9.18 9.18 0 0 1 2.72 6.57c0 5.12-4.16 9.28-9.27 9.28z"/></svg>
+                                </div>
+                                <div class="ft-contact-text">
+                                    <span class="ft-contact-label">WhatsApp</span>
+                                    <a href="https://api.whatsapp.com/send?phone=85284330084">+852 8433 0084</a>
+                                </div>
+                            </div>
+                            <div class="ft-contact-row">
+                                <div class="ft-contact-icon">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                                </div>
+                                <div class="ft-contact-text">
+                                    <span class="ft-contact-label">Instagram</span>
+                                    <a href="https://www.instagram.com/allin_basketball_league" target="_blank" rel="noopener">@allin_basketball_league</a>
+                                </div>
+                            </div>
+                            <div class="ft-contact-row">
+                                <div class="ft-contact-icon">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                                </div>
+                                <div class="ft-contact-text">
+                                    <span class="ft-contact-label">網站</span>
+                                    <a href="https://www.aiblhk.com" target="_blank" rel="noopener">www.aiblhk.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Bottom bar -->
+                <div class="ft-bottom">
+                    <p class="ft-bottom-copy">&copy; <span id="current-year"></span> ALL-IN Basketball League · 香港業餘籃球聯賽 · All rights reserved.</p>
+                    <div class="ft-bottom-links">
+                        <a href="rules.html">比賽章程</a>
+                        <a href="archive.html">歷史檔案</a>
+                        <a href="season2.html">SEASON 2</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
     </footer>
 
     <script>
