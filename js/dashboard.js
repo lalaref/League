@@ -365,36 +365,64 @@
     return '<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">' + inner + '</svg>';
   }
 
-  /** Render a single match VS card (large, for the coming-matches section) */
+  /** Render a single match as a compact horizontal row */
   function renderComingMatchCard(game) {
     var homeName = game.homeTeamName || game.homeTeamId || '—';
     var awayName = game.awayTeamName || game.awayTeamId || '—';
-    var date = _formatDate(game.date);
+    var rawDate = game.date || '';
     var time = _formatTime(game.time);
     var venue = game.venue || '';
     var homeLogo = _teamLogo(homeName);
     var awayLogo = _teamLogo(awayName);
 
-    var html = '<div class="cm-card">';
-    html += '<div class="cm-header">';
-    html += '<span class="cm-upcoming-badge">UPCOMING</span>';
-    if (date) html += '<span class="cm-date-header">📅 ' + escapeHtml(date) + '</span>';
+    // Parse date parts for the date column
+    var dayNum = '', monStr = '', dowStr = '';
+    if (rawDate) {
+      var d = new Date(rawDate + 'T00:00:00');
+      if (!isNaN(d)) {
+        dayNum = d.getDate();
+        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        var days   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+        monStr = months[d.getMonth()];
+        dowStr = days[d.getDay()];
+      }
+    }
+
+    var html = '<div class="cm-row">';
+
+    // Date column
+    html += '<div class="cm-row-date">';
+    if (dayNum) {
+      html += '<span class="cm-row-date-mon">' + escapeHtml(monStr) + '</span>';
+      html += '<span class="cm-row-date-day">' + dayNum + '</span>';
+      html += '<span class="cm-row-date-dow">' + escapeHtml(dowStr) + '</span>';
+    }
     html += '</div>';
-    html += '<div class="cm-body">';
-    html += '<div class="cm-team">';
-    html += '<div class="cm-logo">' + homeLogo + '</div>';
-    html += '<div class="cm-name">' + escapeHtml(homeName) + '</div>';
+
+    // Home team (right-aligned)
+    html += '<div class="cm-row-home">';
+    html += '<span class="cm-row-team-name">' + escapeHtml(homeName) + '</span>';
+    html += '<div class="cm-row-logo">' + homeLogo + '</div>';
     html += '</div>';
-    html += '<div class="cm-center">';
-    html += '<div class="cm-vs-text">VS</div>';
-    if (time) html += '<div class="cm-time-text">' + escapeHtml(time) + '</div>';
+
+    // VS + time center
+    html += '<div class="cm-row-vs">';
+    html += '<span class="cm-row-vs-text">VS</span>';
+    if (time) html += '<span class="cm-row-time">' + escapeHtml(time) + '</span>';
     html += '</div>';
-    html += '<div class="cm-team">';
-    html += '<div class="cm-logo">' + awayLogo + '</div>';
-    html += '<div class="cm-name">' + escapeHtml(awayName) + '</div>';
+
+    // Away team (left-aligned)
+    html += '<div class="cm-row-away">';
+    html += '<div class="cm-row-logo">' + awayLogo + '</div>';
+    html += '<span class="cm-row-team-name">' + escapeHtml(awayName) + '</span>';
     html += '</div>';
+
+    // Meta: badge + venue
+    html += '<div class="cm-row-meta">';
+    html += '<span class="cm-row-badge">UPCOMING</span>';
+    if (venue) html += '<span class="cm-row-venue">📍 ' + escapeHtml(venue) + '</span>';
     html += '</div>';
-    if (venue) html += '<div class="cm-footer">📍 ' + escapeHtml(venue) + '</div>';
+
     html += '</div>';
     return html;
   }
