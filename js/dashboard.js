@@ -374,43 +374,27 @@
     var venue = game.venue || '';
     var homeLogo = _teamLogo(homeName);
     var awayLogo = _teamLogo(awayName);
-    var homeP = _teamPalette(homeName);
-    var awayP = _teamPalette(awayName);
-    var homeBg = 'linear-gradient(135deg,' + homeP[2] + ' 0%,rgba(0,0,0,.88) 100%)';
-    var awayBg = 'linear-gradient(225deg,' + awayP[2] + ' 0%,rgba(0,0,0,.88) 100%)';
+
     var html = '<div class="cm-card">';
-    html += '<div class="cm-split">';
-    html += '<div class="cm-home" style="background:' + homeBg + '">';
+    html += '<div class="cm-header">';
+    html += '<span class="cm-upcoming-badge">UPCOMING</span>';
+    if (date) html += '<span class="cm-date-header">📅 ' + escapeHtml(date) + '</span>';
+    html += '</div>';
+    html += '<div class="cm-body">';
+    html += '<div class="cm-team">';
     html += '<div class="cm-logo">' + homeLogo + '</div>';
     html += '<div class="cm-name">' + escapeHtml(homeName) + '</div>';
     html += '</div>';
-    // VS badge — starburst explosion design
-    html += '<div class="cm-vs-wrap">';
-    html += '<div class="cm-vs-badge">';
-    html += '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block;filter:drop-shadow(0 0 14px rgba(204,0,0,.75))">'
-      // 12-point red starburst
-      + '<polygon points="50,6 56,27 72,12 67,33 88,28 73,44 94,50 73,56 88,72 67,67 72,88 56,73 50,94 44,73 28,88 33,67 12,72 27,56 6,50 27,44 12,28 33,33 28,12 44,27" fill="#cc0000"/>'
-      // dark inner circle
-      + '<circle cx="50" cy="50" r="30" fill="#0d0d0d"/>'
-      // red ring
-      + '<circle cx="50" cy="50" r="30" fill="none" stroke="#cc0000" stroke-width="3"/>'
-      // subtle inner ring
-      + '<circle cx="50" cy="50" r="25" fill="none" stroke="rgba(204,0,0,0.45)" stroke-width="1.5"/>'
-      // VS text — red depth shadow
-      + '<text x="52" y="59" text-anchor="middle" font-family="Impact,Arial Black,sans-serif" font-size="25" font-weight="900" fill="rgba(204,0,0,0.85)" stroke="rgba(204,0,0,0.85)" stroke-width="5" stroke-linejoin="round" paint-order="stroke">VS</text>'
-      // VS text — white main
-      + '<text x="50" y="58" text-anchor="middle" font-family="Impact,Arial Black,sans-serif" font-size="25" font-weight="900" fill="#ffffff">VS</text>'
-      + '</svg>';
-    html += '</div></div>';
-    html += '<div class="cm-away" style="background:' + awayBg + '">';
+    html += '<div class="cm-center">';
+    html += '<div class="cm-vs-text">VS</div>';
+    if (time) html += '<div class="cm-time-text">' + escapeHtml(time) + '</div>';
+    html += '</div>';
+    html += '<div class="cm-team">';
     html += '<div class="cm-logo">' + awayLogo + '</div>';
     html += '<div class="cm-name">' + escapeHtml(awayName) + '</div>';
     html += '</div>';
     html += '</div>';
-    html += '<div class="cm-info">';
-    if (date) html += '<div class="cm-info-item"><span class="cm-info-icon">📅</span><span>' + escapeHtml(date + (time ? ' ' + time : '')) + '</span></div>';
-    if (venue) html += '<div class="cm-info-item"><span class="cm-info-icon">📍</span><span>' + escapeHtml(venue) + '</span></div>';
-    html += '</div>';
+    if (venue) html += '<div class="cm-footer">📍 ' + escapeHtml(venue) + '</div>';
     html += '</div>';
     return html;
   }

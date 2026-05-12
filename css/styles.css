@@ -118,14 +118,11 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
-/* Override headings to dark on light background */
-h1, h2, h3, h4, h5, h6 { color: var(--color-primary); }
-
 /* --- 排版 --- */
 h1, h2, h3, h4, h5, h6 {
     font-weight: var(--font-weight-bold);
     line-height: var(--line-height-tight);
-    color: var(--color-text-inverse);
+    color: var(--color-primary);
 }
 
 h1 { font-size: var(--font-size-2xl); }
@@ -905,6 +902,33 @@ img {
     font-size: var(--font-size-xs);
     color: #444;
 }
+
+.footer-social {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 12px;
+}
+
+.footer-social-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: #1a1a2e;
+    border: 1px solid #2a2a3e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #888;
+    transition: background .2s, color .2s, border-color .2s;
+    flex-shrink: 0;
+}
+
+.footer-social-icon:hover { color: #fff; border-color: #444; background: #252540; }
+.footer-social-icon--wa:hover  { background: #25d366; border-color: #25d366; color: #fff; }
+.footer-social-icon--ig:hover  { background: linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); border-color: #dc2743; color: #fff; }
+.footer-social-icon--fb:hover  { background: #1877f2; border-color: #1877f2; color: #fff; }
+.footer-social-icon--yt:hover  { background: #ff0000; border-color: #ff0000; color: #fff; }
 
 /* --- 工具類別 --- */
 .sr-only {
