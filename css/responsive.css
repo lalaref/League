@@ -9,6 +9,15 @@
    =========================== */
 
 /* ===========================
+   手機 / 平板：下於 1024px
+   =========================== */
+@media (max-width: 1023px) {
+    .cb-topbar {
+        display: none;
+    }
+}
+
+/* ===========================
    平板斷點：768px+
    =========================== */
 @media (min-width: 768px) {
@@ -143,6 +152,10 @@
    =========================== */
 @media (min-width: 1024px) {
     /* 導航列 — 完整水平導航 */
+    .cb-topbar {
+        display: flex;
+    }
+
     .hamburger-btn {
         display: none;
     }
@@ -157,6 +170,8 @@
         box-shadow: none;
         gap: 0;
         width: auto;
+        left: auto;
+        right: auto;
     }
 
     .nav-link {

@@ -166,144 +166,203 @@
     return palettes[Math.abs(hash) % palettes.length];
   }
 
-  /** Generate street graffiti art style SVG logo from team name */
+  /** Generate animal mascot SVG logo from team name */
   function _teamLogo(name) {
-    var palettes = [
-      ['#cc0000','#ff4444','#660000'],
-      ['#1144cc','#4488ff','#082288'],
-      ['#118800','#44cc00','#065500'],
-      ['#cc6600','#ff9900','#883300'],
-      ['#7700cc','#aa44ff','#440088'],
-      ['#007788','#00bbdd','#003344'],
-      ['#cc3300','#ff6633','#882200'],
-      ['#224488','#3366cc','#0a1f44']
-    ];
     var hash = 0;
     for (var i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) & 0xffffffff;
     var h = Math.abs(hash);
-    var p = palettes[h % palettes.length];
+    var p = _teamPalette(name);
+    var c = p[0], l = p[1], d = p[2];
     var style = h % 8;
-    var gid = 'tlg' + (h % 99991);
-    var words = name.trim().split(/\s+/);
-    var initials = words.slice(0,2).map(function(w){return w[0]||'';}).join('').toUpperCase() || '?';
-    var initSize = initials.length > 1 ? '28' : '36';
-    var ty = '46';
-    var bg = '', extras = '';
+    var inner = '';
 
     if (style === 0) {
-      // Spray Burst: radial rays + dot halo around circle
-      var rays = '';
-      for (var r = 0; r < 16; r++) {
-        var ang = r * 22.5 * Math.PI / 180;
-        var rx1 = Math.round((40 + 16 * Math.cos(ang)) * 10) / 10;
-        var ry1 = Math.round((40 + 16 * Math.sin(ang)) * 10) / 10;
-        var rx2 = Math.round((40 + 37 * Math.cos(ang)) * 10) / 10;
-        var ry2 = Math.round((40 + 37 * Math.sin(ang)) * 10) / 10;
-        rays += '<line x1="' + rx1 + '" y1="' + ry1 + '" x2="' + rx2 + '" y2="' + ry2 + '" stroke="' + p[0] + '" stroke-width="' + (r%2===0?'4':'2') + '" opacity=".55"/>';
-      }
-      var sprayDots = '';
-      var dAngles = [0,23,47,68,91,112,135,158,180,203,226,248,270,293,315,337];
-      for (var d = 0; d < dAngles.length; d++) {
-        var da = dAngles[d] * Math.PI / 180;
-        var dr = 33 + (d % 4) - 2;
-        sprayDots += '<circle cx="' + Math.round((40+dr*Math.cos(da))*10)/10 + '" cy="' + Math.round((40+dr*Math.sin(da))*10)/10 + '" r="' + (0.7+(d%3)*0.5) + '" fill="rgba(255,255,255,.45)"/>';
-      }
-      bg = '<circle cx="40" cy="40" r="38" fill="#0d0d0d"/>' + rays + sprayDots;
-      extras = '<circle cx="40" cy="40" r="17" fill="' + p[2] + '"/>'
-        + '<circle cx="40" cy="40" r="38" fill="none" stroke="' + p[1] + '" stroke-width="2.5" stroke-dasharray="5,4"/>';
+      // WOLF — fierce pointed ears, snout
+      inner = '<circle cx="40" cy="40" r="38" fill="#0d0d0d"/>'
+        + '<polygon points="22,40 25,8 36,30" fill="'+c+'"/>'
+        + '<polygon points="58,40 55,8 44,30" fill="'+c+'"/>'
+        + '<polygon points="24,38 27,14 34,29" fill="'+d+'"/>'
+        + '<polygon points="56,38 53,14 46,29" fill="'+d+'"/>'
+        + '<ellipse cx="40" cy="46" rx="21" ry="19" fill="'+c+'"/>'
+        + '<ellipse cx="40" cy="34" rx="13" ry="8" fill="'+d+'"/>'
+        + '<ellipse cx="40" cy="55" rx="11" ry="7" fill="'+d+'"/>'
+        + '<ellipse cx="40" cy="49" rx="5" ry="3.5" fill="#111"/>'
+        + '<ellipse cx="39" cy="48" rx="1.5" ry="1" fill="rgba(255,255,255,0.3)"/>'
+        + '<ellipse cx="30" cy="42" rx="4.5" ry="3.5" fill="'+l+'"/>'
+        + '<ellipse cx="30" cy="42" rx="2.5" ry="2.5" fill="#111"/>'
+        + '<circle cx="31" cy="41" r="0.8" fill="white"/>'
+        + '<ellipse cx="50" cy="42" rx="4.5" ry="3.5" fill="'+l+'"/>'
+        + '<ellipse cx="50" cy="42" rx="2.5" ry="2.5" fill="#111"/>'
+        + '<circle cx="51" cy="41" r="0.8" fill="white"/>'
+        + '<path d="M26,38 L33,36" stroke="#111" stroke-width="2" stroke-linecap="round" opacity="0.7"/>'
+        + '<path d="M47,36 L54,38" stroke="#111" stroke-width="2" stroke-linecap="round" opacity="0.7"/>'
+        + '<path d="M33,56 Q40,63 47,56" fill="'+c+'" stroke="none"/>'
+        + '<circle cx="40" cy="40" r="38" fill="none" stroke="'+l+'" stroke-width="2.5"/>';
+
     } else if (style === 1) {
-      // 3D Block: dark rect + bottom accent bar + corner diamond stars
-      bg = '<rect x="3" y="3" width="74" height="74" rx="3" fill="#0d0d0d"/>';
-      extras = '<rect x="3" y="57" width="74" height="8" fill="' + p[2] + '"/>'
-        + '<rect x="3" y="3" width="74" height="74" rx="3" fill="none" stroke="' + p[1] + '" stroke-width="3.5"/>'
-        + '<rect x="9" y="9" width="62" height="62" rx="2" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="1"/>'
-        + '<polygon points="8,8 10,5 12,8 10,11" fill="' + p[1] + '"/>'
-        + '<polygon points="68,8 70,5 72,8 70,11" fill="' + p[1] + '"/>'
-        + '<polygon points="8,68 10,65 12,68 10,71" fill="' + p[1] + '"/>'
-        + '<polygon points="68,68 70,65 72,68 70,71" fill="' + p[1] + '"/>';
-      ty = '40';
+      // BULL — wide sweeping horns, square snout, nostrils
+      inner = '<circle cx="40" cy="40" r="38" fill="#0d0d0d"/>'
+        + '<path d="M22,40 Q6,22 14,10 Q22,4 28,18" fill="none" stroke="'+c+'" stroke-width="7" stroke-linecap="round"/>'
+        + '<path d="M58,40 Q74,22 66,10 Q58,4 52,18" fill="none" stroke="'+c+'" stroke-width="7" stroke-linecap="round"/>'
+        + '<rect x="17" y="32" width="46" height="34" rx="8" fill="'+c+'"/>'
+        + '<rect x="21" y="32" width="38" height="28" rx="6" fill="'+d+'"/>'
+        + '<rect x="26" y="50" width="28" height="18" rx="8" fill="'+c+'" opacity="0.85"/>'
+        + '<circle cx="33" cy="60" r="4.5" fill="rgba(0,0,0,0.55)"/>'
+        + '<circle cx="47" cy="60" r="4.5" fill="rgba(0,0,0,0.55)"/>'
+        + '<circle cx="29" cy="42" r="5" fill="'+l+'"/>'
+        + '<circle cx="29" cy="42" r="3" fill="#111"/>'
+        + '<circle cx="30" cy="41" r="1" fill="white"/>'
+        + '<circle cx="51" cy="42" r="5" fill="'+l+'"/>'
+        + '<circle cx="51" cy="42" r="3" fill="#111"/>'
+        + '<circle cx="52" cy="41" r="1" fill="white"/>'
+        + '<path d="M32,35 Q40,31 48,35" fill="none" stroke="rgba(0,0,0,0.35)" stroke-width="1.5"/>'
+        + '<circle cx="40" cy="40" r="38" fill="none" stroke="'+l+'" stroke-width="2.5"/>';
+
     } else if (style === 2) {
-      // Crown Spikes: spiky crown silhouette pointing up
-      bg = '<path d="M4,76 L4,40 L18,22 L30,40 L40,18 L50,40 L62,22 L76,40 L76,76 Z" fill="#0d0d0d"/>';
-      extras = '<path d="M4,76 L4,40 L18,22 L30,40 L40,18 L50,40 L62,22 L76,40 L76,76 Z" fill="none" stroke="' + p[1] + '" stroke-width="3"/>'
-        + '<path d="M8,76 L8,44 L20,28 L31,44 L40,25 L49,44 L60,28 L72,44 L72,76 Z" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="1.5"/>'
-        + '<circle cx="18" cy="22" r="3.5" fill="' + p[1] + '"/>'
-        + '<circle cx="40" cy="18" r="4.5" fill="' + p[1] + '"/>'
-        + '<circle cx="62" cy="22" r="3.5" fill="' + p[1] + '"/>';
-      ty = '56';
+      // EAGLE — spread wings, white head cap, hooked beak
+      inner = '<circle cx="40" cy="40" r="38" fill="#0d0d0d"/>'
+        + '<path d="M38,44 L4,24 L8,36 L2,40 L10,42 L4,52 L16,48 L18,58 L30,50Z" fill="'+c+'"/>'
+        + '<path d="M42,44 L76,24 L72,36 L78,40 L70,42 L76,52 L64,48 L62,58 L50,50Z" fill="'+c+'"/>'
+        + '<path d="M38,44 L6,26 L9,33 L4,38 L9,40Z" fill="'+l+'" opacity="0.22"/>'
+        + '<path d="M42,44 L74,26 L71,33 L76,38 L71,40Z" fill="'+l+'" opacity="0.22"/>'
+        + '<ellipse cx="40" cy="52" rx="14" ry="10" fill="'+c+'"/>'
+        + '<circle cx="40" cy="30" r="16" fill="'+c+'"/>'
+        + '<ellipse cx="40" cy="23" rx="10" ry="9" fill="'+d+'"/>'
+        + '<circle cx="33" cy="28" r="4" fill="'+l+'"/>'
+        + '<circle cx="33" cy="28" r="2.5" fill="#111"/>'
+        + '<circle cx="34" cy="27" r="0.8" fill="white"/>'
+        + '<circle cx="47" cy="28" r="4" fill="'+l+'"/>'
+        + '<circle cx="47" cy="28" r="2.5" fill="#111"/>'
+        + '<circle cx="48" cy="27" r="0.8" fill="white"/>'
+        + '<path d="M29,24 L36,22" stroke="rgba(0,0,0,0.7)" stroke-width="2.5" stroke-linecap="round"/>'
+        + '<path d="M44,22 L51,24" stroke="rgba(0,0,0,0.7)" stroke-width="2.5" stroke-linecap="round"/>'
+        + '<path d="M34,38 L40,36 L46,38 L44,45 Q40,50 36,45Z" fill="'+l+'"/>'
+        + '<line x1="34" y1="42" x2="46" y2="42" stroke="rgba(0,0,0,0.3)" stroke-width="1"/>'
+        + '<circle cx="40" cy="40" r="38" fill="none" stroke="'+l+'" stroke-width="2.5"/>';
+
     } else if (style === 3) {
-      // Drip Tag: rectangle + paint drips hanging from bottom
-      bg = '<rect x="4" y="6" width="72" height="52" rx="5" fill="#0d0d0d"/>';
-      var drips = '';
-      var dxArr = [12,20,28,36,44,52,60,68];
-      var dhArr = [18,11,22,15,20,13,17,10];
-      for (var dp = 0; dp < dxArr.length; dp++) {
-        var ddx = dxArr[dp];
-        var ddh = dhArr[(dp + (h % 5)) % dhArr.length];
-        drips += '<rect x="' + (ddx-2.5) + '" y="58" width="5" height="' + ddh + '" fill="' + p[0] + '" rx="2.5"/>';
-        drips += '<circle cx="' + ddx + '" cy="' + (58+ddh) + '" r="3.5" fill="' + p[0] + '"/>';
-      }
-      extras = drips
-        + '<rect x="4" y="6" width="72" height="52" rx="5" fill="none" stroke="' + p[1] + '" stroke-width="3"/>'
-        + '<rect x="9" y="11" width="62" height="42" rx="3" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="1.5"/>';
-      ty = '33';
+      // TIGER — round face, stripes, slit pupils, whisker dots
+      inner = '<circle cx="40" cy="40" r="38" fill="#0d0d0d"/>'
+        + '<polygon points="22,36 18,12 33,28" fill="'+c+'"/>'
+        + '<polygon points="58,36 62,12 47,28" fill="'+c+'"/>'
+        + '<polygon points="23,34 20,16 31,27" fill="'+l+'" opacity="0.45"/>'
+        + '<polygon points="57,34 60,16 49,27" fill="'+l+'" opacity="0.45"/>'
+        + '<circle cx="40" cy="44" r="24" fill="'+c+'"/>'
+        + '<ellipse cx="40" cy="30" rx="16" ry="10" fill="'+d+'" opacity="0.65"/>'
+        + '<circle cx="27" cy="50" r="9" fill="rgba(255,255,255,0.1)"/>'
+        + '<circle cx="53" cy="50" r="9" fill="rgba(255,255,255,0.1)"/>'
+        + '<path d="M34,25 Q35,19 37,25 Q36,22 34,25Z" fill="rgba(0,0,0,0.5)"/>'
+        + '<path d="M39,23 Q40,18 41,23 Q40,20 39,23Z" fill="rgba(0,0,0,0.5)"/>'
+        + '<path d="M43,25 Q44,19 46,25 Q44,22 43,25Z" fill="rgba(0,0,0,0.5)"/>'
+        + '<ellipse cx="30" cy="40" rx="5" ry="4.5" fill="'+l+'"/>'
+        + '<ellipse cx="30" cy="40" rx="2" ry="4" fill="#111"/>'
+        + '<circle cx="31" cy="38.5" r="0.8" fill="white"/>'
+        + '<ellipse cx="50" cy="40" rx="5" ry="4.5" fill="'+l+'"/>'
+        + '<ellipse cx="50" cy="40" rx="2" ry="4" fill="#111"/>'
+        + '<circle cx="51" cy="38.5" r="0.8" fill="white"/>'
+        + '<path d="M35,44 L40,42 L45,44 L40,47Z" fill="#111"/>'
+        + '<path d="M34,49 Q40,55 46,49" fill="none" stroke="rgba(0,0,0,0.7)" stroke-width="2" stroke-linecap="round"/>'
+        + '<path d="M40,47 L40,51" stroke="rgba(0,0,0,0.7)" stroke-width="1.5" stroke-linecap="round"/>'
+        + '<circle cx="24" cy="49" r="1.5" fill="rgba(0,0,0,0.45)"/>'
+        + '<circle cx="22" cy="52.5" r="1.5" fill="rgba(0,0,0,0.45)"/>'
+        + '<circle cx="56" cy="49" r="1.5" fill="rgba(0,0,0,0.45)"/>'
+        + '<circle cx="58" cy="52.5" r="1.5" fill="rgba(0,0,0,0.45)"/>'
+        + '<circle cx="40" cy="40" r="38" fill="none" stroke="'+l+'" stroke-width="2.5"/>';
+
     } else if (style === 4) {
-      // Sticker Bomb: thick-border rounded rect + scanlines + corner stars
-      bg = '<rect x="3" y="3" width="74" height="74" rx="10" fill="#0d0d0d"/>';
-      var scanlines = '';
-      for (var sl = 10; sl < 76; sl += 5) {
-        scanlines += '<line x1="3" y1="' + sl + '" x2="77" y2="' + sl + '" stroke="rgba(255,255,255,.03)" stroke-width="2"/>';
-      }
-      extras = scanlines
-        + '<rect x="3" y="3" width="74" height="74" rx="10" fill="none" stroke="#000" stroke-width="8"/>'
-        + '<rect x="3" y="3" width="74" height="74" rx="10" fill="none" stroke="' + p[1] + '" stroke-width="4"/>'
-        + '<rect x="12" y="12" width="56" height="56" rx="6" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="1.5"/>'
-        + '<polygon points="12,12 15,8 18,12 15,16" fill="' + p[1] + '"/>'
-        + '<polygon points="62,12 65,8 68,12 65,16" fill="' + p[1] + '"/>'
-        + '<polygon points="12,62 15,58 18,62 15,66" fill="' + p[1] + '"/>'
-        + '<polygon points="62,62 65,58 68,62 65,66" fill="' + p[1] + '"/>';
+      // SHARK — dorsal fin, torpedo body, teeth
+      inner = '<circle cx="40" cy="40" r="38" fill="#0d0d0d"/>'
+        + '<ellipse cx="40" cy="50" rx="33" ry="15" fill="'+c+'"/>'
+        + '<ellipse cx="40" cy="54" rx="28" ry="9" fill="rgba(255,255,255,0.14)"/>'
+        + '<polygon points="36,35 30,8 52,35" fill="'+c+'"/>'
+        + '<polygon points="37,35 32,12 50,35" fill="'+d+'" opacity="0.5"/>'
+        + '<polygon points="20,50 8,64 24,58" fill="'+d+'"/>'
+        + '<polygon points="60,50 72,64 56,58" fill="'+d+'"/>'
+        + '<polygon points="6,44 2,34 2,56" fill="'+c+'"/>'
+        + '<circle cx="62" cy="46" r="4.5" fill="rgba(255,255,255,0.9)"/>'
+        + '<circle cx="62" cy="46" r="2.5" fill="#111"/>'
+        + '<circle cx="63" cy="45" r="0.8" fill="white"/>'
+        + '<path d="M50,55 Q60,52 70,50" fill="none" stroke="rgba(0,0,0,0.4)" stroke-width="2"/>'
+        + '<polygon points="51,55 53,62 55,55" fill="white"/>'
+        + '<polygon points="55,54 57,61 59,54" fill="white"/>'
+        + '<polygon points="59,53 61,59 63,53" fill="white"/>'
+        + '<path d="M52,46 Q54,49 52,53" fill="none" stroke="rgba(0,0,0,0.4)" stroke-width="1.5" stroke-linecap="round"/>'
+        + '<path d="M56,46 Q58,49 56,53" fill="none" stroke="rgba(0,0,0,0.4)" stroke-width="1.5" stroke-linecap="round"/>'
+        + '<circle cx="40" cy="40" r="38" fill="none" stroke="'+l+'" stroke-width="2.5"/>';
+
     } else if (style === 5) {
-      // Circle Tag: dark circle + color fill + spray dot halo
-      bg = '<circle cx="40" cy="40" r="38" fill="#0d0d0d"/>'
-        + '<circle cx="40" cy="40" r="32" fill="' + p[2] + '"/>';
-      var haloDots = '';
-      var haloAng = [0,30,60,90,120,150,180,210,240,270,300,330];
-      for (var ha = 0; ha < haloAng.length; ha++) {
-        var haRad = haloAng[ha] * Math.PI / 180;
-        haloDots += '<circle cx="' + Math.round((40+35.5*Math.cos(haRad))*10)/10 + '" cy="' + Math.round((40+35.5*Math.sin(haRad))*10)/10 + '" r="' + (ha%3===0?'2':'1.2') + '" fill="' + p[1] + '" opacity=".7"/>';
-        var saOff = 15 * Math.PI / 180;
-        haloDots += '<circle cx="' + Math.round((40+37*Math.cos(haRad+saOff))*10)/10 + '" cy="' + Math.round((40+37*Math.sin(haRad+saOff))*10)/10 + '" r="0.7" fill="rgba(255,255,255,.4)"/>';
-      }
-      extras = haloDots
-        + '<circle cx="40" cy="40" r="38" fill="none" stroke="' + p[1] + '" stroke-width="2.5"/>'
-        + '<circle cx="40" cy="40" r="26" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="1.5"/>';
+      // DRAGON — horns, scale texture, glowing eyes, fire breath
+      inner = '<circle cx="40" cy="40" r="38" fill="#0d0d0d"/>'
+        + '<path d="M28,28 Q18,6 24,2 Q30,6 30,20" fill="'+c+'"/>'
+        + '<path d="M52,28 Q62,6 56,2 Q50,6 50,20" fill="'+c+'"/>'
+        + '<path d="M16,34 Q16,22 40,20 Q64,22 64,34 Q68,46 52,54 Q40,60 28,54 Q12,46 16,34Z" fill="'+c+'"/>'
+        + '<path d="M24,34 Q28,30 32,34" fill="none" stroke="rgba(0,0,0,0.35)" stroke-width="1.5"/>'
+        + '<path d="M32,34 Q36,30 40,34" fill="none" stroke="rgba(0,0,0,0.35)" stroke-width="1.5"/>'
+        + '<path d="M40,34 Q44,30 48,34" fill="none" stroke="rgba(0,0,0,0.35)" stroke-width="1.5"/>'
+        + '<path d="M48,34 Q52,30 56,34" fill="none" stroke="rgba(0,0,0,0.35)" stroke-width="1.5"/>'
+        + '<path d="M26,42 Q30,38 34,42" fill="none" stroke="rgba(0,0,0,0.35)" stroke-width="1.5"/>'
+        + '<path d="M34,42 Q38,38 42,42" fill="none" stroke="rgba(0,0,0,0.35)" stroke-width="1.5"/>'
+        + '<path d="M42,42 Q46,38 50,42" fill="none" stroke="rgba(0,0,0,0.35)" stroke-width="1.5"/>'
+        + '<ellipse cx="28" cy="36" rx="5.5" ry="4.5" fill="'+l+'"/>'
+        + '<ellipse cx="28" cy="36" rx="2" ry="3.5" fill="#111"/>'
+        + '<circle cx="29" cy="34.5" r="0.8" fill="white"/>'
+        + '<ellipse cx="52" cy="36" rx="5.5" ry="4.5" fill="'+l+'"/>'
+        + '<ellipse cx="52" cy="36" rx="2" ry="3.5" fill="#111"/>'
+        + '<circle cx="53" cy="34.5" r="0.8" fill="white"/>'
+        + '<circle cx="36" cy="48" r="2.5" fill="rgba(0,0,0,0.6)"/>'
+        + '<circle cx="44" cy="48" r="2.5" fill="rgba(0,0,0,0.6)"/>'
+        + '<path d="M28,56 Q22,64 26,72 Q30,66 28,60Z" fill="#ff6600" opacity="0.9"/>'
+        + '<path d="M32,56 Q24,66 28,76 Q34,68 30,62Z" fill="#ff4400" opacity="0.85"/>'
+        + '<path d="M30,58 Q26,66 30,72 Q32,68 30,64Z" fill="#ffcc00" opacity="0.85"/>'
+        + '<circle cx="40" cy="40" r="38" fill="none" stroke="'+l+'" stroke-width="2.5"/>';
+
     } else if (style === 6) {
-      // Arrow Banner: left-chevron banner shape + tip dot
-      bg = '<path d="M4,20 L62,20 L76,40 L62,60 L4,60 Z" fill="#0d0d0d"/>';
-      extras = '<path d="M4,20 L62,20 L76,40 L62,60 L4,60 Z" fill="none" stroke="' + p[1] + '" stroke-width="3"/>'
-        + '<path d="M8,25 L60,25 L71,40 L60,55 L8,55 Z" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="1.5"/>'
-        + '<circle cx="76" cy="40" r="5" fill="' + p[1] + '"/>'
-        + '<circle cx="76" cy="40" r="2.5" fill="#fff" opacity=".8"/>'
-        + '<circle cx="4" cy="40" r="4" fill="' + p[0] + '"/>';
-      ty = '44';
+      // BEAR — round head, rounded ears, wide snout
+      inner = '<circle cx="40" cy="40" r="38" fill="#0d0d0d"/>'
+        + '<ellipse cx="40" cy="62" rx="28" ry="16" fill="'+c+'"/>'
+        + '<circle cx="40" cy="38" r="24" fill="'+c+'"/>'
+        + '<circle cx="20" cy="18" r="10" fill="'+c+'"/>'
+        + '<circle cx="60" cy="18" r="10" fill="'+c+'"/>'
+        + '<circle cx="20" cy="18" r="6" fill="'+d+'"/>'
+        + '<circle cx="60" cy="18" r="6" fill="'+d+'"/>'
+        + '<ellipse cx="40" cy="46" rx="14" ry="10" fill="'+d+'" opacity="0.7"/>'
+        + '<ellipse cx="40" cy="43" rx="6" ry="4.5" fill="#111"/>'
+        + '<ellipse cx="39" cy="42" rx="2" ry="1.2" fill="rgba(255,255,255,0.3)"/>'
+        + '<path d="M34,48 Q40,54 46,48" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round"/>'
+        + '<path d="M40,48 L40,52" stroke="#111" stroke-width="2" stroke-linecap="round"/>'
+        + '<circle cx="30" cy="34" r="5.5" fill="rgba(255,255,255,0.9)"/>'
+        + '<circle cx="30" cy="34" r="3.5" fill="#111"/>'
+        + '<circle cx="31" cy="33" r="1" fill="white"/>'
+        + '<circle cx="50" cy="34" r="5.5" fill="rgba(255,255,255,0.9)"/>'
+        + '<circle cx="50" cy="34" r="3.5" fill="#111"/>'
+        + '<circle cx="51" cy="33" r="1" fill="white"/>'
+        + '<circle cx="40" cy="40" r="38" fill="none" stroke="'+l+'" stroke-width="2.5"/>';
+
     } else {
-      // Style 7: Chrome Pill + metallic highlight arc
-      bg = '<ellipse cx="40" cy="40" rx="37" ry="33" fill="#0d0d0d"/>'
-        + '<ellipse cx="40" cy="40" rx="33" ry="29" fill="' + p[2] + '"/>';
-      extras = '<ellipse cx="40" cy="40" rx="37" ry="33" fill="none" stroke="' + p[1] + '" stroke-width="3"/>'
-        + '<ellipse cx="40" cy="26" rx="22" ry="7" fill="rgba(255,255,255,.12)"/>'
-        + '<ellipse cx="40" cy="40" rx="26" ry="22" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="1.5"/>';
+      // LION — jagged mane ring, regal face
+      inner = '<circle cx="40" cy="40" r="38" fill="#0d0d0d"/>'
+        + '<polygon points="40,4 45,12 52,6 53,15 62,11 61,20 70,18 67,28 76,28 71,37 80,40 71,43 76,52 67,52 70,62 61,60 62,69 53,65 52,74 45,68 40,76 35,68 28,74 27,65 18,69 19,60 10,62 13,52 4,52 9,43 0,40 9,37 4,28 13,28 10,18 19,20 18,11 27,15 28,6 35,12" fill="'+c+'"/>'
+        + '<circle cx="40" cy="40" r="26" fill="'+d+'"/>'
+        + '<circle cx="40" cy="40" r="21" fill="'+c+'"/>'
+        + '<circle cx="25" cy="46" r="9" fill="rgba(255,255,255,0.1)"/>'
+        + '<circle cx="55" cy="46" r="9" fill="rgba(255,255,255,0.1)"/>'
+        + '<ellipse cx="32" cy="37" rx="5" ry="4.5" fill="'+l+'"/>'
+        + '<ellipse cx="32" cy="37" rx="2.5" ry="3.5" fill="#111"/>'
+        + '<circle cx="33" cy="36" r="0.9" fill="white"/>'
+        + '<ellipse cx="48" cy="37" rx="5" ry="4.5" fill="'+l+'"/>'
+        + '<ellipse cx="48" cy="37" rx="2.5" ry="3.5" fill="#111"/>'
+        + '<circle cx="49" cy="36" r="0.9" fill="white"/>'
+        + '<path d="M35,44 L40,42 L45,44 L40,47Z" fill="#111"/>'
+        + '<circle cx="22" cy="46" r="1.5" fill="rgba(0,0,0,0.4)"/>'
+        + '<circle cx="22" cy="50" r="1.5" fill="rgba(0,0,0,0.4)"/>'
+        + '<circle cx="58" cy="46" r="1.5" fill="rgba(0,0,0,0.4)"/>'
+        + '<circle cx="58" cy="50" r="1.5" fill="rgba(0,0,0,0.4)"/>'
+        + '<path d="M34,48 Q40,54 46,48" fill="none" stroke="#111" stroke-width="1.5" stroke-linecap="round"/>'
+        + '<path d="M40,47 L40,51" stroke="#111" stroke-width="1.5" stroke-linecap="round"/>'
+        + '<circle cx="40" cy="40" r="38" fill="none" stroke="'+l+'" stroke-width="2.5"/>';
     }
 
-    // Graffiti text: 4 layered strokes for street art 3D depth + italic bold
-    var tya = (parseInt(ty) + 4).toString();
-    var tf = 'Impact,Arial Black,Oswald,sans-serif';
-    var txt = '<text x="44" y="' + tya + '" text-anchor="middle" dominant-baseline="middle" font-family="' + tf + '" font-size="' + initSize + '" font-weight="900" font-style="italic" fill="rgba(0,0,0,.9)" stroke="rgba(0,0,0,.9)" stroke-width="8" stroke-linejoin="round" paint-order="stroke">' + initials + '</text>'
-      + '<text x="40" y="' + ty + '" text-anchor="middle" dominant-baseline="middle" font-family="' + tf + '" font-size="' + initSize + '" font-weight="900" font-style="italic" fill="' + p[0] + '" stroke="#000" stroke-width="6" stroke-linejoin="round" paint-order="stroke">' + initials + '</text>'
-      + '<text x="40" y="' + ty + '" text-anchor="middle" dominant-baseline="middle" font-family="' + tf + '" font-size="' + initSize + '" font-weight="900" font-style="italic" fill="' + p[1] + '">' + initials + '</text>'
-      + '<text x="40" y="' + ty + '" text-anchor="middle" dominant-baseline="middle" font-family="' + tf + '" font-size="' + initSize + '" font-weight="900" font-style="italic" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="1.5">' + initials + '</text>';
-    return '<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">'
-      + bg + extras + txt + '</svg>';
+    return '<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">' + inner + '</svg>';
   }
 
   /** Render a single match VS card (large, for the coming-matches section) */
@@ -325,11 +384,23 @@
     html += '<div class="cm-logo">' + homeLogo + '</div>';
     html += '<div class="cm-name">' + escapeHtml(homeName) + '</div>';
     html += '</div>';
-    // VS badge
+    // VS badge — starburst explosion design
     html += '<div class="cm-vs-wrap">';
     html += '<div class="cm-vs-badge">';
-    html += '<svg class="cm-vs-bg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><polygon points="50,2 95,28 95,72 50,98 5,72 5,28" fill="#111"/><polygon points="50,2 95,28 95,72 50,98 5,72 5,28" fill="none" stroke="#cc0000" stroke-width="3"/></svg>';
-    html += '<span class="cm-vs-text">VS</span>';
+    html += '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block;filter:drop-shadow(0 0 14px rgba(204,0,0,.75))">'
+      // 12-point red starburst
+      + '<polygon points="50,6 56,27 72,12 67,33 88,28 73,44 94,50 73,56 88,72 67,67 72,88 56,73 50,94 44,73 28,88 33,67 12,72 27,56 6,50 27,44 12,28 33,33 28,12 44,27" fill="#cc0000"/>'
+      // dark inner circle
+      + '<circle cx="50" cy="50" r="30" fill="#0d0d0d"/>'
+      // red ring
+      + '<circle cx="50" cy="50" r="30" fill="none" stroke="#cc0000" stroke-width="3"/>'
+      // subtle inner ring
+      + '<circle cx="50" cy="50" r="25" fill="none" stroke="rgba(204,0,0,0.45)" stroke-width="1.5"/>'
+      // VS text — red depth shadow
+      + '<text x="52" y="59" text-anchor="middle" font-family="Impact,Arial Black,sans-serif" font-size="25" font-weight="900" fill="rgba(204,0,0,0.85)" stroke="rgba(204,0,0,0.85)" stroke-width="5" stroke-linejoin="round" paint-order="stroke">VS</text>'
+      // VS text — white main
+      + '<text x="50" y="58" text-anchor="middle" font-family="Impact,Arial Black,sans-serif" font-size="25" font-weight="900" fill="#ffffff">VS</text>'
+      + '</svg>';
     html += '</div></div>';
     html += '<div class="cm-away" style="background:' + awayBg + '">';
     html += '<div class="cm-logo">' + awayLogo + '</div>';

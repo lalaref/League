@@ -93,6 +93,9 @@
 
     // 設定 WhatsApp 分享按鈕
     _setupWhatsAppShare(game, data);
+
+    // 更新分享卡外觀
+    _updateShareCard(game);
   }
 
   /**
@@ -243,6 +246,32 @@
     var awayScoreEl = document.getElementById('away-score');
     if (homeScoreEl) homeScoreEl.textContent = homeTotal;
     if (awayScoreEl) awayScoreEl.textContent = awayTotal;
+  }
+
+  /**
+   * 更新分享卡視覺顯示
+   * @param {Object} game
+   */
+  function _updateShareCard(game) {
+    var matchupEl = document.getElementById('sc-matchup');
+    var scoreEl   = document.getElementById('sc-score');
+    var dateEl    = document.getElementById('sc-date');
+    var mvpBlock  = document.getElementById('sc-mvp');
+    var mvpNameEl = document.getElementById('sc-mvp-name');
+    var mvpStEl   = document.getElementById('sc-mvp-stats');
+
+    if (matchupEl) matchupEl.textContent = (game.homeTeamName || '—') + '  vs  ' + (game.awayTeamName || '—');
+    if (scoreEl) scoreEl.textContent = (game.homeScore != null ? game.homeScore : '—') + ' – ' + (game.awayScore != null ? game.awayScore : '—');
+    if (dateEl) dateEl.textContent = game.date ? Utils.formatDateWithDay(game.date) : '';
+
+    // populate MVP block if present
+    var mvpLink = document.getElementById('game-mvp-link');
+    var mvpStats = document.getElementById('game-mvp-stats');
+    if (mvpBlock && mvpLink && mvpLink.textContent && mvpLink.textContent !== '—') {
+      if (mvpNameEl) mvpNameEl.textContent = mvpLink.textContent;
+      if (mvpStEl && mvpStats) mvpStEl.textContent = mvpStats.textContent;
+      mvpBlock.style.display = 'block';
+    }
   }
 
   /**

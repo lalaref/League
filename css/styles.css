@@ -179,6 +179,7 @@ img {
 .header-top-inner {
     display: flex;
     align-items: stretch;
+    width: 100%;
     max-width: var(--container-max);
     margin: 0 auto;
     min-height: 64px;
@@ -335,8 +336,9 @@ img {
     display: none;
     position: absolute;
     top: 64px;
+    left: 0;
     right: 0;
-    width: 220px;
+    width: 100%;
     background-color: #1a1a1a;
     border-bottom: 2px solid #cc0000;
     list-style: none;
@@ -405,7 +407,8 @@ img {
 /* Hide top info bar on mobile — shown via responsive.css at 1024px+ */
 .header-top {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    position: relative;
 }
 
 /* --- 主要內容 --- */

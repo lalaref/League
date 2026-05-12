@@ -99,27 +99,56 @@
 </head>
 <body>
     <header class="site-header">
-        <nav class="main-nav" aria-label="主導航">
-            <div class="nav-container">
-                <a href="/" class="nav-logo">
-                    <img src="images/logo.svg" alt="ALL-IN Basketball League" class="logo-img">
-                    <span class="logo-text">ALL-IN</span>
-                </a>
-                <button class="hamburger-btn" aria-label="開啟選單" aria-expanded="false" aria-controls="nav-menu">
-                    <span class="hamburger-line"></span><span class="hamburger-line"></span><span class="hamburger-line"></span>
-                </button>
-                <ul id="nav-menu" class="nav-links" role="menubar">
-                    <li role="none"><a href="/" class="nav-link" role="menuitem">首頁</a></li>
-                    <li role="none"><a href="schedule.html" class="nav-link" role="menuitem">賽程</a></li>
-                    <li role="none"><a href="team.html" class="nav-link" role="menuitem">球隊</a></li>
-                    <li role="none"><a href="player.html" class="nav-link" role="menuitem">球員</a></li>
-                    <li role="none"><a href="standings.html" class="nav-link" role="menuitem">排行榜</a></li>
-                    <li role="none"><a href="payment.html" class="nav-link active" role="menuitem">繳費</a></li>
-                    <li role="none"><a href="rules.html" class="nav-link" role="menuitem">比賽章程</a></li>
-                    <li role="none"><a href="archive.html" class="nav-link" role="menuitem">歷史檔案</a></li>
-                </ul>
+        <div class="header-top">
+            <div class="header-top-inner">
+                <div class="ht-logo-wrap">
+                    <a href="/" class="nav-logo" aria-label="ALL-IN Basketball League 首頁">
+                        <img src="images/logo.svg" alt="ALL-IN Basketball League" class="logo-img" width="36" height="36" loading="eager">
+                        <span class="logo-text">ALL-IN</span>
+                    </a>
+                </div>
+                <div class="ht-right">
+                    <div class="ht-info-wrap">
+                        <div class="ht-info-item">
+                            <svg class="ht-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.24h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.18 6.18l.91-.91a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                            <div>
+                                <strong>聯絡我們</strong>
+                                <a href="https://api.whatsapp.com/send?phone=85284330084" target="_blank" rel="noopener">+852 8433 0084</a>
+                            </div>
+                        </div>
+                        <div class="ht-info-item ht-info-item--last">
+                            <svg class="ht-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                            <div>
+                                <strong>賽季資訊</strong>
+                                <span>Season 1 &nbsp;·&nbsp; 2026</span>
+                            </div>
+                        </div>
+                    </div>
+                    <nav class="main-nav" aria-label="主導航">
+                        <button class="hamburger-btn" aria-label="開啟選單" aria-expanded="false" aria-controls="nav-menu">
+                            <span class="hamburger-line"></span>
+                            <span class="hamburger-line"></span>
+                            <span class="hamburger-line"></span>
+                        </button>
+                        <ul id="nav-menu" class="nav-links" role="menubar">
+                            <li role="none"><a href="/" class="nav-link" role="menuitem">首頁</a></li>
+                            <li role="none"><a href="schedule.html" class="nav-link" role="menuitem">賽程</a></li>
+                            <li role="none"><a href="team.html" class="nav-link" role="menuitem">球隊</a></li>
+                            <li role="none"><a href="player.html" class="nav-link" role="menuitem">球員</a></li>
+                            <li role="none"><a href="standings.html" class="nav-link" role="menuitem">排行榜</a></li>
+                            <li role="none"><a href="rules.html" class="nav-link" role="menuitem">比賽章程</a></li>
+                            <li role="none"><a href="archive.html" class="nav-link" role="menuitem">歷史檔案</a></li>
+                            <li role="none"><a href="season2.html" class="nav-link" role="menuitem" style="color:#f59e0b;font-weight:700;">SEASON 2</a></li>
+                        </ul>
+                    </nav>
+                    <div class="ht-lang-wrap">
+                        <button class="lang-switch-btn" aria-label="切換語言">
+                            <span data-i18n="nav.lang">EN</span>
+                        </button>
+                    </div>
+                </div>
             </div>
-        </nav>
+        </div>
     </header>
 
     <main class="main-content">
