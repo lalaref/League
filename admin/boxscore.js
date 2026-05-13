@@ -32,6 +32,7 @@
   var allPlayers = [];       // only attending players
   var existingBoxScore = null;
   var mobileCurrentIndex = 0;
+  var pendingGuestCreations = 0; // tracks in-flight createPlayer calls
 
   loadSeasons();
   seasonSelect.addEventListener('change', function () { loadGames(seasonSelect.value); });
@@ -45,8 +46,10 @@
   confirmAttendanceBtn.addEventListener('click', confirmAttendance);
   var addRosterBtn = document.getElementById('btn-add-roster-player');
   var addGuestBtn = document.getElementById('btn-add-guest-player');
+  var reloadRosterBtn = document.getElementById('btn-reload-roster');
   if (addRosterBtn) addRosterBtn.addEventListener('click', addRosterPlayer);
   if (addGuestBtn) addGuestBtn.addEventListener('click', addGuestPlayer);
+  if (reloadRosterBtn) reloadRosterBtn.addEventListener('click', reloadRosterPlayers);
 
   function loadSeasons() {
     API.getSeasons().then(function (seasons) {
@@ -524,15 +527,48 @@
     if (!sel) return;
     var activeIds = {};
     allPlayers.forEach(function(p) { if (p.id) activeIds[p.id] = true; });
-    sel.innerHTML = '<option value="">-- \u5f9e\u540d\u55ae\u52a0\u5165\u7403\u54e1 --</option>';
+    sel.innerHTML = '<option value="">-- 從名單加入球員 --</option>';
     allRosterPlayers.forEach(function(p) {
       if (activeIds[p.id]) return;
       var opt = document.createElement('option');
       opt.value = p.id;
-      opt.textContent = (p.side === 'home' ? '\u4e3b\u968a ' : '\u5ba2\u968a ') + '#' + (p.number||'?') + ' ' + p.name;
+      opt.textContent = (p.side === 'home' ? '主隊 ' : '客隊 ') + '#' + (p.number || '?') + ' ' + p.name;
       sel.appendChild(opt);
     });
     if (playerMgmtSection) playerMgmtSection.hidden = false;
+  }
+
+  function reloadRosterPlayers() {
+    if (!currentGame) return;
+    var btn = document.getElementById('btn-reload-roster');
+    if (btn) btn.disabled = true;
+    Promise.all([
+      API.getPlayers(currentGame.homeTeamId),
+      API.getPlayers(currentGame.awayTeamId)
+    ]).then(function (results) {
+      var homeId = currentGame.homeTeamId;
+      var awayId = currentGame.awayTeamId;
+      // Preserve guest players added this session
+      var seen = {};
+      var freshRoster = allRosterPlayers.filter(function(p) { return p.isGuest; });
+      freshRoster.forEach(function(p) { seen[p.id] = true; });
+      var mapSide = function(arr, teamId, teamName, side) {
+        return (arr || []).filter(function(p) { return p.teamId === teamId; })
+          .map(function(p) { return Object.assign({}, p, { teamId: teamId, teamName: teamName, side: side }); });
+      };
+      var hp = mapSide(results[0], homeId, currentGame.homeTeamName || homeId, 'home');
+      var ap = mapSide(results[1], awayId, currentGame.awayTeamName || awayId, 'away');
+      hp.concat(ap).forEach(function(p) {
+        if (!seen[p.id]) { freshRoster.push(p); seen[p.id] = true; }
+      });
+      allRosterPlayers = freshRoster;
+      refreshAddPlayerDropdown();
+      showMessage('名單已重新載入', 'success');
+    }).catch(function () {
+      showMessage('名單載入失敗', 'error');
+    }).finally(function () {
+      if (btn) btn.disabled = false;
+    });
   }
 
   function addRosterPlayer() {
@@ -550,23 +586,62 @@
     var sideEl = document.getElementById('guest-side');
     var numEl = document.getElementById('guest-number');
     var nameEl = document.getElementById('guest-name');
+    var addBtn = document.getElementById('btn-add-guest-player');
     if (!sideEl || !numEl || !nameEl) return;
     var name = nameEl.value.trim();
-    if (!name) { showMessage('\u8acb\u8f38\u5165\u7403\u54e1\u540d\u7a31', 'error'); return; }
+    if (!name) { showMessage('請輸入球員名稱', 'error'); return; }
     var side = sideEl.value;
+    var teamId = side === 'home' ? currentGame.homeTeamId : currentGame.awayTeamId;
+    var teamName = side === 'home' ? (currentGame.homeTeamName || '主隊') : (currentGame.awayTeamName || '客隊');
+    var number = numEl.value.trim();
+
+    // Optimistically add with temp ID while API call is in flight
+    var tempId = 'guest-' + Date.now();
     var guest = {
-      id: 'guest-' + Date.now(),
+      id: tempId,
       name: name,
-      number: numEl.value.trim(),
-      teamId: side === 'home' ? currentGame.homeTeamId : currentGame.awayTeamId,
-      teamName: side === 'home' ? (currentGame.homeTeamName || '\u4e3b\u968a') : (currentGame.awayTeamName || '\u5ba2\u968a'),
+      number: number,
+      teamId: teamId,
+      teamName: teamName,
       side: side,
       isGuest: true
     };
     numEl.value = ''; nameEl.value = '';
+    if (addBtn) addBtn.disabled = true;
+
+    // Block submit until createPlayer resolves so the real ID is used in the boxscore
+    pendingGuestCreations++;
+    setPendingSubmitState();
+
+    // Persist to the team's player roster immediately
+    API.post('createPlayer', { teamId: teamId, name: name, number: parseInt(number, 10) || 0 })
+      .then(function (res) {
+        var realId = (res && res.playerId) ? res.playerId : tempId;
+        // Update the object already in allPlayers (same reference)
+        guest.id = realId;
+        // Also update allRosterPlayers entry
+        allRosterPlayers.push(Object.assign({}, guest));
+        showMessage('臨時球員已加入並同步更新名單', 'success');
+      })
+      .catch(function () {
+        showMessage('已加入本場，但同步球員名單失敗。請前往球員管理頁補充後重新載入名單。', 'error');
+      })
+      .finally(function () {
+        pendingGuestCreations--;
+        setPendingSubmitState();
+        if (addBtn) addBtn.disabled = false;
+      });
+
     _insertPlayer(guest);
     renderBoxScore();
     populateMvpSelect();
+  }
+
+  function setPendingSubmitState() {
+    var busy = pendingGuestCreations > 0;
+    submitBtn.disabled = busy;
+    updateBtn.disabled = busy;
+    if (busy) showMessage('正在同步球員資料，請稍候再提交...', 'info');
   }
 
   function _insertPlayer(player) {
