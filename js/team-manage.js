@@ -111,7 +111,7 @@
         editingPlayerId = id;
         playerFormTitle.textContent = '編輯球員';
         document.getElementById('p-name').value = p.name || '';
-        document.getElementById('p-number').value = p.number || '';
+        document.getElementById('p-number').value = (p.number != null) ? p.number : '';
         document.getElementById('p-position').value = p.position || '';
         document.getElementById('p-photo').value = p.photo || '';
         playerForm.hidden = false;
