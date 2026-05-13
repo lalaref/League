@@ -78,7 +78,7 @@
       allPlayers.forEach(function (p) {
         var o = document.createElement('option');
         o.value = p.id;
-        o.textContent = '#' + (p.number || '?') + ' ' + p.name;
+        o.textContent = '#' + (p.number != null && p.number !== '' ? p.number : '?') + ' ' + p.name;
         playerSelect.appendChild(o);
       });
     }).catch(function () { showMsg(I18n.t('error.loadFailed'), 'error'); });

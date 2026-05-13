@@ -169,7 +169,7 @@
       cb.dataset.rosterIndex = idx;
       label.appendChild(cb);
       var span = document.createElement('span');
-      span.textContent = ' #' + (p.number || '?') + ' ' + p.name;
+      span.textContent = ' #' + (p.number != null && p.number !== '' ? p.number : '?') + ' ' + p.name;
       label.appendChild(span);
       container.appendChild(label);
     });
@@ -205,7 +205,7 @@
     allPlayers.forEach(function (p) {
       var opt = document.createElement('option');
       opt.value = p.id;
-      opt.textContent = '#' + (p.number || '?') + ' ' + p.name + ' (' + (p.teamName || '') + ')';
+      opt.textContent = '#' + (p.number != null && p.number !== '' ? p.number : '?') + ' ' + p.name + ' (' + (p.teamName || '') + ')';
       mvpSelect.appendChild(opt);
     });
     mvpSection.hidden = false;
@@ -225,7 +225,7 @@
     }
 
     var player = allPlayers.find(function (p) { return p.id === playerId; }) || null;
-    var playerLabel = player ? ('#' + (player.number || '?') + ' ' + player.name) : playerId;
+    var playerLabel = player ? ('#' + (player.number != null && player.number !== '' ? player.number : '?') + ' ' + player.name) : playerId;
 
     profileLink.href = '../player.html?id=' + encodeURIComponent(playerId);
     profileLink.textContent = '查看球員檔案：' + playerLabel;
@@ -311,7 +311,7 @@
       }
       var tr = document.createElement('tr'); tr.dataset.playerIndex = idx;
       var nc = document.createElement('td'); nc.className = 'admin-player-name';
-      nc.textContent = '#' + (p.number||'?') + ' ' + p.name; tr.appendChild(nc);
+      nc.textContent = '#' + (p.number != null && p.number !== '' ? p.number : '?') + ' ' + p.name; tr.appendChild(nc);
       STAT_FIELDS.forEach(function (f) {
         var td = document.createElement('td'); td.className = 'admin-input-cell';
         var inp = document.createElement('input');
@@ -346,7 +346,7 @@
       card.dataset.playerIndex = idx;
       var hdr = document.createElement('div'); hdr.className = 'admin-player-card-header';
       hdr.innerHTML = '<span class="admin-player-card-team">' + esc(p.teamName) + '</span>' +
-        '<span class="admin-player-card-name">#' + esc(String(p.number||'?')) + ' ' + esc(p.name) + '</span>';
+        '<span class="admin-player-card-name">#' + esc(p.number != null && p.number !== '' ? String(p.number) : '?') + ' ' + esc(p.name) + '</span>';
       var rbtn = document.createElement('button');
       rbtn.className = 'admin-btn-remove'; rbtn.type = 'button';
       rbtn.setAttribute('aria-label', '移除 ' + p.name);
@@ -532,7 +532,7 @@
       if (activeIds[p.id]) return;
       var opt = document.createElement('option');
       opt.value = p.id;
-      opt.textContent = (p.side === 'home' ? '主隊 ' : '客隊 ') + '#' + (p.number || '?') + ' ' + p.name;
+      opt.textContent = (p.side === 'home' ? '主隊 ' : '客隊 ') + '#' + (p.number != null && p.number !== '' ? p.number : '?') + ' ' + p.name;
       sel.appendChild(opt);
     });
     if (playerMgmtSection) playerMgmtSection.hidden = false;
@@ -614,7 +614,7 @@
     setPendingSubmitState();
 
     // Persist to the team's player roster immediately
-    API.post('createPlayer', { teamId: teamId, name: name, number: parseInt(number, 10) || 0 })
+    API.post('createPlayer', { teamId: teamId, name: name, number: number })
       .then(function (res) {
         var realId = (res && res.playerId) ? res.playerId : tempId;
         // Update the object already in allPlayers (same reference)

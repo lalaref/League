@@ -75,7 +75,7 @@
                         </div>
                         <div class="admin-form-group">
                             <label for="player-number" class="admin-label" data-i18n="admin.jerseyNumber">球衣號碼</label>
-                            <input type="number" id="player-number" class="admin-input" min="0" max="99">
+                            <input type="text" id="player-number" class="admin-input" inputmode="numeric" maxlength="2" placeholder="00">
                         </div>
                     </div>
                     <div class="admin-form-row">
@@ -236,7 +236,7 @@
                     editingId = id;
                     formTitle.textContent = I18n.t('admin.edit');
                     document.getElementById('player-name').value = p.name || '';
-                    document.getElementById('player-number').value = p.number || '';
+                    document.getElementById('player-number').value = (p.number != null) ? p.number : '';
                     document.getElementById('player-position').value = p.position || '';
                     document.getElementById('player-photo').value = p.photo || '';
                     formEl.hidden = false;
@@ -271,7 +271,7 @@
             var data = {
                 teamId: teamSelect.value,
                 name: document.getElementById('player-name').value.trim(),
-                number: parseInt(document.getElementById('player-number').value, 10) || 0,
+                number: document.getElementById('player-number').value.trim(),
                 position: document.getElementById('player-position').value,
                 photo: document.getElementById('player-photo').value.trim()
             };
