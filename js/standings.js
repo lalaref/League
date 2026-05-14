@@ -115,21 +115,22 @@
   // ─── Stat Leader Photo Cards ───────────────────────────────────────────────
 
   var LEADER_CARD_CATS = [
-    { cat: 'pts',  abbr: 'PTS', label: 'POINTS',   labelZh: '得分王',  cls: 'sl-card--pts' },
-    { cat: 'ast',  abbr: 'AST', label: 'ASSISTS',  labelZh: '助攻王',  cls: '' },
-    { cat: 'reb',  abbr: 'REB', label: 'REBOUNDS', labelZh: '籃板王',  cls: '' },
-    { cat: 'stl',  abbr: 'STL', label: 'STEALS',   labelZh: '抄截王',  cls: '' },
-    { cat: 'blk',  abbr: 'BLK', label: 'BLOCKS',   labelZh: '封阻王',  cls: '' },
-    { cat: 'tpm',  abbr: '3PM', label: '3-POINTS', labelZh: '三分王',  cls: '' }
+    { cat: 'pts', abbr: 'PTS', label: 'POINTS',   color: '#cc0000' },
+    { cat: 'reb', abbr: 'REB', label: 'REBOUNDS', color: '#1a6fd4' },
+    { cat: 'ast', abbr: 'AST', label: 'ASSISTS',  color: '#0ea854' },
+    { cat: 'stl', abbr: 'STL', label: 'STEALS',   color: '#d47a00' },
+    { cat: 'blk', abbr: 'BLK', label: 'BLOCKS',   color: '#9b27d4' },
+    { cat: 'tpm', abbr: '3PM', label: '3-POINTERS', color: '#00aac4' }
   ];
 
-  var SILHOUETTE_SVG = '<svg viewBox="0 0 100 170" xmlns="http://www.w3.org/2000/svg" fill="white">'
-    + '<circle cx="50" cy="18" r="13"/>'
-    + '<ellipse cx="50" cy="58" rx="16" ry="22"/>'
-    + '<path d="M34,40 Q14,30 8,10 L14,8 Q18,26 36,44Z"/>'
-    + '<circle cx="8" cy="9" r="9"/>'
-    + '<path d="M66,40 Q72,28 76,18 L82,20 Q78,32 68,44Z"/>'
-    + '<path d="M34,78 L28,130 L38,130 L50,95 L62,130 L72,130 L66,78Z"/>'
+  var SILHOUETTE_SVG = '<svg viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg" fill="white" opacity=".18">'
+    + '<circle cx="50" cy="20" r="15"/>'
+    + '<path d="M30,42 Q18,35 10,12 L17,9 Q22,30 38,46Z"/>'
+    + '<circle cx="10" cy="11" r="10"/>'
+    + '<path d="M70,42 Q75,32 82,18 L89,21 Q84,37 64,47Z"/>'
+    + '<circle cx="90" cy="10" r="10"/>'
+    + '<ellipse cx="50" cy="72" rx="20" ry="28"/>'
+    + '<path d="M30,96 L22,158 L36,158 L50,115 L64,158 L78,158 L70,96Z"/>'
     + '</svg>';
 
   function loadLeaderCards() {
@@ -149,33 +150,36 @@
   }
 
   function renderLeaderCard(cfg, leader) {
-    var hasPhoto = leader && leader.photo;
-    var value    = leader ? Number(leader.value) : 0;
+    var hasPhoto   = leader && leader.photo;
+    var value      = leader ? Number(leader.value) : 0;
     var displayVal = (value % 1 === 0) ? value.toFixed(0) : value.toFixed(1);
-    var name     = leader ? escapeHtml(leader.playerName || '—') : '—';
-    var team     = leader ? escapeHtml(leader.teamName || '—') : '—';
-    var jersey   = leader && (leader.number !== '' && leader.number != null) ? ' #' + escapeHtml(String(leader.number)) : '';
-    var pid      = leader && leader.playerId ? encodeURIComponent(leader.playerId) : null;
+    var name       = leader ? escapeHtml(leader.playerName || '—') : '—';
+    var team       = leader ? escapeHtml(leader.teamName || '—') : '—';
+    var jersey     = leader && (leader.number !== '' && leader.number != null) ? ' #' + escapeHtml(String(leader.number)) : '';
+    var pid        = leader && leader.playerId ? encodeURIComponent(leader.playerId) : null;
 
     var photoHtml = hasPhoto
       ? '<img class="sl-photo" src="' + escapeHtml(leader.photo) + '" alt="' + name + '" loading="lazy" onerror="this.style.display=\'none\'">'
-        + '<div class="sl-silhouette">' + SILHOUETTE_SVG + '</div>'
-      : '<div class="sl-silhouette">' + SILHOUETTE_SVG + '</div>';
+        + SILHOUETTE_SVG
+      : SILHOUETTE_SVG;
 
     var nameHtml = pid
-      ? '<a href="player.html?id=' + pid + '" style="color:inherit;text-decoration:none">' + name + '</a>'
+      ? '<a href="player.html?id=' + pid + '" class="sl-player-link">' + name + '</a>'
       : name;
 
-    return '<div class="sl-card ' + cfg.cls + '" role="article" aria-label="' + cfg.label + ' leader">'
-      + '<div class="sl-photo-area">' + photoHtml
-      + '<div class="sl-stat-overlay"><span class="sl-stat-abbr">' + cfg.abbr + '</span>'
-      + '<span class="sl-stat-value">' + (leader ? displayVal : '—') + '</span></div>'
+    return '<div class="sl-card" style="--sl-color:' + cfg.color + '" role="article" aria-label="' + cfg.label + ' leader">'
+      + '<div class="sl-photo-area">'
+      + photoHtml
+      + '<div class="sl-photo-gradient"></div>'
+      + '<div class="sl-badge">' + cfg.abbr + '</div>'
+      + '<div class="sl-num">' + (leader ? displayVal : '—') + '</div>'
       + '</div>'
       + '<div class="sl-info">'
       + '<span class="sl-cat-name">' + cfg.label + '</span>'
       + '<span class="sl-player-name">' + nameHtml + '</span>'
       + '<span class="sl-team">' + team + jersey + '</span>'
-      + '</div></div>';
+      + '</div>'
+      + '</div>';
   }
 
   // ─── Team Standings ────────────────────────────────────────────────────────
