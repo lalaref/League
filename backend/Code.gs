@@ -21,6 +21,7 @@ var VALID_POST_ACTIONS = [
   'createAnnouncement', 'updateAnnouncement', 'deleteAnnouncement',
   'cancelGame', 'deleteGame',
   'createTeam', 'updateTeam', 'deleteTeam',
+  'createPlayer', 'updatePlayer', 'deletePlayer',
   'publicUpdateTeam', 'publicCreatePlayer', 'publicUpdatePlayer', 'publicDeletePlayer'
 ];
 
@@ -385,6 +386,7 @@ function handleGetLeaders(e) {
     else if (cat==='ast') val=_rnd(s.ast/gp,1);
     else if (cat==='stl') val=_rnd(s.stl/gp,1);
     else if (cat==='blk') val=_rnd(s.blk/gp,1);
+    else if (cat==='tpm') val=(s.tpm||0);
     else if (cat==='fg_pct') val=fgPct;
     else if (cat==='tp_pct') val=tpPct;
     else if (cat==='ft_pct') val=ftPct;
@@ -393,8 +395,10 @@ function handleGetLeaders(e) {
     if (cat==='fg_pct'&&s.fga===0) return null;
     if (cat==='tp_pct'&&s.tpa===0) return null;
     if (cat==='ft_pct'&&s.fta===0) return null;
+    if (cat==='tpm'&&(s.tpm||0)===0) return null;
     return { playerId:pid, playerName:_str(p.name||''), teamId:s.teamId,
-             teamName:_str(tm.name||''), value:val, gamesPlayed:s.gp };
+             teamName:_str(tm.name||''), value:val, gamesPlayed:s.gp,
+             photo:_str(p.photo||''), number:(p.number!==''&&p.number!=null)?_num(p.number):'' };
   }).filter(function(l){return l!==null;});
   leaders.sort(function(a,b){return b.value-a.value;});
   leaders.forEach(function(l,i){l.rank=i+1;});
@@ -963,6 +967,69 @@ function handleDeleteTeam(e, body) {
   return createSuccessResponse({ message: '球隊已刪除', teamId: body.teamId }, false);
 }
 
+// --- Admin player management ---
+function handleCreatePlayer(e, body) {
+  if (!body.teamId) return createErrorResponse(400, '缺少必要參數：teamId');
+  if (!body.name) return createErrorResponse(400, '缺少必要參數：name');
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName('Players');
+    if (!sheet) return createErrorResponse(500, '找不到 Players 工作表');
+    var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    var colMap = {};
+    headers.forEach(function(h, i) { colMap[h] = i; });
+    var newId = Utilities.getUuid();
+    var row = new Array(headers.length).fill('');
+    var set = function(f, v) { if (colMap[f] !== undefined) row[colMap[f]] = v || ''; };
+    set('id', newId); set('teamId', _str(body.teamId)); set('name', body.name);
+    set('number', body.number !== undefined ? body.number : '');
+    set('position', body.position); set('photo', body.photo);
+    sheet.appendRow(row);
+    return createSuccessResponse({ message: '球員新增成功', playerId: newId }, false);
+  } catch(err) { return createErrorResponse(500, '球員新增失敗：' + err.message); }
+}
+
+function handleUpdatePlayer(e, body) {
+  if (!body.playerId) return createErrorResponse(400, '缺少必要參數：playerId');
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName('Players');
+    if (!sheet) return createErrorResponse(500, '找不到 Players 工作表');
+    var lastRow = sheet.getLastRow();
+    var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    var colMap = {};
+    headers.forEach(function(h, i) { colMap[h] = i + 1; });
+    var data = sheet.getRange(2, 1, lastRow - 1, sheet.getLastColumn()).getValues();
+    var rowNum = -1;
+    for (var i = 0; i < data.length; i++) {
+      if (String(data[i][0]) === String(body.playerId)) { rowNum = i + 2; break; }
+    }
+    if (rowNum < 0) return createErrorResponse(404, '找不到球員');
+    ['name','number','position','photo'].forEach(function(f) {
+      if (body[f] !== undefined && colMap[f]) sheet.getRange(rowNum, colMap[f]).setValue(body[f]);
+    });
+    return createSuccessResponse({ message: '球員更新成功', playerId: body.playerId }, false);
+  } catch(err) { return createErrorResponse(500, '球員更新失敗：' + err.message); }
+}
+
+function handleDeletePlayer(e, body) {
+  if (!body.playerId) return createErrorResponse(400, '缺少必要參數：playerId');
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName('Players');
+    if (!sheet) return createErrorResponse(500, '找不到 Players 工作表');
+    var lastRow = sheet.getLastRow();
+    var data = sheet.getRange(2, 1, lastRow - 1, sheet.getLastColumn()).getValues();
+    for (var i = data.length - 1; i >= 0; i--) {
+      if (String(data[i][0]) === String(body.playerId)) {
+        sheet.deleteRow(i + 2);
+        return createSuccessResponse({ message: '球員已刪除', playerId: body.playerId }, false);
+      }
+    }
+    return createErrorResponse(404, '找不到球員');
+  } catch(err) { return createErrorResponse(500, '球員刪除失敗：' + err.message); }
+}
+
 // --- Public (token-authenticated) team management ---
 function _getTeamByToken(token) {
   var rows = _sheetToObjects('Teams');
@@ -1171,6 +1238,9 @@ function doPost(e) {
       case 'createTeam': result = handleCreateTeam(e, body); break;
       case 'updateTeam': result = handleUpdateTeam(e, body); break;
       case 'deleteTeam': result = handleDeleteTeam(e, body); break;
+      case 'createPlayer': result = handleCreatePlayer(e, body); break;
+      case 'updatePlayer': result = handleUpdatePlayer(e, body); break;
+      case 'deletePlayer': result = handleDeletePlayer(e, body); break;
       case 'publicUpdateTeam':   result = handlePublicUpdateTeam(e, body);   break;
       case 'publicCreatePlayer': result = handlePublicCreatePlayer(e, body); break;
       case 'publicUpdatePlayer': result = handlePublicUpdatePlayer(e, body); break;
