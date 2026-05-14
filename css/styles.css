@@ -451,11 +451,68 @@ img {
 
 /* --- 比賽卡片網格 --- */
 .games-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    background: var(--color-surface);
 }
 
+/* ── Recent Results: one row per match ── */
+.gr-row {
+    display: grid;
+    grid-template-columns: 90px 1fr 90px 1fr;
+    align-items: center;
+    gap: 0 8px;
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--color-border);
+    text-decoration: none;
+    color: inherit;
+    transition: background var(--transition-fast);
+    min-height: 40px;
+}
+.gr-row:last-child { border-bottom: none; }
+.gr-row:hover { background: var(--color-surface-light); }
+
+.gr-date {
+    font-size: 11px;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 0;
+}
+
+.gr-team {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.gr-team--home { text-align: right; }
+.gr-team--away { text-align: left; }
+.gr-team--win { color: var(--color-primary); font-weight: 700; }
+
+.gr-score {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    font-family: 'Raleway', sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    flex-shrink: 0;
+    white-space: nowrap;
+    color: var(--color-text-muted);
+}
+.gr-score-win { color: var(--color-secondary); }
+.gr-score-sep { font-size: 11px; font-weight: 400; color: #ccc; }
+
+/* legacy .game-card kept for other pages */
 .game-card {
     background-color: var(--color-surface);
     border: 1px solid rgba(0, 0, 0, .06);
