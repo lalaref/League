@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
@@ -18,6 +18,41 @@
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/responsive.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <style>
+    /* ── Stat Leader Cards ── */
+    .sl-section{background:#0d0d0d;padding:36px 0 28px}
+    .sl-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+    .sl-card{background:#111;border-radius:10px;overflow:hidden;position:relative;
+             display:flex;flex-direction:column;box-shadow:0 6px 24px rgba(0,0,0,.5);
+             transition:transform .22s,box-shadow .22s;cursor:default}
+    .sl-card:hover{transform:translateY(-5px);box-shadow:0 12px 36px rgba(0,0,0,.6)}
+    .sl-card--pts .sl-info{background:#cc0000}
+    .sl-photo-area{flex:1;min-height:170px;position:relative;overflow:hidden;
+                   background:linear-gradient(180deg,#1c1c1c 0%,#0d0d0d 100%)}
+    .sl-photo{width:100%;height:100%;object-fit:cover;object-position:top center;
+              position:absolute;inset:0;display:block}
+    .sl-silhouette{position:absolute;inset:0;display:flex;align-items:flex-end;
+                   justify-content:center;padding-bottom:0;opacity:.22}
+    .sl-silhouette svg{width:68%;max-height:100%}
+    .sl-stat-overlay{position:absolute;bottom:10px;left:12px;z-index:2;line-height:1}
+    .sl-stat-abbr{font-family:'Raleway',sans-serif;font-size:10px;font-weight:800;
+                  letter-spacing:.18em;color:rgba(255,255,255,.6);text-transform:uppercase;
+                  display:block;margin-bottom:2px}
+    .sl-stat-value{font-family:'Raleway',sans-serif;font-size:52px;font-weight:900;
+                   color:#fff;line-height:1;display:block;text-shadow:0 2px 12px rgba(0,0,0,.7)}
+    .sl-info{padding:11px 12px 12px;background:#1a1a1a}
+    .sl-cat-name{font-family:'Raleway',sans-serif;font-size:11px;font-weight:900;
+                 letter-spacing:.15em;text-transform:uppercase;color:#fff;display:block}
+    .sl-player-name{font-size:12px;font-weight:700;color:rgba(255,255,255,.82);
+                    margin-top:4px;display:block;overflow:hidden;text-overflow:ellipsis;
+                    white-space:nowrap}
+    .sl-team{font-size:10px;color:rgba(255,255,255,.45);margin-top:2px;display:block}
+    .sl-loading{grid-column:1/-1;text-align:center;padding:40px;color:#555;font-size:13px}
+    @media(max-width:900px){.sl-grid{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:500px){.sl-grid{grid-template-columns:repeat(2,1fr)}}
+    /* ── Team Standings section ── */
+    .team-standings-section{padding-top:32px;padding-bottom:8px}
+    </style>
 </head>
 <body>
     <!-- 導航列 -->
@@ -86,6 +121,39 @@
                         <option value="" data-i18n="common.loading">載入中...</option>
                     </select>
                     <p class="text-muted standings-min-games" id="min-games-note" data-i18n="standings.minGamesNote">排行榜設有最低出場次數門檻</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 各類別領袖照片橫幅 -->
+        <section class="sl-section" aria-label="各類別領袖">
+            <div class="container">
+                <div id="stat-leader-cards" class="sl-grid" aria-live="polite">
+                    <!-- 動態載入 -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 球隊排名 -->
+        <section class="section team-standings-section" aria-label="球隊排名">
+            <div class="container">
+                <div style="display:flex;align-items:center;margin-bottom:16px"><h3 style="font-family:'Raleway',sans-serif;font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:.14em;color:#cc0000;display:flex;align-items:center;gap:8px">🏆 球隊排名</h3><div style="flex:1;height:1px;background:rgba(0,0,0,.1);margin-left:14px"></div></div>
+                <div class="table-wrapper">
+                    <table id="standings-page-table" class="data-table" aria-label="球隊排名">
+                        <thead>
+                            <tr>
+                                <th>排名</th>
+                                <th>球隊</th>
+                                <th>場次</th>
+                                <th>勝</th>
+                                <th>和</th>
+                                <th>負</th>
+                                <th>得失</th>
+                                <th>積分</th>
+                            </tr>
+                        </thead>
+                        <tbody><tr><td colspan="8" class="loading">載入中...</td></tr></tbody>
+                    </table>
                 </div>
             </div>
         </section>
