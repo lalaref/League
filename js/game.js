@@ -261,7 +261,12 @@
     var mvpStEl   = document.getElementById('sc-mvp-stats');
 
     if (matchupEl) matchupEl.textContent = (game.homeTeamName || '—') + '  vs  ' + (game.awayTeamName || '—');
-    if (scoreEl) scoreEl.textContent = (game.homeScore != null ? game.homeScore : '—') + ' – ' + (game.awayScore != null ? game.awayScore : '—');
+    // Always use the same score as #home-score / #away-score (quarter-derived when available)
+    var homeScoreEl = document.getElementById('home-score');
+    var awayScoreEl = document.getElementById('away-score');
+    var hs = homeScoreEl ? homeScoreEl.textContent : (game.homeScore != null ? game.homeScore : '—');
+    var as = awayScoreEl ? awayScoreEl.textContent : (game.awayScore != null ? game.awayScore : '—');
+    if (scoreEl) scoreEl.textContent = hs + ' – ' + as;
     if (dateEl) dateEl.textContent = game.date ? Utils.formatDateWithDay(game.date) : '';
 
     // populate MVP block if present
