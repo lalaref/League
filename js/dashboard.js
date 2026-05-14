@@ -106,7 +106,7 @@
   }
 
   /**
-   * 渲染單場比賽卡片
+   * 渲染單場比賽列（一場一行）
    */
   function renderGameCard(game) {
     var homeName = game.homeTeamName || game.homeTeam || game.homeTeamId || '—';
@@ -126,24 +126,21 @@
       awayScore = game.awayScore != null ? game.awayScore : '—';
     }
 
+    var homeWin = Number(homeScore) > Number(awayScore);
+    var awayWin = Number(awayScore) > Number(homeScore);
     var date = _formatDate(game.date);
-    var isCompleted = game.status === 'completed';
+    var url = _pageBase + 'game.html?id=' + encodeURIComponent(game.id);
 
-    var html = '<div class="game-card">';
-    if (isCompleted) {
-      html += '<a href="' + _pageBase + 'game.html?id=' + encodeURIComponent(game.id) + '" aria-label="' + homeName + ' vs ' + awayName + '">';
-    }
-    html += '<div class="game-card-date text-muted">' + escapeHtml(date) + '</div>';
-    html += '<div class="game-card-matchup">';
-    html += '<span class="game-card-team">' + escapeHtml(homeName) + '</span>';
-    html += '<span class="game-card-score">' + escapeHtml(String(homeScore)) + ' - ' + escapeHtml(String(awayScore)) + '</span>';
-    html += '<span class="game-card-team">' + escapeHtml(awayName) + '</span>';
-    html += '</div>';
-    if (isCompleted) {
-      html += '</a>';
-    }
-    html += '</div>';
-    return html;
+    return '<a class="gr-row" href="' + url + '" aria-label="' + escapeHtml(homeName) + ' vs ' + escapeHtml(awayName) + '">'
+      + '<span class="gr-date">' + escapeHtml(date) + '</span>'
+      + '<span class="gr-team gr-team--home' + (homeWin ? ' gr-team--win' : '') + '">' + escapeHtml(homeName) + '</span>'
+      + '<span class="gr-score">'
+      + '<span class="' + (homeWin ? 'gr-score-win' : '') + '">' + escapeHtml(String(homeScore)) + '</span>'
+      + '<span class="gr-score-sep">-</span>'
+      + '<span class="' + (awayWin ? 'gr-score-win' : '') + '">' + escapeHtml(String(awayScore)) + '</span>'
+      + '</span>'
+      + '<span class="gr-team gr-team--away' + (awayWin ? ' gr-team--win' : '') + '">' + escapeHtml(awayName) + '</span>'
+      + '</a>';
   }
 
   // --- Team data cache for jersey colors on home page ---
