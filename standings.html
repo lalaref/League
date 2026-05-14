@@ -21,6 +21,10 @@
     <style>
     /* ── Stat Leader Cards — Enhanced Irregular Shapes ── */
     .sl-section{background:#060606;padding:44px 0 36px}
+    .sl-section-title{display:flex;align-items:center;gap:14px;margin-bottom:24px}
+    .sl-title-icon{font-size:26px;line-height:1}
+    .sl-title-text{font-family:"Raleway",sans-serif;font-size:28px;font-weight:900;text-transform:uppercase;letter-spacing:.12em;color:#fff;margin:0;line-height:1}
+    .sl-title-sub{font-family:"Raleway",sans-serif;font-size:12px;font-weight:600;letter-spacing:.1em;color:#aaa;margin-left:4px;align-self:flex-end;padding-bottom:3px}
     .sl-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
 
     .sl-card{
@@ -195,6 +199,11 @@
         <!-- 各類別領袖照片橫幅 -->
         <section class="sl-section" aria-label="各類別領袖">
             <div class="container">
+                <div class="sl-section-title">
+                    <span class="sl-title-icon">🏆</span>
+                    <h2 class="sl-title-text">Leaderboard</h2>
+                    <span class="sl-title-sub">各類別最佳球員</span>
+                </div>
                 <div id="stat-leader-cards" class="sl-grid" aria-live="polite">
                     <!-- 動態載入 -->
                 </div>
