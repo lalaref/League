@@ -129,6 +129,14 @@
     if (positionEl) positionEl.textContent = info.position || '—';
     if (gamesEl) gamesEl.textContent = info.gamesPlayed != null ? info.gamesPlayed : '—';
 
+    // MVP 次數徽章
+    var mvpBadgeEl = document.getElementById('player-mvp-badge');
+    var mvpCountEl = document.getElementById('player-mvp-count');
+    if (mvpBadgeEl && info.mvpCount > 0) {
+      if (mvpCountEl) mvpCountEl.textContent = info.mvpCount;
+      mvpBadgeEl.removeAttribute('hidden');
+    }
+
     // 更新頁面標題
     if (info.name) {
       document.title = info.name + ' — ALL-IN Basketball League';
