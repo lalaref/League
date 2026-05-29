@@ -1078,6 +1078,52 @@ img {
     margin-bottom: var(--spacing-xs);
 }
 
+/* --- MVP 徽章 --- */
+.player-mvp-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    background: linear-gradient(135deg, #7c5800 0%, #f59e0b 40%, #ffe27a 60%, #f59e0b 100%);
+    color: #1a1200;
+    border-radius: 999px;
+    padding: 0.45em 1.1em 0.45em 0.8em;
+    margin-bottom: var(--spacing-sm);
+    box-shadow: 0 0 18px 4px rgba(245, 158, 11, 0.55), 0 2px 8px rgba(0,0,0,0.35);
+    animation: mvp-glow 2s ease-in-out infinite alternate;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    cursor: default;
+    user-select: none;
+}
+
+@keyframes mvp-glow {
+    from { box-shadow: 0 0 12px 3px rgba(245, 158, 11, 0.45), 0 2px 8px rgba(0,0,0,0.3); }
+    to   { box-shadow: 0 0 28px 8px rgba(245, 158, 11, 0.75), 0 2px 8px rgba(0,0,0,0.3); }
+}
+
+.player-mvp-trophy {
+    font-size: 1.4em;
+    line-height: 1;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4));
+}
+
+.player-mvp-count {
+    font-size: 2rem;
+    font-weight: 900;
+    line-height: 1;
+    color: #1a1200;
+}
+
+.player-mvp-label {
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #3d2a00;
+    align-self: flex-end;
+    margin-bottom: 0.1em;
+}
+
 .player-meta {
     display: flex;
     align-items: center;
