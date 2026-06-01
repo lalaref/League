@@ -235,7 +235,7 @@
   function buildFromExisting(boxData) {
     allPlayers = [];
     var map = function (stats, side) {
-      return (stats||[]).map(function(s){ return {id:s.playerId,name:s.playerName||s.playerId,number:s.number||'',teamId:s.teamId,teamName:s.teamName||s.teamId,side:side,stats:s}; });
+      return (stats||[]).map(function(s){ return {id:s.playerId,name:s.playerName||s.playerId,number:s.number!=null?s.number:'',teamId:s.teamId,teamName:s.teamName||s.teamId,side:side,stats:s}; });
     };
     allPlayers = map(boxData.homeStats,'home').concat(map(boxData.awayStats,'away'));
     // Load existing quarter scores
