@@ -1771,6 +1771,22 @@ img {
     text-align: right;
 }
 
+/* --- 季後賽分組標題 (Champions / Consolidation) --- */
+.playoff-bracket-section {
+    margin-bottom: var(--spacing-xl);
+}
+
+.playoff-bracket-section-title {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text);
+    margin-bottom: var(--spacing-md);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-left: 3px solid var(--color-accent);
+    background: rgba(255,255,255,0.03);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
 
 /* --- 歷史檔案頁面 --- */
 .archive-season-cards {
