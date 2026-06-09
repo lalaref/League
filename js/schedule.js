@@ -268,6 +268,9 @@
           if (data.rounds) {
             data.rounds.forEach(function (r) { resolveGames(r.games); });
           }
+          if (data.brackets) {
+            data.brackets.forEach(function (b) { (b.rounds || []).forEach(function (r) { resolveGames(r.games); }); });
+          }
           if (data.bracket) {
             data.bracket.forEach(function (roundGames) { resolveGames(roundGames); });
           }
@@ -284,17 +287,58 @@
 
   /**
    * Render playoff bracket as an elimination tree.
-   * Data format expected:
-   *   { rounds: [ { name: "首輪", games: [ { home, away, homeScore, awayScore, status } ] }, ... ] }
-   * or
-   *   { bracket: [ [game, game, ...], [game, ...], [game] ] }
+   * Supports two-bracket format: { brackets: [ { id, name, rounds }, ... ] }
+   * Falls back to: { rounds: [...] } or { bracket: [[...], ...] }
    */
   function _renderPlayoffBracket(data) {
     if (!playoffsBracket) return;
     playoffsBracket.innerHTML = '';
 
+    // --- Two-bracket display (champions + consolidation) ---
+    if (data.brackets && data.brackets.length) {
+      playoffsBracket.style.gridTemplateColumns = '';
+      playoffsBracket.style.display = 'block';
+      data.brackets.forEach(function (bracket) {
+        var section = document.createElement('div');
+        section.className = 'playoff-bracket-section';
+
+        var header = document.createElement('h3');
+        header.className = 'playoff-bracket-section-title';
+        header.textContent = bracket.name || bracket.id;
+        section.appendChild(header);
+
+        var innerGrid = document.createElement('div');
+        innerGrid.className = 'playoff-bracket';
+        innerGrid.style.gridTemplateColumns = 'repeat(' + (bracket.rounds || []).length + ', minmax(200px, 1fr))';
+
+        (bracket.rounds || []).forEach(function (round, roundIdx) {
+          var roundCol = document.createElement('div');
+          roundCol.className = 'playoff-round';
+
+          var roundTitle = document.createElement('h3');
+          roundTitle.className = 'playoff-round-title';
+          roundTitle.textContent = round.name || ('Round ' + (roundIdx + 1));
+          roundCol.appendChild(roundTitle);
+
+          var gamesContainer = document.createElement('div');
+          gamesContainer.className = 'playoff-round-games';
+          (round.games || []).forEach(function (game) {
+            gamesContainer.appendChild(_createPlayoffMatchup(game));
+          });
+
+          roundCol.appendChild(gamesContainer);
+          innerGrid.appendChild(roundCol);
+        });
+
+        section.appendChild(innerGrid);
+        playoffsBracket.appendChild(section);
+      });
+      return;
+    }
+
+    // --- Legacy single-bracket display ---
+    playoffsBracket.style.display = '';
     var rounds = data.rounds || [];
-    // If bracket array format, convert to rounds
     if (!rounds.length && Array.isArray(data.bracket)) {
       var roundNames = [
         I18n.t('schedule.roundFirst') || '首輪',
@@ -312,7 +356,6 @@
       return;
     }
 
-    // Set CSS grid columns based on number of rounds
     playoffsBracket.style.gridTemplateColumns = 'repeat(' + rounds.length + ', minmax(200px, 1fr))';
 
     rounds.forEach(function (round, roundIdx) {

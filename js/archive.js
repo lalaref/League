@@ -296,7 +296,9 @@
   // 渲染季後賽對陣結果
   // =============================================
   function renderPlayoffs(playoffs) {
-    if (!playoffs || !playoffs.rounds || playoffs.rounds.length === 0) {
+    var hasBrackets = playoffs && playoffs.brackets && playoffs.brackets.length > 0;
+    var hasRounds   = playoffs && playoffs.rounds   && playoffs.rounds.length   > 0;
+    if (!hasBrackets && !hasRounds) {
       playoffsEmpty.style.display = '';
       playoffsBracketWrapper.style.display = 'none';
       return;
@@ -305,13 +307,58 @@
     playoffsBracketWrapper.style.display = '';
     playoffsBracket.innerHTML = '';
 
-    var roundNames = [
-      I18n.t('schedule.roundFirst'),
-      I18n.t('schedule.roundSemi'),
-      I18n.t('schedule.roundFinal')
-    ];
+    // --- Two-bracket display (champions + consolidation) ---
+    if (hasBrackets) {
+      playoffsBracket.style.gridTemplateColumns = '';
+      playoffsBracket.style.display = 'block';
+      playoffs.brackets.forEach(function (bracket) {
+        var section = document.createElement('div');
+        section.className = 'playoff-bracket-section';
 
-    // 設定 grid 欄數
+        var header = document.createElement('h3');
+        header.className = 'playoff-bracket-section-title';
+        header.textContent = bracket.name || bracket.id;
+        section.appendChild(header);
+
+        var innerGrid = document.createElement('div');
+        innerGrid.className = 'playoff-bracket';
+        innerGrid.style.gridTemplateColumns = 'repeat(' + (bracket.rounds || []).length + ', minmax(200px, 1fr))';
+
+        (bracket.rounds || []).forEach(function (round, roundIdx) {
+          var roundEl = document.createElement('div');
+          roundEl.className = 'playoff-round';
+
+          var titleEl = document.createElement('div');
+          titleEl.className = 'playoff-round-title';
+          titleEl.textContent = round.name || ('Round ' + (roundIdx + 1));
+          roundEl.appendChild(titleEl);
+
+          var gamesEl = document.createElement('div');
+          gamesEl.className = 'playoff-round-games';
+          (round.games || []).forEach(function (game) {
+            var matchup = document.createElement('div');
+            matchup.className = 'playoff-matchup';
+            var hs = game.homeScore != null ? game.homeScore : null;
+            var as_ = game.awayScore != null ? game.awayScore : null;
+            var isCompleted = game.status === 'completed' || (hs !== null && as_ !== null);
+            var homeWin = isCompleted && Number(hs) > Number(as_);
+            var awayWin = isCompleted && Number(as_) > Number(hs);
+            matchup.appendChild(createPlayoffTeamEl(game.homeTeamName || '', hs, homeWin));
+            matchup.appendChild(createPlayoffTeamEl(game.awayTeamName || '', as_, awayWin));
+            gamesEl.appendChild(matchup);
+          });
+          roundEl.appendChild(gamesEl);
+          innerGrid.appendChild(roundEl);
+        });
+
+        section.appendChild(innerGrid);
+        playoffsBracket.appendChild(section);
+      });
+      return;
+    }
+
+    // --- Legacy single-bracket display ---
+    playoffsBracket.style.display = '';
     playoffsBracket.style.gridTemplateColumns = 'repeat(' + playoffs.rounds.length + ', 1fr)';
 
     playoffs.rounds.forEach(function (round, roundIndex) {
@@ -320,7 +367,7 @@
 
       var titleEl = document.createElement('div');
       titleEl.className = 'playoff-round-title';
-      titleEl.textContent = roundNames[roundIndex] || ('Round ' + (roundIndex + 1));
+      titleEl.textContent = round.name || ('Round ' + (roundIndex + 1));
       roundEl.appendChild(titleEl);
 
       var gamesEl = document.createElement('div');
@@ -331,12 +378,11 @@
         games.forEach(function (game) {
           var matchup = document.createElement('div');
           matchup.className = 'playoff-matchup';
-
-          var homeTeam = createPlayoffTeamEl(game.homeTeam || game.team1 || '', game.homeScore, game.winner);
-          var awayTeam = createPlayoffTeamEl(game.awayTeam || game.team2 || '', game.awayScore, game.winner);
-
-          matchup.appendChild(homeTeam);
-          matchup.appendChild(awayTeam);
+          var hs = game.homeScore != null ? game.homeScore : null;
+          var as_ = game.awayScore != null ? game.awayScore : null;
+          var isCompleted = game.status === 'completed' || (hs !== null && as_ !== null);
+          matchup.appendChild(createPlayoffTeamEl(game.homeTeamName || game.homeTeam || game.team1 || '', hs, isCompleted && Number(hs) > Number(as_)));
+          matchup.appendChild(createPlayoffTeamEl(game.awayTeamName || game.awayTeam || game.team2 || '', as_, isCompleted && Number(as_) > Number(hs)));
           gamesEl.appendChild(matchup);
         });
       }
@@ -346,12 +392,10 @@
     });
   }
 
-  function createPlayoffTeamEl(teamName, score, winner) {
+  function createPlayoffTeamEl(teamName, score, isWinner) {
     var el = document.createElement('div');
     el.className = 'playoff-team';
-    if (winner && teamName && winner === teamName) {
-      el.classList.add('playoff-team--winner');
-    }
+    if (isWinner) el.classList.add('playoff-team--winner');
 
     var nameEl = document.createElement('span');
     nameEl.className = 'playoff-team-name';
