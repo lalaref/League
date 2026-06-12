@@ -54,6 +54,25 @@
 
     a.back { display: inline-block; margin-bottom: 20px; font-size: 13px; color: #888; text-decoration: none; }
     a.back:hover { color: #f97316; }
+
+    /* Not-yet-played table */
+    .nyp-section { margin-top: 28px; }
+    .nyp-section h2 { font-size: 15px; color: #93c5fd; margin-bottom: 12px; }
+    .nyp-table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid #2a2a3a; }
+    .nyp-table { width: 100%; border-collapse: collapse; min-width: 400px; }
+    .nyp-table thead th { background: #1a1a2e; padding: 10px 14px; font-size: 12px; font-weight: 700; text-align: left; color: #a0a0c0; border-bottom: 1px solid #2a2a3a; white-space: nowrap; }
+    .nyp-table thead th:last-child { text-align: center; min-width: 60px; }
+    .nyp-table tbody tr:nth-child(odd)  { background: #131322; }
+    .nyp-table tbody tr:nth-child(even) { background: #0f0f1c; }
+    .nyp-table tbody tr:hover { background: #1e1e35; }
+    .nyp-table td { padding: 9px 14px; font-size: 13px; border-bottom: 1px solid #1e1e2e; vertical-align: middle; }
+    .nyp-table td:first-child { font-weight: 600; color: #e0e0ff; white-space: nowrap; min-width: 140px; }
+    .nyp-table td:last-child { text-align: center; }
+    .nyp-opp { display: inline-block; padding: 3px 8px; border-radius: 4px; background: #1e2233; color: #fbbf24; font-size: 12px; margin: 2px 3px; white-space: nowrap; border: 1px solid #3b3020; }
+    .nyp-none { color: #4ade80; font-size: 12px; font-style: italic; }
+    .nyp-count { font-weight: 700; }
+    .nyp-count.zero { color: #4ade80; }
+    .nyp-count.some { color: #fbbf24; }
   </style>
 </head>
 <body>
@@ -80,6 +99,22 @@
   <div id="issues-list"></div>
 </div>
 
+<div class="nyp-section" id="nyp-section" style="display:none">
+  <h2>Unplayed Opponents per Team</h2>
+  <div class="nyp-table-wrap">
+    <table class="nyp-table" id="nyp-table">
+      <thead>
+        <tr>
+          <th>Team</th>
+          <th>Hasn't Played Against</th>
+          <th>Remaining</th>
+        </tr>
+      </thead>
+      <tbody id="nyp-body"></tbody>
+    </table>
+  </div>
+</div>
+
 <div class="loading-msg" id="loading-msg">Loading…</div>
 
 <script>
@@ -98,6 +133,8 @@ var seasonSelect = document.getElementById('season-select');
 var statusBar    = document.getElementById('status-bar');
 var chipsEl      = document.getElementById('chips');
 var tableWrap    = document.getElementById('table-wrap');
+var nypSection   = document.getElementById('nyp-section');
+var nypBody      = document.getElementById('nyp-body');
 var matrixHead   = document.getElementById('matrix-head');
 var matrixBody   = document.getElementById('matrix-body');
 var issuesSec    = document.getElementById('issues-section');
@@ -126,6 +163,7 @@ function loadSeason(seasonId) {
   chipsEl.style.display = 'none';
   tableWrap.style.display = 'none';
   issuesSec.style.display = 'none';
+  nypSection.style.display = 'none';
 
   Promise.all([
     apiFetch('schedule', { seasonId: seasonId }),
@@ -288,7 +326,7 @@ function render(games, teams) {
 
   tableWrap.style.display = 'block';
 
-  // --- Render issues ---
+  // --- Render issues --- (render() continues below; nyp is rendered after issues)
   issuesSec.style.display = 'block';
   issuesList.innerHTML = '';
   if (uniqueIssues.length === 0) {
@@ -301,6 +339,47 @@ function render(games, teams) {
       issuesList.appendChild(div);
     });
   }
+
+  // --- Render not-yet-played table ---
+  nypBody.innerHTML = '';
+  sortedIds.forEach(function(tid) {
+    var name = teamMap[tid];
+    var sched = teamSchedule[tid];
+    // Collect played opponent names (deduplicated)
+    var playedSet = {};
+    Object.keys(sched).forEach(function(r) {
+      sched[r].forEach(function(opp) { playedSet[opp] = true; });
+    });
+    // All other teams (by name, excluding self)
+    var unplayed = sortedIds
+      .filter(function(oid) { return oid !== tid; })
+      .map(function(oid) { return teamMap[oid]; })
+      .filter(function(oname) { return !playedSet[oname]; })
+      .sort();
+
+    var tr = document.createElement('tr');
+
+    var tdName = document.createElement('td');
+    tdName.textContent = name;
+    tr.appendChild(tdName);
+
+    var tdOpps = document.createElement('td');
+    if (unplayed.length === 0) {
+      tdOpps.innerHTML = '<span class="nyp-none">✓ All opponents played</span>';
+    } else {
+      tdOpps.innerHTML = unplayed.map(function(o) {
+        return '<span class="nyp-opp">' + esc(o) + '</span>';
+      }).join('');
+    }
+    tr.appendChild(tdOpps);
+
+    var tdCount = document.createElement('td');
+    tdCount.innerHTML = '<span class="nyp-count ' + (unplayed.length === 0 ? 'zero' : 'some') + '">' + unplayed.length + '</span>';
+    tr.appendChild(tdCount);
+
+    nypBody.appendChild(tr);
+  });
+  nypSection.style.display = 'block';
 }
 
 function addChip(container, label, type) {
