@@ -88,16 +88,6 @@
 </div>
 
 <div class="chips" id="chips" style="display:none"></div>
-<div class="table-wrap" id="table-wrap" style="display:none">
-  <table id="matrix-table">
-    <thead id="matrix-head"></thead>
-    <tbody id="matrix-body"></tbody>
-  </table>
-</div>
-<div class="issues" id="issues-section" style="display:none">
-  <h2>Issues Found</h2>
-  <div id="issues-list"></div>
-</div>
 
 <div class="nyp-section" id="nyp-section" style="display:none">
   <h2>Unplayed Opponents per Team</h2>
@@ -113,6 +103,17 @@
       <tbody id="nyp-body"></tbody>
     </table>
   </div>
+</div>
+
+<div class="table-wrap" id="table-wrap" style="display:none">
+  <table id="matrix-table">
+    <thead id="matrix-head"></thead>
+    <tbody id="matrix-body"></tbody>
+  </table>
+</div>
+<div class="issues" id="issues-section" style="display:none">
+  <h2>Issues Found</h2>
+  <div id="issues-list"></div>
 </div>
 
 <div class="loading-msg" id="loading-msg">Loading…</div>
@@ -287,6 +288,41 @@ function render(games, teams) {
   // Sort teams alphabetically
   var sortedIds = teamIds.slice().sort(function(a, b) { return (teamMap[a] || '').localeCompare(teamMap[b] || ''); });
 
+  // --- Render not-yet-played table (top) ---
+  nypBody.innerHTML = '';
+  sortedIds.forEach(function(tid) {
+    var name = teamMap[tid];
+    var sched = teamSchedule[tid];
+    var playedSet = {};
+    Object.keys(sched).forEach(function(r) {
+      sched[r].forEach(function(opp) { playedSet[opp] = true; });
+    });
+    var unplayed = sortedIds
+      .filter(function(oid) { return oid !== tid; })
+      .map(function(oid) { return teamMap[oid]; })
+      .filter(function(oname) { return !playedSet[oname]; })
+      .sort();
+    var tr = document.createElement('tr');
+    var tdName = document.createElement('td');
+    tdName.textContent = name;
+    tr.appendChild(tdName);
+    var tdOpps = document.createElement('td');
+    if (unplayed.length === 0) {
+      tdOpps.innerHTML = '<span class="nyp-none">✓ All opponents played</span>';
+    } else {
+      tdOpps.innerHTML = unplayed.map(function(o) {
+        return '<span class="nyp-opp">' + esc(o) + '</span>';
+      }).join('');
+    }
+    tr.appendChild(tdOpps);
+    var tdCount = document.createElement('td');
+    tdCount.innerHTML = '<span class="nyp-count ' + (unplayed.length === 0 ? 'zero' : 'some') + '">' + unplayed.length + '</span>';
+    tr.appendChild(tdCount);
+    nypBody.appendChild(tr);
+  });
+  nypSection.style.display = 'block';
+
+  // --- Render matrix ---
   sortedIds.forEach(function(tid) {
     var name = teamMap[tid];
     var sched = teamSchedule[tid];
@@ -326,7 +362,7 @@ function render(games, teams) {
 
   tableWrap.style.display = 'block';
 
-  // --- Render issues --- (render() continues below; nyp is rendered after issues)
+  // --- Render issues ---
   issuesSec.style.display = 'block';
   issuesList.innerHTML = '';
   if (uniqueIssues.length === 0) {
@@ -339,47 +375,6 @@ function render(games, teams) {
       issuesList.appendChild(div);
     });
   }
-
-  // --- Render not-yet-played table ---
-  nypBody.innerHTML = '';
-  sortedIds.forEach(function(tid) {
-    var name = teamMap[tid];
-    var sched = teamSchedule[tid];
-    // Collect played opponent names (deduplicated)
-    var playedSet = {};
-    Object.keys(sched).forEach(function(r) {
-      sched[r].forEach(function(opp) { playedSet[opp] = true; });
-    });
-    // All other teams (by name, excluding self)
-    var unplayed = sortedIds
-      .filter(function(oid) { return oid !== tid; })
-      .map(function(oid) { return teamMap[oid]; })
-      .filter(function(oname) { return !playedSet[oname]; })
-      .sort();
-
-    var tr = document.createElement('tr');
-
-    var tdName = document.createElement('td');
-    tdName.textContent = name;
-    tr.appendChild(tdName);
-
-    var tdOpps = document.createElement('td');
-    if (unplayed.length === 0) {
-      tdOpps.innerHTML = '<span class="nyp-none">✓ All opponents played</span>';
-    } else {
-      tdOpps.innerHTML = unplayed.map(function(o) {
-        return '<span class="nyp-opp">' + esc(o) + '</span>';
-      }).join('');
-    }
-    tr.appendChild(tdOpps);
-
-    var tdCount = document.createElement('td');
-    tdCount.innerHTML = '<span class="nyp-count ' + (unplayed.length === 0 ? 'zero' : 'some') + '">' + unplayed.length + '</span>';
-    tr.appendChild(tdCount);
-
-    nypBody.appendChild(tr);
-  });
-  nypSection.style.display = 'block';
 }
 
 function addChip(container, label, type) {
