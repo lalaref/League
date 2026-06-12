@@ -6,38 +6,38 @@
   <title>Schedule Check — ALL-IN Basketball League</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: #0f0f1a; color: #e0e0e0; min-height: 100vh; padding: 24px 16px; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #0f0f1a; color: #e0e0e0; min-height: 100vh; padding: 20px 12px; }
 
-    h1 { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 4px; }
-    .subtitle { font-size: 13px; color: #888; margin-bottom: 24px; }
+    h1 { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+    .subtitle { font-size: 12px; color: #888; margin-bottom: 20px; }
 
-    .controls { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
-    select { background: #1e1e30; border: 1px solid #333; color: #e0e0e0; padding: 8px 12px; border-radius: 6px; font-size: 14px; cursor: pointer; }
+    .controls { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    select { background: #1e1e30; border: 1px solid #333; color: #e0e0e0; padding: 8px 12px; border-radius: 6px; font-size: 14px; cursor: pointer; max-width: 100%; }
     select:focus { outline: none; border-color: #f97316; }
 
-    .status-bar { font-size: 13px; color: #888; }
+    .status-bar { font-size: 12px; color: #888; }
 
     /* Summary chips */
-    .chips { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
-    .chip { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .chip { padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; }
     .chip-ok   { background: #14532d; color: #4ade80; border: 1px solid #166534; }
     .chip-warn { background: #7c2d12; color: #fb923c; border: 1px solid #9a3412; }
 
     /* Matrix table */
-    .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid #2a2a3a; display: inline-block; max-width: 100%; }
-    table { width: auto; border-collapse: collapse; min-width: 480px; }
-    thead th { background: #1a1a2e; padding: 10px 14px; font-size: 12px; font-weight: 700; text-align: center; color: #a0a0c0; border-bottom: 1px solid #2a2a3a; white-space: nowrap; }
-    thead th:first-child { text-align: left; min-width: 140px; }
+    .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid #2a2a3a; display: block; max-width: 100%; }
+    table { width: auto; border-collapse: collapse; min-width: 0; }
+    thead th { background: #1a1a2e; padding: 8px 10px; font-size: 11px; font-weight: 700; text-align: center; color: #a0a0c0; border-bottom: 1px solid #2a2a3a; white-space: nowrap; }
+    thead th:first-child { text-align: left; min-width: 100px; }
     tbody tr:nth-child(odd)  { background: #131322; }
     tbody tr:nth-child(even) { background: #0f0f1c; }
     tbody tr:hover { background: #1e1e35; }
-    td { padding: 9px 14px; font-size: 13px; border-bottom: 1px solid #1e1e2e; text-align: center; }
+    td { padding: 7px 10px; font-size: 12px; border-bottom: 1px solid #1e1e2e; text-align: center; }
     td:first-child { text-align: left; font-weight: 600; color: #e0e0ff; white-space: nowrap; }
 
     /* Opponent cell */
-    .opp { display: inline-block; padding: 3px 8px; border-radius: 4px; background: #1e2a3a; color: #93c5fd; font-size: 12px; white-space: nowrap; }
+    .opp { display: inline-block; padding: 2px 6px; border-radius: 4px; background: #1e2a3a; color: #93c5fd; font-size: 11px; white-space: nowrap; }
     .opp.dup { background: #3b1515; color: #f87171; border: 1px solid #7f1d1d; }
-    .cell-empty { color: #444; font-size: 12px; }
+    .cell-empty { color: #444; font-size: 11px; }
 
     /* Total column */
     .total { font-weight: 700; }
@@ -45,34 +45,45 @@
     .total.bad  { color: #f87171; }
 
     /* Issues list */
-    .issues { margin-top: 24px; }
-    .issues h2 { font-size: 15px; color: #fb923c; margin-bottom: 10px; }
-    .issue-item { background: #1c1010; border-left: 3px solid #f87171; padding: 8px 14px; margin-bottom: 6px; font-size: 13px; border-radius: 0 6px 6px 0; }
-    .no-issues { background: #0d1f12; border-left: 3px solid #4ade80; padding: 8px 14px; font-size: 13px; border-radius: 0 6px 6px 0; color: #4ade80; }
+    .issues { margin-top: 20px; }
+    .issues h2 { font-size: 14px; color: #fb923c; margin-bottom: 10px; }
+    .issue-item { background: #1c1010; border-left: 3px solid #f87171; padding: 8px 12px; margin-bottom: 6px; font-size: 12px; border-radius: 0 6px 6px 0; }
+    .no-issues { background: #0d1f12; border-left: 3px solid #4ade80; padding: 8px 12px; font-size: 12px; border-radius: 0 6px 6px 0; color: #4ade80; }
 
     .loading-msg { color: #888; font-size: 14px; padding: 40px 0; text-align: center; }
 
-    a.back { display: inline-block; margin-bottom: 20px; font-size: 13px; color: #888; text-decoration: none; }
+    a.back { display: inline-block; margin-bottom: 16px; font-size: 13px; color: #888; text-decoration: none; }
     a.back:hover { color: #f97316; }
 
     /* Not-yet-played table */
-    .nyp-section { margin-top: 28px; }
-    .nyp-section h2 { font-size: 15px; color: #93c5fd; margin-bottom: 12px; }
-    .nyp-table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid #2a2a3a; display: inline-block; max-width: 100%; }
-    .nyp-table { width: auto; border-collapse: collapse; min-width: 400px; }
-    .nyp-table thead th { background: #1a1a2e; padding: 10px 14px; font-size: 12px; font-weight: 700; text-align: left; color: #a0a0c0; border-bottom: 1px solid #2a2a3a; white-space: nowrap; }
-    .nyp-table thead th:last-child { text-align: center; min-width: 60px; }
+    .nyp-section { margin-top: 24px; }
+    .nyp-section h2 { font-size: 14px; color: #93c5fd; margin-bottom: 10px; }
+    .nyp-table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid #2a2a3a; display: block; max-width: 100%; }
+    .nyp-table { width: auto; border-collapse: collapse; min-width: 0; }
+    .nyp-table thead th { background: #1a1a2e; padding: 8px 10px; font-size: 11px; font-weight: 700; text-align: left; color: #a0a0c0; border-bottom: 1px solid #2a2a3a; white-space: nowrap; }
+    .nyp-table thead th:last-child { text-align: center; min-width: 56px; }
     .nyp-table tbody tr:nth-child(odd)  { background: #131322; }
     .nyp-table tbody tr:nth-child(even) { background: #0f0f1c; }
     .nyp-table tbody tr:hover { background: #1e1e35; }
-    .nyp-table td { padding: 9px 14px; font-size: 13px; border-bottom: 1px solid #1e1e2e; vertical-align: middle; }
-    .nyp-table td:first-child { font-weight: 600; color: #e0e0ff; white-space: nowrap; min-width: 140px; }
+    .nyp-table td { padding: 7px 10px; font-size: 12px; border-bottom: 1px solid #1e1e2e; vertical-align: middle; }
+    .nyp-table td:first-child { font-weight: 600; color: #e0e0ff; white-space: nowrap; min-width: 100px; }
     .nyp-table td:last-child { text-align: center; }
-    .nyp-opp { display: inline-block; padding: 3px 8px; border-radius: 4px; background: #1e2233; color: #fbbf24; font-size: 12px; margin: 2px 3px; white-space: nowrap; border: 1px solid #3b3020; }
+    .nyp-opp { display: inline-block; padding: 2px 7px; border-radius: 4px; background: #1e2233; color: #fbbf24; font-size: 11px; margin: 2px 2px; white-space: nowrap; border: 1px solid #3b3020; }
     .nyp-none { color: #4ade80; font-size: 12px; font-style: italic; }
     .nyp-count { font-weight: 700; }
     .nyp-count.zero { color: #4ade80; }
     .nyp-count.some { color: #fbbf24; }
+
+    @media (max-width: 480px) {
+      body { padding: 14px 8px; }
+      h1 { font-size: 17px; }
+      select { font-size: 13px; width: 100%; }
+      thead th, td { padding: 6px 8px; font-size: 11px; }
+      .nyp-table thead th, .nyp-table td { padding: 6px 8px; font-size: 11px; }
+      thead th:first-child { min-width: 80px; }
+      .nyp-table td:first-child { min-width: 80px; }
+      .opp, .nyp-opp { font-size: 10px; padding: 2px 5px; }
+    }
   </style>
 </head>
 <body>
