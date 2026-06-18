@@ -240,8 +240,11 @@
       else { table[g.homeTeamId].draws++; table[g.homeTeamId].points+=2; table[g.awayTeamId].draws++; table[g.awayTeamId].points+=2; }
     });
     var rows = Object.keys(table).map(function (id) { var t=table[id]; t.diff=t.pointsFor-t.pointsAgainst; return t; });
-    rows.sort(function (a,b) { return b.points-a.points; });
-    // h2h tiebreaker (simplified)
+    rows.sort(function (a, b) {
+      if (b.points !== a.points) return b.points - a.points;
+      return b.diff - a.diff;
+    });
+    // Tie-breaker: point differential
     return rows;
   }
 

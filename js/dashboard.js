@@ -646,7 +646,7 @@
   /**
    * 從比賽數據計算球隊積分榜（節分優先）
    * 積分制：勝3分 / 和2分 / 負1分 / 棄權0分
-   * 同分排名：對賽往績積分 → 對賽往績得失 → 全組得失球差
+    * 同分排名：全組得失球差
    */
   function _computeStandings(games, teams) {
     var table = {};
@@ -726,20 +726,14 @@
   }
 
   /**
-   * 排名排序：積分 → 對賽往績（積分/得失）→ 全組得失球差
+   * 排名排序：積分 → 全組得失球差
    */
   function _sortStandings(rows, allResults) {
-    rows.sort(function (a, b) { return b.points - a.points; });
-    var out = [], i = 0;
-    while (i < rows.length) {
-      var j = i;
-      while (j < rows.length && rows[j].points === rows[i].points) j++;
-      var group = rows.slice(i, j);
-      if (group.length > 1) group = _resolveH2H(group, allResults);
-      out = out.concat(group);
-      i = j;
-    }
-    return out;
+    rows.sort(function (a, b) {
+      if (b.points !== a.points) return b.points - a.points;
+      return b.diff - a.diff;
+    });
+    return rows;
   }
 
   function _resolveH2H(group, allResults) {
