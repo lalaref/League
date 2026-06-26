@@ -139,6 +139,7 @@
     var publishedMatchups = regularGames.map(function (g, i) {
       return {
         round: g.round || 0,
+        division: getMatchDivision(g.homeTeamId, g.awayTeamId),
         homeId: g.homeTeamId,
         awayId: g.awayTeamId,
         homeName: g.homeTeamName || getTeamName(g.homeTeamId),
@@ -486,7 +487,7 @@
    * @param {Array} teamList - array of {id, name}
    * @returns {Array} array of {round, homeId, awayId, homeName, awayName, date, time, venue}
    */
-  function generateRoundRobin(teamList) {
+  function generateSingleRoundRobin(teamList, division) {
     var n = teamList.length;
     var list = teamList.slice(); // copy
     // If odd number of teams, add a BYE placeholder
@@ -509,6 +510,7 @@
         if (home.id === '__BYE__' || away.id === '__BYE__') continue;
         matchups.push({
           round: r + 1,
+          division: division || '',
           homeId: home.id,
           awayId: away.id,
           homeName: home.name,
@@ -524,10 +526,33 @@
     return matchups;
   }
 
+  function generateRoundRobin(teamList) {
+    var divisionGroups = {};
+    var hasDivision = teamList.some(function (t) { return !!(t.division || '').trim(); });
+    if (!hasDivision) return generateSingleRoundRobin(teamList, '');
+
+    teamList.forEach(function (t) {
+      var division = (t.division || 'Unassigned').trim().toUpperCase();
+      if (!divisionGroups[division]) divisionGroups[division] = [];
+      divisionGroups[division].push(t);
+    });
+
+    var allMatchups = [];
+    Object.keys(divisionGroups).sort().forEach(function (division) {
+      allMatchups = allMatchups.concat(generateSingleRoundRobin(divisionGroups[division], division));
+    });
+    return allMatchups;
+  }
+
   function showRoundRobinPanel() {
     if (teams.length < 2) {
       showMsg(I18n.t('admin.rrNeedTeams'), 'error');
       return;
+    }
+    var divisionCounts = getDivisionCounts();
+    var warnings = Object.keys(divisionCounts).filter(function (division) { return divisionCounts[division] !== 6; });
+    if (warnings.length > 0 && Object.keys(divisionCounts).length > 1) {
+      showMsg('提示：分組單循環已生成；6 隊分組會讓每隊打 5 場。', 'info');
     }
     rrMatchups = generateRoundRobin(teams);
     saveRRState();
@@ -547,15 +572,16 @@
    */
   function renderRoundRobin() {
     rrMatchupsEl.innerHTML = '';
-    var currentRound = 0;
+    var currentKey = '';
 
     rrMatchups.forEach(function (m, idx) {
       // Round header
-      if (m.round !== currentRound) {
-        currentRound = m.round;
+      var groupKey = (m.division || '') + ':' + m.round;
+      if (groupKey !== currentKey) {
+        currentKey = groupKey;
         var header = document.createElement('div');
         header.className = 'rr-round-header';
-        header.textContent = I18n.t('admin.rrRound') + ' ' + currentRound;
+        header.textContent = (m.division ? ('Division ' + m.division + ' - ') : '') + I18n.t('admin.rrRound') + ' ' + m.round;
         rrMatchupsEl.appendChild(header);
       }
 
@@ -564,9 +590,9 @@
       row.setAttribute('data-idx', idx);
 
       // Home team select
-      var homeSelHtml = buildTeamSelectHtml('rr-home-' + idx, m.homeId);
+      var homeSelHtml = buildTeamSelectHtml('rr-home-' + idx, m.homeId, m.division);
       // Away team select
-      var awaySelHtml = buildTeamSelectHtml('rr-away-' + idx, m.awayId);
+      var awaySelHtml = buildTeamSelectHtml('rr-away-' + idx, m.awayId, m.division);
 
       var publishedClass = m.published ? ' rr-published' : '';
       var publishBtnHtml = m.published
@@ -608,9 +634,9 @@
     updatePublishAllBtn();
   }
 
-  function buildTeamSelectHtml(id, selectedId) {
+  function buildTeamSelectHtml(id, selectedId, division) {
     var html = '<select id="' + id + '" class="admin-select rr-team-select">';
-    teams.forEach(function (t) {
+    getTeamsForDivision(division).forEach(function (t) {
       html += '<option value="' + t.id + '"' + (t.id === selectedId ? ' selected' : '') + '>' + esc(t.name) + '</option>';
     });
     html += '</select>';
@@ -659,11 +685,16 @@
       m.awayName = getTeamName(newTeamId);
     }
 
-    // Collect locked (published) matchups
+    var targetDivision = m.division || '';
+    var otherDivisionMatchups = [];
+
+    // Collect locked (published) matchups for this division only
     var locked = [];
     var unlocked = [];
     rrMatchups.forEach(function (match, i) {
-      if (match.published) {
+      if ((match.division || '') !== targetDivision) {
+        otherDivisionMatchups.push(match);
+      } else if (match.published) {
         locked.push(match);
       } else if (i === changedIdx) {
         locked.push(match); // treat the just-changed one as locked too
@@ -674,7 +705,8 @@
 
     // Count games per team from locked matchups
     var gameCount = {};
-    teams.forEach(function (t) { gameCount[t.id] = 0; });
+    var eligibleTeams = getTeamsForDivision(m.division);
+    eligibleTeams.forEach(function (t) { gameCount[t.id] = 0; });
     var playedPairs = {};
     locked.forEach(function (match) {
       gameCount[match.homeId] = (gameCount[match.homeId] || 0) + 1;
@@ -683,15 +715,15 @@
       playedPairs[pairKey] = true;
     });
 
-    var maxGames = teams.length - 1; // 7 for 8 teams
+    var maxGames = eligibleTeams.length - 1; // 5 for a 6-team division
 
     // Generate all possible remaining pairs that haven't been played
     var neededPairs = [];
-    for (var i = 0; i < teams.length; i++) {
-      for (var j = i + 1; j < teams.length; j++) {
-        var pKey = [teams[i].id, teams[j].id].sort().join('_');
-        if (!playedPairs[pKey] && gameCount[teams[i].id] < maxGames && gameCount[teams[j].id] < maxGames) {
-          neededPairs.push({ homeId: teams[i].id, awayId: teams[j].id });
+    for (var i = 0; i < eligibleTeams.length; i++) {
+      for (var j = i + 1; j < eligibleTeams.length; j++) {
+        var pKey = [eligibleTeams[i].id, eligibleTeams[j].id].sort().join('_');
+        if (!playedPairs[pKey] && gameCount[eligibleTeams[i].id] < maxGames && gameCount[eligibleTeams[j].id] < maxGames) {
+          neededPairs.push({ homeId: eligibleTeams[i].id, awayId: eligibleTeams[j].id });
         }
       }
     }
@@ -699,12 +731,13 @@
     // Greedily assign pairs ensuring no team exceeds maxGames
     var newMatchups = [];
     var tempCount = {};
-    teams.forEach(function (t) { tempCount[t.id] = gameCount[t.id]; });
+    eligibleTeams.forEach(function (t) { tempCount[t.id] = gameCount[t.id]; });
 
     neededPairs.forEach(function (pair) {
       if (tempCount[pair.homeId] < maxGames && tempCount[pair.awayId] < maxGames) {
         newMatchups.push({
           round: 0,
+          division: m.division || '',
           homeId: pair.homeId,
           awayId: pair.awayId,
           homeName: getTeamName(pair.homeId),
@@ -727,7 +760,7 @@
     newMatchups.forEach(function (m) { m.round += maxLockedRound; });
 
     // Merge: locked first, then new
-    rrMatchups = locked.concat(newMatchups);
+    rrMatchups = otherDivisionMatchups.concat(locked).concat(newMatchups);
     saveRRState();
     renderRoundRobin();
     showMsg(I18n.t('admin.rrRegenerated'), 'success');
@@ -758,6 +791,36 @@
       if (teams[i].id === teamId) return teams[i].name;
     }
     return teamId;
+  }
+
+  function getTeamById(teamId) {
+    for (var i = 0; i < teams.length; i++) {
+      if (teams[i].id === teamId) return teams[i];
+    }
+    return null;
+  }
+
+  function getMatchDivision(homeTeamId, awayTeamId) {
+    var home = getTeamById(homeTeamId);
+    var away = getTeamById(awayTeamId);
+    var homeDivision = home && home.division ? String(home.division).trim().toUpperCase() : '';
+    var awayDivision = away && away.division ? String(away.division).trim().toUpperCase() : '';
+    return homeDivision && homeDivision === awayDivision ? homeDivision : homeDivision || awayDivision || '';
+  }
+
+  function getTeamsForDivision(division) {
+    if (!division) return teams;
+    var normalized = String(division).trim().toUpperCase();
+    return teams.filter(function (t) { return String(t.division || '').trim().toUpperCase() === normalized; });
+  }
+
+  function getDivisionCounts() {
+    var counts = {};
+    teams.forEach(function (t) {
+      var division = String(t.division || 'Unassigned').trim().toUpperCase();
+      counts[division] = (counts[division] || 0) + 1;
+    });
+    return counts;
   }
 
   // ============================================================

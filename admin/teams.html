@@ -65,6 +65,15 @@
                         <input type="text" id="team-name" class="admin-input" required>
                     </div>
                     <div class="admin-form-group">
+                        <label for="team-division" class="admin-label">分組</label>
+                        <input type="text" id="team-division" class="admin-input" list="division-options" placeholder="A / B / C">
+                        <datalist id="division-options">
+                            <option value="A"></option>
+                            <option value="B"></option>
+                            <option value="C"></option>
+                        </datalist>
+                    </div>
+                    <div class="admin-form-group">
                         <label for="team-logo" class="admin-label" data-i18n="admin.logo">隊徽 URL</label>
                         <input type="url" id="team-logo" class="admin-input">
                     </div>
@@ -104,6 +113,7 @@
                         <thead>
                             <tr>
                                 <th data-i18n="admin.teamName">球隊名稱</th>
+                                <th>分組</th>
                                 <th>球衣顏色</th>
                                 <th>負責人</th>
                                 <th>負責人 WhatsApp</th>
@@ -112,7 +122,7 @@
                             </tr>
                         </thead>
                         <tbody id="teams-body">
-                            <tr><td colspan="5" class="text-muted" data-i18n="common.loading">載入中...</td></tr>
+                            <tr><td colspan="7" class="text-muted" data-i18n="common.loading">載入中...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -163,6 +173,7 @@
             editingId = null;
             formTitle.textContent = I18n.t('admin.createTeam');
             document.getElementById('team-name').value = '';
+            document.getElementById('team-division').value = '';
             document.getElementById('team-logo').value = '';
             document.getElementById('team-captain').value = '';
             document.getElementById('team-whatsapp').value = '';
@@ -186,10 +197,10 @@
 
         function loadTeams() {
             var sid = seasonSelect.value;
-            if (!sid) { tbody.innerHTML = '<tr><td colspan="6" class="text-muted">' + I18n.t('common.noData') + '</td></tr>'; return; }
+            if (!sid) { tbody.innerHTML = '<tr><td colspan="7" class="text-muted">' + I18n.t('common.noData') + '</td></tr>'; return; }
             API.getTeams(sid).then(function (teams) {
                 if (!teams || teams.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" class="text-muted">' + I18n.t('common.noData') + '</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="7" class="text-muted">' + I18n.t('common.noData') + '</td></tr>';
                     return;
                 }
 
@@ -227,6 +238,7 @@
                 if (!jerseyHtml) jerseyHtml = '—';
                 tr.innerHTML =
                     '<td>' + _esc(t.name) + '</td>' +
+                    '<td>' + _esc(t.division || '—') + '</td>' +
                     '<td style="font-size:0.8rem">' + jerseyHtml + '</td>' +
                     '<td>' + _esc(t.captain) + '</td>' +
                     '<td>' + _esc(t.captainWhatsApp) + '</td>' +
@@ -277,6 +289,7 @@
                     editingId = id;
                     formTitle.textContent = I18n.t('admin.edit');
                     document.getElementById('team-name').value = t.name || '';
+                    document.getElementById('team-division').value = t.division || '';
                     document.getElementById('team-logo').value = t.logo || '';
                     document.getElementById('team-captain').value = t.captain || '';
                     document.getElementById('team-whatsapp').value = t.captainWhatsApp || '';
@@ -310,6 +323,7 @@
             var data = {
                 seasonId: seasonSelect.value,
                 name: document.getElementById('team-name').value.trim(),
+                division: document.getElementById('team-division').value.trim().toUpperCase(),
                 logo: document.getElementById('team-logo').value.trim(),
                 captain: document.getElementById('team-captain').value.trim(),
                 captainWhatsApp: document.getElementById('team-whatsapp').value.trim(),
