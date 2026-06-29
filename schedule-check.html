@@ -23,6 +23,18 @@
     .chip-ok   { background: #14532d; color: #4ade80; border: 1px solid #166534; }
     .chip-warn { background: #7c2d12; color: #fb923c; border: 1px solid #9a3412; }
 
+    /* Team availability */
+    .availability-section { margin: 18px 0 24px; }
+    .section-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+    .section-head h2 { font-size: 14px; color: #c4b5fd; }
+    .section-note { color: #888; font-size: 12px; }
+    .availability-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+    .availability-day { background: #131322; border: 1px solid #2a2a3a; border-radius: 8px; min-height: 92px; padding: 9px; }
+    .availability-date { color: #e0e0ff; font-size: 12px; font-weight: 700; margin-bottom: 7px; }
+    .availability-empty { color: #4ade80; font-size: 11px; }
+    .availability-team { display: inline-flex; align-items: center; max-width: 100%; padding: 3px 7px; border-radius: 5px; background: #3b1515; color: #fca5a5; border: 1px solid #7f1d1d; font-size: 11px; margin: 2px 2px 2px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .availability-note { display: block; color: #fb923c; font-size: 10px; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
     /* Matrix table */
     .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid #2a2a3a; display: block; max-width: 100%; }
     table { width: auto; border-collapse: collapse; min-width: 0; }
@@ -83,6 +95,8 @@
       thead th:first-child { min-width: 80px; }
       .nyp-table td:first-child { min-width: 80px; }
       .opp, .nyp-opp { font-size: 10px; padding: 2px 5px; }
+      .availability-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .availability-day { min-height: 82px; padding: 7px; }
     }
   </style>
 </head>
@@ -99,6 +113,14 @@
 </div>
 
 <div class="chips" id="chips" style="display:none"></div>
+
+<div class="availability-section" id="availability-section" style="display:none">
+  <div class="section-head">
+    <h2>Team Unavailable Dates</h2>
+    <span class="section-note" id="availability-note">Next 14 days</span>
+  </div>
+  <div class="availability-grid" id="availability-grid"></div>
+</div>
 
 <div class="nyp-section" id="nyp-section" style="display:none">
   <h2>Unplayed Opponents per Team</h2>
@@ -145,6 +167,9 @@ var seasonSelect = document.getElementById('season-select');
 var statusBar    = document.getElementById('status-bar');
 var chipsEl      = document.getElementById('chips');
 var tableWrap    = document.getElementById('table-wrap');
+var availabilitySection = document.getElementById('availability-section');
+var availabilityGrid = document.getElementById('availability-grid');
+var availabilityNote = document.getElementById('availability-note');
 var nypSection   = document.getElementById('nyp-section');
 var nypBody      = document.getElementById('nyp-body');
 var matrixHead   = document.getElementById('matrix-head');
@@ -176,17 +201,106 @@ function loadSeason(seasonId) {
   tableWrap.style.display = 'none';
   issuesSec.style.display = 'none';
   nypSection.style.display = 'none';
+  availabilitySection.style.display = 'none';
+
+  var range = getNext14DayRange();
 
   Promise.all([
     apiFetch('schedule', { seasonId: seasonId }),
-    apiFetch('teams',    { seasonId: seasonId })
+    apiFetch('teams',    { seasonId: seasonId }),
+    safeAvailabilityFetch(seasonId, range.start, range.end)
   ]).then(function(results) {
     var games = (results[0] || []).filter(function(g) { return g.status !== 'cancelled' && g.type !== 'playoff'; });
     var teams = results[1] || [];
+    var availability = mergeLocalAvailability(results[2] || [], seasonId, range.start, range.end);
+    renderAvailability(availability, range.start, range.end);
     render(games, teams);
   }).catch(function() {
     loadingMsg.textContent = 'Failed to load data.';
   });
+}
+
+function safeAvailabilityFetch(seasonId, startDate, endDate) {
+  return apiFetch('teamAvailability', { seasonId: seasonId, startDate: startDate, endDate: endDate }).then(function(rows) {
+    return Array.isArray(rows) ? rows : [];
+  }).catch(function() { return []; });
+}
+
+function getNext14DayRange() {
+  var start = getNextWeekStart();
+  var end = new Date(start);
+  end.setDate(start.getDate() + 13);
+  return { start: toYmd(start), end: toYmd(end) };
+}
+
+function getNextWeekStart() {
+  var today = new Date();
+  today.setHours(0, 0, 0, 0);
+  var start = new Date(today);
+  var daysUntilSunday = (7 - today.getDay()) % 7;
+  if (daysUntilSunday === 0) daysUntilSunday = 7;
+  start.setDate(today.getDate() + daysUntilSunday);
+  return start;
+}
+
+function mergeLocalAvailability(rows, seasonId, startDate, endDate) {
+  var out = Array.isArray(rows) ? rows.slice() : [];
+  try {
+    var store = JSON.parse(localStorage.getItem('allinTeamAvailabilityDrafts') || '{}');
+    Object.keys(store).forEach(function(key) {
+      var item = store[key];
+      if (!item || String(item.seasonId) !== String(seasonId)) return;
+      (item.unavailableDates || []).forEach(function(date) {
+        if (date < startDate || date > endDate) return;
+        out.push({
+          id: 'local-' + key + '-' + date,
+          seasonId: item.seasonId,
+          teamId: item.teamId,
+          teamName: item.teamName,
+          unavailableDate: date,
+          note: item.note || '',
+          updatedAt: item.updatedAt || ''
+        });
+      });
+    });
+  } catch (err) { /* ignore local fallback */ }
+  return out;
+}
+
+function renderAvailability(rows, startDate, endDate) {
+  availabilityGrid.innerHTML = '';
+  availabilityNote.textContent = formatShortDate(startDate) + ' to ' + formatShortDate(endDate);
+  var byDate = {};
+  (rows || []).forEach(function(row) {
+    var date = row.unavailableDate;
+    if (!date) return;
+    if (!byDate[date]) byDate[date] = [];
+    if (!byDate[date].some(function(x) { return String(x.teamId) === String(row.teamId); })) byDate[date].push(row);
+  });
+  var cursor = parseYmd(startDate);
+  for (var i = 0; i < 14; i++) {
+    var ymd = toYmd(cursor);
+    if (cursor.getDay() === 0 || cursor.getDay() === 6) {
+      cursor.setDate(cursor.getDate() + 1);
+      continue;
+    }
+    var dayRows = byDate[ymd] || [];
+    var card = document.createElement('div');
+    card.className = 'availability-day';
+    var html = '<div class="availability-date">' + esc(formatLongDate(ymd)) + '</div>';
+    if (dayRows.length === 0) {
+      html += '<span class="availability-empty">All teams available</span>';
+    } else {
+      dayRows.sort(function(a, b) { return (a.teamName || '').localeCompare(b.teamName || ''); }).forEach(function(row) {
+        html += '<span class="availability-team" title="' + esc(row.note || '') + '">' + esc(row.teamName || row.teamId || 'Team') + '</span>';
+        if (row.note) html += '<span class="availability-note">' + esc(row.note) + '</span>';
+      });
+    }
+    card.innerHTML = html;
+    availabilityGrid.appendChild(card);
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  availabilitySection.style.display = 'block';
 }
 
 function render(games, teams) {
@@ -395,8 +509,31 @@ function addChip(container, label, type) {
   container.appendChild(span);
 }
 
+function toYmd(date) {
+  var y = date.getFullYear();
+  var m = String(date.getMonth() + 1).padStart(2, '0');
+  var d = String(date.getDate()).padStart(2, '0');
+  return y + '-' + m + '-' + d;
+}
+
+function parseYmd(ymd) {
+  var parts = ymd.split('-');
+  return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+}
+
+function formatShortDate(ymd) {
+  var parts = ymd.split('-');
+  return Number(parts[1]) + '/' + Number(parts[2]);
+}
+
+function formatLongDate(ymd) {
+  var weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  var d = parseYmd(ymd);
+  return formatShortDate(ymd) + ' ' + weekdays[d.getDay()];
+}
+
 function esc(str) {
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 </script>
 </body>

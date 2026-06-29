@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ALL-IN Basketball League - 球隊不可出賽日期填報">
+    <meta name="theme-color" content="#1a1a2e">
+    <title>不可出賽日期填報 — ALL-IN Basketball League</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <style>
+        .availability-layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: var(--spacing-xl); align-items: start; }
+        .availability-calendar { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
+        .availability-weekday { color: var(--color-text-secondary); font-size: var(--font-size-xs); font-weight: var(--font-weight-bold); text-align: center; padding: 0 2px 4px; }
+        .availability-day { border: 1px solid var(--color-border); background: var(--color-surface); border-radius: var(--radius-md); min-height: 88px; padding: 10px; color: var(--color-text); text-align: left; cursor: pointer; transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast); }
+        .availability-day:hover { border-color: var(--color-secondary); box-shadow: var(--shadow-sm); }
+        .availability-day.is-selected { background: #fff0f0; border-color: var(--color-secondary); box-shadow: inset 0 0 0 2px rgba(204, 0, 0, 0.14); }
+        .availability-day.is-empty { visibility: hidden; pointer-events: none; }
+        .day-number { display: block; font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); color: var(--color-primary); line-height: 1; }
+        .day-month { display: block; font-size: var(--font-size-xs); color: var(--color-text-secondary); margin-top: 4px; }
+        .day-state { display: inline-flex; align-items: center; justify-content: center; min-height: 24px; margin-top: 10px; padding: 3px 7px; border-radius: var(--radius-sm); font-size: var(--font-size-xs); font-weight: var(--font-weight-bold); color: var(--color-text-secondary); background: #f1f1f1; }
+        .availability-day.is-selected .day-state { background: var(--color-secondary); color: #fff; }
+        .selected-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+        .selected-list li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 10px; background: var(--color-bg); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-size: var(--font-size-sm); }
+        .selected-list button { border: 0; background: transparent; color: var(--color-secondary); font-size: 20px; line-height: 1; cursor: pointer; min-width: 28px; min-height: 28px; }
+        .availability-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: var(--spacing-md); }
+        .availability-pill { display: inline-flex; align-items: center; min-height: 28px; padding: 4px 10px; border: 1px solid var(--color-border); border-radius: var(--radius-full); background: var(--color-surface); color: var(--color-text-secondary); font-size: var(--font-size-sm); }
+        .availability-actions { display: flex; flex-wrap: wrap; gap: var(--spacing-sm); align-items: center; margin-top: var(--spacing-lg); }
+        .availability-small { color: var(--color-text-secondary); font-size: var(--font-size-sm); margin: 0; }
+        @media (max-width: 860px) { .availability-layout { grid-template-columns: 1fr; } }
+        @media (max-width: 560px) {
+            .availability-calendar { gap: 5px; }
+            .availability-day { min-height: 72px; padding: 7px; }
+            .day-number { font-size: var(--font-size-base); }
+            .day-state { padding: 2px 5px; font-size: 11px; }
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-top">
+            <div class="header-top-inner">
+                <div class="ht-logo-wrap">
+                    <a href="/" class="nav-logo" aria-label="ALL-IN Basketball League 首頁">
+                        <img src="images/logo.svg" alt="ALL-IN Basketball League" class="logo-img" width="36" height="36" loading="eager">
+                        <span class="logo-text">ALL-IN</span>
+                    </a>
+                </div>
+                <div class="ht-right">
+                    <nav class="main-nav" aria-label="主導航">
+                        <button class="hamburger-btn" aria-label="開啟選單" aria-expanded="false" aria-controls="nav-menu">
+                            <span class="hamburger-line"></span>
+                            <span class="hamburger-line"></span>
+                            <span class="hamburger-line"></span>
+                        </button>
+                        <ul id="nav-menu" class="nav-links" role="menubar">
+                            <li role="none"><a href="/" class="nav-link" role="menuitem">首頁</a></li>
+                            <li role="none"><a href="schedule.html" class="nav-link" role="menuitem">賽程</a></li>
+                            <li role="none"><a href="team.html" class="nav-link" role="menuitem">球隊</a></li>
+                            <li role="none"><a href="standings.html" class="nav-link" role="menuitem">排行榜</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <section class="section">
+            <div class="container">
+                <h1 class="section-title">不可出賽日期填報</h1>
+                <div id="loading-msg" class="text-center text-muted" style="padding:var(--spacing-xl)">載入中...</div>
+                <div id="error-msg" class="admin-message admin-message--error" hidden></div>
+
+                <div id="availability-section" hidden>
+                    <div class="availability-meta">
+                        <span class="availability-pill" id="team-name-pill">球隊：—</span>
+                        <span class="availability-pill" id="date-range-pill">可填報日期：—</span>
+                    </div>
+                    <div id="save-msg" class="admin-message" role="alert" hidden></div>
+
+                    <div class="availability-layout">
+                        <div class="admin-card">
+                            <h2 class="admin-card-title">選擇未來兩星期不可出賽日期</h2>
+                            <div class="availability-calendar" id="calendar-grid" aria-label="未來兩星期日期選擇"></div>
+                            <div class="admin-form-group" style="margin-top:var(--spacing-lg)">
+                                <label for="availability-note" class="admin-label">備註</label>
+                                <textarea id="availability-note" class="admin-textarea" rows="3" maxlength="500" placeholder="如有特別時段限制，可在此補充。"></textarea>
+                            </div>
+                            <div class="availability-actions">
+                                <button id="btn-save-availability" class="btn btn-primary">儲存不可出賽日期</button>
+                                <button id="btn-clear-availability" class="btn btn-outline">清除選擇</button>
+                            </div>
+                        </div>
+
+                        <aside class="admin-card" aria-label="已選日期摘要">
+                            <h2 class="admin-card-title">已選日期</h2>
+                            <p class="availability-small" id="selected-count">尚未選擇日期</p>
+                            <ul class="selected-list" id="selected-list"></ul>
+                        </aside>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <img src="images/logo.svg" alt="ALL-IN Basketball League" class="footer-logo">
+                    <p class="footer-tagline">全力以赴</p>
+                </div>
+                <div class="footer-copyright">
+                    <p>&copy; <span id="current-year"></span> ALL-IN Basketball League.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>document.getElementById('current-year').textContent = new Date().getFullYear();</script>
+    <script src="js/utils.js?v=20260410"></script>
+    <script src="js/api.js?v=20260629"></script>
+    <script src="js/navigation.js?v=20260409"></script>
+    <script src="js/team-availability.js?v=20260629"></script>
+</body>
+</html>
