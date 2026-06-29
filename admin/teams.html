@@ -352,7 +352,7 @@
                     API.post('deleteTeam', { teamId: id }).then(function () {
                         showMsg('Deleted', 'success');
                         loadTeams();
-                    }).catch(function () { showMsg(I18n.t('error.submitFailed'), 'error'); });
+                    }).catch(function (err) { showMsg((err && err.message) || I18n.t('error.submitFailed'), 'error'); });
                 });
             });
         }
