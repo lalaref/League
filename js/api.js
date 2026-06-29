@@ -201,6 +201,13 @@ var API = (function () {
   function getTeams(seasonId) { return get('teams', { seasonId: seasonId }); }
   function getPlayers(teamId) { return get('players', { teamId: teamId }); }
   function getGames(seasonId) { return get('games', { seasonId: seasonId }); }
+  function getTeamAvailability(seasonId, startDate, endDate) {
+    var params = {};
+    if (seasonId) params.seasonId = seasonId;
+    if (startDate) params.startDate = startDate;
+    if (endDate) params.endDate = endDate;
+    return get('teamAvailability', params);
+  }
 
   // --- POST 便捷方法 ---
 
@@ -212,6 +219,14 @@ var API = (function () {
   }
   function submitShotLocation(gameId, playerId, x, y, made) {
     return post('submitShotLocation', { gameId: gameId, playerId: playerId, x: x, y: y, made: made });
+  }
+  function saveTeamAvailability(teamToken, unavailableDates, note, submittedBy) {
+    return post('publicSaveTeamAvailability', {
+      teamToken: teamToken,
+      unavailableDates: unavailableDates,
+      note: note || '',
+      submittedBy: submittedBy || ''
+    });
   }
 
   // 公開 API
@@ -236,9 +251,11 @@ var API = (function () {
     getTeams: getTeams,
     getPlayers: getPlayers,
     getGames: getGames,
+    getTeamAvailability: getTeamAvailability,
     submitBoxScore: submitBoxScore,
     updateBoxScore: updateBoxScore,
-    submitShotLocation: submitShotLocation
+    submitShotLocation: submitShotLocation,
+    saveTeamAvailability: saveTeamAvailability
   };
 })();
 
