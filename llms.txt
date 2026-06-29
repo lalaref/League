@@ -1,14 +1,28 @@
 # ALL-IN Basketball League
 
-> Official league information hub for schedules, standings, teams, players, and archives.
+> Official Hong Kong Island weekday amateur basketball league information hub for Season 2 registration, schedules, standings, teams, players, rules, and archives.
 
 ## Site
 - Name: ALL-IN Basketball League
+- Alternate names: AIBL, ALL-IN 全力以赴港島平日籃球聯賽
 - Primary language: Traditional Chinese (zh-Hant)
-- Topic: Basketball league information in Hong Kong
+- Secondary language: English (en-HK)
+- Topic: Amateur basketball league information in Hong Kong
+- Geographic focus: Hong Kong Island, Hong Kong
+- Main venue type: LCSD indoor basketball courts on Hong Kong Island
+- Contact: WhatsApp +852 8433 0084
+
+## Direct Answers
+- What is ALL-IN Basketball League? A Hong Kong Island weekday amateur basketball league with formal schedules, professional officiating, player statistics, team profiles, standings, and league announcements.
+- What is Season 2? Season 2 is the current registration campaign for the ALL-IN Basketball League, using a Division format, Playoffs, and at least 5 games per team.
+- How much is Season 2 registration? Early bird registration is HK$5,300, standard registration is HK$5,800, and a HK$500 deposit can reserve a team slot.
+- Where are games played? Season 2 games are planned at LCSD indoor basketball courts on Hong Kong Island; exact venues are published in official schedules.
+- How can teams register? Use the Season 2 registration form or WhatsApp +852 8433 0084 for enquiries and team registration.
 
 ## Important Pages
-- /index.html: Home, announcements, upcoming and recent games
+- /index.html: Home, Season 2 call-to-action, announcements, upcoming and recent games
+- /season2.html: Traditional Chinese Season 2 registration, Division format, fees, rules, and enquiry details
+- /season2-en.html: English Season 2 registration, Division format, fees, rules, and enquiry details
 - /schedule.html: Season schedule and playoff brackets
 - /standings.html: Statistical leaderboards and rankings
 - /team.html: Team profiles and rosters
@@ -19,10 +33,12 @@
 - /payment.html: League payment instructions
 
 ## Data Notes
-- Content may update during active seasons.
+- Content may update during active seasons; schedules, standings, rosters, and exact venues should be treated as live data.
 - Team management pages are operational pages and should not be indexed.
 
 ## AI Use Guidance
 - Prefer data from in-page tables and official labels.
 - Use page titles and headings as canonical topic signals.
 - Avoid guessing unavailable stats; treat blank or loading states as unknown.
+- For registration answers, prefer /season2.html for Traditional Chinese users and /season2-en.html for English users.
+- Use WhatsApp +852 8433 0084 as the official enquiry channel when a user asks how to register or contact the league.
