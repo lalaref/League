@@ -55,6 +55,26 @@
 
                 <div class="admin-toolbar">
                     <button id="btn-create-team" class="btn btn-primary" data-i18n="admin.createTeam" disabled>建立球隊</button>
+                    <button id="btn-show-import" class="btn btn-outline" disabled>由其他賽季複製球隊</button>
+                </div>
+
+                <div id="team-import-card" class="admin-card" hidden>
+                    <h2 class="admin-card-title">由其他賽季複製球隊</h2>
+                    <div class="admin-form-row">
+                        <div class="admin-form-group">
+                            <label for="import-source-season" class="admin-label">來源賽季</label>
+                            <select id="import-source-season" class="admin-select"></select>
+                        </div>
+                    </div>
+                    <div class="admin-toolbar">
+                        <button id="btn-load-import-teams" class="btn btn-outline">載入來源球隊</button>
+                        <button id="btn-select-all-import" class="btn btn-outline" hidden>全選</button>
+                    </div>
+                    <div id="import-teams-list" class="admin-card" style="background:var(--color-bg);margin:var(--spacing-md) 0" hidden></div>
+                    <div class="admin-actions">
+                        <button id="btn-copy-import-teams" class="btn btn-primary" hidden>複製已選球隊到目前賽季</button>
+                        <button id="btn-cancel-import" class="btn btn-outline">取消</button>
+                    </div>
                 </div>
 
                 <!-- 球隊表單 -->
@@ -118,11 +138,12 @@
                                 <th>負責人</th>
                                 <th>負責人 WhatsApp</th>
                                 <th>自助管理連結</th>
+                                <th>不可出賽日期連結</th>
                                 <th></th>
                             </tr>
                         </thead>
                         <tbody id="teams-body">
-                            <tr><td colspan="7" class="text-muted" data-i18n="common.loading">載入中...</td></tr>
+                            <tr><td colspan="8" class="text-muted" data-i18n="common.loading">載入中...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -161,6 +182,15 @@
         var formTitle = document.getElementById('team-form-title');
         var tbody = document.getElementById('teams-body');
         var createBtn = document.getElementById('btn-create-team');
+        var importBtn = document.getElementById('btn-show-import');
+        var importCard = document.getElementById('team-import-card');
+        var importSourceSeason = document.getElementById('import-source-season');
+        var importTeamsList = document.getElementById('import-teams-list');
+        var loadImportTeamsBtn = document.getElementById('btn-load-import-teams');
+        var selectAllImportBtn = document.getElementById('btn-select-all-import');
+        var copyImportTeamsBtn = document.getElementById('btn-copy-import-teams');
+        var cancelImportBtn = document.getElementById('btn-cancel-import');
+        var allSeasons = [];
 
         function showMsg(text, type) {
             msgEl.textContent = text;
@@ -185,22 +215,29 @@
 
         function loadSeasons() {
             API.getSeasons().then(function (seasons) {
+                allSeasons = seasons || [];
                 seasonSelect.innerHTML = '<option value="">--</option>';
-                (seasons || []).forEach(function (s) {
+                importSourceSeason.innerHTML = '<option value="">--</option>';
+                allSeasons.forEach(function (s) {
                     var opt = document.createElement('option');
                     opt.value = s.id;
                     opt.textContent = s.name;
                     seasonSelect.appendChild(opt);
+
+                    var importOpt = document.createElement('option');
+                    importOpt.value = s.id;
+                    importOpt.textContent = s.name;
+                    importSourceSeason.appendChild(importOpt);
                 });
             });
         }
 
         function loadTeams() {
             var sid = seasonSelect.value;
-            if (!sid) { tbody.innerHTML = '<tr><td colspan="7" class="text-muted">' + I18n.t('common.noData') + '</td></tr>'; return; }
+            if (!sid) { tbody.innerHTML = '<tr><td colspan="8" class="text-muted">' + I18n.t('common.noData') + '</td></tr>'; return; }
             API.getTeams(sid).then(function (teams) {
                 if (!teams || teams.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="7" class="text-muted">' + I18n.t('common.noData') + '</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="8" class="text-muted">' + I18n.t('common.noData') + '</td></tr>';
                     return;
                 }
 
@@ -215,7 +252,7 @@
                 // Render immediately
                 _renderTeamsTable(teams, sid);
             }).catch(function () {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-muted">' + I18n.t('error.loadFailed') + '</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" class="text-muted">' + I18n.t('error.loadFailed') + '</td></tr>';
             });
         }
 
@@ -223,13 +260,20 @@
             tbody.innerHTML = '';
             teams.forEach(function (t) {
                 var tr = document.createElement('tr');
-                var baseUrl = window.location.origin + window.location.pathname.replace(/\/admin\/teams\.html.*$/, '') + '/team-manage.html';
-                var manageUrl = t.teamToken ? (baseUrl + '?token=' + t.teamToken) : '';
+                                var siteRoot = window.location.origin + window.location.pathname.replace(/\/admin\/teams\.html.*$/, '');
+                                var manageUrl = t.teamToken ? (siteRoot + '/team-manage.html?token=' + t.teamToken) : '';
+                                var availabilityUrl = t.teamToken ? (siteRoot + '/team-availability.html?token=' + t.teamToken) : '';
                 var linkHtml = manageUrl
                     ? '<div style="font-size:0.72rem;word-break:break-all;margin-bottom:4px">'
                       + '<a href="' + manageUrl + '" target="_blank" rel="noopener">' + manageUrl + '</a>'
                       + '</div>'
-                      + '<button class="btn btn-sm btn-outline btn-copy" data-url="' + _esc(manageUrl) + '">複製連結</button>'
+                                            + '<button class="btn btn-sm btn-outline btn-copy" data-url="' + _esc(manageUrl) + '">複製管理連結</button>'
+                                        : '—';
+                                var availabilityLinkHtml = availabilityUrl
+                                        ? '<div style="font-size:0.72rem;word-break:break-all;margin-bottom:4px">'
+                                            + '<a href="' + availabilityUrl + '" target="_blank" rel="noopener">' + availabilityUrl + '</a>'
+                                            + '</div>'
+                                            + '<button class="btn btn-sm btn-outline btn-copy" data-url="' + _esc(availabilityUrl) + '">複製填報連結</button>'
                     : '—';
                 var jerseyHtml = '';
                 if (t.jerseyHome) jerseyHtml += '<span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:' + _jerseyColor(t.jerseyHome) + ';border:1px solid rgba(255,255,255,0.2);vertical-align:middle"></span> 主:' + _esc(t.jerseyHome);
@@ -243,6 +287,7 @@
                     '<td>' + _esc(t.captain) + '</td>' +
                     '<td>' + _esc(t.captainWhatsApp) + '</td>' +
                     '<td>' + linkHtml + '</td>' +
+                    '<td>' + availabilityLinkHtml + '</td>' +
                     '<td>' +
                     '<button class="btn btn-sm btn-outline btn-edit" data-id="' + t.id + '">' + I18n.t('admin.edit') + '</button> ' +
                     '<button class="btn btn-sm btn-outline btn-delete" data-id="' + t.id + '">' + I18n.t('admin.delete') + '</button>' +
@@ -253,8 +298,9 @@
                 btn.addEventListener('click', function() {
                     var url = btn.getAttribute('data-url');
                     navigator.clipboard.writeText(url).then(function() {
+                                var original = btn.textContent;
                         btn.textContent = '已複製！';
-                        setTimeout(function() { btn.textContent = '複製連結'; }, 2000);
+                                setTimeout(function() { btn.textContent = original; }, 2000);
                     });
                 });
             });
@@ -313,11 +359,93 @@
 
         seasonSelect.addEventListener('change', function () {
             createBtn.disabled = !seasonSelect.value;
+            importBtn.disabled = !seasonSelect.value;
             loadTeams();
         });
 
         createBtn.addEventListener('click', function () { resetForm(); formEl.hidden = false; });
         document.getElementById('btn-cancel-team').addEventListener('click', resetForm);
+
+        importBtn.addEventListener('click', function () {
+            if (!seasonSelect.value) { showMsg('請先選擇目標賽季', 'error'); return; }
+            importCard.hidden = false;
+            importTeamsList.hidden = true;
+            selectAllImportBtn.hidden = true;
+            copyImportTeamsBtn.hidden = true;
+            importSourceSeason.value = guessPreviousSeasonId();
+        });
+
+        cancelImportBtn.addEventListener('click', function () {
+            importCard.hidden = true;
+        });
+
+        loadImportTeamsBtn.addEventListener('click', loadImportTeams);
+
+        selectAllImportBtn.addEventListener('click', function () {
+            importTeamsList.querySelectorAll('input[type="checkbox"]').forEach(function (box) { box.checked = true; });
+        });
+
+        copyImportTeamsBtn.addEventListener('click', function () {
+            var teamIds = Array.from(importTeamsList.querySelectorAll('input[type="checkbox"]:checked')).map(function (box) { return box.value; });
+            if (teamIds.length === 0) { showMsg('請選擇要複製的球隊', 'error'); return; }
+            copyImportTeamsBtn.disabled = true;
+            copyImportTeamsBtn.textContent = '複製中...';
+            API.post('copyTeamsToSeason', {
+                sourceSeasonId: importSourceSeason.value,
+                targetSeasonId: seasonSelect.value,
+                teamIds: teamIds
+            }).then(function (result) {
+                var skipped = result && result.skippedCount ? '，已略過 ' + result.skippedCount + ' 隊同名球隊' : '';
+                showMsg('已複製 ' + ((result && result.copiedCount) || 0) + ' 隊' + skipped, 'success');
+                importCard.hidden = true;
+                loadTeams();
+            }).catch(function (err) {
+                showMsg((err && err.message) || I18n.t('error.submitFailed'), 'error');
+            }).finally(function () {
+                copyImportTeamsBtn.disabled = false;
+                copyImportTeamsBtn.textContent = '複製已選球隊到目前賽季';
+            });
+        });
+
+        function guessPreviousSeasonId() {
+            var target = seasonSelect.value;
+            var targetIndex = allSeasons.findIndex(function (s) { return s.id === target; });
+            if (targetIndex > 0) return allSeasons[targetIndex - 1].id;
+            var other = allSeasons.find(function (s) { return s.id !== target; });
+            return other ? other.id : '';
+        }
+
+        function loadImportTeams() {
+            var sourceId = importSourceSeason.value;
+            if (!sourceId) { showMsg('請選擇來源賽季', 'error'); return; }
+            if (sourceId === seasonSelect.value) { showMsg('來源賽季不可與目前賽季相同', 'error'); return; }
+            importTeamsList.hidden = false;
+            importTeamsList.innerHTML = '<p class="text-muted">載入中...</p>';
+            selectAllImportBtn.hidden = true;
+            copyImportTeamsBtn.hidden = true;
+            Promise.all([API.getTeams(sourceId), API.getTeams(seasonSelect.value)]).then(function (results) {
+                var sourceTeams = results[0] || [];
+                var targetTeams = results[1] || [];
+                var targetNames = {};
+                targetTeams.forEach(function (team) { targetNames[(team.name || '').toLowerCase()] = true; });
+                if (sourceTeams.length === 0) {
+                    importTeamsList.innerHTML = '<p class="text-muted">來源賽季暫無球隊</p>';
+                    return;
+                }
+                importTeamsList.innerHTML = sourceTeams.map(function (team) {
+                    var exists = targetNames[(team.name || '').toLowerCase()];
+                    return '<label style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;opacity:' + (exists ? '0.55' : '1') + '">' +
+                        '<input type="checkbox" value="' + _esc(team.id) + '" ' + (exists ? 'disabled' : 'checked') + ' style="margin-top:4px">' +
+                        '<span><strong>' + _esc(team.name) + '</strong>' +
+                        '<br><span class="text-muted" style="font-size:0.82rem">' + _esc(team.captain || '') + ' ' + _esc(team.captainWhatsApp || '') + (exists ? '（目標賽季已有同名球隊）' : '') + '</span></span>' +
+                        '</label>';
+                }).join('');
+                selectAllImportBtn.hidden = false;
+                copyImportTeamsBtn.hidden = false;
+            }).catch(function () {
+                importTeamsList.innerHTML = '<p class="text-muted">載入失敗</p>';
+            });
+        }
 
         document.getElementById('btn-save-team').addEventListener('click', function () {
             var data = {
