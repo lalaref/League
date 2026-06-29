@@ -15,6 +15,12 @@
   var announcementsEl = document.getElementById('announcements-list');
   var standingsBody = document.querySelector('#standings-table tbody');
   var achievementsEl = document.getElementById('achievements-list');
+  var seasonStatsEls = {
+    teams: document.getElementById('cb-teams-count'),
+    games: document.getElementById('cb-games-played'),
+    players: document.getElementById('cb-players-count'),
+    season: document.getElementById('cb-season-label')
+  };
 
   // --- 當前賽季 ID（從 API 取得最新活躍賽季） ---
   var currentSeasonId = null;
@@ -58,6 +64,7 @@
         currentSeasonId = active.id;
 
         // 並行載入所有數據
+        loadSeasonSummary(seasons, active);
         loadRecentGames();
         loadUpcomingGames();
         loadAnnouncements();
@@ -75,6 +82,113 @@
           if (comingEl) comingEl.innerHTML = '<div style="color:#aaa;text-align:center;padding:40px 0;font-size:13px">暫時無法載入資料<br><button onclick="location.reload()" style="margin-top:12px;padding:8px 20px;background:#cc0000;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:12px">重新載入</button></div>';
         }
       });
+  }
+
+  function loadSeasonSummary(seasons, fallbackSeason) {
+    if (!seasonStatsEls.teams && !seasonStatsEls.games && !seasonStatsEls.players && !seasonStatsEls.season) return;
+
+    var includedSeasons = getSummarySeasons(seasons, fallbackSeason);
+
+    setSeasonStat(seasonStatsEls.teams, '—');
+    setSeasonStat(seasonStatsEls.games, '—');
+    setSeasonStat(seasonStatsEls.players, '—');
+    setSeasonStat(seasonStatsEls.season, formatSeasonRange(includedSeasons));
+
+    var requests = [];
+    includedSeasons.forEach(function (season) {
+      requests.push(API.getTeams(season.id));
+      requests.push(API.getGames(season.id));
+    });
+    requests.push(API.getPlayers());
+
+    Promise.all(requests).then(function (results) {
+      var teams = [];
+      var games = [];
+      for (var i = 0; i < includedSeasons.length; i++) {
+        teams = teams.concat(results[i * 2] || []);
+        games = games.concat(results[i * 2 + 1] || []);
+      }
+      var players = results[results.length - 1] || [];
+      var activeTeamIds = {};
+
+      teams.forEach(function (team) {
+        if (team && team.id) activeTeamIds[String(team.id)] = true;
+      });
+
+      var completedGames = games.filter(function (game) {
+        return game && game.status === 'completed';
+      });
+      var seasonPlayers = players.filter(function (player) {
+        return player && activeTeamIds[String(player.teamId)];
+      });
+
+      setSeasonStat(seasonStatsEls.teams, teams.length);
+      setSeasonStat(seasonStatsEls.games, completedGames.length);
+      setSeasonStat(seasonStatsEls.players, seasonPlayers.length);
+      setSeasonStat(seasonStatsEls.season, formatSeasonRange(includedSeasons));
+    }).catch(function () {
+      setSeasonStat(seasonStatsEls.teams, '—');
+      setSeasonStat(seasonStatsEls.games, '—');
+      setSeasonStat(seasonStatsEls.players, '—');
+      setSeasonStat(seasonStatsEls.season, formatSeasonRange(includedSeasons));
+    });
+  }
+
+  function getSummarySeasons(seasons, fallbackSeason) {
+    var selected = [];
+    (seasons || []).forEach(function (season) {
+      if (season && season.id && String(season.status || '').toLowerCase() === 'active') selected.push(season);
+    });
+    if (selected.length === 0 && fallbackSeason) selected.push(fallbackSeason);
+    selected.sort(function (a, b) {
+      return getSeasonSortNumber(a) - getSeasonSortNumber(b);
+    });
+    return selected;
+  }
+
+  function formatSeasonRange(seasons) {
+    if (!seasons || seasons.length === 0) return '—';
+    var labels = seasons.map(formatSeasonLabel).filter(function (label) { return label && label !== '—'; });
+    return labels.length ? labels.join('+') : '—';
+  }
+
+  function getSeasonSortNumber(season) {
+    var label = formatSeasonLabel(season);
+    var match = label.match(/S(\d+)/i);
+    return match ? parseInt(match[1], 10) : 999;
+  }
+
+  function setSeasonStat(element, value) {
+    if (!element) return;
+    element.textContent = value;
+  }
+
+  function formatSeasonLabel(season) {
+    if (!season) return '—';
+    var name = String(season.name || season.id || '').trim();
+    var shortMatch = name.match(/S\s*\d+/i);
+    if (shortMatch) return shortMatch[0].replace(/\s+/g, '').toUpperCase();
+    var seasonMatch = name.match(/Season\s*(\d+)/i);
+    if (seasonMatch) return 'S' + seasonMatch[1];
+    var zhMatch = name.match(/第\s*([一二三四五六七八九十0-9]+)\s*(屆|季)/);
+    if (zhMatch) return 'S' + normalizeSeasonNumber(zhMatch[1]);
+    return name || '—';
+  }
+
+  function normalizeSeasonNumber(rawValue) {
+    if (/^\d+$/.test(rawValue)) return rawValue;
+    var numerals = {
+      '一': 1, '二': 2, '三': 3, '四': 4, '五': 5,
+      '六': 6, '七': 7, '八': 8, '九': 9
+    };
+    if (rawValue === '十') return '10';
+    if (rawValue.indexOf('十') !== -1) {
+      var parts = rawValue.split('十');
+      var tens = parts[0] ? numerals[parts[0]] || 0 : 1;
+      var ones = parts[1] ? numerals[parts[1]] || 0 : 0;
+      return String(tens * 10 + ones);
+    }
+    return String(numerals[rawValue] || rawValue);
   }
 
   // --- 最近比賽結果（需求 3.1, 3.4）---
