@@ -618,10 +618,10 @@
             <div class="cb-stats-inner">
                 <div class="cb-sec-title"><h3>全季數據一覽</h3><div class="cb-sec-title-line"></div></div>
                 <div class="cb-stats-grid">
-                    <div class="cb-stat"><div class="cb-stat-num">8</div><div class="cb-stat-label">球隊 Teams</div></div>
+                    <div class="cb-stat"><div class="cb-stat-num" id="cb-teams-count">—</div><div class="cb-stat-label">球隊 Teams</div></div>
                     <div class="cb-stat"><div class="cb-stat-num" id="cb-games-played">—</div><div class="cb-stat-label">場次 Games Played</div></div>
                     <div class="cb-stat"><div class="cb-stat-num" id="cb-players-count">—</div><div class="cb-stat-label">球員 Players</div></div>
-                    <div class="cb-stat"><div class="cb-stat-num">S1</div><div class="cb-stat-label">賽季 Season</div></div>
+                    <div class="cb-stat"><div class="cb-stat-num" id="cb-season-label">—</div><div class="cb-stat-label">賽季 Season</div></div>
                 </div>
             </div>
         </div>
@@ -818,27 +818,6 @@
 
     <script>
         document.getElementById('current-year').textContent = new Date().getFullYear();
-        // Populate stats bar after data loads (dashboard.js runs after)
-        document.addEventListener('DOMContentLoaded', function(){
-            var observer = new MutationObserver(function(){
-                var rows = document.querySelectorAll('#standings-table tbody tr');
-                if(rows.length > 0){
-                    var totalPlayed = 0;
-                    rows.forEach(function(r){
-                        var cells = r.querySelectorAll('td');
-                        if(cells[2]) totalPlayed = Math.max(totalPlayed, parseInt(cells[2].textContent)||0);
-                    });
-                    // each game is shared by 2 teams; pick displayed value
-                    var gEl = document.getElementById('cb-games-played');
-                    if(gEl && gEl.textContent === '—') { var firstCell = rows[0] && rows[0].querySelectorAll('td')[2]; if(firstCell) gEl.textContent = firstCell.textContent; }
-                }
-                var players = document.querySelectorAll('#player-stats-list .player-row, #player-list .player-row');
-                var pEl = document.getElementById('cb-players-count');
-                if(pEl && players.length > 0) pEl.textContent = players.length + '+';
-            });
-            var tbody = document.querySelector('#standings-table tbody');
-            if(tbody) observer.observe(tbody, {childList:true});
-        });
     </script>
     <script src="js/utils.js?v=20260428"></script>
     <script src="js/api.js?v=20260428"></script>
