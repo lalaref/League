@@ -78,7 +78,7 @@
   }
 
   function buildDays() {
-    var start = getNextWeekStart();
+    var start = getNextOpenWindowStart();
     var end = new Date(start);
     end.setDate(start.getDate() + 13);
     rangeStart = toYmd(start);
@@ -222,13 +222,17 @@
     return y + '-' + m + '-' + d;
   }
 
-  function getNextWeekStart() {
+  function getNextOpenWindowStart() {
     var today = new Date();
     today.setHours(0, 0, 0, 0);
     var start = new Date(today);
-    var daysUntilSunday = (7 - today.getDay()) % 7;
-    if (daysUntilSunday === 0) daysUntilSunday = 7;
-    start.setDate(today.getDate() + daysUntilSunday);
+    var daysUntilNextMonday = (8 - today.getDay()) % 7;
+    if (daysUntilNextMonday === 0) daysUntilNextMonday = 7;
+    if (today.getDay() === 1) {
+      start.setDate(today.getDate() + 7);
+    } else {
+      start.setDate(today.getDate() + daysUntilNextMonday + 7);
+    }
     return start;
   }
 
