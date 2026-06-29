@@ -396,7 +396,8 @@
                 teamIds: teamIds
             }).then(function (result) {
                 var skipped = result && result.skippedCount ? '，已略過 ' + result.skippedCount + ' 隊同名球隊' : '';
-                showMsg('已複製 ' + ((result && result.copiedCount) || 0) + ' 隊' + skipped, 'success');
+                var players = result && result.copiedPlayers ? '，球員 ' + result.copiedPlayers + ' 人' : '';
+                showMsg('已複製 ' + ((result && result.copiedCount) || 0) + ' 隊' + players + skipped, 'success');
                 importCard.hidden = true;
                 loadTeams();
             }).catch(function (err) {
