@@ -91,8 +91,9 @@
                             <input type="text" id="t-name" class="admin-input" required>
                         </div>
                         <div class="admin-form-group">
-                            <label for="t-logo" class="admin-label">隊徽 URL</label>
-                            <input type="url" id="t-logo" class="admin-input">
+                            <label for="t-logo" class="admin-label">隊徽圖片</label>
+                            <input type="file" id="t-logo" class="admin-input" accept="image/*">
+                            <img id="t-logo-preview" alt="" hidden style="width:56px;height:56px;object-fit:cover;border-radius:8px;margin-top:10px">
                         </div>
                         <div class="admin-form-row">
                             <div class="admin-form-group">
@@ -161,8 +162,9 @@
                                 </div>
                             </div>
                             <div class="admin-form-group">
-                                <label for="p-photo" class="admin-label">個人照片 URL</label>
-                                <input type="url" id="p-photo" class="admin-input" placeholder="https://...">
+                                <label for="p-photo" class="admin-label">個人照片</label>
+                                <input type="file" id="p-photo" class="admin-input" accept="image/*">
+                                <img id="p-photo-preview" alt="" hidden style="width:56px;height:56px;object-fit:cover;border-radius:50%;margin-top:10px">
                             </div>
                             <div class="admin-actions">
                                 <button id="btn-save-player" class="btn btn-primary">儲存</button>
@@ -210,6 +212,7 @@
     <script>document.getElementById('current-year').textContent = new Date().getFullYear();</script>
     <script src="js/utils.js?v=20260410"></script>
     <script src="js/api.js?v=20260410"></script>
+    <script src="js/image-import.js?v=20260410"></script>
     <script src="js/team-manage.js?v=20260410"></script>
     <a class="wa-float" href="https://api.whatsapp.com/send?phone=85284330084&text=%E6%88%91%E6%9C%89%E8%88%88%E8%B6%A3%E5%A0%B1%E9%9A%8A%E5%8F%83%E5%8A%A0%E6%AF%94%E8%B3%BD" target="_blank" rel="noopener" aria-label="WhatsApp 查詢及報名">
         <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
