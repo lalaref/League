@@ -26,20 +26,22 @@
   var playerPhotoImport = ImageImport.createController({
     input: 'p-photo',
     preview: 'p-photo-preview',
-    maxSize: 520,
-    minSize: 220,
-    quality: 0.74,
-    maxDataUrlLength: 45000,
+    maxSize: 480,
+    minSize: 120,
+    quality: 0.72,
+    minQuality: 0.26,
+    maxDataUrlLength: 38000,
     outputType: 'image/jpeg',
     onError: function (err) { showTeamMsg((err && err.message) || '圖片匯入失敗', 'error'); }
   });
   var playerLeaderPhotoImport = ImageImport.createController({
     input: 'p-leader-photo',
     preview: 'p-leader-photo-preview',
-    maxSize: 640,
-    minSize: 260,
-    quality: 0.74,
-    maxDataUrlLength: 45000,
+    maxSize: 560,
+    minSize: 140,
+    quality: 0.72,
+    minQuality: 0.26,
+    maxDataUrlLength: 38000,
     outputType: 'image/jpeg',
     onError: function (err) { showTeamMsg((err && err.message) || '圖片匯入失敗', 'error'); }
   });

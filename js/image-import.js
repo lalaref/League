@@ -78,7 +78,7 @@ var ImageImport = (function () {
         var height = image.naturalHeight || image.height;
         var outputType = options.outputType || (fileType === 'image/png' ? 'image/png' : 'image/jpeg');
         var baseQuality = options.quality !== undefined ? options.quality : 0.78;
-        var minQuality = options.minQuality !== undefined ? options.minQuality : 0.42;
+        var minQuality = options.minQuality !== undefined ? options.minQuality : 0.32;
         var maxDataUrlLength = options.maxDataUrlLength || 0;
         var currentMaxSize = maxSize;
         var lastDataUrl = '';
