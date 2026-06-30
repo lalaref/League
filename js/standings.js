@@ -170,11 +170,11 @@
         + SILHOUETTE_SVG
       : SILHOUETTE_SVG;
 
-    var nameHtml = pid
-      ? '<a href="player.html?id=' + pid + '" class="sl-player-link">' + name + '</a>'
-      : name;
+    var cardTag = pid ? 'a' : 'div';
+    var cardHref = pid ? ' href="player.html?id=' + pid + '"' : '';
+    var cardClass = pid ? 'sl-card sl-card-link' : 'sl-card';
 
-    return '<div class="sl-card" style="--sl-color:' + cfg.color + '" role="article" aria-label="' + cfg.label + ' leader">'
+    return '<' + cardTag + cardHref + ' class="' + cardClass + '" style="--sl-color:' + cfg.color + '" role="article" aria-label="' + cfg.label + ' leader">'
       + '<div class="sl-photo-area">'
       + photoHtml
       + '<div class="sl-photo-gradient"></div>'
@@ -183,10 +183,10 @@
       + '</div>'
       + '<div class="sl-info">'
       + '<span class="sl-cat-name">' + cfg.label + '</span>'
-      + '<span class="sl-player-name">' + nameHtml + '</span>'
+      + '<span class="sl-player-name">' + name + '</span>'
       + '<span class="sl-team">' + team + jersey + '</span>'
       + '</div>'
-      + '</div>';
+      + '</' + cardTag + '>';
   }
 
   // ─── Team Standings ────────────────────────────────────────────────────────

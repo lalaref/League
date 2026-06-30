@@ -26,14 +26,20 @@
   var playerPhotoImport = ImageImport.createController({
     input: 'p-photo',
     preview: 'p-photo-preview',
-    maxSize: 720,
+    maxSize: 520,
+    minSize: 220,
+    quality: 0.74,
+    maxDataUrlLength: 45000,
     outputType: 'image/jpeg',
     onError: function (err) { showTeamMsg((err && err.message) || '圖片匯入失敗', 'error'); }
   });
   var playerLeaderPhotoImport = ImageImport.createController({
     input: 'p-leader-photo',
     preview: 'p-leader-photo-preview',
-    maxSize: 900,
+    maxSize: 640,
+    minSize: 260,
+    quality: 0.74,
+    maxDataUrlLength: 45000,
     outputType: 'image/jpeg',
     onError: function (err) { showTeamMsg((err && err.message) || '圖片匯入失敗', 'error'); }
   });
