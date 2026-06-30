@@ -17,6 +17,19 @@
   var currentTeam = null;
   var currentPlayers = [];
   var editingPlayerId = null;
+  var teamLogoImport = ImageImport.createController({
+    input: 't-logo',
+    preview: 't-logo-preview',
+    maxSize: 900,
+    onError: function (err) { showTeamMsg((err && err.message) || '圖片匯入失敗', 'error'); }
+  });
+  var playerPhotoImport = ImageImport.createController({
+    input: 'p-photo',
+    preview: 'p-photo-preview',
+    maxSize: 720,
+    outputType: 'image/jpeg',
+    onError: function (err) { showTeamMsg((err && err.message) || '圖片匯入失敗', 'error'); }
+  });
 
   if (!token) {
     showError('無效的連結，缺少球隊 token 參數。請聯絡聯賽管理員取得正確連結。');
@@ -64,7 +77,7 @@
   function renderTeam() {
     document.getElementById('team-title').textContent = currentTeam.name + ' — 球隊管理';
     document.getElementById('t-name').value = currentTeam.name || '';
-    document.getElementById('t-logo').value = currentTeam.logo || '';
+    teamLogoImport.setValue(currentTeam.logo || '');
     document.getElementById('t-captain').value = currentTeam.captain || '';
     document.getElementById('t-whatsapp').value = currentTeam.captainWhatsApp || '';
     document.getElementById('t-desc').value = currentTeam.description || '';
@@ -113,7 +126,7 @@
         document.getElementById('p-name').value = p.name || '';
         document.getElementById('p-number').value = (p.number != null) ? p.number : '';
         document.getElementById('p-position').value = p.position || '';
-        document.getElementById('p-photo').value = p.photo || '';
+        playerPhotoImport.setValue(p.photo || '');
         playerForm.hidden = false;
       });
     });
@@ -129,10 +142,11 @@
   }
 
   function saveTeam() {
+    teamLogoImport.ready().then(function () {
     var data = {
       teamToken: token,
       name: document.getElementById('t-name').value.trim(),
-      logo: document.getElementById('t-logo').value.trim(),
+      logo: teamLogoImport.getValue(),
       captain: document.getElementById('t-captain').value.trim(),
       captainWhatsApp: document.getElementById('t-whatsapp').value.trim(),
       description: document.getElementById('t-desc').value.trim(),
@@ -143,15 +157,17 @@
     API.post('publicUpdateTeam', data)
       .then(function () { showTeamMsg('球隊資料已更新', 'success'); loadTeamData(); })
       .catch(function (err) { showTeamMsg(err.message || '更新失敗', 'error'); });
+    });
   }
 
   function savePlayer() {
+    playerPhotoImport.ready().then(function () {
     var data = {
       teamToken: token,
       name: document.getElementById('p-name').value.trim(),
       number: document.getElementById('p-number').value.trim(),
       position: document.getElementById('p-position').value,
-      photo: document.getElementById('p-photo').value.trim()
+      photo: playerPhotoImport.getValue()
     };
     if (!data.name) { showTeamMsg('球員姓名為必填', 'error'); return; }
 
@@ -166,13 +182,14 @@
         loadTeamData();
       })
       .catch(function (err) { showTeamMsg(err.message || '儲存失敗', 'error'); });
+    });
   }
 
   function clearPlayerForm() {
     document.getElementById('p-name').value = '';
     document.getElementById('p-number').value = '';
     document.getElementById('p-position').value = '';
-    document.getElementById('p-photo').value = '';
+    playerPhotoImport.setValue('');
   }
 
   function showError(msg) {
