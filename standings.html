@@ -19,37 +19,47 @@
     <link rel="stylesheet" href="css/responsive.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
     <style>
-    /* ── Stat Leader Cards ── */
-    .sl-section{background:#0d0d0d;padding:36px 0 28px}
+        /* ── Stat Leader Cards — Enhanced Irregular Shapes ── */
+        .sl-section{background:#060606;padding:44px 0 36px}
+        .sl-section-title{display:flex;align-items:center;gap:14px;margin-bottom:24px}
+        .sl-title-icon{font-size:26px;line-height:1}
+        .sl-title-text{font-family:"Raleway",sans-serif;font-size:28px;font-weight:900;text-transform:uppercase;letter-spacing:.12em;color:#fff;margin:0;line-height:1}
+        .sl-title-sub{font-family:"Raleway",sans-serif;font-size:12px;font-weight:600;letter-spacing:.1em;color:#aaa;margin-left:4px;align-self:flex-end;padding-bottom:3px}
     .sl-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
-    .sl-card{background:#111;border-radius:10px;overflow:hidden;position:relative;
-             display:flex;flex-direction:column;box-shadow:0 6px 24px rgba(0,0,0,.5);
-             transition:transform .22s,box-shadow .22s;cursor:default}
-    .sl-card:hover{transform:translateY(-5px);box-shadow:0 12px 36px rgba(0,0,0,.6)}
-    .sl-card--pts .sl-info{background:#cc0000}
-    .sl-photo-area{flex:1;min-height:170px;position:relative;overflow:hidden;
-                   background:linear-gradient(180deg,#1c1c1c 0%,#0d0d0d 100%)}
+
+        .sl-card{
+            position:relative;background:#111;display:flex;flex-direction:column;
+            overflow:hidden;
+            box-shadow:0 12px 48px rgba(0,0,0,.75),inset 0 1px 0 rgba(255,255,255,.06);
+            transition:transform .28s cubic-bezier(.22,.68,0,1.2),box-shadow .28s;
+            cursor:pointer;--sl-color:#cc0000;
+        }
+        .sl-card:hover{transform:translateY(-8px) scale(1.02);box-shadow:0 24px 64px rgba(0,0,0,.85),0 0 0 1px var(--sl-color)}
+        .sl-card:nth-child(odd){clip-path:polygon(0 0,calc(100% - 22px) 0,100% 22px,100% 100%,0 100%)}
+        .sl-card:nth-child(even){clip-path:polygon(0 0,100% 0,100% 100%,22px 100%,0 calc(100% - 22px))}
+
+        .sl-photo-area{
+            position:relative;flex:1;min-height:210px;overflow:hidden;
+            background:linear-gradient(150deg,#1e1e1e 0%,#070707 100%);
+        }
     .sl-photo{width:100%;height:100%;object-fit:cover;object-position:top center;
               position:absolute;inset:0;display:block}
-    .sl-silhouette{position:absolute;inset:0;display:flex;align-items:flex-end;
-                   justify-content:center;padding-bottom:0;opacity:.22}
-    .sl-silhouette svg{width:68%;max-height:100%}
-    .sl-stat-overlay{position:absolute;bottom:10px;left:12px;z-index:2;line-height:1}
-    .sl-stat-abbr{font-family:'Raleway',sans-serif;font-size:10px;font-weight:800;
-                  letter-spacing:.18em;color:rgba(255,255,255,.6);text-transform:uppercase;
-                  display:block;margin-bottom:2px}
-    .sl-stat-value{font-family:'Raleway',sans-serif;font-size:52px;font-weight:900;
-                   color:#fff;line-height:1;display:block;text-shadow:0 2px 12px rgba(0,0,0,.7)}
-    .sl-info{padding:11px 12px 12px;background:#1a1a1a}
-    .sl-cat-name{font-family:'Raleway',sans-serif;font-size:11px;font-weight:900;
-                 letter-spacing:.15em;text-transform:uppercase;color:#fff;display:block}
-    .sl-player-name{font-size:12px;font-weight:700;color:rgba(255,255,255,.82);
-                    margin-top:4px;display:block;overflow:hidden;text-overflow:ellipsis;
-                    white-space:nowrap}
-    .sl-team{font-size:10px;color:rgba(255,255,255,.45);margin-top:2px;display:block}
+        .sl-photo-area > svg{position:absolute;inset:0;width:100%;height:100%}
+        .sl-photo-gradient{position:absolute;bottom:0;left:0;right:0;height:100px;background:linear-gradient(transparent 0%,rgba(10,10,10,.85) 60%,#111 100%);z-index:1}
+        .sl-badge{position:absolute;top:0;left:0;z-index:4;background:var(--sl-color);color:#fff;font-family:'Raleway',sans-serif;font-size:10px;font-weight:900;letter-spacing:.22em;text-transform:uppercase;padding:6px 22px 7px 10px;clip-path:polygon(0 0,100% 0,calc(100% - 14px) 100%,0 100%)}
+        .sl-num{position:absolute;bottom:10px;left:10px;z-index:3;font-family:'Raleway',sans-serif;font-size:76px;font-weight:900;line-height:.9;color:#fff;letter-spacing:0;text-shadow:0 0 32px var(--sl-color),0 0 60px var(--sl-color),0 4px 20px rgba(0,0,0,.9)}
+        .sl-info{background:#0a0a0a;padding:12px 13px 16px;border-top:3px solid var(--sl-color);position:relative;overflow:hidden}
+        .sl-info::after{content:'';position:absolute;top:0;left:-20px;width:60px;height:3px;background:rgba(255,255,255,.12);transform:skewX(-30deg)}
+        .sl-cat-name{font-family:'Raleway',sans-serif;font-size:9px;font-weight:900;letter-spacing:.26em;text-transform:uppercase;color:var(--sl-color);display:block;margin-bottom:6px}
+        .sl-player-name{font-family:'Raleway',sans-serif;font-size:18px;font-weight:900;line-height:1.15;color:#fff;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:0}
+        .sl-card-link{color:inherit;text-decoration:none}
+        .sl-card-link:focus-visible{outline:2px solid var(--sl-color);outline-offset:4px}
+        .sl-player-link{color:inherit;text-decoration:none}
+        .sl-player-link:hover{color:var(--sl-color)}
+        .sl-team{font-size:12px;font-weight:600;color:rgba(255,255,255,.4);display:block;margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .sl-loading{grid-column:1/-1;text-align:center;padding:40px;color:#555;font-size:13px}
-    @media(max-width:900px){.sl-grid{grid-template-columns:repeat(3,1fr)}}
-    @media(max-width:500px){.sl-grid{grid-template-columns:repeat(2,1fr)}}
+        @media(max-width:1000px){.sl-grid{grid-template-columns:repeat(3,1fr)}}
+        @media(max-width:560px){.sl-grid{grid-template-columns:repeat(2,1fr)}.sl-num{font-size:58px}.sl-photo-area{min-height:180px}.sl-title-text{font-size:24px}}
 
     /* ── Team Standings section ── */
     .team-standings-section{padding-top:32px;padding-bottom:8px}
@@ -128,7 +138,11 @@
         <!-- 各類別領袖照片橫幅 -->
         <section class="sl-section" aria-label="各類別領袖">
             <div class="container">
-                <div class="cb-sec-title" style="margin-bottom:16px"><h2 style="font-family:'Raleway',sans-serif;font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:.14em;color:#fff;display:flex;align-items:center;gap:8px">🏀 LEADERBOARD</h2><div style="flex:1;height:1px;background:rgba(255,255,255,.18);margin-left:14px"></div></div>
+                <div class="sl-section-title">
+                    <span class="sl-title-icon">🏆</span>
+                    <h2 class="sl-title-text">Leaderboard</h2>
+                    <span class="sl-title-sub">各類別最佳球員</span>
+                </div>
                 <div id="stat-leader-cards" class="sl-grid" aria-live="polite">
                     <!-- 動態載入 -->
                 </div>
@@ -450,7 +464,7 @@
     <script src="js/i18n.js?v=20260409"></script>
     <script src="js/charts.js?v=20260409"></script>
     <script src="js/navigation.js?v=20260409"></script>
-    <script src="js/standings.js?v=20260630b"></script>
+    <script src="js/standings.js?v=20260630c"></script>
     <script>
         I18n.init();
     </script>
