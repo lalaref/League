@@ -144,7 +144,7 @@
     <script>document.getElementById('current-year').textContent = new Date().getFullYear();</script>
     <script src="../js/utils.js?v=20260409"></script>
     <script src="../js/api.js?v=20260409"></script>
-    <script src="../js/image-import.js?v=20260410"></script>
+    <script src="../js/image-import.js?v=20260630c"></script>
     <script src="../js/i18n.js?v=20260409"></script>
     <script src="../js/navigation.js?v=20260409"></script>
     <script src="auth.js?v=20260410"></script>
@@ -164,14 +164,22 @@
         var playerPhotoImport = ImageImport.createController({
             input: 'player-photo',
             preview: 'player-photo-preview',
-            maxSize: 720,
+            maxSize: 480,
+            minSize: 120,
+            quality: 0.72,
+            minQuality: 0.26,
+            maxDataUrlLength: 38000,
             outputType: 'image/jpeg',
             onError: function (err) { showMsg((err && err.message) || '圖片匯入失敗', 'error'); }
         });
         var playerLeaderPhotoImport = ImageImport.createController({
             input: 'player-leader-photo',
             preview: 'player-leader-photo-preview',
-            maxSize: 900,
+            maxSize: 560,
+            minSize: 140,
+            quality: 0.72,
+            minQuality: 0.26,
+            maxDataUrlLength: 38000,
             outputType: 'image/jpeg',
             onError: function (err) { showMsg((err && err.message) || '圖片匯入失敗', 'error'); }
         });
@@ -316,7 +324,7 @@
                 showMsg(editingId ? I18n.t('admin.updateSuccess') : I18n.t('admin.submitSuccess'), 'success');
                 resetForm();
                 loadPlayers();
-            }).catch(function () { showMsg(I18n.t('error.submitFailed'), 'error'); });
+            }).catch(function (err) { showMsg((err && err.message) || I18n.t('error.submitFailed'), 'error'); });
             });
         });
 
