@@ -338,12 +338,60 @@
         chartInstances[category].destroy();
         chartInstances[category] = null;
       }
-      if (labels.length === 0 || typeof Charts === 'undefined' || !Charts.createBarChart) return;
+      if (labels.length === 0) {
+        renderFallbackBarChart(category, [], []);
+        return;
+      }
+      if (typeof Chart === 'undefined' || typeof Charts === 'undefined' || !Charts.createBarChart) {
+        renderFallbackBarChart(category, labels, values);
+        return;
+      }
+      removeFallbackBarChart(category);
       var chart = Charts.createBarChart(canvasId, labels, values);
       if (chart) chartInstances[category] = chart;
     } catch (err) {
       chartInstances[category] = null;
+      renderFallbackBarChart(category, labels, values);
     }
+  }
+
+  function renderFallbackBarChart(category, labels, values) {
+    var canvas = document.getElementById('chart-' + category);
+    if (!canvas || !canvas.parentElement) return;
+    var wrapper = canvas.parentElement;
+    canvas.style.display = 'none';
+    var existing = wrapper.querySelector('.fallback-bar-chart');
+    if (!labels || labels.length === 0) {
+      if (existing) existing.remove();
+      return;
+    }
+    var max = values.reduce(function (highest, value) {
+      value = Number(value) || 0;
+      return value > highest ? value : highest;
+    }, 0) || 1;
+    var html = labels.map(function (label, idx) {
+      var value = Number(values[idx]) || 0;
+      var width = Math.max(4, Math.round(value / max * 100));
+      return '<div class="fallback-bar-row">'
+        + '<div class="fallback-bar-name">' + escapeHtml(label) + '</div>'
+        + '<div class="fallback-bar-track"><div class="fallback-bar-fill" style="width:' + width + '%"></div></div>'
+        + '<div class="fallback-bar-value">' + formatNum(value) + '</div>'
+        + '</div>';
+    }).join('');
+    if (!existing) {
+      existing = document.createElement('div');
+      existing.className = 'fallback-bar-chart';
+      wrapper.appendChild(existing);
+    }
+    existing.innerHTML = html;
+  }
+
+  function removeFallbackBarChart(category) {
+    var canvas = document.getElementById('chart-' + category);
+    if (!canvas || !canvas.parentElement) return;
+    canvas.style.display = '';
+    var existing = canvas.parentElement.querySelector('.fallback-bar-chart');
+    if (existing) existing.remove();
   }
 
   function normalizeLeaders(leaders, category) {
