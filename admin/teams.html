@@ -94,8 +94,9 @@
                         </datalist>
                     </div>
                     <div class="admin-form-group">
-                        <label for="team-logo" class="admin-label" data-i18n="admin.logo">隊徽 URL</label>
-                        <input type="url" id="team-logo" class="admin-input">
+                        <label for="team-logo" class="admin-label" data-i18n="admin.logo">隊徽圖片</label>
+                        <input type="file" id="team-logo" class="admin-input" accept="image/*">
+                        <img id="team-logo-preview" alt="" hidden style="width:56px;height:56px;object-fit:cover;border-radius:8px;margin-top:10px">
                     </div>
                     <div class="admin-form-row">
                         <div class="admin-form-group">
@@ -168,6 +169,7 @@
     <script>document.getElementById('current-year').textContent = new Date().getFullYear();</script>
     <script src="../js/utils.js?v=20260409"></script>
     <script src="../js/api.js?v=20260409"></script>
+    <script src="../js/image-import.js?v=20260410"></script>
     <script src="../js/i18n.js?v=20260409"></script>
     <script src="../js/navigation.js?v=20260409"></script>
     <script src="auth.js?v=20260410"></script>
@@ -191,6 +193,12 @@
         var copyImportTeamsBtn = document.getElementById('btn-copy-import-teams');
         var cancelImportBtn = document.getElementById('btn-cancel-import');
         var allSeasons = [];
+        var teamLogoImport = ImageImport.createController({
+            input: 'team-logo',
+            preview: 'team-logo-preview',
+            maxSize: 900,
+            onError: function (err) { showMsg((err && err.message) || '圖片匯入失敗', 'error'); }
+        });
 
         function showMsg(text, type) {
             msgEl.textContent = text;
@@ -204,7 +212,7 @@
             formTitle.textContent = I18n.t('admin.createTeam');
             document.getElementById('team-name').value = '';
             document.getElementById('team-division').value = '';
-            document.getElementById('team-logo').value = '';
+            teamLogoImport.setValue('');
             document.getElementById('team-captain').value = '';
             document.getElementById('team-whatsapp').value = '';
             document.getElementById('team-desc').value = '';
@@ -336,7 +344,7 @@
                     formTitle.textContent = I18n.t('admin.edit');
                     document.getElementById('team-name').value = t.name || '';
                     document.getElementById('team-division').value = t.division || '';
-                    document.getElementById('team-logo').value = t.logo || '';
+                    teamLogoImport.setValue(t.logo || '');
                     document.getElementById('team-captain').value = t.captain || '';
                     document.getElementById('team-whatsapp').value = t.captainWhatsApp || '';
                     document.getElementById('team-desc').value = t.description || '';
@@ -449,11 +457,12 @@
         }
 
         document.getElementById('btn-save-team').addEventListener('click', function () {
+            teamLogoImport.ready().then(function () {
             var data = {
                 seasonId: seasonSelect.value,
                 name: document.getElementById('team-name').value.trim(),
                 division: document.getElementById('team-division').value.trim().toUpperCase(),
-                logo: document.getElementById('team-logo').value.trim(),
+                logo: teamLogoImport.getValue(),
                 captain: document.getElementById('team-captain').value.trim(),
                 captainWhatsApp: document.getElementById('team-whatsapp').value.trim(),
                 description: document.getElementById('team-desc').value.trim(),
@@ -471,6 +480,7 @@
                 resetForm();
                 loadTeams();
             }).catch(function () { showMsg(I18n.t('error.submitFailed'), 'error'); });
+            });
         });
 
         function _esc(str) { var d = document.createElement('div'); d.textContent = str || ''; return d.innerHTML; }

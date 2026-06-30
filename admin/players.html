@@ -91,8 +91,9 @@
                             </select>
                         </div>
                         <div class="admin-form-group">
-                            <label for="player-photo" class="admin-label" data-i18n="admin.photo">照片 URL</label>
-                            <input type="url" id="player-photo" class="admin-input">
+                            <label for="player-photo" class="admin-label" data-i18n="admin.photo">照片圖片</label>
+                            <input type="file" id="player-photo" class="admin-input" accept="image/*">
+                            <img id="player-photo-preview" alt="" hidden style="width:56px;height:56px;object-fit:cover;border-radius:50%;margin-top:10px">
                         </div>
                     </div>
                     <div class="admin-actions">
@@ -138,6 +139,7 @@
     <script>document.getElementById('current-year').textContent = new Date().getFullYear();</script>
     <script src="../js/utils.js?v=20260409"></script>
     <script src="../js/api.js?v=20260409"></script>
+    <script src="../js/image-import.js?v=20260410"></script>
     <script src="../js/i18n.js?v=20260409"></script>
     <script src="../js/navigation.js?v=20260409"></script>
     <script src="auth.js?v=20260410"></script>
@@ -146,6 +148,7 @@
 
     (function () {
         var editingId = null;
+        var playersLoadSeq = 0;
         var seasonSelect = document.getElementById('season-select');
         var teamSelect = document.getElementById('team-select');
         var msgEl = document.getElementById('player-message');
@@ -153,6 +156,13 @@
         var formTitle = document.getElementById('player-form-title');
         var tbody = document.getElementById('players-body');
         var createBtn = document.getElementById('btn-create-player');
+        var playerPhotoImport = ImageImport.createController({
+            input: 'player-photo',
+            preview: 'player-photo-preview',
+            maxSize: 720,
+            outputType: 'image/jpeg',
+            onError: function (err) { showMsg((err && err.message) || '圖片匯入失敗', 'error'); }
+        });
 
         function showMsg(text, type) {
             msgEl.textContent = text;
@@ -167,7 +177,7 @@
             document.getElementById('player-name').value = '';
             document.getElementById('player-number').value = '';
             document.getElementById('player-position').value = '';
-            document.getElementById('player-photo').value = '';
+            playerPhotoImport.setValue('');
             formEl.hidden = true;
         }
 
@@ -202,8 +212,10 @@
 
         function loadPlayers() {
             var tid = teamSelect.value;
+            var seq = ++playersLoadSeq;
             if (!tid) { tbody.innerHTML = '<tr><td colspan="4" class="text-muted">' + I18n.t('common.noData') + '</td></tr>'; return; }
             API.getPlayers(tid).then(function (players) {
+                if (seq !== playersLoadSeq) return;
                 tbody.innerHTML = '';
                 if (!players || players.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="4" class="text-muted">' + I18n.t('common.noData') + '</td></tr>';
@@ -223,6 +235,7 @@
                 });
                 bindRowButtons(players);
             }).catch(function () {
+                if (seq !== playersLoadSeq) return;
                 tbody.innerHTML = '<tr><td colspan="4" class="text-muted">' + I18n.t('error.loadFailed') + '</td></tr>';
             });
         }
@@ -238,7 +251,7 @@
                     document.getElementById('player-name').value = p.name || '';
                     document.getElementById('player-number').value = (p.number != null) ? p.number : '';
                     document.getElementById('player-position').value = p.position || '';
-                    document.getElementById('player-photo').value = p.photo || '';
+                    playerPhotoImport.setValue(p.photo || '');
                     formEl.hidden = false;
                 });
             });
@@ -255,11 +268,13 @@
         }
 
         seasonSelect.addEventListener('change', function () {
+            playersLoadSeq++;
             loadTeams();
             tbody.innerHTML = '<tr><td colspan="4" class="text-muted">' + I18n.t('common.noData') + '</td></tr>';
         });
 
         teamSelect.addEventListener('change', function () {
+            playersLoadSeq++;
             createBtn.disabled = !teamSelect.value;
             loadPlayers();
         });
@@ -268,12 +283,13 @@
         document.getElementById('btn-cancel-player').addEventListener('click', resetForm);
 
         document.getElementById('btn-save-player').addEventListener('click', function () {
+            playerPhotoImport.ready().then(function () {
             var data = {
                 teamId: teamSelect.value,
                 name: document.getElementById('player-name').value.trim(),
                 number: document.getElementById('player-number').value.trim(),
                 position: document.getElementById('player-position').value,
-                photo: document.getElementById('player-photo').value.trim()
+                photo: playerPhotoImport.getValue()
             };
             if (!data.name) { showMsg(I18n.t('error.requiredField', { field: 'name' }), 'error'); return; }
             if (!data.teamId) { showMsg(I18n.t('error.requiredField', { field: 'teamId' }), 'error'); return; }
@@ -286,6 +302,7 @@
                 resetForm();
                 loadPlayers();
             }).catch(function () { showMsg(I18n.t('error.submitFailed'), 'error'); });
+            });
         });
 
         function _esc(str) { var d = document.createElement('div'); d.textContent = str != null ? str : ''; return d.innerHTML; }
