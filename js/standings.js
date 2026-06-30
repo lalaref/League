@@ -167,7 +167,6 @@
 
     var photoHtml = hasPhoto
       ? '<img class="sl-photo" src="' + escapeHtml(photo) + '" alt="' + name + '" loading="lazy" onerror="this.style.display=\'none\'">'
-        + SILHOUETTE_SVG
       : SILHOUETTE_SVG;
 
     var cardTag = pid ? 'a' : 'div';
