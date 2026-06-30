@@ -175,6 +175,11 @@
     var canvas = document.getElementById('trend-chart');
     if (!canvas) return;
 
+    if (typeof Chart === 'undefined') {
+      canvas.parentElement.innerHTML = '<p class="text-muted">' + I18n.t('player.noData') + '</p>';
+      return;
+    }
+
     if (!gameLogs || gameLogs.length === 0) {
       canvas.parentElement.innerHTML = '<p class="text-muted">' + I18n.t('player.noData') + '</p>';
       return;
@@ -466,6 +471,15 @@
     var canvasId = 'shotchart-canvas';
     var canvas = document.getElementById(canvasId);
     if (!canvas) return;
+
+    if (typeof Charts === 'undefined' || !Charts.createShotChart || typeof Chart === 'undefined') {
+      var missingChartWrapper = canvas.parentElement;
+      if (missingChartWrapper) {
+        missingChartWrapper.innerHTML = '<p class="text-muted">' + I18n.t('player.noData') + '</p>' +
+          '<canvas id="' + canvasId + '" aria-label="投籃熱力圖" style="display:none;"></canvas>';
+      }
+      return;
+    }
 
     if (!shots || shots.length === 0) {
       // Show no-data message but keep canvas for potential future data
