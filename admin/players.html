@@ -95,6 +95,11 @@
                             <input type="file" id="player-photo" class="admin-input" accept="image/*">
                             <img id="player-photo-preview" alt="" hidden style="width:56px;height:56px;object-fit:cover;border-radius:50%;margin-top:10px">
                         </div>
+                        <div class="admin-form-group">
+                            <label for="player-leader-photo" class="admin-label">排行榜照片</label>
+                            <input type="file" id="player-leader-photo" class="admin-input" accept="image/*">
+                            <img id="player-leader-photo-preview" alt="" hidden style="width:56px;height:72px;object-fit:cover;border-radius:8px;margin-top:10px">
+                        </div>
                     </div>
                     <div class="admin-actions">
                         <button id="btn-save-player" class="btn btn-primary" data-i18n="admin.save">儲存</button>
@@ -163,6 +168,13 @@
             outputType: 'image/jpeg',
             onError: function (err) { showMsg((err && err.message) || '圖片匯入失敗', 'error'); }
         });
+        var playerLeaderPhotoImport = ImageImport.createController({
+            input: 'player-leader-photo',
+            preview: 'player-leader-photo-preview',
+            maxSize: 900,
+            outputType: 'image/jpeg',
+            onError: function (err) { showMsg((err && err.message) || '圖片匯入失敗', 'error'); }
+        });
 
         function showMsg(text, type) {
             msgEl.textContent = text;
@@ -178,6 +190,7 @@
             document.getElementById('player-number').value = '';
             document.getElementById('player-position').value = '';
             playerPhotoImport.setValue('');
+            playerLeaderPhotoImport.setValue('');
             formEl.hidden = true;
         }
 
@@ -252,6 +265,7 @@
                     document.getElementById('player-number').value = (p.number != null) ? p.number : '';
                     document.getElementById('player-position').value = p.position || '';
                     playerPhotoImport.setValue(p.photo || '');
+                    playerLeaderPhotoImport.setValue(p.leaderPhoto || '');
                     formEl.hidden = false;
                 });
             });
@@ -283,13 +297,14 @@
         document.getElementById('btn-cancel-player').addEventListener('click', resetForm);
 
         document.getElementById('btn-save-player').addEventListener('click', function () {
-            playerPhotoImport.ready().then(function () {
+            Promise.all([playerPhotoImport.ready(), playerLeaderPhotoImport.ready()]).then(function () {
             var data = {
                 teamId: teamSelect.value,
                 name: document.getElementById('player-name').value.trim(),
                 number: document.getElementById('player-number').value.trim(),
                 position: document.getElementById('player-position').value,
-                photo: playerPhotoImport.getValue()
+                photo: playerPhotoImport.getValue(),
+                leaderPhoto: playerLeaderPhotoImport.getValue()
             };
             if (!data.name) { showMsg(I18n.t('error.requiredField', { field: 'name' }), 'error'); return; }
             if (!data.teamId) { showMsg(I18n.t('error.requiredField', { field: 'teamId' }), 'error'); return; }
