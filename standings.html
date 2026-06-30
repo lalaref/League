@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
@@ -19,112 +19,41 @@
     <link rel="stylesheet" href="css/responsive.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
     <style>
-    /* ── Stat Leader Cards — Enhanced Irregular Shapes ── */
-    .sl-section{background:#060606;padding:44px 0 36px}
-    .sl-section-title{display:flex;align-items:center;gap:14px;margin-bottom:24px}
-    .sl-title-icon{font-size:26px;line-height:1}
-    .sl-title-text{font-family:"Raleway",sans-serif;font-size:28px;font-weight:900;text-transform:uppercase;letter-spacing:.12em;color:#fff;margin:0;line-height:1}
-    .sl-title-sub{font-family:"Raleway",sans-serif;font-size:12px;font-weight:600;letter-spacing:.1em;color:#aaa;margin-left:4px;align-self:flex-end;padding-bottom:3px}
+    /* ── Stat Leader Cards ── */
+    .sl-section{background:#0d0d0d;padding:36px 0 28px}
     .sl-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
-
-    .sl-card{
-      position:relative;background:#111;display:flex;flex-direction:column;
-      overflow:hidden;
-      box-shadow:0 12px 48px rgba(0,0,0,.75),inset 0 1px 0 rgba(255,255,255,.06);
-      transition:transform .28s cubic-bezier(.22,.68,0,1.2),box-shadow .28s;
-      cursor:pointer;--sl-color:#cc0000;
-    }
-    .sl-card:hover{transform:translateY(-8px) scale(1.02);box-shadow:0 24px 64px rgba(0,0,0,.85),0 0 0 1px var(--sl-color)}
-
-    /* Alternating corner notches for irregular feel */
-    .sl-card:nth-child(odd) {clip-path:polygon(0 0,calc(100% - 22px) 0,100% 22px,100% 100%,0 100%)}
-    .sl-card:nth-child(even){clip-path:polygon(0 0,100% 0,100% 100%,22px 100%,0 calc(100% - 22px))}
-
-    /* Photo zone */
-    .sl-photo-area{
-      position:relative;flex:1;min-height:210px;overflow:hidden;
-      background:linear-gradient(150deg,#1e1e1e 0%,#070707 100%);
-    }
-    .sl-photo{
-      width:100%;height:100%;object-fit:cover;object-position:top center;
-      position:absolute;inset:0;display:block;
-    }
-    /* Silhouette SVG direct child of photo-area */
-    .sl-photo-area > svg{
-      position:absolute;inset:0;width:100%;height:100%;
-    }
-
-    /* Gradient fade at bottom of photo */
-    .sl-photo-gradient{
-      position:absolute;bottom:0;left:0;right:0;height:100px;
-      background:linear-gradient(transparent 0%,rgba(10,10,10,.85) 60%,#111 100%);
-      z-index:1;
-    }
-
-    /* Stat abbreviation badge — diagonal ribbon top-left */
-    .sl-badge{
-      position:absolute;top:0;left:0;z-index:4;
-      background:var(--sl-color);
-      color:#fff;
-      font-family:'Raleway',sans-serif;
-      font-size:10px;font-weight:900;letter-spacing:.22em;text-transform:uppercase;
-      padding:6px 22px 7px 10px;
-      clip-path:polygon(0 0,100% 0,calc(100% - 14px) 100%,0 100%);
-    }
-
-    /* Huge stat number — bottom of photo area */
-    .sl-num{
-      position:absolute;bottom:10px;left:10px;z-index:3;
-      font-family:'Raleway',sans-serif;
-      font-size:76px;font-weight:900;line-height:.9;
-      color:#fff;letter-spacing:-.03em;
-      text-shadow:0 0 32px var(--sl-color),0 0 60px var(--sl-color),0 4px 20px rgba(0,0,0,.9);
-    }
-
-    /* Info bar */
-    .sl-info{
-      background:#0a0a0a;
-      padding:12px 13px 16px;
-      border-top:3px solid var(--sl-color);
-      position:relative;overflow:hidden;
-    }
-    /* Subtle diagonal accent line inside info */
-    .sl-info::after{
-      content:'';position:absolute;
-      top:0;left:-20px;width:60px;height:3px;
-      background:rgba(255,255,255,.12);
-      transform:skewX(-30deg);
-    }
-
-    .sl-cat-name{
-      font-family:'Raleway',sans-serif;
-      font-size:9px;font-weight:900;letter-spacing:.26em;text-transform:uppercase;
-      color:var(--sl-color);display:block;margin-bottom:6px;
-    }
-    .sl-player-name{
-      font-family:'Raleway',sans-serif;
-      font-size:18px;font-weight:900;line-height:1.15;
-      color:#fff;display:block;
-      overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-      letter-spacing:-.01em;
-    }
-    .sl-player-link{color:inherit;text-decoration:none}
-    .sl-player-link:hover{color:var(--sl-color)}
-    .sl-team{
-      font-size:12px;font-weight:600;
-      color:rgba(255,255,255,.4);
-      display:block;margin-top:5px;
-      overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-    }
-
+    .sl-card{background:#111;border-radius:10px;overflow:hidden;position:relative;
+             display:flex;flex-direction:column;box-shadow:0 6px 24px rgba(0,0,0,.5);
+             transition:transform .22s,box-shadow .22s;cursor:default}
+    .sl-card:hover{transform:translateY(-5px);box-shadow:0 12px 36px rgba(0,0,0,.6)}
+    .sl-card--pts .sl-info{background:#cc0000}
+    .sl-photo-area{flex:1;min-height:170px;position:relative;overflow:hidden;
+                   background:linear-gradient(180deg,#1c1c1c 0%,#0d0d0d 100%)}
+    .sl-photo{width:100%;height:100%;object-fit:cover;object-position:top center;
+              position:absolute;inset:0;display:block}
+    .sl-silhouette{position:absolute;inset:0;display:flex;align-items:flex-end;
+                   justify-content:center;padding-bottom:0;opacity:.22}
+    .sl-silhouette svg{width:68%;max-height:100%}
+    .sl-stat-overlay{position:absolute;bottom:10px;left:12px;z-index:2;line-height:1}
+    .sl-stat-abbr{font-family:'Raleway',sans-serif;font-size:10px;font-weight:800;
+                  letter-spacing:.18em;color:rgba(255,255,255,.6);text-transform:uppercase;
+                  display:block;margin-bottom:2px}
+    .sl-stat-value{font-family:'Raleway',sans-serif;font-size:52px;font-weight:900;
+                   color:#fff;line-height:1;display:block;text-shadow:0 2px 12px rgba(0,0,0,.7)}
+    .sl-info{padding:11px 12px 12px;background:#1a1a1a}
+    .sl-cat-name{font-family:'Raleway',sans-serif;font-size:11px;font-weight:900;
+                 letter-spacing:.15em;text-transform:uppercase;color:#fff;display:block}
+    .sl-player-name{font-size:12px;font-weight:700;color:rgba(255,255,255,.82);
+                    margin-top:4px;display:block;overflow:hidden;text-overflow:ellipsis;
+                    white-space:nowrap}
+    .sl-team{font-size:10px;color:rgba(255,255,255,.45);margin-top:2px;display:block}
     .sl-loading{grid-column:1/-1;text-align:center;padding:40px;color:#555;font-size:13px}
-    @media(max-width:1000px){.sl-grid{grid-template-columns:repeat(3,1fr)}}
-    @media(max-width:560px){.sl-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:900px){.sl-grid{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:500px){.sl-grid{grid-template-columns:repeat(2,1fr)}}
 
     /* ── Team Standings section ── */
     .team-standings-section{padding-top:32px;padding-bottom:8px}
-    </style>
-</head>
+    </style></head>
 <body>
     <!-- 導航列 -->
     <header class="site-header">
@@ -132,7 +61,7 @@
             <div class="header-top-inner">
                 <div class="ht-logo-wrap">
                     <a href="/" class="nav-logo" aria-label="ALL-IN Basketball League 首頁">
-                        <img src="images/logo.svg" alt="ALL-IN Basketball League" class="logo-img" width="36" height="36" loading="eager">
+                        <img src="images/logo.png" alt="ALL-IN Basketball League" class="logo-img" width="36" height="36" loading="eager">
                         <span class="logo-text">ALL-IN</span>
                     </a>
                 </div>
@@ -165,7 +94,7 @@
                             <li role="none"><a href="team.html" class="nav-link" role="menuitem">球隊</a></li>
                             <li role="none"><a href="player.html" class="nav-link" role="menuitem">球員</a></li>
                             <li role="none"><a href="standings.html" class="nav-link active" role="menuitem">排行榜</a></li>
-                            <li role="none"><a href="rules.html" class="nav-link" role="menuitem">球季章程</a></li>
+                            <li role="none"><a href="rules.html" class="nav-link" role="menuitem">比賽章程</a></li>
                             <li role="none"><a href="archive.html" class="nav-link" role="menuitem">歷史檔案</a></li>
                             <li role="none"><a href="season2.html" class="nav-link" role="menuitem" style="color:#f59e0b;font-weight:700;">SEASON 2</a></li>
                         </ul>
@@ -199,11 +128,6 @@
         <!-- 各類別領袖照片橫幅 -->
         <section class="sl-section" aria-label="各類別領袖">
             <div class="container">
-                <div class="sl-section-title">
-                    <span class="sl-title-icon">🏆</span>
-                    <h2 class="sl-title-text">Leaderboard</h2>
-                    <span class="sl-title-sub">各類別最佳球員</span>
-                </div>
                 <div id="stat-leader-cards" class="sl-grid" aria-live="polite">
                     <!-- 動態載入 -->
                 </div>
@@ -213,19 +137,19 @@
         <!-- 球隊排名 -->
         <section class="section team-standings-section" aria-label="球隊排名">
             <div class="container">
-                <div style="display:flex;align-items:center;margin-bottom:16px"><h3 style="font-family:'Raleway',sans-serif;font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:.14em;color:#cc0000;display:flex;align-items:center;gap:8px">🏆 球隊排名</h3><div style="flex:1;height:1px;background:rgba(0,0,0,.1);margin-left:14px"></div></div>
+                <div class="cb-sec-title" style="margin-bottom:16px"><h3 style="font-family:'Raleway',sans-serif;font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:.14em;color:#cc0000;display:flex;align-items:center;gap:8px">🏆 球隊排名</h3><div style="flex:1;height:1px;background:rgba(0,0,0,.1);margin-left:14px"></div></div>
                 <div class="table-wrapper">
                     <table id="standings-page-table" class="data-table" aria-label="球隊排名">
                         <thead>
                             <tr>
-                                <th>排名</th>
-                                <th>球隊</th>
-                                <th>場次</th>
-                                <th>勝</th>
-                                <th>和</th>
-                                <th>負</th>
-                                <th>得失</th>
-                                <th>積分</th>
+                                <th data-i18n="table.rank">排名</th>
+                                <th data-i18n="table.team">球隊</th>
+                                <th data-i18n="table.played">場次</th>
+                                <th data-i18n="table.wins">勝</th>
+                                <th data-i18n="table.draws">和</th>
+                                <th data-i18n="table.losses">負</th>
+                                <th data-i18n="table.diff">得失</th>
+                                <th data-i18n="table.points">積分</th>
                             </tr>
                         </thead>
                         <tbody><tr><td colspan="8" class="loading">載入中...</td></tr></tbody>
@@ -501,14 +425,8 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-brand">
-                    <img src="images/logo.svg" alt="ALL-IN Basketball League" class="footer-logo">
+                    <img src="images/logo.png" alt="ALL-IN Basketball League" class="footer-logo">
                     <p class="footer-tagline" data-i18n="footer.tagline">全力以赴</p>
-                    <div class="footer-social">
-                        <a href="https://api.whatsapp.com/send?phone=85284330084" target="_blank" rel="noopener" aria-label="WhatsApp" class="footer-social-icon footer-social-icon--wa"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.125.555 4.122 1.526 5.855L.057 23.886a.5.5 0 00.619.612l6.162-1.618A11.942 11.942 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.89 0-3.66-.49-5.192-1.349l-.371-.214-3.854 1.011 1.03-3.742-.237-.373A9.956 9.956 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg></a>
-                        <a href="https://www.instagram.com/aiblhk" target="_blank" rel="noopener" aria-label="Instagram @AIBLHK" class="footer-social-icon footer-social-icon--ig"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
-                        <a href="https://www.facebook.com/61574262941268" target="_blank" rel="noopener" aria-label="Facebook" class="footer-social-icon footer-social-icon--fb"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
-                        <a href="https://www.youtube.com/@aiblhk" target="_blank" rel="noopener" aria-label="YouTube @AIBLHK" class="footer-social-icon footer-social-icon--yt"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg></a>
-                    </div>
                 </div>
                 <div class="footer-links">
                     <a href="/" data-i18n="nav.home">首頁</a>
