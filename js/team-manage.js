@@ -30,6 +30,13 @@
     outputType: 'image/jpeg',
     onError: function (err) { showTeamMsg((err && err.message) || '圖片匯入失敗', 'error'); }
   });
+  var playerLeaderPhotoImport = ImageImport.createController({
+    input: 'p-leader-photo',
+    preview: 'p-leader-photo-preview',
+    maxSize: 900,
+    outputType: 'image/jpeg',
+    onError: function (err) { showTeamMsg((err && err.message) || '圖片匯入失敗', 'error'); }
+  });
 
   if (!token) {
     showError('無效的連結，缺少球隊 token 參數。請聯絡聯賽管理員取得正確連結。');
@@ -127,6 +134,7 @@
         document.getElementById('p-number').value = (p.number != null) ? p.number : '';
         document.getElementById('p-position').value = p.position || '';
         playerPhotoImport.setValue(p.photo || '');
+        playerLeaderPhotoImport.setValue(p.leaderPhoto || '');
         playerForm.hidden = false;
       });
     });
@@ -161,13 +169,14 @@
   }
 
   function savePlayer() {
-    playerPhotoImport.ready().then(function () {
+    Promise.all([playerPhotoImport.ready(), playerLeaderPhotoImport.ready()]).then(function () {
     var data = {
       teamToken: token,
       name: document.getElementById('p-name').value.trim(),
       number: document.getElementById('p-number').value.trim(),
       position: document.getElementById('p-position').value,
-      photo: playerPhotoImport.getValue()
+      photo: playerPhotoImport.getValue(),
+      leaderPhoto: playerLeaderPhotoImport.getValue()
     };
     if (!data.name) { showTeamMsg('球員姓名為必填', 'error'); return; }
 
@@ -190,6 +199,7 @@
     document.getElementById('p-number').value = '';
     document.getElementById('p-position').value = '';
     playerPhotoImport.setValue('');
+    playerLeaderPhotoImport.setValue('');
   }
 
   function showError(msg) {

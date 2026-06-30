@@ -15,6 +15,9 @@
   // 百分比類別（顯示為百分比格式）
   var PCT_CATEGORIES = ['fg_pct', 'tp_pct', 'ft_pct'];
 
+  // 累計類別（以全季總數排名，不以場均排名）
+  var TOTAL_CATEGORIES = ['pts', 'reb', 'ast', 'stl', 'blk'];
+
   // --- DOM 元素 ---
   var seasonSelect = document.getElementById('season-select');
 
@@ -140,7 +143,10 @@
 
     Promise.all(LEADER_CARD_CATS.map(function (cfg) {
       return API.getLeaders(currentSeasonId, cfg.cat)
-        .then(function (leaders) { return { cfg: cfg, leader: (leaders && leaders[0]) || null }; })
+        .then(function (leaders) {
+          var normalized = normalizeLeaders(leaders || [], cfg.cat);
+          return { cfg: cfg, leader: normalized[0] || null };
+        })
         .catch(function () { return { cfg: cfg, leader: null }; });
     })).then(function (results) {
       container.innerHTML = results.map(function (r) {
@@ -150,8 +156,9 @@
   }
 
   function renderLeaderCard(cfg, leader) {
-    var hasPhoto   = leader && leader.photo;
-    var value      = leader ? Number(leader.value) : 0;
+    var photo      = leader && (leader.leaderPhoto || leader.photo);
+    var hasPhoto   = !!photo;
+    var value      = leader ? getDisplayValue(leader, cfg.cat) : 0;
     var displayVal = (value % 1 === 0) ? value.toFixed(0) : value.toFixed(1);
     var name       = leader ? escapeHtml(leader.playerName || '—') : '—';
     var team       = leader ? escapeHtml(leader.teamName || '—') : '—';
@@ -159,7 +166,7 @@
     var pid        = leader && leader.playerId ? encodeURIComponent(leader.playerId) : null;
 
     var photoHtml = hasPhoto
-      ? '<img class="sl-photo" src="' + escapeHtml(leader.photo) + '" alt="' + name + '" loading="lazy" onerror="this.style.display=\'none\'">'
+      ? '<img class="sl-photo" src="' + escapeHtml(photo) + '" alt="' + name + '" loading="lazy" onerror="this.style.display=\'none\'">'
         + SILHOUETTE_SVG
       : SILHOUETTE_SVG;
 
@@ -279,13 +286,14 @@
           renderChart(category, [], []);
           return;
         }
+        var normalizedLeaders = normalizeLeaders(leaders, category);
         // 取前 10 名
-        var top10 = leaders.slice(0, 10);
+        var top10 = normalizedLeaders.slice(0, 10);
         renderTable(tbody, top10, category);
         // 渲染長條圖（取前 5 名以保持可讀性）
         var chartData = top10.slice(0, 5);
         var labels = chartData.map(function (l) { return l.playerName || l.player || l.name || '—'; });
-        var values = chartData.map(function (l) { return l.value != null ? l.value : 0; });
+        var values = chartData.map(function (l) { return getDisplayValue(l, category); });
         renderChart(category, labels, values);
       })
       .catch(function () {
@@ -304,7 +312,7 @@
       var rank = leader.rank != null ? leader.rank : (idx + 1);
       var name = escapeHtml(leader.playerName || leader.player || leader.name || '—');
       var team = escapeHtml(leader.teamName || leader.team || '—');
-      var value = leader.value != null ? leader.value : 0;
+      var value = getDisplayValue(leader, category);
       var displayValue = isPct ? formatPct(value) : formatNum(value);
 
       // Link player name to profile if playerId available
@@ -325,21 +333,49 @@
    * 渲染或更新長條圖
    */
   function renderChart(category, labels, values) {
-    var canvasId = 'chart-' + category;
-    // 銷毀舊圖表
-    if (chartInstances[category]) {
-      chartInstances[category].destroy();
+    try {
+      var canvasId = 'chart-' + category;
+      if (chartInstances[category]) {
+        chartInstances[category].destroy();
+        chartInstances[category] = null;
+      }
+      if (labels.length === 0 || typeof Charts === 'undefined' || !Charts.createBarChart) return;
+      var chart = Charts.createBarChart(canvasId, labels, values);
+      if (chart) chartInstances[category] = chart;
+    } catch (err) {
       chartInstances[category] = null;
     }
-    if (labels.length === 0) return;
-    var chart = Charts.createBarChart(canvasId, labels, values);
-    if (chart) chartInstances[category] = chart;
+  }
+
+  function normalizeLeaders(leaders, category) {
+    var normalized = (leaders || []).map(function (leader) {
+      var copy = Object.assign({}, leader);
+      copy.displayValue = getDisplayValue(copy, category);
+      return copy;
+    });
+    if (TOTAL_CATEGORIES.indexOf(category) !== -1 || category === 'tpm') {
+      normalized.sort(function (a, b) { return getDisplayValue(b, category) - getDisplayValue(a, category); });
+      normalized.forEach(function (leader, idx) { leader.rank = idx + 1; });
+    }
+    return normalized;
+  }
+
+  function getDisplayValue(leader, category) {
+    if (!leader) return 0;
+    if (leader.displayValue != null) return Number(leader.displayValue) || 0;
+    var value = leader.value != null ? Number(leader.value) : 0;
+    if (TOTAL_CATEGORIES.indexOf(category) === -1) return value || 0;
+    if (leader.statMode === 'total' || leader.valueType === 'total') return value || 0;
+    if (leader.total != null) return Number(leader.total) || 0;
+    if (leader.totalValue != null) return Number(leader.totalValue) || 0;
+    return Math.round((value || 0) * (Number(leader.gamesPlayed) || 0));
   }
 
   // --- 格式化工具 ---
   function formatNum(val) {
-    if (val == null || isNaN(val)) return '0.0';
-    return Number(val).toFixed(1);
+    if (val == null || isNaN(val)) return '0';
+    var num = Number(val);
+    return (num % 1 === 0) ? num.toFixed(0) : num.toFixed(1);
   }
 
   function formatPct(val) {
