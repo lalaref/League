@@ -581,7 +581,7 @@
         currentKey = groupKey;
         var header = document.createElement('div');
         header.className = 'rr-round-header';
-        header.textContent = (m.division ? ('Division ' + m.division + ' - ') : '') + I18n.t('admin.rrRound') + ' ' + m.round;
+        header.textContent = (m.division ? (formatDivisionName(m.division) + ' - ') : '') + I18n.t('admin.rrRound') + ' ' + m.round;
         rrMatchupsEl.appendChild(header);
       }
 
@@ -806,6 +806,11 @@
     var homeDivision = home && home.division ? String(home.division).trim().toUpperCase() : '';
     var awayDivision = away && away.division ? String(away.division).trim().toUpperCase() : '';
     return homeDivision && homeDivision === awayDivision ? homeDivision : homeDivision || awayDivision || '';
+  }
+
+  function formatDivisionName(division) {
+    var name = String(division || '').trim();
+    return /^division\b/i.test(name) ? name : 'Division ' + name;
   }
 
   function getTeamsForDivision(division) {
