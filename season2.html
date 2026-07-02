@@ -379,11 +379,11 @@
                 <!-- 分組制度 -->
                 <article class="rules-card" style="grid-column: 1 / -1;">
                     <h2>🏆 Division 分組制度（全新）</h2>
-                    <p>SEASON 2 目標設立 <span class="rules-highlight">2 個或以上 Division</span>，各 Division 組內球隊彼此對賽，常規賽結束後按排名決定晉級 Playoff 資格。</p>
+                    <p>SEASON 2 將設立 <span class="rules-highlight">DIVISION CLUTCH、DIVISION FASTBREAK、DIVISION CROSSOVER</span>，各 Division 組內球隊彼此對賽，常規賽結束後按排名決定晉級 Playoff 資格。</p>
                     <ul class="rules-list" style="margin-top: var(--spacing-md);">
                         <li>各 Division 獨立排名，頂級球隊晉身 Playoff。</li>
-                        <li>Division 數量及分組安排視最終報名隊數而定，賽會保留調整權。</li>
-                        <li>分組方式將於報名截止後由賽會公布。</li>
+                        <li>Season 2 分為 DIVISION CLUTCH、DIVISION FASTBREAK、DIVISION CROSSOVER 三個組別。</li>
+                        <li>分組安排視最終報名隊數而定，賽會保留調整權。</li>
                     </ul>
 
                     <!-- Division 結構圖 -->
@@ -397,19 +397,19 @@
                             <!-- Division 行 -->
                             <div style="display: flex; gap: 1rem; align-items: flex-start; margin-top: 4px; flex-wrap: wrap; justify-content: center;">
                                 <div style="display: flex; flex-direction: column; align-items: center; gap: 0;">
-                                    <div style="background: #1a1a2e; color: #fff; border: 2px solid #cc0000; border-radius: 8px; padding: .55rem 1.2rem; font-weight: 700; text-align: center;">Division A<br><span style="font-size:.78rem; font-weight:400;">常規賽</span></div>
+                                    <div style="background: #1a1a2e; color: #fff; border: 2px solid #cc0000; border-radius: 8px; padding: .55rem 1.2rem; font-weight: 700; text-align: center;">DIVISION CLUTCH<br><span style="font-size:.78rem; font-weight:400;">常規賽</span></div>
                                     <div style="width: 2px; height: 18px; background: #555;"></div>
                                     <div style="width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 9px solid #555;"></div>
                                     <div style="background: #f59e0b; color: #1a1a2e; border-radius: 6px; padding: .3rem .8rem; font-size: .78rem; font-weight: 700; margin-top:3px;">名次晉級</div>
                                 </div>
                                 <div style="display: flex; flex-direction: column; align-items: center; gap: 0;">
-                                    <div style="background: #1a1a2e; color: #fff; border: 2px solid #cc0000; border-radius: 8px; padding: .55rem 1.2rem; font-weight: 700; text-align: center;">Division B<br><span style="font-size:.78rem; font-weight:400;">常規賽</span></div>
+                                    <div style="background: #1a1a2e; color: #fff; border: 2px solid #cc0000; border-radius: 8px; padding: .55rem 1.2rem; font-weight: 700; text-align: center;">DIVISION FASTBREAK<br><span style="font-size:.78rem; font-weight:400;">常規賽</span></div>
                                     <div style="width: 2px; height: 18px; background: #555;"></div>
                                     <div style="width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 9px solid #555;"></div>
                                     <div style="background: #f59e0b; color: #1a1a2e; border-radius: 6px; padding: .3rem .8rem; font-size: .78rem; font-weight: 700; margin-top:3px;">名次晉級</div>
                                 </div>
                                 <div style="display: flex; flex-direction: column; align-items: center; gap: 0; opacity: .7;">
-                                    <div style="background: #1a1a2e; color: #aaa; border: 2px dashed #555; border-radius: 8px; padding: .55rem 1.2rem; font-weight: 700; text-align: center;">C / D …<br><span style="font-size:.78rem; font-weight:400;">視乎球隊數目</span></div>
+                                    <div style="background: #1a1a2e; color: #fff; border: 2px solid #cc0000; border-radius: 8px; padding: .55rem 1.2rem; font-weight: 700; text-align: center;">DIVISION CROSSOVER<br><span style="font-size:.78rem; font-weight:400;">常規賽</span></div>
                                     <div style="width: 2px; height: 18px; background: #555;"></div>
                                     <div style="width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 9px solid #555;"></div>
                                     <div style="background: #555; color: #ddd; border-radius: 6px; padding: .3rem .8rem; font-size: .78rem; font-weight: 700; margin-top:3px;">名次晉級</div>
@@ -559,8 +559,9 @@
                             <label style="display:block;margin-bottom:4px;font-size:0.85rem;font-weight:600;color:#444;">Division 意向</label>
                             <select id="reg-division" style="width:100%;padding:10px 12px;border:1px solid var(--color-border);border-radius:var(--radius-sm);font-size:0.95rem;box-sizing:border-box;background:#fff;">
                                 <option value="">未決定 / 由聯賽安排</option>
-                                <option value="A">Division A（競爭組別）</option>
-                                <option value="B">Division B（發展組別）</option>
+                                <option value="DIVISION CLUTCH">DIVISION CLUTCH</option>
+                                <option value="DIVISION FASTBREAK">DIVISION FASTBREAK</option>
+                                <option value="DIVISION CROSSOVER">DIVISION CROSSOVER</option>
                             </select>
                         </div>
                         <div style="grid-column:1/-1;">
@@ -610,7 +611,7 @@
             </script>
 
             <div class="rules-note">
-                <strong>📢 SEASON 2 詳情仍在籌備中</strong>，部分安排（包括 Division 數量、早鳥截止日期、場地等）將於報名開啟後陸續公布。如有查詢請 WhatsApp 聯絡我們。
+                <strong>📢 SEASON 2 詳情仍在籌備中</strong>，分組將採用 DIVISION CLUTCH、DIVISION FASTBREAK、DIVISION CROSSOVER；其他安排（包括早鳥截止日期、場地等）將於報名開啟後陸續公布。如有查詢請 WhatsApp 聯絡我們。
             </div>
 
             <p class="rules-hashtags">#籃球聯賽新勢力 #港島區籃球聯賽 #Division分組 #Playoff #2026Season2</p>
