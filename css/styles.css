@@ -1075,6 +1075,8 @@ img {
 
 .player-name {
     font-size: var(--font-size-2xl);
+    color: var(--color-text-inverse);
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
     margin-bottom: var(--spacing-xs);
 }
 
