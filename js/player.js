@@ -51,7 +51,7 @@
         html += '<div class="games-grid">';
         r.players.forEach(function (p) {
           html += '<a href="player.html?id=' + encodeURIComponent(p.id) + '" class="game-card" style="text-decoration:none">' +
-            '<div class="game-card-matchup"><span class="game-card-team">#' + escapeHtml(String(p.number || '')) + ' ' + escapeHtml(p.name) + '</span></div>' +
+            '<div class="game-card-matchup"><span class="game-card-team">#' + escapeHtml(String(p.number !== '' && p.number != null ? p.number : '')) + ' ' + escapeHtml(p.name) + '</span></div>' +
             '<div class="text-muted" style="font-size:.85rem">' + escapeHtml(p.position || '') + '</div></a>';
         });
         html += '</div>';
@@ -119,7 +119,7 @@
       photoEl.src = info.photo;
       photoEl.alt = info.name || '';
     }
-    if (numberEl) numberEl.textContent = info.number != null ? '#' + info.number : '';
+    if (numberEl) numberEl.textContent = info.number !== '' && info.number != null ? '#' + info.number : '';
     if (teamEl) {
       teamEl.textContent = info.teamName || info.team || '—';
       if (info.teamId) {

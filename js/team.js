@@ -104,7 +104,7 @@
     tbody.innerHTML = sorted.map(function (p) {
       var playerLink = '<a href="player.html?id=' + encodeURIComponent(p.id || p.playerId || '') + '">' + escapeHtml(p.name || '—') + '</a>';
       return '<tr>' +
-        '<td>#' + escapeHtml(String(p.number != null ? p.number : '')) + '</td>' +
+        '<td>' + (p.number !== '' && p.number != null ? '#' + escapeHtml(String(p.number)) : '—') + '</td>' +
         '<td>' + playerLink + '</td>' +
         '<td>' + fmtNum(p.pts) + '</td>' +
         '<td>' + fmtNum(p.reb) + '</td>' +

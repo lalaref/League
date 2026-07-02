@@ -117,7 +117,7 @@
       var tr = document.createElement('tr');
       var photoHtml = p.photo ? '<img src="' + esc(p.photo) + '" alt="" style="width:32px;height:32px;border-radius:50%;object-fit:cover">' : '-';
       tr.innerHTML =
-        '<td>' + esc(p.number || '-') + '</td>' +
+        '<td>' + esc(p.number !== '' && p.number != null ? p.number : '-') + '</td>' +
         '<td>' + esc(p.name) + '</td>' +
         '<td>' + esc(p.position || '-') + '</td>' +
         '<td>' + photoHtml + '</td>' +
