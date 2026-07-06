@@ -159,13 +159,36 @@
       function init() {
         API.getSeasons().then(function (seasons) {
           if (!seasons || seasons.length === 0) return;
-          var active = seasons.find(function (s) { return s.status === 'active'; }) || seasons[seasons.length - 1];
+          var active = getDefaultSeason(seasons);
           currentSeasonId = active.id;
           loadUpcoming();
           loadRecent();
           loadStandings();
           loadAnnouncements();
         });
+      }
+
+      function getDefaultSeason(seasons) {
+        for (var s1 = 0; s1 < seasons.length; s1++) {
+          if (isActiveSeason(seasons[s1]) && isSeasonOne(seasons[s1])) return seasons[s1];
+        }
+        for (var i = seasons.length - 1; i >= 0; i--) {
+          if (isActiveSeason(seasons[i])) return seasons[i];
+        }
+        return seasons[seasons.length - 1];
+      }
+
+      function isActiveSeason(season) {
+        return season && String(season.status || '').toLowerCase() === 'active';
+      }
+
+      function isSeasonOne(season) {
+        if (!season) return false;
+        var name = String(season.name || season.id || '').toLowerCase();
+        return season.id === '845ca40d-4346-448f-bbe2-06b4104bdbda'
+          || /season\s*1/.test(name)
+          || name.indexOf('第一') !== -1
+          || String(season.minGamesForRanking || '') === '7';
       }
 
       function loadUpcoming() {

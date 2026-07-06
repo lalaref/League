@@ -192,15 +192,39 @@
               opt.textContent = s.name;
               seasonSelect.appendChild(opt);
             });
-            // 自動選擇第一個賽季
+            // 自動選擇 Season 1（仍 active 時），否則選最新 active
             if (seasons.length > 0) {
-              seasonSelect.value = seasons[0].id;
-              _loadGames(seasons[0].id);
+              var defaultSeason = _getDefaultSeason(seasons);
+              seasonSelect.value = defaultSeason.id;
+              _loadGames(defaultSeason.id);
             }
           })
           .catch(function () {
             _showMessage('error', I18n.t('error.loadFailed'));
           });
+      }
+
+      function _getDefaultSeason(seasons) {
+        for (var s1 = 0; s1 < seasons.length; s1++) {
+          if (_isActiveSeason(seasons[s1]) && _isSeasonOne(seasons[s1])) return seasons[s1];
+        }
+        for (var i = seasons.length - 1; i >= 0; i--) {
+          if (_isActiveSeason(seasons[i])) return seasons[i];
+        }
+        return seasons[seasons.length - 1];
+      }
+
+      function _isActiveSeason(season) {
+        return season && String(season.status || '').toLowerCase() === 'active';
+      }
+
+      function _isSeasonOne(season) {
+        if (!season) return false;
+        var name = String(season.name || season.id || '').toLowerCase();
+        return season.id === '845ca40d-4346-448f-bbe2-06b4104bdbda'
+          || /season\s*1/.test(name)
+          || name.indexOf('第一') !== -1
+          || String(season.minGamesForRanking || '') === '7';
       }
 
       // ─── 載入比賽 ───

@@ -78,15 +78,37 @@
   function loadSeasons() {
     API.getSeasons().then(function (seasons) {
       seasonSelect.innerHTML = '<option value="">--</option>';
-      var activeId = '';
+      var defaultSeason = getDefaultSeason(seasons || []);
       (seasons || []).forEach(function (s) {
         var o = document.createElement('option');
         o.value = s.id; o.textContent = s.name;
-        if (s.status === 'active' && !activeId) activeId = s.id;
         seasonSelect.appendChild(o);
       });
-      if (activeId) { seasonSelect.value = activeId; onSeasonChange(); }
+      if (defaultSeason) { seasonSelect.value = defaultSeason.id; onSeasonChange(); }
     }).catch(function () { showMsg(I18n.t('error.loadFailed'), 'error'); });
+  }
+
+  function getDefaultSeason(seasons) {
+    for (var s1 = 0; s1 < seasons.length; s1++) {
+      if (isActiveSeason(seasons[s1]) && isSeasonOne(seasons[s1])) return seasons[s1];
+    }
+    for (var i = seasons.length - 1; i >= 0; i--) {
+      if (isActiveSeason(seasons[i])) return seasons[i];
+    }
+    return seasons[seasons.length - 1];
+  }
+
+  function isActiveSeason(season) {
+    return season && String(season.status || '').toLowerCase() === 'active';
+  }
+
+  function isSeasonOne(season) {
+    if (!season) return false;
+    var name = String(season.name || season.id || '').toLowerCase();
+    return season.id === '845ca40d-4346-448f-bbe2-06b4104bdbda'
+      || /season\s*1/.test(name)
+      || name.indexOf('第一') !== -1
+      || String(season.minGamesForRanking || '') === '7';
   }
 
   function onSeasonChange() {
@@ -651,13 +673,13 @@
   }
 
   // ============================================================
-  // Team Swap — regenerate remaining matchups to keep 7 games each
+  // Team Swap — regenerate remaining matchups to match the selected division format
   // ============================================================
 
   /**
    * When admin changes a team in a matchup, we need to:
    * 1. Update that specific matchup
-   * 2. Regenerate all unpublished matchups to ensure every team still plays 7 games
+  * 2. Regenerate all unpublished matchups so each team plays every team in its division once
    */
   function handleTeamSwap(changedIdx, side, newTeamId) {
     var m = rrMatchups[changedIdx];

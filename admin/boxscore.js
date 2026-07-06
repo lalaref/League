@@ -54,15 +54,37 @@
   function loadSeasons() {
     API.getSeasons().then(function (seasons) {
       seasonSelect.innerHTML = '<option value="">--</option>';
-      var activeId = '';
+      var defaultSeason = getDefaultSeason(seasons || []);
       (seasons || []).forEach(function (s) {
         var o = document.createElement('option');
         o.value = s.id; o.textContent = s.name;
-        if (s.status === 'active' && !activeId) activeId = s.id;
         seasonSelect.appendChild(o);
       });
-      if (activeId) { seasonSelect.value = activeId; loadGames(activeId); }
+      if (defaultSeason) { seasonSelect.value = defaultSeason.id; loadGames(defaultSeason.id); }
     }).catch(function () { showMessage(I18n.t('error.loadFailed'), 'error'); });
+  }
+
+  function getDefaultSeason(seasons) {
+    for (var s1 = 0; s1 < seasons.length; s1++) {
+      if (isActiveSeason(seasons[s1]) && isSeasonOne(seasons[s1])) return seasons[s1];
+    }
+    for (var i = seasons.length - 1; i >= 0; i--) {
+      if (isActiveSeason(seasons[i])) return seasons[i];
+    }
+    return seasons[seasons.length - 1];
+  }
+
+  function isActiveSeason(season) {
+    return season && String(season.status || '').toLowerCase() === 'active';
+  }
+
+  function isSeasonOne(season) {
+    if (!season) return false;
+    var name = String(season.name || season.id || '').toLowerCase();
+    return season.id === '845ca40d-4346-448f-bbe2-06b4104bdbda'
+      || /season\s*1/.test(name)
+      || name.indexOf('第一') !== -1
+      || String(season.minGamesForRanking || '') === '7';
   }
 
   function loadGames(seasonId) {
