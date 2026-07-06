@@ -105,7 +105,7 @@
 <a class="back" href="schedule.html">← Back to Schedule</a>
 
 <h1>Schedule Integrity Check</h1>
-<p class="subtitle">Verifies each team plays 7 games with no repeated opponents across all rounds.</p>
+<p class="subtitle">Verifies each team follows the selected season format. Season 2 uses 6-team divisions and a single round-robin inside each division.</p>
 
 <div class="controls">
   <select id="season-select"><option value="">Loading…</option></select>
@@ -113,6 +113,22 @@
 </div>
 
 <div class="chips" id="chips" style="display:none"></div>
+
+<div class="nyp-section" id="division-section" style="display:none">
+  <h2>Division Groups</h2>
+  <div class="nyp-table-wrap">
+    <table class="nyp-table" id="division-table">
+      <thead>
+        <tr>
+          <th>Division</th>
+          <th>Teams</th>
+          <th>Count</th>
+        </tr>
+      </thead>
+      <tbody id="division-body"></tbody>
+    </table>
+  </div>
+</div>
 
 <div class="availability-section" id="availability-section" style="display:none">
   <div class="section-head">
@@ -123,7 +139,7 @@
 </div>
 
 <div class="nyp-section" id="nyp-section" style="display:none">
-  <h2>Unplayed Opponents per Team</h2>
+  <h2>Remaining Division Opponents per Team</h2>
   <div class="nyp-table-wrap">
     <table class="nyp-table" id="nyp-table">
       <thead>
@@ -151,6 +167,7 @@
 
 <div class="loading-msg" id="loading-msg">Loading…</div>
 
+<script src="js/season-rules.js?v=20260706-s1default"></script>
 <script>
 var BASE_URL = 'https://script.google.com/macros/s/AKfycbzQkJC-1ZIAnsbXyC0M6_Hwh53pvKMuZ38j_eCIVCN4Pm-XwQ-0HguJR20RjGIRl_4P/exec';
 
@@ -167,6 +184,8 @@ var seasonSelect = document.getElementById('season-select');
 var statusBar    = document.getElementById('status-bar');
 var chipsEl      = document.getElementById('chips');
 var tableWrap    = document.getElementById('table-wrap');
+var divisionSection = document.getElementById('division-section');
+var divisionBody = document.getElementById('division-body');
 var availabilitySection = document.getElementById('availability-section');
 var availabilityGrid = document.getElementById('availability-grid');
 var availabilityNote = document.getElementById('availability-note');
@@ -177,21 +196,30 @@ var matrixBody   = document.getElementById('matrix-body');
 var issuesSec    = document.getElementById('issues-section');
 var issuesList   = document.getElementById('issues-list');
 var loadingMsg   = document.getElementById('loading-msg');
+var seasonsById  = {};
 
 // --- Load seasons ---
 apiFetch('seasons').then(function(seasons) {
   seasonSelect.innerHTML = '';
-  (seasons || []).forEach(function(s, i) {
+  var defaultSeason = getDefaultSeason(seasons || []);
+  (seasons || []).forEach(function(s) {
+    seasonsById[s.id] = s;
     var o = document.createElement('option');
     o.value = s.id; o.textContent = s.name;
-    if (i === 0) o.selected = true;
+    if (defaultSeason && s.id === defaultSeason.id) o.selected = true;
     seasonSelect.appendChild(o);
   });
-  if (seasons && seasons.length) loadSeason(seasons[0].id);
+  if (seasons && seasons.length) loadSeason((defaultSeason || seasons[0]).id);
   else { loadingMsg.textContent = 'No seasons found.'; }
 }).catch(function() { loadingMsg.textContent = 'Failed to load seasons.'; });
 
 seasonSelect.addEventListener('change', function() { loadSeason(seasonSelect.value); });
+
+function getDefaultSeason(seasons) {
+  if (typeof SeasonRules !== 'undefined') return SeasonRules.getDefaultSeason(seasons);
+  var active = seasons.filter(function(s) { return s.status === 'active'; });
+  return active.length ? active[active.length - 1] : seasons[seasons.length - 1];
+}
 
 function loadSeason(seasonId) {
   if (!seasonId) return;
@@ -201,6 +229,7 @@ function loadSeason(seasonId) {
   tableWrap.style.display = 'none';
   issuesSec.style.display = 'none';
   nypSection.style.display = 'none';
+  divisionSection.style.display = 'none';
   availabilitySection.style.display = 'none';
 
   var range = getNext14DayRange();
@@ -214,7 +243,7 @@ function loadSeason(seasonId) {
     var teams = results[1] || [];
     var availability = mergeLocalAvailability(results[2] || [], seasonId, range.start, range.end);
     renderAvailability(availability, range.start, range.end);
-    render(games, teams);
+    render(games, teams, seasonsById[seasonId] || { id: seasonId, name: seasonSelect.options[seasonSelect.selectedIndex] ? seasonSelect.options[seasonSelect.selectedIndex].textContent : seasonId });
   }).catch(function() {
     loadingMsg.textContent = 'Failed to load data.';
   });
@@ -307,18 +336,13 @@ function renderAvailability(rows, startDate, endDate) {
   availabilitySection.style.display = 'block';
 }
 
-function render(games, teams) {
+function render(games, teams, season) {
   loadingMsg.style.display = 'none';
 
-  // --- Build team map ---
-  var teamMap = {};
-  teams.forEach(function(t) { teamMap[t.id] = t.name; });
-
-  // Collect unique teams from games if not in teams list
-  games.forEach(function(g) {
-    if (!teamMap[g.homeTeamId]) teamMap[g.homeTeamId] = g.homeTeamName || g.homeTeamId;
-    if (!teamMap[g.awayTeamId]) teamMap[g.awayTeamId] = g.awayTeamName || g.awayTeamId;
-  });
+  var context = SeasonRules.buildContext(teams || [], games || [], season || {});
+  var rules = context.rules;
+  var teamMap = context.teamMap;
+  var teamIds = context.teamIds;
 
   // --- Determine rounds by grouping unique game dates in ascending order ---
   var dateSet = {};
@@ -330,7 +354,6 @@ function render(games, teams) {
 
   // --- Build per-team schedule: teamId -> { roundNum: opponentName } ---
   var teamSchedule = {}; // teamId -> { 1: opp, 2: opp, ... }
-  var teamIds = Object.keys(teamMap);
   teamIds.forEach(function(id) { teamSchedule[id] = {}; });
 
   games.forEach(function(g) {
@@ -351,6 +374,22 @@ function render(games, teams) {
   // --- Detect issues ---
   var issues = [];
 
+  if (rules.isDivisionRoundRobin) {
+    SeasonRules.getDivisionNames(context).forEach(function(division) {
+      var groupSize = (context.divisions[division] || []).length;
+      if (groupSize !== rules.groupSize) {
+        issues.push(division + ': expected ' + rules.groupSize + ' teams, found ' + groupSize + '.');
+      }
+    });
+    games.forEach(function(g) {
+      var homeDivision = context.teamDivisions[g.homeTeamId] || 'Unassigned';
+      var awayDivision = context.teamDivisions[g.awayTeamId] || 'Unassigned';
+      if (homeDivision !== awayDivision) {
+        issues.push((teamMap[g.homeTeamId] || g.homeTeamId) + ' vs ' + (teamMap[g.awayTeamId] || g.awayTeamId) + ': cross-division game (' + homeDivision + ' / ' + awayDivision + ').');
+      }
+    });
+  }
+
   teamIds.forEach(function(tid) {
     var name = teamMap[tid];
     var sched = teamSchedule[tid];
@@ -360,8 +399,8 @@ function render(games, teams) {
       sched[r].forEach(function(opp) { allOpps.push(opp); });
     });
     // Total games check
-    if (allOpps.length !== 7) {
-      issues.push(name + ': expected 7 games, found ' + allOpps.length + '.');
+    if (allOpps.length !== rules.expectedGames) {
+      issues.push(name + ': expected ' + rules.expectedGames + ' games, found ' + allOpps.length + '.');
     }
     // Duplicate opponent check
     var seen = {};
@@ -390,10 +429,31 @@ function render(games, teams) {
   addChip(chipsEl, teamCount + ' Teams', 'ok');
   addChip(chipsEl, gameCount + ' Games', 'ok');
   addChip(chipsEl, totalRounds + ' Rounds', 'ok');
+  addChip(chipsEl, rules.expectedGames + ' Games/Team', 'ok');
   if (uniqueIssues.length === 0) {
     addChip(chipsEl, '✓ All Clear', 'ok');
   } else {
     addChip(chipsEl, uniqueIssues.length + ' Issue' + (uniqueIssues.length > 1 ? 's' : '') + ' Found', 'warn');
+  }
+
+  // --- Render division table ---
+  divisionBody.innerHTML = '';
+  if (rules.isDivisionRoundRobin) {
+    SeasonRules.getDivisionNames(context).forEach(function(division) {
+      var ids = context.divisions[division] || [];
+      var tr = document.createElement('tr');
+      var tdDivision = document.createElement('td');
+      tdDivision.textContent = division;
+      tr.appendChild(tdDivision);
+      var tdTeams = document.createElement('td');
+      tdTeams.innerHTML = ids.map(function(id) { return '<span class="nyp-opp">' + esc(teamMap[id]) + '</span>'; }).join('');
+      tr.appendChild(tdTeams);
+      var tdCount = document.createElement('td');
+      tdCount.innerHTML = '<span class="nyp-count ' + (ids.length === rules.groupSize ? 'zero' : 'some') + '">' + ids.length + '/' + rules.groupSize + '</span>';
+      tr.appendChild(tdCount);
+      divisionBody.appendChild(tr);
+    });
+    divisionSection.style.display = 'block';
   }
 
   // --- Render matrix ---
@@ -426,8 +486,7 @@ function render(games, teams) {
     Object.keys(sched).forEach(function(r) {
       sched[r].forEach(function(opp) { playedSet[opp] = true; });
     });
-    var unplayed = sortedIds
-      .filter(function(oid) { return oid !== tid; })
+    var unplayed = SeasonRules.getExpectedOpponentIds(tid, context)
       .map(function(oid) { return teamMap[oid]; })
       .filter(function(oname) { return !playedSet[oname]; })
       .sort();
@@ -483,7 +542,7 @@ function render(games, teams) {
 
     var tdTotal = document.createElement('td');
     var total = allOpps.length;
-    tdTotal.innerHTML = '<span class="total ' + (total === 7 ? 'ok' : 'bad') + '">' + total + '</span>';
+    tdTotal.innerHTML = '<span class="total ' + (total === rules.expectedGames ? 'ok' : 'bad') + '">' + total + '</span>';
     tr.appendChild(tdTotal);
 
     matrixBody.appendChild(tr);
@@ -495,7 +554,7 @@ function render(games, teams) {
   issuesSec.style.display = 'block';
   issuesList.innerHTML = '';
   if (uniqueIssues.length === 0) {
-    issuesList.innerHTML = '<div class="no-issues">✓ No issues detected — all teams have 7 games with unique opponents.</div>';
+    issuesList.innerHTML = '<div class="no-issues">✓ No issues detected — all teams follow the selected season format with unique opponents.</div>';
   } else {
     uniqueIssues.forEach(function(msg) {
       var div = document.createElement('div');
