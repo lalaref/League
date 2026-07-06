@@ -22,8 +22,9 @@
     season: document.getElementById('cb-season-label')
   };
 
-  // --- 當前賽季 ID（從 API 取得最新活躍賽季） ---
+  // --- 首頁資料賽季 ID（Season 1 未完結時保留 Season 1 資料） ---
   var currentSeasonId = null;
+  var currentSeason = null;
 
   /**
    * 格式化日期：使用全局 Utils
@@ -52,19 +53,12 @@
           showEmptyAll();
           return;
         }
-        // 找到 active 賽季，若無則取最新一個
-        var active = null;
-        for (var i = 0; i < seasons.length; i++) {
-          if (seasons[i].status === 'active') {
-            active = seasons[i];
-            break;
-          }
-        }
-        if (!active) active = seasons[seasons.length - 1];
+        var active = selectHomeDataSeason(seasons);
+        currentSeason = active;
         currentSeasonId = active.id;
 
         // 並行載入所有數據
-        loadSeasonSummary(seasons, active);
+        loadSeasonSummary([active], active);
         loadRecentGames();
         loadUpcomingGames();
         loadAnnouncements();
@@ -82,6 +76,30 @@
           if (comingEl) comingEl.innerHTML = '<div style="color:#aaa;text-align:center;padding:40px 0;font-size:13px">暫時無法載入資料<br><button onclick="location.reload()" style="margin-top:12px;padding:8px 20px;background:#cc0000;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:12px">重新載入</button></div>';
         }
       });
+  }
+
+  function selectHomeDataSeason(seasons) {
+    var list = seasons || [];
+    for (var i = 0; i < list.length; i++) {
+      if (isActiveSeason(list[i]) && isSeasonOne(list[i])) return list[i];
+    }
+    for (var j = list.length - 1; j >= 0; j--) {
+      if (isActiveSeason(list[j])) return list[j];
+    }
+    return list[list.length - 1];
+  }
+
+  function isActiveSeason(season) {
+    return season && String(season.status || '').toLowerCase() === 'active';
+  }
+
+  function isSeasonOne(season) {
+    if (!season) return false;
+    var name = String(season.name || season.id || '').toLowerCase();
+    return season.id === '845ca40d-4346-448f-bbe2-06b4104bdbda'
+      || /season\s*1/.test(name)
+      || name.indexOf('第一') !== -1
+      || String(season.minGamesForRanking || '') === '7';
   }
 
   function loadSeasonSummary(seasons, fallbackSeason) {
@@ -591,7 +609,7 @@
           var firstGame = next[0];
           var metaEl = document.getElementById('hero-meta-text');
           if (metaEl && firstGame.date) {
-            metaEl.textContent = _formatDate(firstGame.date) + ' · Season 1 · Hong Kong';
+            metaEl.textContent = _formatDate(firstGame.date) + ' · Season 2 · Hong Kong';
           }
         }
 
@@ -748,10 +766,7 @@
         return;
       }
 
-      var top8 = standings.slice(0, 8);
-      standingsBody.innerHTML = top8.map(function (team, idx) {
-        return renderStandingRow(team, idx + 1);
-      }).join('');
+      standingsBody.innerHTML = renderStandingsRows(standings, teams, games);
     }).catch(function () {
       standingsBody.innerHTML = '<tr><td colspan="8" class="text-muted">' + I18n.t('error.loadFailed') + '</td></tr>';
     });
@@ -768,6 +783,7 @@
       table[t.id] = {
         id: t.id,
         teamName: t.name || t.teamName || t.id,
+        division: (typeof SeasonRules !== 'undefined') ? SeasonRules.getTeamDivision(t) : '',
         played: 0, wins: 0, draws: 0, losses: 0, forfeits: 0,
         pointsFor: 0, pointsAgainst: 0, diff: 0, points: 0
       };
@@ -903,6 +919,30 @@
       '<td>' + diff + '</td>' +
       '<td class="text-accent">' + points + '</td>' +
       '</tr>';
+  }
+
+  function renderStandingsRows(standings, teams, games) {
+    var context = (typeof SeasonRules !== 'undefined') ? SeasonRules.buildContext(teams || [], games || [], currentSeason || currentSeasonId) : null;
+    if (!context || !context.rules.isDivisionRoundRobin) {
+      return standings.slice(0, 8).map(function (team, idx) {
+        return renderStandingRow(team, idx + 1);
+      }).join('');
+    }
+
+    var byId = {};
+    standings.forEach(function (team) { byId[team.id] = team; });
+    return SeasonRules.getDivisionNames(context).map(function (division) {
+      var rows = (context.divisions[division] || []).map(function (id) { return byId[id]; }).filter(Boolean);
+      rows.sort(function (a, b) {
+        if (b.points !== a.points) return b.points - a.points;
+        if (b.diff !== a.diff) return b.diff - a.diff;
+        if (b.pointsFor !== a.pointsFor) return b.pointsFor - a.pointsFor;
+        return (a.teamName || '').localeCompare(b.teamName || '');
+      });
+      var html = '<tr><td colspan="8" style="background:#111827;color:#fff;font-weight:900;text-align:left;text-transform:uppercase;letter-spacing:.06em">' + escapeHtml(division) + ' · ' + rows.length + ' teams</td></tr>';
+      html += rows.slice(0, 6).map(function (team, idx) { return renderStandingRow(team, idx + 1); }).join('');
+      return html;
+    }).join('');
   }
 
   // --- 最近成就（需求 15.6）---

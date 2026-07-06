@@ -23,6 +23,7 @@
 
   // --- 狀態 ---
   var currentSeasonId = null;
+  var currentSeason = null;
   var chartInstances = {};
 
   // --- 初始化 ---
@@ -68,12 +69,10 @@
           return;
         }
         populateSeasonSelect(seasons);
-        // 預設選擇 active 賽季
-        var active = null;
-        for (var i = 0; i < seasons.length; i++) {
-          if (seasons[i].status === 'active') { active = seasons[i]; break; }
-        }
+        // 預設選擇仍在進行中的 Season 1；如果沒有，使用最新 active
+        var active = (typeof SeasonRules !== 'undefined') ? SeasonRules.getDefaultSeason(seasons) : null;
         if (!active) active = seasons[seasons.length - 1];
+        currentSeason = active;
         currentSeasonId = active.id;
         if (seasonSelect) seasonSelect.value = currentSeasonId;
         loadAllLeaderboards();
@@ -101,6 +100,10 @@
 
   function onSeasonChange() {
     currentSeasonId = seasonSelect ? seasonSelect.value : null;
+    currentSeason = {
+      id: currentSeasonId,
+      name: seasonSelect && seasonSelect.options[seasonSelect.selectedIndex] ? seasonSelect.options[seasonSelect.selectedIndex].textContent : currentSeasonId
+    };
     if (currentSeasonId) {
       loadAllLeaderboards();
       loadLeaderCards();
@@ -206,9 +209,7 @@
         return;
       }
       var standings = _computeStandings(games, teams);
-      tbody.innerHTML = standings.map(function (team, idx) {
-        return _renderStandingRow(team, idx + 1);
-      }).join('');
+      tbody.innerHTML = _renderStandingsRows(standings, teams, games);
     }).catch(function () {
       tbody.innerHTML = '<tr><td colspan="8" class="text-muted">' + I18n.t('error.loadFailed')
         + ' <button class="btn btn-outline btn-sm" onclick="location.reload()">' + I18n.t('common.retry') + '</button></td></tr>';
@@ -219,6 +220,7 @@
     var table = {};
     teams.forEach(function (t) {
       table[t.id] = { id: t.id, teamName: t.name || t.teamName || t.id,
+        division: (typeof SeasonRules !== 'undefined') ? SeasonRules.getTeamDivision(t) : '',
         played: 0, wins: 0, draws: 0, losses: 0, forfeits: 0,
         pointsFor: 0, pointsAgainst: 0, diff: 0, points: 0 };
     });
@@ -252,6 +254,27 @@
     });
     // Tie-breaker: point differential
     return rows;
+  }
+
+  function _renderStandingsRows(standings, teams, games) {
+    var context = (typeof SeasonRules !== 'undefined') ? SeasonRules.buildContext(teams || [], games || [], currentSeason || currentSeasonId) : null;
+    if (!context || !context.rules.isDivisionRoundRobin) {
+      return standings.map(function (team, idx) { return _renderStandingRow(team, idx + 1); }).join('');
+    }
+    var byId = {};
+    standings.forEach(function (team) { byId[team.id] = team; });
+    return SeasonRules.getDivisionNames(context).map(function (division) {
+      var rows = (context.divisions[division] || []).map(function (id) { return byId[id]; }).filter(Boolean);
+      rows.sort(function (a, b) {
+        if (b.points !== a.points) return b.points - a.points;
+        if (b.diff !== a.diff) return b.diff - a.diff;
+        if (b.pointsFor !== a.pointsFor) return b.pointsFor - a.pointsFor;
+        return a.teamName.localeCompare(b.teamName);
+      });
+      var html = '<tr class="standings-division-row"><td colspan="8">' + escapeHtml(division) + ' · ' + rows.length + ' teams</td></tr>';
+      html += rows.map(function (team, idx) { return _renderStandingRow(team, idx + 1); }).join('');
+      return html;
+    }).join('');
   }
 
   function _renderStandingRow(team, rank) {

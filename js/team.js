@@ -31,7 +31,8 @@
       '<div id="team-dir" class="text-muted">載入中...</div>' +
       '</div></section>';
     API.getSeasons().then(function (seasons) {
-      var active = (seasons || []).find(function (s) { return s.status === 'active'; }) || (seasons || [])[0];
+      var seasonList = seasons || [];
+      var active = getDefaultSeason(seasonList);
       if (!active) { document.getElementById('team-dir').textContent = '暫無賽季資料'; return; }
       return API.getTeams(active.id);
     }).then(function (teams) {
@@ -184,7 +185,7 @@
       API.getSeasons()
         .then(function (seasons) {
           if (!seasons || seasons.length === 0) return;
-          var activeSeason = seasons.find(function (s) { return s.status === 'active'; }) || seasons[0];
+          var activeSeason = getDefaultSeason(seasons);
           return API.getTeams(activeSeason.id);
         })
         .then(function (teams) {
@@ -211,6 +212,30 @@
       });
     }
 
+
+  function getDefaultSeason(seasons) {
+    var list = seasons || [];
+    for (var s1 = 0; s1 < list.length; s1++) {
+      if (isActiveSeason(list[s1]) && isSeasonOne(list[s1])) return list[s1];
+    }
+    for (var i = list.length - 1; i >= 0; i--) {
+      if (isActiveSeason(list[i])) return list[i];
+    }
+    return list[list.length - 1];
+  }
+
+  function isActiveSeason(season) {
+    return season && String(season.status || '').toLowerCase() === 'active';
+  }
+
+  function isSeasonOne(season) {
+    if (!season) return false;
+    var name = String(season.name || season.id || '').toLowerCase();
+    return season.id === '845ca40d-4346-448f-bbe2-06b4104bdbda'
+      || /season\s*1/.test(name)
+      || name.indexOf('第一') !== -1
+      || String(season.minGamesForRanking || '') === '7';
+  }
     // 綁定選擇事件
     select.addEventListener('change', function () {
       var selectedId = select.value;

@@ -46,12 +46,7 @@
         populateSelect(seasonSelect, seasons.map(function (s) {
           return { value: s.id, label: s.name || s.id };
         }));
-        // 預設選擇 active 賽季
-        var active = null;
-        for (var i = 0; i < seasons.length; i++) {
-          if (seasons[i].status === 'active') { active = seasons[i]; break; }
-        }
-        if (!active) active = seasons[seasons.length - 1];
+        var active = getDefaultSeason(seasons);
         currentSeasonId = active.id;
         if (seasonSelect) seasonSelect.value = currentSeasonId;
         loadPlayers();
@@ -59,6 +54,30 @@
       .catch(function () {
         setSelectEmpty(seasonSelect);
       });
+  }
+
+  function getDefaultSeason(seasons) {
+    var list = seasons || [];
+    for (var s1 = 0; s1 < list.length; s1++) {
+      if (isActiveSeason(list[s1]) && isSeasonOne(list[s1])) return list[s1];
+    }
+    for (var i = list.length - 1; i >= 0; i--) {
+      if (isActiveSeason(list[i])) return list[i];
+    }
+    return list[list.length - 1];
+  }
+
+  function isActiveSeason(season) {
+    return season && String(season.status || '').toLowerCase() === 'active';
+  }
+
+  function isSeasonOne(season) {
+    if (!season) return false;
+    var name = String(season.name || season.id || '').toLowerCase();
+    return season.id === '845ca40d-4346-448f-bbe2-06b4104bdbda'
+      || /season\s*1/.test(name)
+      || name.indexOf('第一') !== -1
+      || String(season.minGamesForRanking || '') === '7';
   }
 
   function onSeasonChange() {

@@ -24,6 +24,7 @@
   var playoffsBracket = document.getElementById('playoffs-bracket');
 
   var currentSeasonId = '';
+  var currentSeason = null;
 
   // --- 初始化 ---
   function init() {
@@ -32,6 +33,10 @@
     if (seasonSelect) {
       seasonSelect.addEventListener('change', function () {
         currentSeasonId = seasonSelect.value;
+        currentSeason = {
+          id: currentSeasonId,
+          name: seasonSelect.options[seasonSelect.selectedIndex] ? seasonSelect.options[seasonSelect.selectedIndex].textContent : currentSeasonId
+        };
         _loadCurrentTab();
       });
     }
@@ -82,14 +87,16 @@
           seasonSelect.innerHTML = '<option value="">' + (I18n.t('common.noData')) + '</option>';
           return;
         }
-        seasons.forEach(function (s, i) {
+        var defaultSeason = _getDefaultSeason(seasons);
+        seasons.forEach(function (s) {
           var opt = document.createElement('option');
           opt.value = s.id;
           opt.textContent = s.name;
-          if (i === 0) opt.selected = true;
+          if (defaultSeason && s.id === defaultSeason.id) opt.selected = true;
           seasonSelect.appendChild(opt);
         });
-        currentSeasonId = seasons[0].id;
+        currentSeason = defaultSeason || seasons[0];
+        currentSeasonId = currentSeason.id;
         _loadCurrentTab();
       })
       .catch(function () {
@@ -97,6 +104,12 @@
           seasonSelect.innerHTML = '<option value="">' + (I18n.t('error.loadFailed')) + '</option>';
         }
       });
+  }
+
+  function _getDefaultSeason(seasons) {
+    if (typeof SeasonRules !== 'undefined') return SeasonRules.getDefaultSeason(seasons);
+    var active = (seasons || []).filter(function (season) { return season.status === 'active'; });
+    return active.length ? active[active.length - 1] : seasons[seasons.length - 1];
   }
 
   // --- 載入賽程列表 ---
@@ -136,7 +149,7 @@
             g._awayJersey = awayTeam ? (awayTeam.jerseyAway || '') : '';
           });
         }
-        _renderScheduleTable(games);
+        _renderScheduleTable(games, teams);
         _showEl(scheduleList);
       })
       .catch(function () {
@@ -145,9 +158,10 @@
       });
   }
 
-  function _renderScheduleTable(games) {
+  function _renderScheduleTable(games, teams) {
     if (!scheduleTbody) return;
     scheduleTbody.innerHTML = '';
+    var context = (typeof SeasonRules !== 'undefined') ? SeasonRules.buildContext(teams || [], games || [], currentSeason || currentSeasonId) : null;
 
     // Sort by date descending (most recent first)
     var sorted = games.slice().sort(function (a, b) {
@@ -161,6 +175,12 @@
       var tr = document.createElement('tr');
       var homeName = game.homeTeamName || game.home || game.homeTeam || '—';
       var awayName = game.awayTeamName || game.away || game.awayTeam || '—';
+      var division = '—';
+      if (context && context.rules.isDivisionRoundRobin) {
+        var homeDivision = context.teamDivisions[game.homeTeamId] || 'Unassigned';
+        var awayDivision = context.teamDivisions[game.awayTeamId] || 'Unassigned';
+        division = homeDivision === awayDivision ? homeDivision : homeDivision + ' / ' + awayDivision;
+      }
 
       // Build matchup with jersey color badges (swatch only, no text)
       var homeJersey = game._homeJersey || '';
@@ -202,6 +222,7 @@
         '<td>' + _escHtml(Utils.formatDateWithDay(game.date)) + '</td>' +
         '<td>' + _escHtml(Utils.formatTime(game.time)) + '</td>' +
         '<td>' + _escHtml(game.venue || '—') + '</td>' +
+        '<td>' + _escHtml(division) + '</td>' +
         '<td>' + matchupHtml + '</td>' +
         '<td>' + _escHtml(result) + '</td>';
 
