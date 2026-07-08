@@ -63,6 +63,7 @@
 
                 <div class="admin-toolbar">
                     <button id="btn-create-player" class="btn btn-primary" data-i18n="admin.createPlayer" disabled>建立球員</button>
+                    <button id="btn-export-players" class="btn btn-outline" disabled>匯出球員 Excel</button>
                 </div>
 
                 <!-- 球員表單 -->
@@ -161,6 +162,7 @@
         var formTitle = document.getElementById('player-form-title');
         var tbody = document.getElementById('players-body');
         var createBtn = document.getElementById('btn-create-player');
+        var exportBtn = document.getElementById('btn-export-players');
         var playerPhotoImport = ImageImport.createController({
             input: 'player-photo',
             preview: 'player-photo-preview',
@@ -261,6 +263,77 @@
             });
         }
 
+        function exportPlayersExcel() {
+            var sid = seasonSelect.value;
+            if (!sid) { showMsg(I18n.t('error.requiredField', { field: 'seasonId' }), 'error'); return; }
+
+            var originalText = exportBtn.textContent;
+            exportBtn.disabled = true;
+            exportBtn.textContent = '匯出中...';
+
+            API.getTeams(sid).then(function (teams) {
+                teams = teams || [];
+                if (!teams.length) return [];
+                return Promise.all(teams.map(function (team) {
+                    return API.getPlayers(team.id).then(function (players) {
+                        return (players || []).map(function (player) {
+                            return {
+                                teamName: team.name || team.teamName || '',
+                                playerName: player.name || player.playerName || '',
+                                number: player.number != null ? player.number : ''
+                            };
+                        });
+                    }).catch(function () { return []; });
+                })).then(function (groups) {
+                    return groups.reduce(function (all, group) { return all.concat(group); }, []);
+                });
+            }).then(function (rows) {
+                rows = rows || [];
+                if (!rows.length) { showMsg('沒有球員可匯出', 'error'); return; }
+                rows.sort(function (a, b) {
+                    var teamCompare = String(a.teamName).localeCompare(String(b.teamName));
+                    if (teamCompare !== 0) return teamCompare;
+                    var aNum = parseInt(a.number, 10);
+                    var bNum = parseInt(b.number, 10);
+                    if (!isNaN(aNum) && !isNaN(bNum) && aNum !== bNum) return aNum - bNum;
+                    var numberCompare = String(a.number).localeCompare(String(b.number));
+                    if (numberCompare !== 0) return numberCompare;
+                    return String(a.playerName).localeCompare(String(b.playerName));
+                });
+                downloadPlayersExcel(rows);
+                showMsg('已匯出球員名單', 'success');
+            }).catch(function (err) {
+                showMsg((err && err.message) || '匯出失敗', 'error');
+            }).finally(function () {
+                exportBtn.disabled = !seasonSelect.value;
+                exportBtn.textContent = originalText;
+            });
+        }
+
+        function downloadPlayersExcel(rows) {
+            var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>' +
+                '<table><thead><tr><th>Team Name</th><th>Player Name</th><th>Number</th></tr></thead><tbody>' +
+                rows.map(function (row) {
+                    return '<tr><td>' + _esc(row.teamName) + '</td><td>' + _esc(row.playerName) + '</td><td>' + _esc(row.number) + '</td></tr>';
+                }).join('') +
+                '</tbody></table></body></html>';
+            var blob = new Blob(['\ufeff', html], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+            var url = URL.createObjectURL(blob);
+            var link = document.createElement('a');
+            link.href = url;
+            link.download = 'allin-players-' + getSelectedSeasonSlug() + '.xls';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        function getSelectedSeasonSlug() {
+            var selected = seasonSelect.options[seasonSelect.selectedIndex];
+            var text = selected ? selected.textContent : 'season';
+            return text.replace(/[^a-zA-Z0-9\u4e00-\u9fff]+/g, '-').replace(/^-+|-+$/g, '') || 'season';
+        }
+
         function bindRowButtons(players) {
             tbody.querySelectorAll('.btn-edit').forEach(function (btn) {
                 btn.addEventListener('click', function () {
@@ -292,6 +365,7 @@
         seasonSelect.addEventListener('change', function () {
             playersLoadSeq++;
             loadTeams();
+            exportBtn.disabled = !seasonSelect.value;
             tbody.innerHTML = '<tr><td colspan="4" class="text-muted">' + I18n.t('common.noData') + '</td></tr>';
         });
 
@@ -302,6 +376,7 @@
         });
 
         createBtn.addEventListener('click', function () { resetForm(); formEl.hidden = false; });
+        exportBtn.addEventListener('click', exportPlayersExcel);
         document.getElementById('btn-cancel-player').addEventListener('click', resetForm);
 
         document.getElementById('btn-save-player').addEventListener('click', function () {
