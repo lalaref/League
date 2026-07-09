@@ -7,7 +7,7 @@
   'use strict';
 
   // --- 排行榜類別定義 ---
-  var BASIC_CATEGORIES = ['pts', 'reb', 'ast', 'stl', 'blk'];
+  var BASIC_CATEGORIES = ['pts', 'tpm', 'reb', 'ast', 'stl', 'blk'];
   var SHOOTING_CATEGORIES = ['fg_pct', 'tp_pct', 'ft_pct'];
   var ADVANCED_CATEGORIES = ['per', 'tsPct', 'usgPct'];
   var ALL_CATEGORIES = BASIC_CATEGORIES.concat(SHOOTING_CATEGORIES).concat(ADVANCED_CATEGORIES);
@@ -16,7 +16,7 @@
   var PCT_CATEGORIES = ['fg_pct', 'tp_pct', 'ft_pct', 'tsPct', 'usgPct'];
 
   // 累計類別（以全季總數排名，不以場均排名）
-  var TOTAL_CATEGORIES = ['pts', 'reb', 'ast', 'stl', 'blk'];
+  var TOTAL_CATEGORIES = ['pts', 'tpm', 'reb', 'ast', 'stl', 'blk'];
 
   // --- DOM 元素 ---
   var seasonSelect = document.getElementById('season-select');
