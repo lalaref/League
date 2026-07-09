@@ -222,6 +222,26 @@
                             </table>
                         </div>
                     </div>
+                    <!-- 三分王 -->
+                    <div class="leaderboard-section">
+                        <h3 class="leaderboard-title">三分王</h3>
+                        <div class="chart-container leaderboard-chart-container">
+                            <canvas id="chart-tpm" aria-label="三分王排行榜長條圖"></canvas>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="data-table" aria-label="三分王排行榜">
+                                <thead>
+                                    <tr>
+                                        <th data-i18n="table.rank">排名</th>
+                                        <th data-i18n="table.player">球員</th>
+                                        <th data-i18n="table.team">球隊</th>
+                                        <th data-i18n="table.tpm">3PM</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="leaders-tpm"></tbody>
+                            </table>
+                        </div>
+                    </div>
                     <!-- 籃板王 -->
                     <div class="leaderboard-section">
                         <h3 class="leaderboard-title" data-i18n="standings.rebounds">籃板王</h3>
@@ -483,7 +503,7 @@
     <script src="js/charts.js?v=20260409"></script>
     <script src="js/navigation.js?v=20260409"></script>
     <script src="js/season-rules.js?v=20260706-s1default"></script>
-    <script src="js/standings.js?v=20260706-s1default"></script>
+    <script src="js/standings.js?v=20260709-3pm"></script>
     <script>
         I18n.init();
     </script>
