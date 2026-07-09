@@ -34,6 +34,12 @@
     .availability-empty { color: #4ade80; font-size: 11px; }
     .availability-team { display: inline-flex; align-items: center; max-width: 100%; padding: 3px 7px; border-radius: 5px; background: #3b1515; color: #fca5a5; border: 1px solid #7f1d1d; font-size: 11px; margin: 2px 2px 2px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .availability-note { display: block; color: #fb923c; font-size: 10px; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .admin-note-box { margin-top: 12px; padding: 12px; background: #131322; border: 1px solid #2a2a3a; border-radius: 8px; }
+    .admin-note-head { display: flex; justify-content: space-between; gap: 10px; align-items: center; margin-bottom: 7px; }
+    .admin-note-head label { color: #e0e0ff; font-size: 12px; font-weight: 700; }
+    .admin-note-status { color: #888; font-size: 11px; }
+    .admin-note-input { width: 100%; min-height: 82px; resize: vertical; background: #0f0f1c; border: 1px solid #33334a; border-radius: 7px; color: #e0e0e0; padding: 9px 10px; font: inherit; font-size: 12px; line-height: 1.45; }
+    .admin-note-input:focus { outline: none; border-color: #f97316; box-shadow: 0 0 0 2px rgba(249, 115, 22, .12); }
 
     /* Matrix table */
     .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid #2a2a3a; display: block; max-width: 100%; }
@@ -136,6 +142,13 @@
     <span class="section-note" id="availability-note">Upcoming availability window</span>
   </div>
   <div class="availability-grid" id="availability-grid"></div>
+  <div class="admin-note-box">
+    <div class="admin-note-head">
+      <label for="admin-availability-note">Admin Note</label>
+      <span class="admin-note-status" id="admin-note-status">Loading note...</span>
+    </div>
+    <textarea id="admin-availability-note" class="admin-note-input" placeholder="Add scheduling notes for this season/date window..."></textarea>
+  </div>
 </div>
 
 <div class="nyp-section" id="nyp-section" style="display:none">
@@ -170,6 +183,7 @@
 <script src="js/season-rules.js?v=20260706-s1default"></script>
 <script>
 var BASE_URL = 'https://script.google.com/macros/s/AKfycbzQkJC-1ZIAnsbXyC0M6_Hwh53pvKMuZ38j_eCIVCN4Pm-XwQ-0HguJR20RjGIRl_4P/exec';
+var API_KEY = 'my-allin-secret-2026';
 
 function apiFetch(action, params) {
   var qs = 'action=' + encodeURIComponent(action);
@@ -177,7 +191,24 @@ function apiFetch(action, params) {
   qs += '&_t=' + Date.now();
   return fetch(BASE_URL + '?' + qs, { method: 'GET', redirect: 'follow' })
     .then(function(r) { return r.json(); })
-    .then(function(j) { return j.data !== undefined ? j.data : j; });
+    .then(function(j) {
+      if (j.status === 'error') throw new Error(j.message || 'Request failed');
+      return j.data !== undefined ? j.data : j;
+    });
+}
+
+function apiPost(action, data) {
+  var body = Object.assign({}, data || {}, { action: action, apiKey: API_KEY });
+  return fetch(BASE_URL, {
+    method: 'POST',
+    redirect: 'follow',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify(body)
+  }).then(function(r) { return r.json(); })
+    .then(function(j) {
+      if (j.status === 'error') throw new Error(j.message || 'Save failed');
+      return j.data !== undefined ? j.data : j;
+    });
 }
 
 var seasonSelect = document.getElementById('season-select');
@@ -189,6 +220,8 @@ var divisionBody = document.getElementById('division-body');
 var availabilitySection = document.getElementById('availability-section');
 var availabilityGrid = document.getElementById('availability-grid');
 var availabilityNote = document.getElementById('availability-note');
+var adminAvailabilityNote = document.getElementById('admin-availability-note');
+var adminNoteStatus = document.getElementById('admin-note-status');
 var nypSection   = document.getElementById('nyp-section');
 var nypBody      = document.getElementById('nyp-body');
 var matrixHead   = document.getElementById('matrix-head');
@@ -197,6 +230,12 @@ var issuesSec    = document.getElementById('issues-section');
 var issuesList   = document.getElementById('issues-list');
 var loadingMsg   = document.getElementById('loading-msg');
 var seasonsById  = {};
+var currentAdminNoteMeta = null;
+var adminNoteSaveTimer = null;
+
+adminAvailabilityNote.addEventListener('input', function() {
+  scheduleAdminNoteSave();
+});
 
 // --- Load seasons ---
 apiFetch('seasons').then(function(seasons) {
@@ -237,12 +276,13 @@ function loadSeason(seasonId) {
   Promise.all([
     apiFetch('schedule', { seasonId: seasonId }),
     apiFetch('teams',    { seasonId: seasonId }),
-    safeAvailabilityFetch(seasonId, range.start, range.end)
+    safeAvailabilityFetch(seasonId, range.start, range.end),
+    safeAdminNoteFetch(seasonId, range.start, range.end)
   ]).then(function(results) {
     var games = (results[0] || []).filter(function(g) { return g.status !== 'cancelled' && g.type !== 'playoff'; });
     var teams = results[1] || [];
     var availability = mergeLocalAvailability(results[2] || [], seasonId, range.start, range.end);
-    renderAvailability(availability, range.start, range.end);
+    renderAvailability(availability, range.start, range.end, seasonId, results[3] || {});
     render(games, teams, seasonsById[seasonId] || { id: seasonId, name: seasonSelect.options[seasonSelect.selectedIndex] ? seasonSelect.options[seasonSelect.selectedIndex].textContent : seasonId });
   }).catch(function() {
     loadingMsg.textContent = 'Failed to load data.';
@@ -253,6 +293,14 @@ function safeAvailabilityFetch(seasonId, startDate, endDate) {
   return apiFetch('teamAvailability', { seasonId: seasonId, startDate: startDate, endDate: endDate }).then(function(rows) {
     return Array.isArray(rows) ? rows : [];
   }).catch(function() { return []; });
+}
+
+function safeAdminNoteFetch(seasonId, startDate, endDate) {
+  return apiFetch('scheduleAdminNote', { seasonId: seasonId, startDate: startDate, endDate: endDate }).then(function(note) {
+    return note || {};
+  }).catch(function() {
+    return { note: '', error: true };
+  });
 }
 
 function getAvailabilityRange() {
@@ -296,9 +344,10 @@ function mergeLocalAvailability(rows, seasonId, startDate, endDate) {
   return out;
 }
 
-function renderAvailability(rows, startDate, endDate) {
+function renderAvailability(rows, startDate, endDate, seasonId, adminNote) {
   availabilityGrid.innerHTML = '';
   availabilityNote.textContent = formatShortDate(startDate) + ' to ' + formatShortDate(endDate);
+  loadAdminNote(seasonId, startDate, endDate, adminNote || {});
   var byDate = {};
   (rows || []).forEach(function(row) {
     var date = row.unavailableDate;
@@ -331,6 +380,38 @@ function renderAvailability(rows, startDate, endDate) {
     cursor.setDate(cursor.getDate() + 1);
   }
   availabilitySection.style.display = 'block';
+}
+
+function loadAdminNote(seasonId, startDate, endDate, data) {
+  currentAdminNoteMeta = { seasonId: seasonId, startDate: startDate, endDate: endDate };
+  adminAvailabilityNote.value = data.note || '';
+  if (data.error) adminNoteStatus.textContent = 'Could not load global note';
+  else adminNoteStatus.textContent = adminAvailabilityNote.value ? 'Saved globally' : 'No note yet';
+}
+
+function scheduleAdminNoteSave() {
+  if (!currentAdminNoteMeta) return;
+  clearTimeout(adminNoteSaveTimer);
+  adminNoteStatus.textContent = 'Saving...';
+  adminNoteSaveTimer = setTimeout(function() {
+    saveAdminNote(adminAvailabilityNote.value);
+  }, 650);
+}
+
+function saveAdminNote(value) {
+  if (!currentAdminNoteMeta) return;
+  var meta = Object.assign({}, currentAdminNoteMeta);
+  apiPost('saveScheduleAdminNote', {
+    seasonId: meta.seasonId,
+    startDate: meta.startDate,
+    endDate: meta.endDate,
+    note: value
+  }).then(function() {
+    if (!currentAdminNoteMeta || currentAdminNoteMeta.seasonId !== meta.seasonId || currentAdminNoteMeta.startDate !== meta.startDate || currentAdminNoteMeta.endDate !== meta.endDate) return;
+    adminNoteStatus.textContent = value ? 'Saved globally' : 'No note yet';
+  }).catch(function() {
+    adminNoteStatus.textContent = 'Save failed';
+  });
 }
 
 function render(games, teams, season) {
