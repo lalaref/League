@@ -23,7 +23,8 @@
   var rangeStart = '';
   var rangeEnd = '';
   var selected = {};
-  var weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+  var weekdays = ['一', '二', '三', '四', '五'];
+  var dayNames = ['日', '一', '二', '三', '四', '五', '六'];
 
   if (!token) {
     showError('無效的連結，缺少球隊 token 參數。請聯絡聯賽管理員取得正確連結。');
@@ -79,10 +80,7 @@
 
   function buildDays() {
     var start = getNextOpenWindowStart();
-    var end = new Date(start);
-    end.setDate(start.getDate() + 13);
     rangeStart = toYmd(start);
-    rangeEnd = toYmd(end);
     days = [];
     for (var i = 0; i < 14; i++) {
       var date = new Date(start);
@@ -91,6 +89,7 @@
         days.push({ date: date, ymd: toYmd(date) });
       }
     }
+    rangeEnd = days.length ? days[days.length - 1].ymd : rangeStart;
   }
 
   function renderCalendar() {
@@ -102,13 +101,6 @@
       calendarGrid.appendChild(label);
     });
 
-    var firstDay = days[0].date.getDay();
-    for (var i = 0; i < firstDay; i++) {
-      var empty = document.createElement('div');
-      empty.className = 'availability-day is-empty';
-      calendarGrid.appendChild(empty);
-    }
-
     days.forEach(function (item) {
       var btn = document.createElement('button');
       btn.type = 'button';
@@ -117,7 +109,7 @@
       btn.setAttribute('data-date', item.ymd);
       btn.innerHTML =
         '<span class="day-number">' + item.date.getDate() + '</span>' +
-        '<span class="day-month">' + (item.date.getMonth() + 1) + '月' + weekdays[item.date.getDay()] + '</span>' +
+        '<span class="day-month">' + (item.date.getMonth() + 1) + '月' + dayNames[item.date.getDay()] + '</span>' +
         '<span class="day-state">' + (selected[item.ymd] ? '不可出賽' : '可出賽') + '</span>';
       btn.addEventListener('click', function () {
         var ymd = this.getAttribute('data-date');
@@ -243,6 +235,6 @@
   function formatDisplayDate(ymd) {
     var parts = ymd.split('-');
     var date = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
-    return Number(parts[1]) + '月' + Number(parts[2]) + '日（' + weekdays[date.getDay()] + '）';
+    return Number(parts[1]) + '月' + Number(parts[2]) + '日（' + dayNames[date.getDay()] + '）';
   }
 })();
