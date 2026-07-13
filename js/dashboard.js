@@ -14,6 +14,7 @@
   var upcomingGamesEl = document.getElementById('upcoming-games-list');
   var announcementsEl = document.getElementById('announcements-list');
   var standingsBody = document.querySelector('#standings-table tbody');
+  var homeLeaderboardsEl = document.getElementById('home-leaderboards-list');
   var achievementsEl = document.getElementById('achievements-list');
   var seasonStatsEls = {
     teams: document.getElementById('cb-teams-count'),
@@ -25,6 +26,7 @@
   // --- 首頁資料賽季 ID（Season 1 未完結時保留 Season 1 資料） ---
   var currentSeasonId = null;
   var currentSeason = null;
+  var homeDisplaySeasons = [];
 
   /**
    * 格式化日期：使用全局 Utils
@@ -35,6 +37,14 @@
    * 格式化時間：使用全局 Utils
    */
   function _formatTime(raw) { return Utils.formatTime(raw); }
+
+  function todayYmd() {
+    var now = new Date();
+    now.setHours(0, 0, 0, 0);
+    var month = String(now.getMonth() + 1).padStart(2, '0');
+    var day = String(now.getDate()).padStart(2, '0');
+    return now.getFullYear() + '-' + month + '-' + day;
+  }
 
   // --- 初始化 ---
   function init() {
@@ -53,16 +63,18 @@
           showEmptyAll();
           return;
         }
+        homeDisplaySeasons = getHomeDisplaySeasons(seasons);
         var active = selectHomeDataSeason(seasons);
         currentSeason = active;
         currentSeasonId = active.id;
 
         // 並行載入所有數據
-        loadSeasonSummary([active], active);
+        loadSeasonSummary(homeDisplaySeasons, active);
         loadRecentGames();
-        loadUpcomingGames();
+        loadUpcomingGames(homeDisplaySeasons);
         loadAnnouncements();
-        loadStandings();
+        loadStandings(homeDisplaySeasons);
+        loadHomeLeaderboards(homeDisplaySeasons);
         loadRecentAchievements();
       })
       .catch(function () {
@@ -89,6 +101,26 @@
     return list[list.length - 1];
   }
 
+  function getHomeDisplaySeasons(seasons) {
+    var list = seasons || [];
+    var seasonOne = null;
+    var seasonTwo = null;
+    list.forEach(function (season) {
+      if (!season || !season.id) return;
+      if (!seasonOne && isSeasonOne(season)) seasonOne = season;
+      if (!seasonTwo && isSeasonTwo(season)) seasonTwo = season;
+    });
+    var selected = [];
+    if (seasonOne) selected.push(seasonOne);
+    if (seasonTwo && (!seasonOne || seasonTwo.id !== seasonOne.id)) selected.push(seasonTwo);
+    if (selected.length === 0) {
+      selected = list.filter(isActiveSeason);
+    }
+    if (selected.length === 0 && list.length) selected.push(list[list.length - 1]);
+    selected.sort(function (a, b) { return getSeasonSortNumber(a) - getSeasonSortNumber(b); });
+    return selected;
+  }
+
   function isActiveSeason(season) {
     return season && String(season.status || '').toLowerCase() === 'active';
   }
@@ -100,6 +132,16 @@
       || /season\s*1/.test(name)
       || name.indexOf('第一') !== -1
       || String(season.minGamesForRanking || '') === '7';
+  }
+
+  function isSeasonTwo(season) {
+    if (!season) return false;
+    var name = String(season.name || season.id || '').toLowerCase();
+    return season.id === 'c90f2419-8111-43ef-9506-a2d082426b75'
+      || /season\s*2/.test(name)
+      || /\bs\s*2\b/.test(name)
+      || name.indexOf('第二') !== -1
+      || String(season.minGamesForRanking || '') === '5';
   }
 
   function loadSeasonSummary(seasons, fallbackSeason) {
@@ -207,6 +249,18 @@
       return String(tens * 10 + ones);
     }
     return String(numerals[rawValue] || rawValue);
+  }
+
+  function renderHomeSeasonBlock(season, meta, bodyHtml) {
+    var label = formatSeasonLabel(season);
+    var name = season && season.name ? season.name : label;
+    return '<div class="home-season-block">'
+      + '<div class="home-season-head">'
+      + '<div class="home-season-title">' + escapeHtml(label) + ' · ' + escapeHtml(name) + '</div>'
+      + '<div class="home-season-meta">' + escapeHtml(meta || '') + '</div>'
+      + '</div>'
+      + bodyHtml
+      + '</div>';
   }
 
   // --- 最近比賽結果（需求 3.1, 3.4）---
@@ -548,6 +602,7 @@
 
     // Meta: badge + venue
     html += '<div class="cm-row-meta">';
+    if (game._seasonLabel) html += '<span class="cm-row-badge">' + escapeHtml(game._seasonLabel) + '</span>';
     html += '<span class="cm-row-badge">UPCOMING</span>';
     if (venue) html += '<span class="cm-row-venue">📍 ' + escapeHtml(venue) + '</span>';
     html += '</div>';
@@ -557,67 +612,57 @@
   }
 
   // --- 即將進行的賽程（需求 3.2）---
-  function loadUpcomingGames() {
+  function loadUpcomingGames(seasons) {
     if (!upcomingGamesEl) return;
     upcomingGamesEl.innerHTML = '<div class="loading" data-i18n="common.loading">' + I18n.t('common.loading') + '</div>';
 
     var comingEl = document.getElementById('coming-matches-list');
+    var displaySeasons = (seasons && seasons.length) ? seasons : [currentSeason];
 
-    Promise.all([
-      API.getSchedule(currentSeasonId),
-      API.getTeams(currentSeasonId)
-    ])
-      .then(function (results) {
-        var games = results[0];
-        var teams = results[1] || [];
+    Promise.all(displaySeasons.map(function (season) {
+      return Promise.all([API.getSchedule(season.id), API.getTeams(season.id)]).then(function (results) {
+        return { season: season, games: results[0] || [], teams: results[1] || [] };
+      });
+    }))
+      .then(function (seasonResults) {
+        var hiddenCards = [];
+        var allUpcoming = [];
+        var blocks = seasonResults.map(function (seasonData) {
+          var teamsMap = {};
+          seasonData.teams.forEach(function (t) { teamsMap[t.id] = t; });
 
-        // Build team map for jersey colors and name resolution
-        _teamsMap = {};
-        teams.forEach(function (t) { _teamsMap[t.id] = t; });
+          seasonData.games.forEach(function (g) {
+            var ht = teamsMap[g.homeTeamId];
+            var at = teamsMap[g.awayTeamId];
+            if (!g.homeTeamName && ht) g.homeTeamName = ht.name || '';
+            if (!g.awayTeamName && at) g.awayTeamName = at.name || '';
+            g._homeJersey = ht ? (ht.jerseyHome || '') : '';
+            g._awayJersey = at ? (at.jerseyAway || '') : '';
+            g._seasonLabel = formatSeasonLabel(seasonData.season);
+          });
 
-        if (!games || games.length === 0) {
-          upcomingGamesEl.innerHTML = '<p class="text-muted" data-i18n="common.noData">' + I18n.t('common.noData') + '</p>';
-          if (comingEl) comingEl.innerHTML = '<p class="text-muted">' + I18n.t('common.noData') + '</p>';
-          return;
-        }
-
-        // Resolve team names and attach jersey colors
-        games.forEach(function (g) {
-          var ht = _teamsMap[g.homeTeamId];
-          var at = _teamsMap[g.awayTeamId];
-          if (!g.homeTeamName && ht) g.homeTeamName = ht.name || '';
-          if (!g.awayTeamName && at) g.awayTeamName = at.name || '';
-          g._homeJersey = ht ? (ht.jerseyHome || '') : '';
-          g._awayJersey = at ? (at.jerseyAway || '') : '';
+          var minDate = todayYmd();
+          var upcoming = seasonData.games.filter(function (g) { return g.status === 'scheduled' && (!g.date || g.date >= minDate); });
+          upcoming.sort(function (a, b) { return (a.date || '').localeCompare(b.date || '') || (a.time || '').localeCompare(b.time || ''); });
+          var next = upcoming.slice(0, 4);
+          allUpcoming = allUpcoming.concat(next);
+          hiddenCards = hiddenCards.concat(next.slice(0, 3).map(renderUpcomingCard));
+          return renderHomeSeasonBlock(seasonData.season, next.length + ' upcoming', next.length ? next.map(renderComingMatchCard).join('') : '<p class="text-muted">暫無賽事</p>');
         });
 
-        // 篩選未完成比賽，按日期升序，取最近 6 場
-        var upcoming = games.filter(function (g) { return g.status === 'scheduled'; });
-        upcoming.sort(function (a, b) { return (a.date || '').localeCompare(b.date || ''); });
-        var next = upcoming.slice(0, 6);
+        if (comingEl) comingEl.innerHTML = blocks.join('') || '<p class="text-muted">暫無賽事</p>';
+        upcomingGamesEl.innerHTML = hiddenCards.join('') || '<p class="text-muted" data-i18n="common.noData">' + I18n.t('common.noData') + '</p>';
 
-        if (next.length === 0) {
-          upcomingGamesEl.innerHTML = '<p class="text-muted" data-i18n="common.noData">' + I18n.t('common.noData') + '</p>';
-          if (comingEl) comingEl.innerHTML = '<p class="text-muted">暫無賽事</p>';
-          return;
+        allUpcoming.sort(function (a, b) { return (a.date || '').localeCompare(b.date || '') || (a.time || '').localeCompare(b.time || ''); });
+        var firstGame = allUpcoming[0];
+        var metaEl = document.getElementById('hero-meta-text');
+        if (metaEl && firstGame && firstGame.date) {
+          metaEl.textContent = _formatDate(firstGame.date) + ' · ' + (firstGame._seasonLabel || 'Season') + ' · Hong Kong';
         }
-
-        // Render coming matches section with all upcoming games
-        if (comingEl) {
-          comingEl.innerHTML = next.map(renderComingMatchCard).join('');
-          // Update hero meta with first game date
-          var firstGame = next[0];
-          var metaEl = document.getElementById('hero-meta-text');
-          if (metaEl && firstGame.date) {
-            metaEl.textContent = _formatDate(firstGame.date) + ' · Season 2 · Hong Kong';
-          }
-        }
-
-        // Keep hidden upcoming-games-list populated for compatibility
-        upcomingGamesEl.innerHTML = next.map(renderUpcomingCard).join('');
       })
       .catch(function () {
         upcomingGamesEl.innerHTML = '<p class="text-muted">' + I18n.t('error.loadFailed') + ' <button class="btn btn-outline btn-sm" onclick="location.reload()">' + I18n.t('common.retry') + '</button></p>';
+        if (comingEl) comingEl.innerHTML = '<p class="text-muted">' + I18n.t('error.loadFailed') + '</p>';
       });
   }
 
@@ -744,29 +789,26 @@
   }
 
   // --- 球隊排名（需求 3.5）— 從比賽結果前端計算，確保與節分一致 ---
-  function loadStandings() {
+  function loadStandings(seasons) {
     if (!standingsBody) return;
     standingsBody.innerHTML = '<tr><td colspan="8" class="loading" data-i18n="common.loading">' + I18n.t('common.loading') + '</td></tr>';
+    var displaySeasons = (seasons && seasons.length) ? seasons : [currentSeason];
 
-    Promise.all([
-      API.getGames(currentSeasonId),
-      API.getTeams(currentSeasonId)
-    ]).then(function (results) {
-      var games = results[0] || [];
-      var teams = results[1] || [];
-
-      if (teams.length === 0) {
-        standingsBody.innerHTML = '<tr><td colspan="8" class="text-muted" data-i18n="common.noData">' + I18n.t('common.noData') + '</td></tr>';
-        return;
-      }
-
-      var standings = _computeStandings(games, teams);
-      if (standings.length === 0) {
-        standingsBody.innerHTML = '<tr><td colspan="8" class="text-muted" data-i18n="common.noData">' + I18n.t('common.noData') + '</td></tr>';
-        return;
-      }
-
-      standingsBody.innerHTML = renderStandingsRows(standings, teams, games);
+    Promise.all(displaySeasons.map(function (season) {
+      return Promise.all([API.getGames(season.id), API.getTeams(season.id)]).then(function (results) {
+        return { season: season, games: results[0] || [], teams: results[1] || [] };
+      });
+    })).then(function (seasonResults) {
+      var html = seasonResults.map(function (seasonData) {
+        if (seasonData.teams.length === 0) {
+          return '<tr><td colspan="8" class="text-muted">' + escapeHtml(formatSeasonLabel(seasonData.season)) + ' · ' + I18n.t('common.noData') + '</td></tr>';
+        }
+        var standings = _computeStandings(seasonData.games, seasonData.teams);
+        var label = formatSeasonLabel(seasonData.season);
+        var head = '<tr><td colspan="8" style="background:#111;color:#fff;font-weight:900;text-align:left;text-transform:uppercase;letter-spacing:.08em">' + escapeHtml(label + ' · ' + (seasonData.season.name || 'Standings')) + '</td></tr>';
+        return head + renderStandingsRows(standings, seasonData.teams, seasonData.games, seasonData.season);
+      }).join('');
+      standingsBody.innerHTML = html || '<tr><td colspan="8" class="text-muted" data-i18n="common.noData">' + I18n.t('common.noData') + '</td></tr>';
     }).catch(function () {
       standingsBody.innerHTML = '<tr><td colspan="8" class="text-muted">' + I18n.t('error.loadFailed') + '</td></tr>';
     });
@@ -921,8 +963,8 @@
       '</tr>';
   }
 
-  function renderStandingsRows(standings, teams, games) {
-    var context = (typeof SeasonRules !== 'undefined') ? SeasonRules.buildContext(teams || [], games || [], currentSeason || currentSeasonId) : null;
+  function renderStandingsRows(standings, teams, games, season) {
+    var context = (typeof SeasonRules !== 'undefined') ? SeasonRules.buildContext(teams || [], games || [], season || currentSeason || currentSeasonId) : null;
     if (!context || !context.rules.isDivisionRoundRobin) {
       return standings.slice(0, 8).map(function (team, idx) {
         return renderStandingRow(team, idx + 1);
@@ -943,6 +985,92 @@
       html += rows.slice(0, 6).map(function (team, idx) { return renderStandingRow(team, idx + 1); }).join('');
       return html;
     }).join('');
+  }
+
+  function loadHomeLeaderboards(seasons) {
+    if (!homeLeaderboardsEl) return;
+    homeLeaderboardsEl.innerHTML = '<p class="text-muted">' + I18n.t('common.loading') + '</p>';
+    var displaySeasons = (seasons && seasons.length) ? seasons : [currentSeason];
+    var categories = [
+      { key: 'pts', label: 'POINTS', abbr: 'PTS', color: '#cc0000' },
+      { key: 'reb', label: 'REBOUNDS', abbr: 'REB', color: '#1a6fd4' },
+      { key: 'ast', label: 'ASSISTS', abbr: 'AST', color: '#0ea854' },
+      { key: 'stl', label: 'STEALS', abbr: 'STL', color: '#d47a00' },
+      { key: 'blk', label: 'BLOCKS', abbr: 'BLK', color: '#9b27d4' },
+      { key: 'tpm', label: '3-POINTERS', abbr: '3PM', color: '#00aac4' }
+    ];
+
+    Promise.all(displaySeasons.map(function (season) {
+      return Promise.all(categories.map(function (category) {
+        return API.getLeaders(season.id, category.key).then(function (leaders) {
+          return { category: category, leader: normalizeHomeLeader((leaders || [])[0]) };
+        }).catch(function () {
+          return { category: category, leader: null };
+        });
+      })).then(function (leaders) {
+        return { season: season, leaders: leaders };
+      });
+    })).then(function (seasonResults) {
+      homeLeaderboardsEl.innerHTML = seasonResults.map(function (seasonData) {
+        var cards = seasonData.leaders.map(function (item) {
+          return renderHomeLeaderCard(item.category, item.leader);
+        }).join('');
+        return renderHomeSeasonBlock(seasonData.season, '各類別最佳球員', '<div class="home-leaderboard-grid">' + cards + '</div>');
+      }).join('') || '<p class="text-muted">' + I18n.t('common.noData') + '</p>';
+    }).catch(function () {
+      homeLeaderboardsEl.innerHTML = '<p class="text-muted">' + I18n.t('error.loadFailed') + '</p>';
+    });
+  }
+
+  var HOME_SILHOUETTE_SVG = '<svg viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg" fill="white" opacity=".18">'
+    + '<circle cx="50" cy="20" r="15"/>'
+    + '<path d="M30,42 Q18,35 10,12 L17,9 Q22,30 38,46Z"/>'
+    + '<circle cx="10" cy="11" r="10"/>'
+    + '<path d="M70,42 Q75,32 82,18 L89,21 Q84,37 64,47Z"/>'
+    + '<circle cx="90" cy="10" r="10"/>'
+    + '<ellipse cx="50" cy="72" rx="20" ry="28"/>'
+    + '<path d="M30,96 L22,158 L36,158 L50,115 L64,158 L78,158 L70,96Z"/>'
+    + '</svg>';
+
+  function normalizeHomeLeader(leader) {
+    if (!leader) return null;
+    return {
+      playerId: leader.playerId || '',
+      playerName: leader.playerName || leader.player || leader.name || leader.playerId || '—',
+      teamName: leader.teamName || leader.team || '',
+      number: leader.number !== undefined && leader.number !== null ? leader.number : '',
+      photo: leader.leaderPhoto || leader.photo || '',
+      value: leader.value != null ? leader.value : (leader.total != null ? leader.total : 0)
+    };
+  }
+
+  function renderHomeLeaderCard(category, leader) {
+    var value = leader ? Number(leader.value) : 0;
+    var displayValue = leader ? (!isNaN(value) && value % 1 !== 0 ? value.toFixed(1) : String(leader.value)) : '—';
+    var name = leader ? escapeHtml(leader.playerName || '—') : '—';
+    var team = leader ? escapeHtml(leader.teamName || '—') : '—';
+    var jersey = leader && leader.number !== '' ? ' #' + escapeHtml(String(leader.number)) : '';
+    var pid = leader && leader.playerId ? encodeURIComponent(leader.playerId) : '';
+    var photoHtml = leader && leader.photo
+      ? '<img class="sl-photo" src="' + escapeHtml(leader.photo) + '" alt="' + name + '" loading="lazy" onerror="this.style.display=\'none\'">'
+      : HOME_SILHOUETTE_SVG;
+    var cardTag = pid ? 'a' : 'div';
+    var cardHref = pid ? ' href="player.html?id=' + pid + '"' : '';
+    var cardClass = pid ? 'sl-card sl-card-link' : 'sl-card';
+
+    return '<' + cardTag + cardHref + ' class="' + cardClass + '" style="--sl-color:' + category.color + '" role="article" aria-label="' + escapeHtml(category.label) + ' leader">'
+      + '<div class="sl-photo-area">'
+      + photoHtml
+      + '<div class="sl-photo-gradient"></div>'
+      + '<div class="sl-badge">' + escapeHtml(category.abbr) + '</div>'
+      + '<div class="sl-num">' + escapeHtml(displayValue) + '</div>'
+      + '</div>'
+      + '<div class="sl-info">'
+      + '<span class="sl-cat-name">' + escapeHtml(category.label) + '</span>'
+      + '<span class="sl-player-name">' + name + '</span>'
+      + '<span class="sl-team">' + team + jersey + '</span>'
+      + '</div>'
+      + '</' + cardTag + '>';
   }
 
   // --- 最近成就（需求 15.6）---
@@ -994,6 +1122,7 @@
     if (upcomingGamesEl) upcomingGamesEl.innerHTML = noData;
     if (announcementsEl) announcementsEl.innerHTML = noData;
     if (standingsBody) standingsBody.innerHTML = '<tr><td colspan="6" class="text-muted" data-i18n="common.noData">' + I18n.t('common.noData') + '</td></tr>';
+    if (homeLeaderboardsEl) homeLeaderboardsEl.innerHTML = noData;
     if (achievementsEl) achievementsEl.innerHTML = noData;
   }
 
