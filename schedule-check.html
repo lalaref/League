@@ -33,7 +33,15 @@
     .availability-date { color: #e0e0ff; font-size: 12px; font-weight: 700; margin-bottom: 7px; }
     .availability-empty { color: #4ade80; font-size: 11px; }
     .availability-team { display: inline-flex; align-items: center; max-width: 100%; padding: 3px 7px; border-radius: 5px; background: #3b1515; color: #fca5a5; border: 1px solid #7f1d1d; font-size: 11px; margin: 2px 2px 2px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .availability-note { display: block; color: #fb923c; font-size: 10px; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .availability-note { display: block; color: #fb923c; font-size: 11px; line-height: 1.35; margin-top: 4px; white-space: normal; overflow-wrap: anywhere; }
+    .team-notes-box { margin-top: 12px; padding: 12px; background: #111827; border: 1px solid #374151; border-radius: 8px; }
+    .team-notes-box h3 { margin: 0 0 8px; color: #e0e0ff; font-size: 12px; font-weight: 800; }
+    .team-notes-list { display: grid; gap: 8px; }
+    .team-note-item { padding: 8px 10px; background: #0f0f1c; border: 1px solid #2a2a3a; border-radius: 7px; }
+    .team-note-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; color: #a0a0c0; font-size: 10px; font-weight: 700; margin-bottom: 4px; }
+    .team-note-team { color: #fca5a5; }
+    .team-note-text { color: #fb923c; font-size: 12px; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .team-notes-empty { color: #888; font-size: 11px; }
     .admin-note-box { margin-top: 12px; padding: 12px; background: #131322; border: 1px solid #2a2a3a; border-radius: 8px; }
     .admin-note-head { display: flex; justify-content: space-between; gap: 10px; align-items: center; margin-bottom: 7px; }
     .admin-note-head label { color: #e0e0ff; font-size: 12px; font-weight: 700; }
@@ -142,6 +150,10 @@
     <span class="section-note" id="availability-note">Upcoming availability window</span>
   </div>
   <div class="availability-grid" id="availability-grid"></div>
+  <div class="team-notes-box" id="team-notes-box" style="display:none">
+    <h3>Team Notes / 備註</h3>
+    <div class="team-notes-list" id="team-notes-list"></div>
+  </div>
   <div class="admin-note-box">
     <div class="admin-note-head">
       <label for="admin-availability-note">Admin Note</label>
@@ -220,6 +232,8 @@ var divisionBody = document.getElementById('division-body');
 var availabilitySection = document.getElementById('availability-section');
 var availabilityGrid = document.getElementById('availability-grid');
 var availabilityNote = document.getElementById('availability-note');
+var teamNotesBox = document.getElementById('team-notes-box');
+var teamNotesList = document.getElementById('team-notes-list');
 var adminAvailabilityNote = document.getElementById('admin-availability-note');
 var adminNoteStatus = document.getElementById('admin-note-status');
 var nypSection   = document.getElementById('nyp-section');
@@ -277,12 +291,13 @@ function loadSeason(seasonId) {
     apiFetch('schedule', { seasonId: seasonId }),
     apiFetch('teams',    { seasonId: seasonId }),
     safeAvailabilityFetch(seasonId, range.start, range.end),
-    safeAdminNoteFetch(seasonId, range.start, range.end)
+    safeAdminNoteFetch(seasonId, range.start, range.end),
+    safeTeamAvailabilityNotesFetch(seasonId, range.start, range.end)
   ]).then(function(results) {
     var games = (results[0] || []).filter(function(g) { return g.status !== 'cancelled' && g.type !== 'playoff'; });
     var teams = results[1] || [];
     var availability = mergeLocalAvailability(results[2] || [], seasonId, range.start, range.end);
-    renderAvailability(availability, range.start, range.end, seasonId, results[3] || {});
+    renderAvailability(availability, range.start, range.end, seasonId, results[3] || {}, results[4] || []);
     render(games, teams, seasonsById[seasonId] || { id: seasonId, name: seasonSelect.options[seasonSelect.selectedIndex] ? seasonSelect.options[seasonSelect.selectedIndex].textContent : seasonId });
   }).catch(function() {
     loadingMsg.textContent = 'Failed to load data.';
@@ -293,6 +308,14 @@ function safeAvailabilityFetch(seasonId, startDate, endDate) {
   return apiFetch('teamAvailability', { seasonId: seasonId, startDate: startDate, endDate: endDate }).then(function(rows) {
     return Array.isArray(rows) ? rows : [];
   }).catch(function() { return []; });
+}
+
+function safeTeamAvailabilityNotesFetch(seasonId, startDate, endDate) {
+  return apiFetch('teamAvailabilityNotes', { seasonId: seasonId, startDate: startDate, endDate: endDate }).then(function(rows) {
+    return Array.isArray(rows) ? rows : [];
+  }).catch(function() {
+    return [];
+  });
 }
 
 function safeAdminNoteFetch(seasonId, startDate, endDate) {
@@ -344,10 +367,11 @@ function mergeLocalAvailability(rows, seasonId, startDate, endDate) {
   return out;
 }
 
-function renderAvailability(rows, startDate, endDate, seasonId, adminNote) {
+function renderAvailability(rows, startDate, endDate, seasonId, adminNote, teamNotes) {
   availabilityGrid.innerHTML = '';
   availabilityNote.textContent = formatShortDate(startDate) + ' to ' + formatShortDate(endDate);
   loadAdminNote(seasonId, startDate, endDate, adminNote || {});
+  renderTeamAvailabilityNotes(rows || [], teamNotes || []);
   var byDate = {};
   (rows || []).forEach(function(row) {
     var date = row.unavailableDate;
@@ -380,6 +404,69 @@ function renderAvailability(rows, startDate, endDate, seasonId, adminNote) {
     cursor.setDate(cursor.getDate() + 1);
   }
   availabilitySection.style.display = 'block';
+}
+
+function renderTeamAvailabilityNotes(rows, teamNotes) {
+  if (!teamNotesBox || !teamNotesList) return;
+  var byTeam = {};
+  (teamNotes || []).forEach(function(row) {
+    var note = String(row.note || '').trim();
+    if (!note) return;
+    var key = String(row.teamId || row.teamName || note);
+    if (!byTeam[key]) {
+      byTeam[key] = {
+        teamName: row.teamName || row.teamId || 'Team',
+        note: note,
+        dates: []
+      };
+    }
+    if (row.startDate && row.endDate) byTeam[key].dates.push({ start: row.startDate, end: row.endDate });
+  });
+  (rows || []).forEach(function(row) {
+    var note = String(row.note || '').trim();
+    if (!note) return;
+    var key = String(row.teamId || row.teamName || note);
+    if (!byTeam[key]) {
+      byTeam[key] = {
+        teamName: row.teamName || row.teamId || 'Team',
+        note: note,
+        dates: []
+      };
+    }
+    if (row.unavailableDate && byTeam[key].dates.indexOf(row.unavailableDate) === -1) byTeam[key].dates.push(row.unavailableDate);
+  });
+
+  var notes = Object.keys(byTeam).map(function(key) { return byTeam[key]; }).sort(function(a, b) {
+    return String(a.teamName || '').localeCompare(String(b.teamName || ''));
+  });
+
+  teamNotesList.innerHTML = '';
+  if (!notes.length) {
+    teamNotesList.innerHTML = '<span class="team-notes-empty">No team notes for this availability window.</span>';
+    teamNotesBox.style.display = 'block';
+    return;
+  }
+
+  notes.forEach(function(item) {
+    item.dates.sort(function(a, b) {
+      var dateA = typeof a === 'string' ? a : a.start;
+      var dateB = typeof b === 'string' ? b : b.start;
+      return String(dateA || '').localeCompare(String(dateB || ''));
+    });
+    var div = document.createElement('div');
+    div.className = 'team-note-item';
+    div.innerHTML = '<div class="team-note-meta"><span class="team-note-team">' + esc(item.teamName) + '</span><span>' + esc(item.dates.map(formatNoteDate).join(', ')) + '</span></div>'
+      + '<div class="team-note-text">' + esc(item.note) + '</div>';
+    teamNotesList.appendChild(div);
+  });
+  teamNotesBox.style.display = 'block';
+}
+
+function formatNoteDate(value) {
+  if (!value) return '';
+  if (typeof value === 'string') return formatShortDate(value);
+  if (value.start && value.end) return formatShortDate(value.start) + ' to ' + formatShortDate(value.end);
+  return '';
 }
 
 function loadAdminNote(seasonId, startDate, endDate, data) {
