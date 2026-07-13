@@ -22,6 +22,8 @@
   var days = [];
   var rangeStart = '';
   var rangeEnd = '';
+  var openRangeStart = '';
+  var openRangeEnd = '';
   var selected = {};
   var weekdays = ['一', '二', '三', '四', '五'];
   var dayNames = ['日', '一', '二', '三', '四', '五', '六'];
@@ -33,7 +35,9 @@
 
   saveBtn.addEventListener('click', saveAvailability);
   clearBtn.addEventListener('click', function () {
-    selected = {};
+    Object.keys(selected).forEach(function (ymd) {
+      if (isSelectableDate(ymd)) delete selected[ymd];
+    });
     renderCalendar();
     renderSelectedList();
   });
@@ -46,7 +50,7 @@
         currentTeam = data.team;
         buildDays();
         teamNamePill.textContent = '球隊：' + (currentTeam.name || '—');
-        dateRangePill.textContent = '可填報日期：' + formatDisplayDate(rangeStart) + ' 至 ' + formatDisplayDate(rangeEnd);
+        dateRangePill.textContent = '可填報日期：' + formatDisplayDate(openRangeStart) + ' 至 ' + formatDisplayDate(openRangeEnd);
         return loadExistingAvailability();
       })
       .then(function () {
@@ -66,7 +70,7 @@
     return API.getTeamAvailability(currentTeam.seasonId, startDate, endDate)
       .then(function (rows) {
         (rows || []).forEach(function (row) {
-          if (String(row.teamId) === String(currentTeam.id) && row.unavailableDate && isSelectableDate(row.unavailableDate)) {
+          if (String(row.teamId) === String(currentTeam.id) && row.unavailableDate && isDisplayDate(row.unavailableDate)) {
             selected[row.unavailableDate] = true;
             if (row.note && !noteEl.value) noteEl.value = row.note;
           }
@@ -79,17 +83,23 @@
   }
 
   function buildDays() {
-    var start = getNextOpenWindowStart();
-    rangeStart = toYmd(start);
+    var openStart = getNextOpenWindowStart();
+    var displayStart = new Date(openStart);
+    displayStart.setDate(openStart.getDate() - 7);
+
+    rangeStart = toYmd(displayStart);
+    openRangeStart = toYmd(openStart);
     days = [];
-    for (var i = 0; i < 14; i++) {
-      var date = new Date(start);
-      date.setDate(start.getDate() + i);
+    for (var i = 0; i < 21; i++) {
+      var date = new Date(displayStart);
+      date.setDate(displayStart.getDate() + i);
       if (date.getDay() !== 0 && date.getDay() !== 6) {
-        days.push({ date: date, ymd: toYmd(date) });
+        var ymd = toYmd(date);
+        days.push({ date: date, ymd: ymd, selectable: ymd >= openRangeStart });
       }
     }
     rangeEnd = days.length ? days[days.length - 1].ymd : rangeStart;
+    openRangeEnd = rangeEnd;
   }
 
   function renderCalendar() {
@@ -104,15 +114,19 @@
     days.forEach(function (item) {
       var btn = document.createElement('button');
       btn.type = 'button';
-      btn.className = 'availability-day' + (selected[item.ymd] ? ' is-selected' : '');
+      btn.className = 'availability-day'
+        + (selected[item.ymd] ? ' is-selected' : '')
+        + (item.selectable ? '' : ' is-closed');
+      btn.disabled = !item.selectable;
       btn.setAttribute('aria-pressed', selected[item.ymd] ? 'true' : 'false');
       btn.setAttribute('data-date', item.ymd);
       btn.innerHTML =
         '<span class="day-number">' + item.date.getDate() + '</span>' +
-        '<span class="day-month">' + (item.date.getMonth() + 1) + '月' + dayNames[item.date.getDay()] + '</span>' +
-        '<span class="day-state">' + (selected[item.ymd] ? '不可出賽' : '可出賽') + '</span>';
+        '<span class="day-month">' + (item.date.getMonth() + 1) + '月</span>' +
+        '<span class="day-state">' + getDayStateText(item) + '</span>';
       btn.addEventListener('click', function () {
         var ymd = this.getAttribute('data-date');
+        if (!isSelectableDate(ymd)) return;
         if (selected[ymd]) delete selected[ymd];
         else selected[ymd] = true;
         renderCalendar();
@@ -128,27 +142,31 @@
     selectedCount.textContent = dates.length ? '已選擇 ' + dates.length + ' 日' : '尚未選擇日期';
     dates.forEach(function (ymd) {
       var li = document.createElement('li');
-      li.innerHTML = '<span>' + formatDisplayDate(ymd) + '</span><button type="button" aria-label="移除 ' + ymd + '" data-date="' + ymd + '">×</button>';
-      li.querySelector('button').addEventListener('click', function () {
-        delete selected[this.getAttribute('data-date')];
-        renderCalendar();
-        renderSelectedList();
-      });
+      if (isSelectableDate(ymd)) {
+        li.innerHTML = '<span>' + formatDisplayDate(ymd) + '</span><button type="button" aria-label="移除 ' + ymd + '" data-date="' + ymd + '">×</button>';
+        li.querySelector('button').addEventListener('click', function () {
+          delete selected[this.getAttribute('data-date')];
+          renderCalendar();
+          renderSelectedList();
+        });
+      } else {
+        li.innerHTML = '<span>' + formatDisplayDate(ymd) + '</span><span class="selected-status">不可出賽</span>';
+      }
       selectedList.appendChild(li);
     });
   }
 
   function saveAvailability() {
-    var dates = getSelectedDates();
+    var dates = getSelectedEditableDates();
     saveBtn.disabled = true;
     saveBtn.textContent = '儲存中...';
     API.saveTeamAvailability(token, dates, noteEl.value.trim(), currentTeam.captain || currentTeam.name)
       .then(function () {
-        saveLocalBackup(dates);
+        saveLocalBackup(getSelectedDates());
         showSaveMsg('已儲存，管理員可在 Schedule Check 查看。', 'success');
       })
       .catch(function (err) {
-        saveLocalBackup(dates);
+        saveLocalBackup(getSelectedDates());
         showSaveMsg((err.message || '暫時未能連接伺服器') + '。已暫存在此裝置，請稍後再提交一次。', 'error');
       })
       .finally(function () {
@@ -159,6 +177,10 @@
 
   function getSelectedDates() {
     return Object.keys(selected).sort();
+  }
+
+  function getSelectedEditableDates() {
+    return getSelectedDates().filter(isSelectableDate);
   }
 
   function localKey() {
@@ -190,7 +212,7 @@
     var local = store[currentTeam.seasonId + ':' + currentTeam.id];
     if (!local) return;
     (local.unavailableDates || []).forEach(function (date) {
-      if (isSelectableDate(date)) selected[date] = true;
+      if (isDisplayDate(date)) selected[date] = true;
     });
     if (local.note && !noteEl.value) noteEl.value = local.note;
   }
@@ -229,7 +251,16 @@
   }
 
   function isSelectableDate(ymd) {
+    return days.some(function (item) { return item.ymd === ymd && item.selectable; });
+  }
+
+  function isDisplayDate(ymd) {
     return days.some(function (item) { return item.ymd === ymd; });
+  }
+
+  function getDayStateText(item) {
+    if (item.selectable) return selected[item.ymd] ? '不可出賽' : '可出賽';
+    return selected[item.ymd] ? '不可出賽' : '可出賽';
   }
 
   function formatDisplayDate(ymd) {
