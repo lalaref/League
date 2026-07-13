@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="css/admin.css">
     <style>
         .availability-layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: var(--spacing-xl); align-items: start; }
-        .availability-calendar { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
+        .availability-calendar { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
         .availability-weekday { color: var(--color-text-secondary); font-size: var(--font-size-xs); font-weight: var(--font-weight-bold); text-align: center; padding: 0 2px 4px; }
         .availability-day { border: 1px solid var(--color-border); background: var(--color-surface); border-radius: var(--radius-md); min-height: 88px; padding: 10px; color: var(--color-text); text-align: left; cursor: pointer; transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast); }
         .availability-day:hover { border-color: var(--color-secondary); box-shadow: var(--shadow-sm); }
@@ -124,6 +124,6 @@
     <script src="js/utils.js?v=20260410"></script>
     <script src="js/api.js?v=20260629"></script>
     <script src="js/navigation.js?v=20260409"></script>
-    <script src="js/team-availability.js?v=20260629"></script>
+    <script src="js/team-availability.js?v=20260713-weekdays"></script>
 </body>
 </html>
