@@ -256,7 +256,7 @@
     var name = season && season.name ? season.name : label;
     return '<div class="home-season-block">'
       + '<div class="home-season-head">'
-      + '<div class="home-season-title">' + escapeHtml(label) + ' · ' + escapeHtml(name) + '</div>'
+      + '<div class="home-season-title"><span class="home-season-label">' + escapeHtml(label) + '</span> · <span class="home-season-name">' + escapeHtml(name) + '</span></div>'
       + '<div class="home-season-meta">' + escapeHtml(meta || '') + '</div>'
       + '</div>'
       + bodyHtml
@@ -805,7 +805,8 @@
         }
         var standings = _computeStandings(seasonData.games, seasonData.teams);
         var label = formatSeasonLabel(seasonData.season);
-        var head = '<tr><td colspan="8" style="background:#111;color:#fff;font-weight:900;text-align:left;text-transform:uppercase;letter-spacing:.08em">' + escapeHtml(label + ' · ' + (seasonData.season.name || 'Standings')) + '</td></tr>';
+        var seasonName = seasonData.season.name || 'Standings';
+        var head = '<tr><td colspan="8" style="background:#111;color:#fff;font-weight:900;text-align:left;text-transform:uppercase;letter-spacing:.08em"><span class="home-season-label">' + escapeHtml(label) + '</span> · <span class="home-season-name">' + escapeHtml(seasonName) + '</span></td></tr>';
         return head + renderStandingsRows(standings, seasonData.teams, seasonData.games, seasonData.season);
       }).join('');
       standingsBody.innerHTML = html || '<tr><td colspan="8" class="text-muted" data-i18n="common.noData">' + I18n.t('common.noData') + '</td></tr>';
