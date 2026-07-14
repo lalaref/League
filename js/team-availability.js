@@ -13,6 +13,7 @@
   var selectedList = document.getElementById('selected-list');
   var selectedCount = document.getElementById('selected-count');
   var noteEl = document.getElementById('availability-note');
+  var savedNotePreview = document.getElementById('saved-note-preview');
   var saveBtn = document.getElementById('btn-save-availability');
   var clearBtn = document.getElementById('btn-clear-availability');
   var teamNamePill = document.getElementById('team-name-pill');
@@ -67,19 +68,59 @@
   function loadExistingAvailability() {
     var startDate = rangeStart;
     var endDate = rangeEnd;
-    return API.getTeamAvailability(currentTeam.seasonId, startDate, endDate)
-      .then(function (rows) {
-        (rows || []).forEach(function (row) {
-          if (String(row.teamId) === String(currentTeam.id) && row.unavailableDate && isDisplayDate(row.unavailableDate)) {
-            selected[row.unavailableDate] = true;
-            if (row.note && !noteEl.value) noteEl.value = row.note;
-          }
-        });
-        mergeLocalBackup();
-      })
-      .catch(function () {
-        mergeLocalBackup();
+    return Promise.all([
+      safeLoadAvailabilityRows(startDate, endDate),
+      safeLoadTeamNoteRows(startDate, endDate)
+    ]).then(function (results) {
+      var rows = results[0] || [];
+      var noteRows = results[1] || [];
+      rows.forEach(function (row) {
+        if (String(row.teamId) === String(currentTeam.id) && row.unavailableDate && isDisplayDate(row.unavailableDate)) {
+          selected[row.unavailableDate] = true;
+          if (row.note && !noteEl.value) noteEl.value = row.note;
+        }
       });
+      noteRows.forEach(function (row) {
+        if (String(row.teamId) === String(currentTeam.id) && row.note) {
+          noteEl.value = row.note;
+        }
+      });
+      mergeLocalBackup();
+      updateSavedNotePreview();
+    }).catch(function () {
+      mergeLocalBackup();
+      updateSavedNotePreview();
+    });
+  }
+
+  function safeLoadAvailabilityRows(startDate, endDate) {
+    return API.getTeamAvailability(currentTeam.seasonId, startDate, endDate).catch(function () {
+      return [];
+    });
+  }
+
+  function safeLoadTeamNoteRows(startDate, endDate) {
+    return API.getTeamAvailabilityNotes(currentTeam.seasonId, startDate, endDate).then(function (rows) {
+      return (rows || []).filter(function (row) {
+        return String(row.teamId) === String(currentTeam.id);
+      }).sort(function (a, b) {
+        return String(a.updatedAt || a.startDate || '').localeCompare(String(b.updatedAt || b.startDate || ''));
+      });
+    }).catch(function () {
+      return [];
+    });
+  }
+
+  function updateSavedNotePreview() {
+    if (!savedNotePreview) return;
+    var note = noteEl.value.trim();
+    if (!note) {
+      savedNotePreview.hidden = true;
+      savedNotePreview.innerHTML = '';
+      return;
+    }
+    savedNotePreview.innerHTML = '<strong>已儲存備註</strong>' + escapeHtml(note);
+    savedNotePreview.hidden = false;
   }
 
   function buildDays() {
@@ -171,6 +212,7 @@
         saveLocalBackup(getSelectedDates());
         renderCalendar();
         renderSelectedList();
+        updateSavedNotePreview();
         showSaveMsg('已儲存，管理員可在 Schedule Check 查看。', 'success');
       })
       .catch(function (err) {
@@ -235,6 +277,15 @@
       if (isDisplayDate(date)) selected[date] = true;
     });
     if (local.note && !noteEl.value) noteEl.value = local.note;
+  }
+
+  function escapeHtml(str) {
+    return String(str || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
   }
 
   function showError(msg) {

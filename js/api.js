@@ -208,6 +208,13 @@ var API = (function () {
     if (endDate) params.endDate = endDate;
     return get('teamAvailability', params);
   }
+  function getTeamAvailabilityNotes(seasonId, startDate, endDate) {
+    var params = {};
+    if (seasonId) params.seasonId = seasonId;
+    if (startDate) params.startDate = startDate;
+    if (endDate) params.endDate = endDate;
+    return get('teamAvailabilityNotes', params);
+  }
 
   // --- POST 便捷方法 ---
 
@@ -252,6 +259,7 @@ var API = (function () {
     getPlayers: getPlayers,
     getGames: getGames,
     getTeamAvailability: getTeamAvailability,
+    getTeamAvailabilityNotes: getTeamAvailabilityNotes,
     submitBoxScore: submitBoxScore,
     updateBoxScore: updateBoxScore,
     submitShotLocation: submitShotLocation,
