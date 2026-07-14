@@ -84,15 +84,17 @@
 
   function buildDays() {
     var openStart = getNextOpenWindowStart();
-    var displayStart = new Date(openStart);
-    displayStart.setDate(openStart.getDate() - 7);
+    var displayStart = getCurrentWeekStart();
+    var displayEnd = new Date(openStart);
+    displayEnd.setDate(openStart.getDate() + 13);
 
     rangeStart = toYmd(displayStart);
     openRangeStart = toYmd(openStart);
     days = [];
-    for (var i = 0; i < 21; i++) {
+    for (var i = 0; ; i++) {
       var date = new Date(displayStart);
       date.setDate(displayStart.getDate() + i);
+      if (date > displayEnd) break;
       if (date.getDay() !== 0 && date.getDay() !== 6) {
         var ymd = toYmd(date);
         days.push({ date: date, ymd: ymd, selectable: ymd >= openRangeStart });
@@ -265,6 +267,15 @@
     } else {
       start.setDate(today.getDate() + daysUntilNextMonday + 7);
     }
+    return start;
+  }
+
+  function getCurrentWeekStart() {
+    var today = new Date();
+    today.setHours(0, 0, 0, 0);
+    var start = new Date(today);
+    var daysSinceMonday = (today.getDay() + 6) % 7;
+    start.setDate(today.getDate() - daysSinceMonday);
     return start;
   }
 
