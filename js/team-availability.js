@@ -117,8 +117,11 @@
       btn.className = 'availability-day'
         + (selected[item.ymd] ? ' is-selected' : '')
         + (item.selectable ? '' : ' is-closed');
-      btn.disabled = !item.selectable;
       btn.setAttribute('aria-pressed', selected[item.ymd] ? 'true' : 'false');
+      if (!item.selectable) {
+        btn.setAttribute('aria-disabled', 'true');
+        btn.tabIndex = -1;
+      }
       btn.setAttribute('data-date', item.ymd);
       btn.innerHTML =
         '<span class="day-number">' + item.date.getDate() + '</span>' +
@@ -161,8 +164,11 @@
     saveBtn.disabled = true;
     saveBtn.textContent = '儲存中...';
     API.saveTeamAvailability(token, dates, noteEl.value.trim(), currentTeam.captain || currentTeam.name)
-      .then(function () {
+      .then(function (data) {
+        syncEditableSelection((data && data.unavailableDates) || dates);
         saveLocalBackup(getSelectedDates());
+        renderCalendar();
+        renderSelectedList();
         showSaveMsg('已儲存，管理員可在 Schedule Check 查看。', 'success');
       })
       .catch(function (err) {
@@ -181,6 +187,18 @@
 
   function getSelectedEditableDates() {
     return getSelectedDates().filter(isSelectableDate);
+  }
+
+  function syncEditableSelection(savedDates) {
+    var saved = {};
+    (savedDates || []).forEach(function (ymd) {
+      if (isSelectableDate(ymd)) saved[ymd] = true;
+    });
+    days.forEach(function (item) {
+      if (!item.selectable) return;
+      if (saved[item.ymd]) selected[item.ymd] = true;
+      else delete selected[item.ymd];
+    });
   }
 
   function localKey() {
