@@ -16,8 +16,10 @@
         .availability-day { border: 1px solid var(--color-border); background: var(--color-surface); border-radius: var(--radius-md); min-height: 88px; padding: 10px; color: var(--color-text); text-align: left; cursor: pointer; transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast); }
         .availability-day:hover { border-color: var(--color-secondary); box-shadow: var(--shadow-sm); }
         .availability-day.is-selected { background: #fff0f0; border-color: var(--color-secondary); box-shadow: inset 0 0 0 2px rgba(204, 0, 0, 0.14); }
-        .availability-day.is-closed { cursor: not-allowed; }
-        .availability-day.is-closed:hover { border-color: var(--color-border); box-shadow: none; }
+        .availability-day.is-closed { background: #fff7ed; border-color: #fb923c; cursor: not-allowed; }
+        .availability-day.is-closed:hover { border-color: #fb923c; box-shadow: none; }
+        .availability-day.is-closed .day-number { color: #c2410c; }
+        .availability-day.is-closed .day-state { background: #fed7aa; color: #9a3412; }
         .availability-day.is-empty { visibility: hidden; pointer-events: none; }
         .day-number { display: block; font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); color: var(--color-primary); line-height: 1; }
         .day-month { display: block; font-size: var(--font-size-xs); color: var(--color-text-secondary); margin-top: 4px; }
@@ -27,6 +29,8 @@
         .selected-list li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 10px; background: var(--color-bg); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-size: var(--font-size-sm); }
         .selected-list button { border: 0; background: transparent; color: var(--color-secondary); font-size: 20px; line-height: 1; cursor: pointer; min-width: 28px; min-height: 28px; }
         .selected-status { color: var(--color-text-secondary); font-size: var(--font-size-xs); font-weight: var(--font-weight-bold); white-space: nowrap; }
+        .saved-note-preview { margin-top: 8px; padding: 8px 10px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-bg); color: var(--color-text); font-size: var(--font-size-sm); line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; }
+        .saved-note-preview strong { display: block; color: var(--color-primary); font-size: var(--font-size-xs); margin-bottom: 3px; }
         .availability-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: var(--spacing-md); }
         .availability-pill { display: inline-flex; align-items: center; min-height: 28px; padding: 4px 10px; border: 1px solid var(--color-border); border-radius: var(--radius-full); background: var(--color-surface); color: var(--color-text-secondary); font-size: var(--font-size-sm); }
         .availability-actions { display: flex; flex-wrap: wrap; gap: var(--spacing-sm); align-items: center; margin-top: var(--spacing-lg); }
@@ -91,6 +95,7 @@
                             <div class="admin-form-group" style="margin-top:var(--spacing-lg)">
                                 <label for="availability-note" class="admin-label">備註</label>
                                 <textarea id="availability-note" class="admin-textarea" rows="3" maxlength="500" placeholder="如有特別時段限制，可在此補充。"></textarea>
+                                <div id="saved-note-preview" class="saved-note-preview" hidden></div>
                             </div>
                             <div class="availability-actions">
                                 <button id="btn-save-availability" class="btn btn-primary">儲存不可出賽日期</button>
@@ -125,8 +130,8 @@
 
     <script>document.getElementById('current-year').textContent = new Date().getFullYear();</script>
     <script src="js/utils.js?v=20260410"></script>
-    <script src="js/api.js?v=20260629"></script>
+    <script src="js/api.js?v=20260714-availability-notes"></script>
     <script src="js/navigation.js?v=20260409"></script>
-    <script src="js/team-availability.js?v=20260714-current-week-full"></script>
+    <script src="js/team-availability.js?v=20260714-locked-orange"></script>
 </body>
 </html>
