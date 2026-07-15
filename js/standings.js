@@ -204,12 +204,13 @@
     ]).then(function (results) {
       var games = results[0] || [];
       var teams = results[1] || [];
+      var seasonGames = filterSeasonGames(games);
       if (teams.length === 0) {
         tbody.innerHTML = '<tr><td colspan="8" class="text-muted">' + I18n.t('common.noData') + '</td></tr>';
         return;
       }
-      var standings = _computeStandings(games, teams);
-      tbody.innerHTML = _renderStandingsRows(standings, teams, games);
+      var standings = _computeStandings(seasonGames, teams);
+      tbody.innerHTML = _renderStandingsRows(standings, teams, seasonGames);
     }).catch(function () {
       tbody.innerHTML = '<tr><td colspan="8" class="text-muted">' + I18n.t('error.loadFailed')
         + ' <button class="btn btn-outline btn-sm" onclick="location.reload()">' + I18n.t('common.retry') + '</button></td></tr>';
@@ -227,6 +228,7 @@
     var allResults = [];
     games.forEach(function (g) {
       if (g.status !== 'completed') return;
+      if (String(g.type || '').toLowerCase() === 'playoff') return;
       if (!table[g.homeTeamId] || !table[g.awayTeamId]) return;
       var hasQ = g.homeQ1 || g.homeQ2 || g.homeQ3 || g.homeQ4 || g.awayQ1 || g.awayQ2 || g.awayQ3 || g.awayQ4;
       var hs, as;
@@ -254,6 +256,12 @@
     });
     // Tie-breaker: point differential
     return rows;
+  }
+
+  function filterSeasonGames(games) {
+    return (games || []).filter(function (game) {
+      return game && String(game.type || '').toLowerCase() !== 'playoff';
+    });
   }
 
   function _renderStandingsRows(standings, teams, games) {
