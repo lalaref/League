@@ -1,5 +1,5 @@
 /**
- * ALL-IN Basketball League — 歷史檔案頁面
+ * ALL-IN Basketball League — Hall of Fame 冠軍球隊頁面
  * 以賽季為單位列出已完結賽季，顯示排名、獎項、季後賽結果、回顧及跨賽季趨勢
  * 需求：16.2, 16.3, 16.4, 16.5, 16.6
  */
@@ -12,6 +12,10 @@
   var seasonListSection = document.getElementById('archive-season-list');
   var seasonCardsContainer = document.getElementById('season-cards');
   var detailSection = document.getElementById('archive-detail');
+  var detailTitle = document.getElementById('archive-detail-title');
+  var finalSection = document.getElementById('archive-final-section');
+  var finalResult = document.getElementById('archive-final-result');
+  var awardsSection = document.getElementById('archive-awards-section');
   var awardsGrid = document.getElementById('awards-grid');
   var standingsLoading = document.getElementById('archive-standings-loading');
   var standingsWrapper = document.getElementById('archive-standings-wrapper');
@@ -29,6 +33,8 @@
   var completedSeasons = [];
   /** @type {Object} 各賽季的 archive 數據快取 */
   var archiveCache = {};
+  var teamCache = {};
+  var pendingHallLoads = {};
 
   // --- 獎項圖示對照 ---
   var AWARD_ICONS = {
@@ -78,6 +84,8 @@
         }
       })
       .catch(function () {
+        completedSeasons = [];
+        populateSeasonSelect();
         showSection('empty');
       });
   }
@@ -123,7 +131,7 @@
   // =============================================
   function showSection(which) {
     emptySection.style.display = which === 'empty' ? '' : 'none';
-    seasonListSection.style.display = which === 'list' ? '' : 'none';
+    seasonListSection.style.display = (which === 'list' || which === 'detail') ? '' : 'none';
     detailSection.style.display = which === 'detail' ? '' : 'none';
     trendsSection.style.display = (which === 'list' && completedSeasons.length > 0) ? '' : 'none';
   }
@@ -135,62 +143,201 @@
     if (!seasonCardsContainer) return;
     seasonCardsContainer.innerHTML = '';
 
-    completedSeasons.forEach(function (season) {
-      var card = document.createElement('div');
-      card.className = 'archive-season-card game-card';
+    var seasons = completedSeasons.slice().sort(compareSeasonsByYearDesc);
+    seasons.forEach(function (season, index) {
+      var archive = archiveCache[season.id] || null;
+      var teams = teamCache[season.id] || [];
+      var championName = getChampionName(archive);
+      var championTeam = findChampionTeam(championName, teams);
+      var championLogo = getChampionLogo(championTeam);
+      var year = getSeasonYear(season);
+
+      var card = document.createElement('article');
+      card.className = 'archive-season-card hof-card';
+      if (seasonSelect && seasonSelect.value === season.id) card.classList.add('hof-card--active');
+      if (!championName) card.classList.add('hof-card--loading');
       card.setAttribute('role', 'button');
       card.setAttribute('tabindex', '0');
-      card.setAttribute('aria-label', season.name);
+      card.setAttribute('aria-label', championName ? (year + ' ' + championName) : season.name);
 
-      var nameEl = document.createElement('h3');
-      nameEl.className = 'archive-season-card-name';
-      nameEl.textContent = season.name;
+      var queue = document.createElement('div');
+      queue.className = 'hof-queue-marker';
+      queue.innerHTML = '<span class="hof-queue-dot"></span><span class="hof-queue-line"></span>';
+
+      var flagWrap = document.createElement('div');
+      flagWrap.className = 'hof-flag-wrap';
+
+      var rod = document.createElement('div');
+      rod.className = 'hof-flag-rod';
+
+      var flag = document.createElement('div');
+      flag.className = 'hof-flag';
+
+      var flagTop = document.createElement('div');
+      flagTop.className = 'hof-flag-top';
+      flagTop.textContent = 'ALL-IN BASKETBALL LEAGUE';
+
+      var watermark = document.createElement('div');
+      watermark.className = 'hof-allin-watermark';
+      watermark.innerHTML = '<img src="images/logo.png" alt="">';
+
+      var logoBox = document.createElement('div');
+      logoBox.className = 'hof-team-photo';
+      var img = document.createElement('img');
+      img.src = championLogo;
+      img.alt = championName ? championName : 'ALL-IN Basketball League';
+      img.loading = index < 2 ? 'eager' : 'lazy';
+      img.onerror = function () { img.src = 'images/logo.png'; };
+      logoBox.appendChild(img);
+
+      var yearEl = document.createElement('div');
+      yearEl.className = 'hof-year';
+      yearEl.textContent = year;
+
+      var championLabel = document.createElement('div');
+      championLabel.className = 'hof-champion-label';
+      championLabel.textContent = 'CHAMPIONS';
+
+      var championEl = document.createElement('h3');
+      championEl.className = 'archive-season-card-name hof-team-name';
+      championEl.textContent = championName || I18n.t('common.loading');
+
+      var seasonEl = document.createElement('p');
+      seasonEl.className = 'archive-season-card-date hof-season-name';
+      seasonEl.textContent = getSeasonShortName(season);
 
       var dateEl = document.createElement('p');
-      dateEl.className = 'archive-season-card-date text-muted';
+      dateEl.className = 'archive-season-card-date hof-season-date';
       var dateText = '';
       if (season.startDate) dateText += season.startDate;
-      if (season.endDate) dateText += ' — ' + season.endDate;
+      if (season.endDate) dateText += ' - ' + season.endDate;
       dateEl.textContent = dateText;
 
-      card.appendChild(nameEl);
-      card.appendChild(dateEl);
+      flag.appendChild(flagTop);
+      flag.appendChild(watermark);
+      flag.appendChild(logoBox);
+      flag.appendChild(yearEl);
+      flag.appendChild(championLabel);
+      flag.appendChild(championEl);
+      flag.appendChild(seasonEl);
+      flag.appendChild(dateEl);
+      flagWrap.appendChild(rod);
+      flagWrap.appendChild(flag);
+      card.appendChild(queue);
+      card.appendChild(flagWrap);
 
-      // 如果有快取的 archive 數據，顯示冠軍
-      if (archiveCache[season.id] && archiveCache[season.id].awards) {
-        var champ = archiveCache[season.id].awards.champion;
-        if (champ) {
-          var champEl = document.createElement('p');
-          champEl.className = 'archive-season-card-champion';
-          champEl.innerHTML = AWARD_ICONS.champion + ' ' + escapeHtml(champ);
-          card.appendChild(champEl);
-        }
+      var seasonPhoto = getFirstPhoto(archive && archive.photos);
+      if (seasonPhoto) {
+        var badge = document.createElement('div');
+        badge.className = 'hof-team-badge hof-team-badge--photo';
+        var badgeImg = document.createElement('img');
+        badgeImg.src = seasonPhoto;
+        badgeImg.alt = championName ? championName + ' team photo' : 'Team photo';
+        badgeImg.loading = 'lazy';
+        badgeImg.onerror = function () { badge.style.display = 'none'; };
+        badge.appendChild(badgeImg);
+        card.appendChild(badge);
       }
 
       card.addEventListener('click', function () {
         if (seasonSelect) seasonSelect.value = season.id;
         onSeasonChange();
+        scrollToDetail();
       });
       card.addEventListener('keydown', function (e) {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           if (seasonSelect) seasonSelect.value = season.id;
           onSeasonChange();
+          scrollToDetail();
         }
       });
 
       seasonCardsContainer.appendChild(card);
     });
 
-    // 預載入各賽季 archive 數據以顯示冠軍
-    completedSeasons.forEach(function (season) {
-      if (!archiveCache[season.id]) {
-        API.getArchive(season.id).then(function (data) {
-          archiveCache[season.id] = data;
-          renderSeasonCards();
-        }).catch(function () { /* 靜默 */ });
-      }
+    seasons.forEach(loadHallOfFameCardData);
+  }
+
+  function loadHallOfFameCardData(season) {
+    if (!season || pendingHallLoads[season.id]) return;
+    var needsArchive = !archiveCache[season.id];
+    var needsTeams = !teamCache[season.id];
+    if (!needsArchive && !needsTeams) return;
+    pendingHallLoads[season.id] = true;
+
+    Promise.all([
+      needsArchive ? API.getArchive(season.id).catch(function () { return null; }) : Promise.resolve(archiveCache[season.id]),
+      needsTeams ? API.getTeams(season.id).catch(function () { return []; }) : Promise.resolve(teamCache[season.id])
+    ]).then(function (results) {
+      if (results[0]) archiveCache[season.id] = results[0];
+      teamCache[season.id] = results[1] || [];
+      pendingHallLoads[season.id] = false;
+      renderSeasonCards();
+    }).catch(function () {
+      pendingHallLoads[season.id] = false;
     });
+  }
+
+  function compareSeasonsByYearDesc(a, b) {
+    return getSeasonSortValue(b) - getSeasonSortValue(a);
+  }
+
+  function getSeasonSortValue(season) {
+    var value = Date.parse(season.endDate || season.startDate || '');
+    if (!isNaN(value)) return value;
+    var year = parseInt(getSeasonYear(season), 10);
+    return isNaN(year) ? 0 : year;
+  }
+
+  function getSeasonYear(season) {
+    var source = season.endDate || season.startDate || season.name || '';
+    var match = String(source).match(/(20\d{2})/);
+    return match ? match[1] : '2026';
+  }
+
+  function getSeasonShortName(season) {
+    var name = String((season && season.name) || '');
+    var match = name.match(/season\s*([0-9]+)/i);
+    if (match) return 'SEASON ' + match[1];
+    return name ? name.toUpperCase() : '';
+  }
+
+  function getChampionName(archive) {
+    if (!archive || !archive.awards) return '';
+    return archive.awards.champion || '';
+  }
+
+  function findChampionTeam(championName, teams) {
+    if (!championName || !teams || !teams.length) return null;
+    var normalizedChampion = normalizeName(championName);
+    for (var i = 0; i < teams.length; i++) {
+      var teamName = teams[i].name || teams[i].teamName || '';
+      if (normalizeName(teamName) === normalizedChampion) return teams[i];
+    }
+    for (var j = 0; j < teams.length; j++) {
+      var candidate = normalizeName(teams[j].name || teams[j].teamName || '');
+      if (candidate && (normalizedChampion.indexOf(candidate) !== -1 || candidate.indexOf(normalizedChampion) !== -1)) return teams[j];
+    }
+    return null;
+  }
+
+  function getChampionLogo(championTeam) {
+    return (championTeam && championTeam.logo) || 'images/logo.png';
+  }
+
+  function getFirstPhoto(photos) {
+    if (!photos) return '';
+    var list = typeof photos === 'string' ? photos.split(',') : (Array.isArray(photos) ? photos : []);
+    for (var i = 0; i < list.length; i++) {
+      var url = String(list[i] || '').trim();
+      if (url) return url;
+    }
+    return '';
+  }
+
+  function normalizeName(name) {
+    return String(name || '').toLowerCase().replace(/\s+/g, '').trim();
   }
 
   // =============================================
@@ -199,12 +346,15 @@
   function loadArchiveDetail(seasonId) {
     // 重置 UI
     awardsGrid.innerHTML = '';
+    if (awardsSection) awardsSection.style.display = 'none';
     standingsTbody.innerHTML = '';
     standingsLoading.style.display = '';
     standingsWrapper.style.display = 'none';
     playoffsEmpty.style.display = 'none';
     playoffsBracketWrapper.style.display = 'none';
     summarySection.style.display = 'none';
+    finalSection.style.display = 'none';
+    finalResult.innerHTML = '';
     photosSection.style.display = 'none';
     trendsSection.style.display = 'none';
 
@@ -215,16 +365,43 @@
     archivePromise
       .then(function (data) {
         archiveCache[seasonId] = data;
+        renderSeasonCards();
+        renderDetailTitle(data, seasonId);
+        renderSummary(data.summary, data, seasonId);
+        renderFinalResult(data.playoffs);
+        renderPlayoffs(data.playoffs);
         renderAwards(data.awards || data);
         renderStandings(data.standings || []);
-        renderPlayoffs(data.playoffs);
-        renderSummary(data.summary);
         renderPhotos(data.photos);
       })
       .catch(function () {
         standingsLoading.style.display = 'none';
         awardsGrid.innerHTML = '<p class="text-muted">' + I18n.t('error.loadFailed') + '</p>';
       });
+  }
+
+  function scrollToDetail() {
+    if (!detailSection) return;
+    window.setTimeout(function () {
+      detailSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 80);
+  }
+
+  function renderDetailTitle(data, seasonId) {
+    if (!detailTitle) return;
+    var season = findSeasonById(seasonId);
+    var champion = getChampionName(data);
+    var parts = [];
+    if (getSeasonShortName(season)) parts.push(getSeasonShortName(season));
+    if (champion) parts.push(champion + ' Champions');
+    detailTitle.textContent = parts.length ? parts.join(' - ') : 'Hall of Fame Detail';
+  }
+
+  function findSeasonById(seasonId) {
+    for (var i = 0; i < completedSeasons.length; i++) {
+      if (completedSeasons[i].id === seasonId) return completedSeasons[i];
+    }
+    return null;
   }
 
   // =============================================
@@ -266,6 +443,7 @@
       card.appendChild(info);
       awardsGrid.appendChild(card);
     });
+    if (awardsSection) awardsSection.style.display = awardsGrid.children.length > 0 ? '' : 'none';
   }
 
   // =============================================
@@ -295,6 +473,57 @@
   // =============================================
   // 渲染季後賽對陣結果
   // =============================================
+  function renderFinalResult(playoffs) {
+    if (!finalSection || !finalResult) return;
+    var game = findFinalGame(playoffs);
+    if (!game) {
+      finalSection.style.display = 'none';
+      finalResult.innerHTML = '';
+      return;
+    }
+
+    var homeName = game.homeTeamName || game.homeTeam || game.team1 || 'TBD';
+    var awayName = game.awayTeamName || game.awayTeam || game.team2 || 'TBD';
+    var homeScore = game.homeScore != null ? game.homeScore : '-';
+    var awayScore = game.awayScore != null ? game.awayScore : '-';
+    var isCompleted = game.status === 'completed' || (game.homeScore != null && game.awayScore != null);
+    var homeWinner = isCompleted && Number(game.homeScore) > Number(game.awayScore);
+    var awayWinner = isCompleted && Number(game.awayScore) > Number(game.homeScore);
+
+    finalSection.style.display = '';
+    finalResult.innerHTML =
+      '<div class="archive-final-team ' + (homeWinner ? 'archive-final-team--winner' : '') + '">' +
+        '<span class="archive-final-team-name">' + escapeHtml(homeName) + '</span>' +
+        '<strong class="archive-final-score">' + escapeHtml(String(homeScore)) + '</strong>' +
+      '</div>' +
+      '<div class="archive-final-versus">FINAL</div>' +
+      '<div class="archive-final-team ' + (awayWinner ? 'archive-final-team--winner' : '') + '">' +
+        '<span class="archive-final-team-name">' + escapeHtml(awayName) + '</span>' +
+        '<strong class="archive-final-score">' + escapeHtml(String(awayScore)) + '</strong>' +
+      '</div>';
+  }
+
+  function findFinalGame(playoffs) {
+    if (!playoffs) return null;
+    if (playoffs.brackets && playoffs.brackets.length) {
+      var championBracket = playoffs.brackets.filter(function (bracket) {
+        var key = String(bracket.id || bracket.name || '').toLowerCase();
+        return key.indexOf('champ') !== -1 || key.indexOf('冠軍') !== -1;
+      })[0] || playoffs.brackets[0];
+      var rounds = championBracket.rounds || [];
+      for (var i = rounds.length - 1; i >= 0; i--) {
+        if (rounds[i].games && rounds[i].games.length) return rounds[i].games[0];
+      }
+    }
+    if (playoffs.rounds && playoffs.rounds.length) {
+      for (var j = playoffs.rounds.length - 1; j >= 0; j--) {
+        var games = playoffs.rounds[j].games || playoffs.rounds[j];
+        if (Array.isArray(games) && games.length) return games[0];
+      }
+    }
+    return null;
+  }
+
   function renderPlayoffs(playoffs) {
     var hasBrackets = playoffs && playoffs.brackets && playoffs.brackets.length > 0;
     var hasRounds   = playoffs && playoffs.rounds   && playoffs.rounds.length   > 0;
@@ -413,13 +642,36 @@
   // =============================================
   // 渲染賽季回顧文字
   // =============================================
-  function renderSummary(summary) {
+  function renderSummary(summary, data, seasonId) {
+    if (!summary) summary = buildChampionStory(data, seasonId);
     if (!summary) {
       summarySection.style.display = 'none';
       return;
     }
     summarySection.style.display = '';
     summaryText.textContent = summary;
+  }
+
+  function buildChampionStory(data, seasonId) {
+    var champion = getChampionName(data);
+    if (!champion) return '';
+    var season = findSeasonById(seasonId);
+    var seasonName = getSeasonShortName(season) || (season && season.name) || '';
+    var finalGame = findFinalGame(data && data.playoffs);
+    var story = champion + ' became ' + (seasonName ? seasonName + ' ' : '') + 'champions.';
+    if (finalGame) {
+      var homeName = finalGame.homeTeamName || finalGame.homeTeam || finalGame.team1 || '';
+      var awayName = finalGame.awayTeamName || finalGame.awayTeam || finalGame.team2 || '';
+      var homeScore = finalGame.homeScore != null ? finalGame.homeScore : '';
+      var awayScore = finalGame.awayScore != null ? finalGame.awayScore : '';
+      if (homeName && awayName && homeScore !== '' && awayScore !== '') {
+        story += ' Final: ' + homeName + ' ' + homeScore + ' - ' + awayScore + ' ' + awayName + '.';
+      }
+    }
+    if (data && data.awards && data.awards.playoffMvp) {
+      story += ' Playoff MVP: ' + data.awards.playoffMvp + '.';
+    }
+    return story;
   }
 
   // =============================================
