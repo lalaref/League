@@ -2126,9 +2126,10 @@ img {
     overflow: hidden;
     border: 1px solid rgba(244, 213, 158, 0.36);
     border-radius: 6px 6px 18px 18px;
+    background-color: #067044;
     background:
         linear-gradient(90deg, rgba(255,255,255,0.08), transparent 16%, rgba(0,0,0,0.13) 50%, transparent 82%, rgba(255,255,255,0.08)),
-        linear-gradient(180deg, #0f7b52 0%, #06583c 100%);
+        linear-gradient(180deg, #07814f 0%, #045f3f 100%);
     color: #f3d7a1;
     text-align: center;
     box-shadow: 0 16px 36px rgba(0, 0, 0, 0.26);
@@ -2310,12 +2311,12 @@ img {
 .hof-empty-card {
     max-width: 330px;
     margin: 0 auto var(--spacing-lg);
-    opacity: 0.76;
+    opacity: 1;
 }
 
 .hof-empty-flag {
     min-height: 420px;
-    filter: grayscale(0.25);
+    filter: none;
 }
 
 .hof-empty-flag .hof-team-photo img {
