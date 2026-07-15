@@ -983,7 +983,7 @@
         return (a.teamName || '').localeCompare(b.teamName || '');
       });
       var html = '<tr><td colspan="8" style="background:#111827;color:#fff;font-weight:900;text-align:left;text-transform:uppercase;letter-spacing:.06em">' + escapeHtml(division) + ' · ' + rows.length + ' teams</td></tr>';
-      html += rows.slice(0, 6).map(function (team, idx) { return renderStandingRow(team, idx + 1); }).join('');
+      html += rows.map(function (team, idx) { return renderStandingRow(team, idx + 1); }).join('');
       return html;
     }).join('');
   }

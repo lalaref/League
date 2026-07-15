@@ -116,7 +116,42 @@ var SeasonRules = (function () {
       return (context ? context.teamIds : []).filter(function (id) { return id !== teamId; });
     }
     var division = context.teamDivisions[teamId] || 'Unassigned';
-    return (context.divisions[division] || []).filter(function (id) { return id !== teamId; });
+    var divisionTeamIds = (context.divisions[division] || []).slice();
+    var opponentIds = divisionTeamIds.filter(function (id) { return id !== teamId; });
+    if (context.rules.expectedGames && opponentIds.length > context.rules.expectedGames) {
+      return getPresetOpponentIds(teamId, opponentIds, context.rules.expectedGames, context);
+    }
+    return opponentIds;
+  }
+
+  function getPresetOpponentIds(teamId, opponentIds, expectedGames, context) {
+    var skipId = chooseSkippedOpponentId(teamId, opponentIds, context);
+    return opponentIds.filter(function (id) { return id !== skipId; }).slice(0, expectedGames);
+  }
+
+  function chooseSkippedOpponentId(teamId, opponentIds, context) {
+    var team = context.teamMeta[teamId] || {};
+    var teamReturning = isReturningTeam(team);
+    var sorted = opponentIds.slice().sort(function (a, b) {
+      var aTeam = context.teamMeta[a] || {};
+      var bTeam = context.teamMeta[b] || {};
+      var aScore = skippedOpponentScore(teamReturning, aTeam);
+      var bScore = skippedOpponentScore(teamReturning, bTeam);
+      if (bScore !== aScore) return bScore - aScore;
+      return (context.teamMap[a] || '').localeCompare(context.teamMap[b] || '');
+    });
+    return sorted[0];
+  }
+
+  function skippedOpponentScore(teamReturning, opponent) {
+    var opponentReturning = isReturningTeam(opponent);
+    if (teamReturning && opponentReturning) return 10;
+    if (teamReturning || opponentReturning) return 3;
+    return 0;
+  }
+
+  function isReturningTeam(team) {
+    return !!(team && String(team.parentTeamId || '').trim());
   }
 
   function getDivisionNames(context) {
