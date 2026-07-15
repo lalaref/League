@@ -2006,15 +2006,240 @@ img {
 }
 
 
-/* --- 歷史檔案頁面 --- */
+/* --- Hall of Fame 冠軍球隊頁面 --- */
 .archive-season-cards {
+    position: relative;
     display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--spacing-md);
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--spacing-xl);
+    align-items: start;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.hof-queue-head {
+    margin-bottom: var(--spacing-xl);
+}
+
+.hof-queue-head .section-title {
+    margin-bottom: var(--spacing-xs);
 }
 
 .archive-season-card {
+    position: relative;
     cursor: pointer;
+}
+
+.hof-card {
+    min-height: 520px;
+    padding-left: 28px;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.hof-card:hover .hof-flag,
+.hof-card:focus-visible .hof-flag {
+    transform: translateY(-4px);
+    box-shadow: 0 22px 50px rgba(0, 0, 0, 0.34);
+}
+
+.hof-card:focus-visible {
+    outline: 2px solid var(--color-secondary);
+    outline-offset: 6px;
+}
+
+.hof-card--active .hof-flag {
+    border-color: rgba(245, 158, 11, 0.85);
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.18), 0 22px 50px rgba(0, 0, 0, 0.34);
+}
+
+.hof-card--active .hof-queue-dot {
+    background: #fcd34d;
+    box-shadow: 0 0 0 6px rgba(245, 158, 11, 0.24);
+}
+
+.hof-queue-marker {
+    position: absolute;
+    top: 20px;
+    left: 0;
+    bottom: -24px;
+    width: 18px;
+}
+
+.hof-queue-dot {
+    position: absolute;
+    top: 9px;
+    left: 2px;
+    width: 14px;
+    height: 14px;
+    border-radius: 999px;
+    background: var(--color-secondary);
+    box-shadow: 0 0 0 5px rgba(245, 158, 11, 0.16);
+}
+
+.hof-queue-line {
+    position: absolute;
+    top: 34px;
+    bottom: 0;
+    left: 8px;
+    width: 2px;
+    background: linear-gradient(180deg, rgba(245, 158, 11, 0.65), rgba(245, 158, 11, 0));
+}
+
+.hof-flag-wrap {
+    position: relative;
+    max-width: 330px;
+    margin: 0 auto;
+    padding-top: 12px;
+}
+
+.hof-flag-rod {
+    position: relative;
+    z-index: 2;
+    height: 12px;
+    margin: 0 -14px 0 -8px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #8b5a2b, #e7c991 22%, #9a6a32 52%, #f2d7a4 78%, #805226);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
+}
+
+.hof-flag-rod::before,
+.hof-flag-rod::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    background: radial-gradient(circle at 35% 35%, #f4ddb1, #9a6a32 70%);
+    transform: translateY(-50%);
+}
+
+.hof-flag-rod::before { left: -14px; }
+.hof-flag-rod::after { right: -14px; }
+
+.hof-flag {
+    position: relative;
+    min-height: 470px;
+    padding: 34px 24px 28px;
+    overflow: hidden;
+    border: 1px solid rgba(244, 213, 158, 0.36);
+    border-radius: 6px 6px 18px 18px;
+    background:
+        linear-gradient(90deg, rgba(255,255,255,0.08), transparent 16%, rgba(0,0,0,0.13) 50%, transparent 82%, rgba(255,255,255,0.08)),
+        linear-gradient(180deg, #0f7b52 0%, #06583c 100%);
+    color: #f3d7a1;
+    text-align: center;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.26);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.hof-flag::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(90deg, rgba(255,255,255,0.045) 0 1px, transparent 1px 10px);
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+.hof-flag::after {
+    content: '';
+    position: absolute;
+    left: 16%;
+    right: 16%;
+    bottom: -18px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.16);
+    filter: blur(10px);
+}
+
+.hof-flag-top,
+.hof-allin-watermark,
+.hof-year,
+.hof-champion-label,
+.hof-team-name,
+.hof-season-name,
+.hof-season-date,
+.hof-team-photo {
+    position: relative;
+    z-index: 1;
+}
+
+.hof-flag-top {
+    display: flex;
+    justify-content: center;
+    margin-bottom: var(--spacing-xl);
+    font-size: 0.72rem;
+    font-weight: var(--font-weight-bold);
+    letter-spacing: 0.16em;
+    color: rgba(243, 215, 161, 0.82);
+    text-align: center;
+}
+
+.hof-allin-watermark {
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    bottom: 22px;
+    z-index: 0;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.hof-allin-watermark img {
+    width: min(285px, 92%);
+    max-height: 230px;
+    object-fit: contain;
+    opacity: 0.1;
+    filter: grayscale(1) contrast(1.2);
+}
+
+.hof-team-photo {
+    width: min(170px, 64%);
+    aspect-ratio: 1;
+    margin: 0 auto var(--spacing-lg);
+    padding: 10px;
+    border: 2px solid rgba(243, 215, 161, 0.75);
+    border-radius: 999px;
+    background: rgba(3, 34, 24, 0.72);
+    box-shadow: inset 0 0 0 6px rgba(243, 215, 161, 0.1), 0 12px 28px rgba(0, 0, 0, 0.22);
+}
+
+.hof-team-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: inherit;
+    background: rgba(255, 255, 255, 0.06);
+    padding: 10px;
+}
+
+.hof-year {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 112px;
+    margin-bottom: var(--spacing-md);
+    padding: 7px 18px;
+    border-top: 2px solid rgba(243, 215, 161, 0.85);
+    border-bottom: 2px solid rgba(243, 215, 161, 0.85);
+    font-size: clamp(1.9rem, 7vw, 2.7rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: 0.04em;
+}
+
+.hof-champion-label {
+    margin-bottom: var(--spacing-xs);
+    font-size: clamp(1.2rem, 4.2vw, 1.7rem);
+    font-weight: var(--font-weight-bold);
+    line-height: 1;
+    letter-spacing: 0.12em;
+    color: #f9ddb0;
 }
 
 .archive-season-card-name {
@@ -2022,6 +2247,80 @@ img {
     font-weight: var(--font-weight-bold);
     color: var(--color-text-inverse);
     margin-bottom: var(--spacing-xs);
+}
+
+.hof-team-name {
+    display: -webkit-box;
+    min-height: 2.45em;
+    margin: 0 auto var(--spacing-md);
+    overflow: hidden;
+    color: #f9ddb0;
+    font-size: clamp(1.45rem, 5vw, 2.25rem);
+    line-height: 1.08;
+    text-transform: uppercase;
+    line-clamp: 2;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.hof-season-name {
+    margin: 0 0 var(--spacing-xs);
+    color: rgba(255, 255, 255, 0.74);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.hof-season-date {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.54);
+}
+
+.hof-team-badge {
+    position: absolute;
+    right: 6px;
+    bottom: 22px;
+    z-index: 3;
+    width: 64px;
+    height: 64px;
+    padding: 7px;
+    border: 1px solid rgba(243, 215, 161, 0.7);
+    border-radius: 999px;
+    background: #10141c;
+    box-shadow: var(--shadow-md);
+}
+
+.hof-team-badge img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+}
+
+.hof-team-badge--photo img {
+    object-fit: cover;
+    padding: 0;
+}
+
+.hof-card--loading .hof-team-photo,
+.hof-card--loading .hof-team-name {
+    opacity: 0.72;
+}
+
+.hof-empty-card {
+    max-width: 330px;
+    margin: 0 auto var(--spacing-lg);
+    opacity: 0.76;
+}
+
+.hof-empty-flag {
+    min-height: 420px;
+    filter: grayscale(0.25);
+}
+
+.hof-empty-flag .hof-team-photo img {
+    object-fit: contain;
+    padding: 12px;
 }
 
 .archive-season-card-date {
@@ -2033,6 +2332,119 @@ img {
     font-size: var(--font-size-sm);
     color: var(--color-accent);
     margin-top: var(--spacing-sm);
+}
+
+.hof-detail-head {
+    margin-bottom: var(--spacing-xl);
+    padding-top: var(--spacing-sm);
+    border-top: 1px solid var(--color-border);
+}
+
+.hof-detail-kicker {
+    display: block;
+    margin-bottom: var(--spacing-xs);
+    color: var(--color-secondary);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.archive-final-section {
+    margin-bottom: var(--spacing-2xl);
+}
+
+.archive-final-result {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    gap: var(--spacing-md);
+    align-items: stretch;
+}
+
+.archive-final-team,
+.archive-final-versus {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 92px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+}
+
+.archive-final-team {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-md);
+}
+
+.archive-final-team--winner {
+    border-color: rgba(245, 158, 11, 0.72);
+    background: linear-gradient(180deg, rgba(245, 158, 11, 0.14), var(--color-surface));
+}
+
+.archive-final-team-name {
+    max-width: 100%;
+    overflow: hidden;
+    color: var(--color-text-inverse);
+    font-weight: var(--font-weight-semibold);
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.archive-final-score {
+    color: var(--color-secondary);
+    font-size: var(--font-size-2xl);
+    line-height: 1;
+}
+
+.archive-final-versus {
+    min-width: 84px;
+    padding: 0 var(--spacing-sm);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: 0.16em;
+}
+
+@media (max-width: 720px) {
+    .archive-season-cards {
+        gap: var(--spacing-lg);
+    }
+
+    .hof-card {
+        min-height: 480px;
+        padding-left: 22px;
+    }
+
+    .hof-flag-wrap {
+        max-width: 300px;
+    }
+
+    .hof-flag {
+        min-height: 430px;
+        padding: 28px 18px 24px;
+    }
+
+    .hof-flag-top {
+        font-size: 0.64rem;
+    }
+
+    .hof-team-badge {
+        width: 56px;
+        height: 56px;
+        right: 0;
+    }
+
+    .archive-final-result {
+        grid-template-columns: 1fr;
+    }
+
+    .archive-final-versus {
+        min-height: auto;
+        padding: var(--spacing-sm);
+    }
 }
 
 /* 獎項網格 */
