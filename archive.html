@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="ALL-IN Basketball League - 歷史檔案及賽季回顧">
+    <meta name="description" content="ALL-IN Basketball League - Hall of Fame 冠軍球隊及賽季回顧">
     <meta name="theme-color" content="#1a1a2e">
         <!-- Google tag (gtag.js) -->
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-S64W9C7CYZ"></script>
@@ -14,8 +14,8 @@
 
             gtag('config', 'G-S64W9C7CYZ');
         </script>
-    <title>歷史檔案 — ALL-IN Basketball League</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <title>Hall of Fame 冠軍球隊 — ALL-IN Basketball League</title>
+    <link rel="stylesheet" href="css/styles.css?v=20260715-hof-detail-flow">
     <link rel="stylesheet" href="css/responsive.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 </head>
@@ -60,7 +60,7 @@
                             <li role="none"><a href="player.html" class="nav-link" role="menuitem">球員</a></li>
                             <li role="none"><a href="standings.html" class="nav-link" role="menuitem">排行榜</a></li>
                             <li role="none"><a href="rules.html" class="nav-link" role="menuitem">比賽章程</a></li>
-                            <li role="none"><a href="archive.html" class="nav-link active" role="menuitem">歷史檔案</a></li>
+                            <li role="none"><a href="archive.html" class="nav-link active" role="menuitem">Hall of Fame 冠軍球隊</a></li>
                             <li role="none"><a href="season2.html" class="nav-link" role="menuitem" style="color:#f59e0b;font-weight:700;">SEASON 2</a></li>
                         </ul>
                     </nav>
@@ -77,9 +77,9 @@
     <!-- 主要內容區域 -->
     <main class="main-content">
         <!-- 頁面標題及賽季選擇 -->
-        <section class="section hero-section" aria-label="歷史檔案標題">
+        <section class="section hero-section" aria-label="Hall of Fame 冠軍球隊標題">
             <div class="container">
-                <h1 class="hero-title" data-i18n="archive.title">歷史檔案</h1>
+                <h1 class="hero-title" data-i18n="archive.title">Hall of Fame 冠軍球隊</h1>
                 <div class="standings-controls">
                     <label for="archive-season-select" class="sr-only" data-i18n="archive.selectSeason">選擇歷史賽季</label>
                     <select id="archive-season-select" class="h2h-select" aria-label="選擇歷史賽季" data-i18n-attr="aria-label:archive.selectSeason">
@@ -92,13 +92,31 @@
         <!-- 無已完結賽季提示 -->
         <section id="archive-empty" class="section" style="display:none;">
             <div class="container text-center">
+                <div class="hof-empty-card" aria-hidden="true">
+                    <div class="hof-flag-wrap">
+                        <div class="hof-flag-rod"></div>
+                        <div class="hof-flag hof-empty-flag">
+                            <div class="hof-flag-top">ALL-IN BASKETBALL LEAGUE</div>
+                            <div class="hof-allin-watermark"><img src="images/logo.png" alt=""></div>
+                            <div class="hof-team-photo"><img src="images/logo.png" alt=""></div>
+                            <div class="hof-year">2026</div>
+                            <div class="hof-champion-label">CHAMPIONS</div>
+                            <h3 class="archive-season-card-name hof-team-name">TEAM NAME</h3>
+                            <p class="archive-season-card-date hof-season-name">SEASON 1</p>
+                        </div>
+                    </div>
+                </div>
                 <p class="text-muted" data-i18n="archive.noCompleted">尚無已完結賽季</p>
             </div>
         </section>
 
-        <!-- 賽季摘要列表（未選擇特定賽季時顯示） -->
-        <section id="archive-season-list" class="section" style="display:none;" aria-label="已完結賽季列表">
+        <!-- 冠軍旗幟年份隊列 -->
+        <section id="archive-season-list" class="section" style="display:none;" aria-label="Hall of Fame 冠軍旗幟年份隊列">
             <div class="container">
+                <div class="hof-queue-head">
+                    <h2 class="section-title">Championship Flags</h2>
+                    <p class="text-muted">按年份排列冠軍球隊，點擊旗幟查看該季故事、決賽、季後賽及完整排名。</p>
+                </div>
                 <div id="season-cards" class="archive-season-cards"></div>
             </div>
         </section>
@@ -106,8 +124,34 @@
         <!-- 選定賽季的詳細檔案 -->
         <section id="archive-detail" class="section" style="display:none;" aria-label="賽季詳細檔案">
             <div class="container">
+                <div class="hof-detail-head">
+                    <span class="hof-detail-kicker">Season Detail</span>
+                    <h2 id="archive-detail-title" class="section-title">Hall of Fame Detail</h2>
+                </div>
+
+                <!-- 冠軍故事 -->
+                <div id="archive-summary-section" class="archive-summary-section" style="display:none;">
+                    <h2 class="section-title">Champion Story</h2>
+                    <div id="archive-summary-text" class="archive-summary-text"></div>
+                </div>
+
+                <!-- 決賽結果 -->
+                <div id="archive-final-section" class="archive-final-section" style="display:none;">
+                    <h2 class="section-title">Final Game Result</h2>
+                    <div id="archive-final-result" class="archive-final-result"></div>
+                </div>
+
+                <!-- 季後賽結果 -->
+                <div class="archive-playoffs-section">
+                    <h2 class="section-title" data-i18n="archive.playoffResults">季後賽結果</h2>
+                    <div id="archive-playoffs-empty" class="text-center text-muted" style="display:none;" data-i18n="schedule.noPlayoffs">尚無季後賽數據</div>
+                    <div id="archive-playoffs-bracket" class="playoff-bracket-wrapper" style="display:none;">
+                        <div id="archive-bracket" class="playoff-bracket" role="img" aria-label="季後賽對陣表"></div>
+                    </div>
+                </div>
+
                 <!-- 獎項區域 -->
-                <div class="archive-awards-section">
+                <div id="archive-awards-section" class="archive-awards-section">
                     <h2 class="section-title" data-i18n="archive.awards">獎項</h2>
                     <div id="awards-grid" class="archive-awards-grid"></div>
                 </div>
@@ -130,21 +174,6 @@
                             <tbody id="archive-standings-tbody"></tbody>
                         </table>
                     </div>
-                </div>
-
-                <!-- 季後賽結果 -->
-                <div class="archive-playoffs-section">
-                    <h2 class="section-title" data-i18n="archive.playoffResults">季後賽結果</h2>
-                    <div id="archive-playoffs-empty" class="text-center text-muted" style="display:none;" data-i18n="schedule.noPlayoffs">尚無季後賽數據</div>
-                    <div id="archive-playoffs-bracket" class="playoff-bracket-wrapper" style="display:none;">
-                        <div id="archive-bracket" class="playoff-bracket" role="img" aria-label="季後賽對陣表"></div>
-                    </div>
-                </div>
-
-                <!-- 賽季回顧 -->
-                <div id="archive-summary-section" class="archive-summary-section" style="display:none;">
-                    <h2 class="section-title" data-i18n="archive.seasonSummary">賽季回顧</h2>
-                    <div id="archive-summary-text" class="archive-summary-text"></div>
                 </div>
 
                 <!-- 精選照片 -->
@@ -195,7 +224,7 @@
     <script src="js/i18n.js?v=20260409"></script>
     <script src="js/navigation.js?v=20260409"></script>
     <script src="js/charts.js"></script>
-    <script src="js/archive.js"></script>
+    <script src="js/archive.js?v=20260715-hof-detail-flow"></script>
     <script>
         I18n.init();
     </script>
