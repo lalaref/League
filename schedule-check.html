@@ -119,7 +119,7 @@
 <a class="back" href="schedule.html">← Back to Schedule</a>
 
 <h1>Schedule Integrity Check</h1>
-<p class="subtitle">Verifies each team follows the selected season format. Season 2 uses 6-team divisions and a single round-robin inside each division.</p>
+<p class="subtitle">Verifies each team follows the selected season format. Season 2 supports 6-7 team divisions while keeping 5 regular-season games per team; not every same-division pair is required.</p>
 
 <div class="controls">
   <select id="season-select"><option value="">Loading…</option></select>
@@ -542,14 +542,20 @@ function render(games, teams, season) {
   if (rules.isDivisionRoundRobin) {
     SeasonRules.getDivisionNames(context).forEach(function(division) {
       var groupSize = (context.divisions[division] || []).length;
-      if (groupSize !== rules.groupSize) {
-        issues.push(division + ': expected ' + rules.groupSize + ' teams, found ' + groupSize + '.');
+      var minSize = rules.groupMinSize || rules.groupSize;
+      var maxSize = rules.groupMaxSize || rules.groupSize;
+      if ((minSize && groupSize < minSize) || (maxSize && groupSize > maxSize)) {
+        issues.push(division + ': expected ' + minSize + '-' + maxSize + ' teams, found ' + groupSize + '.');
       }
     });
     games.forEach(function(g) {
       var homeDivision = context.teamDivisions[g.homeTeamId] || 'Unassigned';
       var awayDivision = context.teamDivisions[g.awayTeamId] || 'Unassigned';
-      if (homeDivision !== awayDivision) {
+      if (homeDivision === awayDivision) return;
+      var homeGroupSize = (context.divisions[homeDivision] || []).length;
+      var awayGroupSize = (context.divisions[awayDivision] || []).length;
+      var crossAllowed = homeGroupSize > rules.expectedGames + 1 || awayGroupSize > rules.expectedGames + 1;
+      if (!crossAllowed) {
         issues.push((teamMap[g.homeTeamId] || g.homeTeamId) + ' vs ' + (teamMap[g.awayTeamId] || g.awayTeamId) + ': cross-division game (' + homeDivision + ' / ' + awayDivision + ').');
       }
     });
@@ -614,7 +620,10 @@ function render(games, teams, season) {
       tdTeams.innerHTML = ids.map(function(id) { return '<span class="nyp-opp">' + esc(teamMap[id]) + '</span>'; }).join('');
       tr.appendChild(tdTeams);
       var tdCount = document.createElement('td');
-      tdCount.innerHTML = '<span class="nyp-count ' + (ids.length === rules.groupSize ? 'zero' : 'some') + '">' + ids.length + '/' + rules.groupSize + '</span>';
+      var minSize = rules.groupMinSize || rules.groupSize;
+      var maxSize = rules.groupMaxSize || rules.groupSize;
+      var sizeOk = (!minSize || ids.length >= minSize) && (!maxSize || ids.length <= maxSize);
+      tdCount.innerHTML = '<span class="nyp-count ' + (sizeOk ? 'zero' : 'some') + '">' + ids.length + '/' + minSize + '-' + maxSize + '</span>';
       tr.appendChild(tdCount);
       divisionBody.appendChild(tr);
     });
@@ -651,7 +660,8 @@ function render(games, teams, season) {
     Object.keys(sched).forEach(function(r) {
       sched[r].forEach(function(opp) { playedSet[opp] = true; });
     });
-    var unplayed = SeasonRules.getExpectedOpponentIds(tid, context)
+    var currentTotal = Object.keys(sched).reduce(function(sum, round) { return sum + sched[round].length; }, 0);
+    var unplayed = currentTotal >= rules.expectedGames ? [] : SeasonRules.getExpectedOpponentIds(tid, context)
       .map(function(oid) { return teamMap[oid]; })
       .filter(function(oname) { return !playedSet[oname]; })
       .sort();
