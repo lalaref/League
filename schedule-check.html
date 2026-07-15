@@ -164,7 +164,7 @@
 </div>
 
 <div class="nyp-section" id="nyp-section" style="display:none">
-  <h2>Remaining Division Opponents per Team</h2>
+  <h2>Remaining Preset Division Opponents per Team</h2>
   <div class="nyp-table-wrap">
     <table class="nyp-table" id="nyp-table">
       <thead>
@@ -192,7 +192,7 @@
 
 <div class="loading-msg" id="loading-msg">Loading…</div>
 
-<script src="js/season-rules.js?v=20260706-s1default"></script>
+<script src="js/season-rules.js?v=20260715-s2-preset-five"></script>
 <script>
 var BASE_URL = 'https://script.google.com/macros/s/AKfycbzQkJC-1ZIAnsbXyC0M6_Hwh53pvKMuZ38j_eCIVCN4Pm-XwQ-0HguJR20RjGIRl_4P/exec';
 var API_KEY = 'my-allin-secret-2026';
@@ -661,9 +661,11 @@ function render(games, teams, season) {
       sched[r].forEach(function(opp) { playedSet[opp] = true; });
     });
     var currentTotal = Object.keys(sched).reduce(function(sum, round) { return sum + sched[round].length; }, 0);
-    var unplayed = currentTotal >= rules.expectedGames ? [] : SeasonRules.getExpectedOpponentIds(tid, context)
+    var remainingSlots = Math.max(0, rules.expectedGames - currentTotal);
+    var unplayed = remainingSlots <= 0 ? [] : SeasonRules.getExpectedOpponentIds(tid, context)
       .map(function(oid) { return teamMap[oid]; })
       .filter(function(oname) { return !playedSet[oname]; })
+      .slice(0, remainingSlots)
       .sort();
     var tr = document.createElement('tr');
     var tdName = document.createElement('td');
