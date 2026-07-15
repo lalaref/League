@@ -1731,6 +1731,20 @@ img {
     overflow: hidden;
 }
 
+.playoff-matchup-label {
+    display: inline-flex;
+    align-items: center;
+    min-height: 22px;
+    padding: 2px 8px;
+    margin: var(--spacing-sm) var(--spacing-md) 0;
+    border-radius: var(--radius-sm);
+    background: #fff7ed;
+    color: #c2410c;
+    border: 1px solid #fed7aa;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+}
+
 .playoff-team {
     display: flex;
     align-items: center;
@@ -1787,6 +1801,208 @@ img {
     border-left: 3px solid var(--color-accent);
     background: rgba(255,255,255,0.03);
     border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.nba-bracket-card {
+    background: #070707;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    color: #fff;
+    overflow: hidden;
+    box-shadow: 0 18px 46px rgba(0, 0, 0, 0.18);
+}
+
+.nba-bracket-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px 20px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.nba-bracket-kicker {
+    display: block;
+    margin-bottom: 5px;
+    color: #cc0000;
+    font-family: 'Raleway', sans-serif;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+}
+
+.nba-bracket-head h3 {
+    margin: 0;
+    color: #fff;
+    font-family: 'Raleway', sans-serif;
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: 0;
+    text-transform: uppercase;
+}
+
+.nba-bracket-link {
+    flex-shrink: 0;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 12px;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.nba-bracket-link:hover { color: #fff; }
+
+.nba-bracket-season {
+    padding: 10px 20px 0;
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.team-standings-bracket {
+    margin-top: 22px;
+}
+
+.nba-bracket-group {
+    padding-top: 16px;
+}
+
+.nba-bracket-group-title {
+    margin: 0 20px;
+    padding: 8px 11px;
+    border-left: 3px solid #cc0000;
+    background: rgba(255, 255, 255, 0.04);
+    color: #fff;
+    font-family: 'Raleway', sans-serif;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.nba-bracket-scroll {
+    overflow-x: auto;
+    padding: 18px 20px 22px;
+}
+
+.nba-bracket-grid {
+    display: grid;
+    gap: 28px;
+    min-width: 520px;
+    align-items: center;
+}
+
+.nba-bracket-round {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.nba-bracket-round:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: -19px;
+    width: 20px;
+    height: 2px;
+    background: rgba(204, 0, 0, 0.72);
+}
+
+.nba-bracket-round-title {
+    color: rgba(255, 255, 255, 0.48);
+    font-family: 'Raleway', sans-serif;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+}
+
+.nba-bracket-games {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 18px;
+}
+
+.nba-bracket-game {
+    position: relative;
+    background: #111;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-left: 3px solid #cc0000;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.nba-bracket-game::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: -14px;
+    width: 14px;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.24);
+}
+
+.nba-bracket-round:last-child .nba-bracket-game::after { content: none; }
+
+.nba-bracket-label {
+    padding: 7px 10px 0;
+    color: #f59e0b;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.nba-bracket-team {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 42px;
+    align-items: center;
+    gap: 10px;
+    min-height: 38px;
+    padding: 8px 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.62);
+}
+
+.nba-bracket-team span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.nba-bracket-team strong {
+    color: rgba(255, 255, 255, 0.48);
+    font-family: 'Raleway', sans-serif;
+    font-size: 15px;
+    font-weight: 900;
+    text-align: right;
+}
+
+.nba-bracket-team.is-winner {
+    background: rgba(204, 0, 0, 0.16);
+    color: #fff;
+}
+
+.nba-bracket-team.is-winner strong { color: #fff; }
+
+.nba-bracket-state {
+    padding: 24px;
+    color: rgba(255, 255, 255, 0.58);
+    text-align: center;
+    font-size: 13px;
+    background: #070707;
+    border-radius: 8px;
+}
+
+@media (max-width: 640px) {
+    .nba-bracket-head { align-items: flex-start; flex-direction: column; }
+    .nba-bracket-grid { min-width: 470px; gap: 22px; }
+    .nba-bracket-scroll { padding: 16px 14px 18px; }
 }
 
 
