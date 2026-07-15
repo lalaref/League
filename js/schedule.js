@@ -407,6 +407,7 @@
 
     var homeName = game.homeTeamName || game.home || game.homeTeam || game.team1 || 'TBD';
     var awayName = game.awayTeamName || game.away || game.awayTeam || game.team2 || 'TBD';
+    var label = game.label || game.notes || '';
     var homeScore = game.homeScore != null ? game.homeScore : '';
     var awayScore = game.awayScore != null ? game.awayScore : '';
     var isCompleted = game.status === 'completed' || (homeScore !== '' && awayScore !== '');
@@ -415,6 +416,7 @@
     var awayWin = isCompleted && Number(awayScore) > Number(homeScore);
 
     card.innerHTML =
+      (label ? '<div class="playoff-matchup-label">' + _escHtml(label) + '</div>' : '') +
       '<div class="playoff-team' + (homeWin ? ' playoff-team--winner' : '') + '">' +
         '<span class="playoff-team-name">' + _escHtml(homeName) + '</span>' +
         '<span class="playoff-team-score">' + _escHtml(String(homeScore)) + '</span>' +
