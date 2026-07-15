@@ -3,7 +3,8 @@ var SeasonRules = (function () {
 
   var DEFAULT_EXPECTED_GAMES = 7;
   var SEASON1_ID = '845ca40d-4346-448f-bbe2-06b4104bdbda';
-  var SEASON2_GROUP_SIZE = 6;
+  var SEASON2_GROUP_MIN_SIZE = 6;
+  var SEASON2_GROUP_MAX_SIZE = 7;
   var SEASON2_EXPECTED_GAMES = 5;
 
   function getRules(season) {
@@ -15,14 +16,18 @@ var SeasonRules = (function () {
       return {
         isDivisionRoundRobin: true,
         expectedGames: SEASON2_EXPECTED_GAMES,
-        groupSize: SEASON2_GROUP_SIZE,
-        label: 'Season 2 Division single round-robin'
+        groupSize: SEASON2_GROUP_MAX_SIZE,
+        groupMinSize: SEASON2_GROUP_MIN_SIZE,
+        groupMaxSize: SEASON2_GROUP_MAX_SIZE,
+        label: 'Season 2 Division schedule, 5 games/team'
       };
     }
     return {
       isDivisionRoundRobin: false,
       expectedGames: minGames || DEFAULT_EXPECTED_GAMES,
       groupSize: null,
+      groupMinSize: null,
+      groupMaxSize: null,
       label: 'Single round-robin'
     };
   }
