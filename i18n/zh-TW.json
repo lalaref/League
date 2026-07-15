@@ -5,7 +5,7 @@
     "teams": "球隊",
     "players": "球員",
     "standings": "排行榜",
-    "archive": "歷史檔案",
+    "archive": "Hall of Fame 冠軍球隊",
     "admin": "管理後台",
     "lang": "EN",
     "langSwitch": "切換至英文"
@@ -126,7 +126,7 @@
     "roundFinal": "決賽"
   },
   "archive": {
-    "title": "歷史檔案",
+    "title": "Hall of Fame 冠軍球隊",
     "champion": "冠軍",
     "mvp": "季後賽 MVP",
     "scoringLeader": "得分王",

@@ -5,7 +5,7 @@
     "teams": "Teams",
     "players": "Players",
     "standings": "Standings",
-    "archive": "Archive",
+    "archive": "Hall of Fame",
     "admin": "Admin",
     "lang": "中",
     "langSwitch": "Switch to Chinese"
@@ -126,7 +126,7 @@
     "roundFinal": "Finals"
   },
   "archive": {
-    "title": "Season Archive",
+    "title": "Hall of Fame",
     "champion": "Champion",
     "mvp": "Playoff MVP",
     "scoringLeader": "Scoring Leader",
