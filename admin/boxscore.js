@@ -315,6 +315,7 @@
     renderDesktopTable(); renderMobileCards();
     desktopWrapper.hidden = false; mobileWrapper.hidden = false; actionsEl.hidden = false;
     if (!existingBoxScore) { submitBtn.hidden = false; updateBtn.hidden = true; }
+    updateTeamPointTotals();
     updateSwipeHint();
     refreshAddPlayerDropdown();
   }
@@ -322,9 +323,12 @@
   function renderDesktopTable() {
     boxscoreBody.innerHTML = '';
     var curSide = '';
+    var curTeamName = '';
     allPlayers.forEach(function (p, idx) {
       if (p.side !== curSide) {
+        if (curSide) appendTeamTotalRow(curSide, curTeamName);
         curSide = p.side;
+        curTeamName = p.teamName;
         var hr = document.createElement('tr'); hr.className = 'admin-team-header-row';
         var hc = document.createElement('td'); hc.colSpan = STAT_FIELDS.length + 2;
         hc.className = 'admin-team-header';
@@ -335,7 +339,7 @@
       var nc = document.createElement('td'); nc.className = 'admin-player-name';
       nc.textContent = '#' + (p.number != null && p.number !== '' ? p.number : '?') + ' ' + p.name; tr.appendChild(nc);
       STAT_FIELDS.forEach(function (f) {
-        var td = document.createElement('td'); td.className = 'admin-input-cell';
+        var td = document.createElement('td'); td.className = 'admin-input-cell stat-col-' + f;
         var inp = document.createElement('input');
         inp.type = 'text'; inp.inputMode = 'numeric'; inp.pattern = '[0-9]*';
         inp.className = 'admin-stat-input'; inp.dataset.playerIndex = idx; inp.dataset.field = f;
@@ -343,6 +347,7 @@
         inp.setAttribute('aria-label', p.name + ' ' + f.toUpperCase());
         inp.placeholder = '0';
         if (p.stats && p.stats[f] !== undefined && p.stats[f] !== '' && p.stats[f] !== 0) inp.value = p.stats[f];
+        if (f === 'pts') inp.addEventListener('input', updateTeamPointTotals);
         td.appendChild(inp);
         var err = document.createElement('span'); err.className = 'admin-field-error';
         err.id = 'err-' + idx + '-' + f; err.setAttribute('role','alert'); err.hidden = true;
@@ -358,10 +363,39 @@
       rtd.appendChild(rbtn); tr.appendChild(rtd);
       boxscoreBody.appendChild(tr);
     });
+    if (curSide) appendTeamTotalRow(curSide, curTeamName);
+  }
+
+  function appendTeamTotalRow(side, teamName) {
+    var tr = document.createElement('tr');
+    tr.className = 'admin-team-total-row';
+    var label = document.createElement('td');
+    label.className = 'admin-team-total-label';
+    label.textContent = (teamName || '') + ' 總得分';
+    tr.appendChild(label);
+    STAT_FIELDS.forEach(function (f) {
+      var td = document.createElement('td');
+      td.className = 'admin-team-total-cell stat-col-' + f;
+      if (f === 'pts') {
+        var span = document.createElement('span');
+        span.className = 'admin-team-total-points';
+        span.id = 'team-total-pts-' + side;
+        span.textContent = '0';
+        td.appendChild(span);
+      }
+      tr.appendChild(td);
+    });
+    tr.appendChild(document.createElement('td'));
+    boxscoreBody.appendChild(tr);
   }
 
   function renderMobileCards() {
     mobileWrapper.innerHTML = ''; mobileCurrentIndex = 0;
+    var summary = document.createElement('div');
+    summary.className = 'admin-mobile-team-totals';
+    summary.innerHTML = '<div><span>主隊總得分</span><strong id="mobile-total-pts-home">0</strong></div>'
+      + '<div><span>客隊總得分</span><strong id="mobile-total-pts-away">0</strong></div>';
+    mobileWrapper.appendChild(summary);
     allPlayers.forEach(function (p, idx) {
       var card = document.createElement('div');
       card.className = 'admin-player-card' + (idx === 0 ? ' active' : '');
@@ -378,7 +412,7 @@
       card.appendChild(hdr);
       var grid = document.createElement('div'); grid.className = 'admin-stat-grid';
       STAT_FIELDS.forEach(function (f) {
-        var item = document.createElement('div'); item.className = 'admin-stat-item';
+        var item = document.createElement('div'); item.className = 'admin-stat-item stat-col-' + f;
         var lbl = document.createElement('label'); lbl.className = 'admin-stat-label';
         lbl.setAttribute('for','mob-'+idx+'-'+f); lbl.textContent = f.toUpperCase(); item.appendChild(lbl);
         var inp = document.createElement('input');
@@ -387,6 +421,7 @@
         inp.dataset.playerIndex = idx; inp.dataset.field = f;
         inp.placeholder = '0';
         if (p.stats && p.stats[f] !== undefined && p.stats[f] !== '' && p.stats[f] !== 0) inp.value = p.stats[f];
+        if (f === 'pts') inp.addEventListener('input', updateTeamPointTotals);
         item.appendChild(inp);
         var err = document.createElement('span'); err.className = 'admin-field-error';
         err.id = 'mob-err-'+idx+'-'+f; err.setAttribute('role','alert'); err.hidden = true;
@@ -395,6 +430,31 @@
       card.appendChild(grid); mobileWrapper.appendChild(card);
     });
     setupSwipe();
+  }
+
+  function updateTeamPointTotals() {
+    var totals = { home: 0, away: 0 };
+    allPlayers.forEach(function (p, idx) {
+      var side = p.side === 'away' ? 'away' : 'home';
+      totals[side] += getStatNumeric(idx, 'pts');
+    });
+    setTotalText('team-total-pts-home', totals.home);
+    setTotalText('team-total-pts-away', totals.away);
+    setTotalText('mobile-total-pts-home', totals.home);
+    setTotalText('mobile-total-pts-away', totals.away);
+  }
+
+  function getStatNumeric(idx, field) {
+    var desktop = document.getElementById('stat-' + idx + '-' + field);
+    var mobile = document.getElementById('mob-' + idx + '-' + field);
+    var source = document.activeElement === mobile ? mobile : desktop;
+    if ((!source || source.value === '') && mobile && mobile.value !== '') source = mobile;
+    return source ? (parseInt(source.value, 10) || 0) : 0;
+  }
+
+  function setTotalText(id, value) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = String(value || 0);
   }
 
   function setupSwipe() {
