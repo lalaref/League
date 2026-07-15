@@ -141,6 +141,45 @@
     overflow: hidden;
 }
 
+#boxscore-table th.stat-col-fga,
+#boxscore-table td.stat-col-fga,
+.admin-stat-item.stat-col-fga {
+    background-color: #fff8e6;
+}
+
+#boxscore-table th.stat-col-oreb,
+#boxscore-table td.stat-col-oreb,
+.admin-stat-item.stat-col-oreb {
+    background-color: #eef7ff;
+}
+
+#boxscore-table th.stat-col-dreb,
+#boxscore-table td.stat-col-dreb,
+.admin-stat-item.stat-col-dreb {
+    background-color: #f0fbf3;
+}
+
+#boxscore-table th.stat-col-fga,
+#boxscore-table th.stat-col-oreb,
+#boxscore-table th.stat-col-dreb {
+    color: var(--color-primary);
+}
+
+#boxscore-table th.stat-col-pts,
+#boxscore-table td.stat-col-pts,
+.admin-stat-item.stat-col-pts {
+    background-color: #fff1f1;
+}
+
+#boxscore-table td.stat-col-fga .admin-stat-input,
+#boxscore-table td.stat-col-oreb .admin-stat-input,
+#boxscore-table td.stat-col-dreb .admin-stat-input,
+.admin-stat-item.stat-col-fga .admin-stat-input,
+.admin-stat-item.stat-col-oreb .admin-stat-input,
+.admin-stat-item.stat-col-dreb .admin-stat-input {
+    background-color: rgba(255, 255, 255, 0.86);
+}
+
 /* Player name: fixed width; stat cols share remaining space equally */
 #boxscore-table th:first-child,
 #boxscore-table td:first-child {
@@ -167,6 +206,35 @@
     font-size: var(--font-size-sm);
     text-transform: uppercase;
     letter-spacing: 0.05em;
+}
+
+.admin-team-total-row td {
+    background-color: #fafafa;
+    border-top: 2px solid var(--color-border);
+    font-weight: var(--font-weight-bold);
+}
+
+.admin-team-total-label {
+    color: var(--color-text);
+    text-align: right;
+}
+
+.admin-team-total-row td.stat-col-pts {
+    background-color: #ffe2e2;
+    color: #b91c1c;
+    text-align: center;
+}
+
+.admin-team-total-points {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    min-height: 26px;
+    border-radius: var(--radius-sm);
+    background-color: #fff;
+    font-family: var(--font-family-heading);
+    font-weight: var(--font-weight-bold);
 }
 
 .admin-player-name {
@@ -261,6 +329,36 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: var(--spacing-sm);
+}
+
+.admin-mobile-team-totals {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.admin-mobile-team-totals > div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid #fecaca;
+    border-radius: var(--radius-md);
+    background-color: #fff1f1;
+}
+
+.admin-mobile-team-totals span {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+}
+
+.admin-mobile-team-totals strong {
+    color: #b91c1c;
+    font-family: var(--font-family-heading);
+    font-size: var(--font-size-lg);
 }
 
 .admin-stat-item {
