@@ -205,7 +205,7 @@
     "deleteGameConfirm": "確定要永久刪除這場已取消的比賽？此操作不可撤銷。",
     "generateRoundRobin": "生成單循環賽程",
     "roundRobinTitle": "單循環賽程",
-    "roundRobinHint": "按分組單循環生成賽程。Season 2 採用 6 隊一組，每隊 5 場。可更換隊伍，剩餘賽程自動重新配對。填入日期及場地後即可發佈至即將進行的賽程。",
+    "roundRobinHint": "按分組生成賽程。Season 2 支援 6-7 隊分組，每隊 regular season 保持 5 場；7 隊分組會略過部分同組對戰，Season 1 舊隊之間優先略過。",
     "rrRound": "第",
     "rrNeedTeams": "需要至少 2 支隊伍才能生成單循環賽程",
     "rrSameTeam": "不能選擇相同的隊伍",

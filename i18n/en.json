@@ -205,7 +205,7 @@
     "deleteGameConfirm": "Permanently delete this cancelled match? This cannot be undone.",
     "generateRoundRobin": "Generate Round-Robin",
     "roundRobinTitle": "Round-Robin Schedule",
-    "roundRobinHint": "Single round-robin by division. Season 2 uses 6-team divisions, 5 games per team. You can swap teams and remaining matchups auto-regenerate. Fill in date & venue to publish.",
+    "roundRobinHint": "Generate by division. Season 2 supports 6-7 team divisions while keeping 5 regular-season games per team; 7-team divisions skip selected matchups, prioritizing Season 1 returning-team matchups to skip.",
     "rrRound": "Round",
     "rrNeedTeams": "Need at least 2 teams to generate round-robin",
     "rrSameTeam": "Cannot select the same team for both sides",
