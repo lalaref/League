@@ -43,8 +43,8 @@
    */
   function _renderGame(data) {
     var game = data.game || {};
-    var homeStats = data.homeStats || [];
-    var awayStats = data.awayStats || [];
+    var homeStats = _dedupeBoxScoreStats(data.homeStats || []);
+    var awayStats = _dedupeBoxScoreStats(data.awayStats || []);
 
     // 比賽日期
     var dateEl = document.getElementById('game-date');
@@ -147,6 +147,7 @@
   function _renderBoxScoreTable(tbodyId, stats) {
     var tbody = document.getElementById(tbodyId);
     if (!tbody) return;
+    tbody.innerHTML = '';
 
     if (!stats || stats.length === 0) {
       var tr = document.createElement('tr');
@@ -209,6 +210,16 @@
       tr.insertBefore(nameTd, tr.firstChild);
       tbody.appendChild(tr);
     });
+  }
+
+  function _dedupeBoxScoreStats(stats) {
+    var latestByPlayer = {};
+    (stats || []).forEach(function (row, index) {
+      var key = [row.teamId || '', row.playerId || row.playerName || ''].join('|');
+      if (!key || key === '|') key = 'row|' + index;
+      latestByPlayer[key] = row;
+    });
+    return Object.keys(latestByPlayer).map(function (key) { return latestByPlayer[key]; });
   }
 
   /**
