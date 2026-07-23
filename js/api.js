@@ -184,7 +184,11 @@ var API = (function () {
   function getSeasons() { return get('seasons'); }
   function getStandings(seasonId) { return get('standings', { seasonId: seasonId }); }
   function getPlayerProfile(playerId) { return get('playerProfile', { playerId: playerId }); }
-  function getTeamProfile(teamId) { return get('teamProfile', { teamId: teamId }); }
+  function getTeamProfile(teamId, seasonId) {
+    var params = { teamId: teamId };
+    if (seasonId) params.seasonId = seasonId;
+    return get('teamProfile', params);
+  }
   function getLeaders(seasonId, category) { return get('leaders', { seasonId: seasonId, cat: category }); }
   function getBoxScore(gameId) { return get('boxscore', { gameId: gameId }); }
   function getSchedule(seasonId) { return get('schedule', { seasonId: seasonId }); }

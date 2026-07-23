@@ -9,39 +9,124 @@
   // --- 從 URL 取得 teamId ---
   var params = new URLSearchParams(window.location.search);
   var teamId = params.get('id') || params.get('teamId') || '';
+  var selectedSeasonId = params.get('seasonId') || '';
 
   /** @type {Object|null} 當前球隊的完整 profile 數據 */
   var teamData = null;
+  var seasonsCache = [];
+  var teamsBySeason = {};
 
   // --- 初始化 ---
   function init() {
-    if (!teamId) {
-      showTeamDirectory();
+    loadSeasons().then(function () {
+      if (!teamId) {
+        showTeamDirectory();
+        return;
+      }
+      loadTeamData();
+    }).catch(function () {
+      if (!teamId) {
+        showTeamDirectory();
+        return;
+      }
+      loadTeamData();
+    });
+  }
+
+  function loadSeasons() {
+    return API.getSeasons().then(function (seasons) {
+      seasonsCache = seasons || [];
+      if (!selectedSeasonId) {
+        var active = getDefaultSeason(seasonsCache);
+        selectedSeasonId = active ? active.id : '';
+      }
+      populateSeasonSelect();
+    });
+  }
+
+  function populateSeasonSelect() {
+    var select = document.getElementById('team-season-select');
+    if (!select) return;
+    select.innerHTML = '';
+    if (!seasonsCache.length) {
+      select.innerHTML = '<option value="">暫無賽季資料</option>';
       return;
     }
-    loadTeamData();
+    seasonsCache.forEach(function (season) {
+      var opt = document.createElement('option');
+      opt.value = season.id;
+      opt.textContent = season.name || season.id;
+      select.appendChild(opt);
+    });
+    select.value = selectedSeasonId || seasonsCache[0].id;
+    select.addEventListener('change', onSeasonChange);
+  }
+
+  function onSeasonChange() {
+    var select = document.getElementById('team-season-select');
+    selectedSeasonId = select ? select.value : '';
+    updateSeasonUrl();
+    if (!teamId) {
+      renderTeamDirectory(selectedSeasonId);
+      return;
+    }
+    switchTeamSeason(selectedSeasonId);
+  }
+
+  function updateSeasonUrl() {
+    if (!window.history || !window.history.replaceState) return;
+    var nextParams = new URLSearchParams(window.location.search);
+    if (teamId) nextParams.set('id', teamId);
+    if (selectedSeasonId) nextParams.set('seasonId', selectedSeasonId);
+    var query = nextParams.toString();
+    window.history.replaceState(null, '', window.location.pathname + (query ? '?' + query : ''));
+  }
+
+  function getSeasonTeams(seasonId) {
+    if (!seasonId) return Promise.resolve([]);
+    if (teamsBySeason[seasonId]) return Promise.resolve(teamsBySeason[seasonId]);
+    return API.getTeams(seasonId).then(function (teams) {
+      teamsBySeason[seasonId] = teams || [];
+      return teamsBySeason[seasonId];
+    });
   }
 
   // --- 球隊目錄（無 ID 時顯示所有球隊列表）---
   function showTeamDirectory() {
     var main = document.querySelector('.main-content');
     if (!main) return;
-    main.innerHTML = '<section class="section"><div class="container">' +
-      '<h1 class="section-title">球隊目錄</h1>' +
+    main.innerHTML = '<section class="team-directory-hero"><div class="container">' +
+      '<div class="team-directory-heading">' +
+        '<p class="team-section-kicker">Teams</p>' +
+        '<h1 class="section-title">球隊目錄</h1>' +
+      '</div>' +
+      '<div class="team-season-controls team-season-controls--directory">' +
+        '<label for="team-season-select" class="sr-only">選擇賽季</label>' +
+        '<select id="team-season-select" class="h2h-select" aria-label="選擇賽季"></select>' +
+      '</div>' +
       '<div id="team-dir" class="text-muted">載入中...</div>' +
       '</div></section>';
-    API.getSeasons().then(function (seasons) {
-      var seasonList = seasons || [];
-      var active = getDefaultSeason(seasonList);
-      if (!active) { document.getElementById('team-dir').textContent = '暫無賽季資料'; return; }
-      return API.getTeams(active.id);
-    }).then(function (teams) {
+    populateSeasonSelect();
+    renderTeamDirectory(selectedSeasonId);
+  }
+
+  function renderTeamDirectory(seasonId) {
+    var dir = document.getElementById('team-dir');
+    if (!dir) return;
+    dir.textContent = '載入中...';
+    getSeasonTeams(seasonId).then(function (teams) {
       if (!teams || teams.length === 0) { document.getElementById('team-dir').textContent = '暫無球隊資料'; return; }
-      var html = '<div class="games-grid">';
+      var html = '<div class="team-directory-grid">';
       teams.forEach(function (t) {
-        html += '<a href="team.html?id=' + encodeURIComponent(t.id) + '" class="game-card" style="text-decoration:none">' +
-          '<div class="game-card-matchup"><span class="game-card-team">' + escapeHtml(t.name) + '</span></div>' +
-          '<div class="text-muted" style="font-size:.85rem">' + escapeHtml(t.captain || '') + '</div></a>';
+        var logoSrc = t.logo || 'images/logo.png';
+        html += '<a href="team.html?id=' + encodeURIComponent(t.id) + '&seasonId=' + encodeURIComponent(seasonId || '') + '" class="team-directory-card">' +
+          '<span class="team-directory-logo" aria-hidden="true"><img src="' + escapeHtml(logoSrc) + '" alt="" loading="lazy" onerror="this.src=\'images/logo.png\'"></span>' +
+          '<span class="team-directory-main">' +
+            '<span class="team-directory-name">' + escapeHtml(t.name || '—') + '</span>' +
+            '<span class="team-directory-captain">' + escapeHtml(t.captain || '負責人 —') + '</span>' +
+          '</span>' +
+          '<span class="team-directory-arrow" aria-hidden="true">›</span>' +
+        '</a>';
       });
       html += '</div>';
       document.getElementById('team-dir').innerHTML = html;
@@ -53,7 +138,7 @@
   // --- 載入球隊數據 ---
   function loadTeamData() {
     setLoadingState();
-    API.getTeamProfile(teamId)
+    API.getTeamProfile(teamId, selectedSeasonId)
       .then(function (data) {
         if (!hasTeamDetails(data)) return loadTeamFallback(data);
         renderTeamPage(data);
@@ -81,6 +166,8 @@
 
   function renderTeamPage(data) {
     teamData = data || {};
+    if (!selectedSeasonId && teamData.info && teamData.info.seasonId) selectedSeasonId = teamData.info.seasonId;
+    syncSeasonSelect();
     renderTeamInfo(teamData.info || teamData);
     renderRoster(teamData.roster);
     renderHistory(teamData.history);
@@ -117,6 +204,39 @@
         h2h: (existingData && existingData.h2h) || {}
       }));
     });
+  }
+
+  function syncSeasonSelect() {
+    var select = document.getElementById('team-season-select');
+    if (select && selectedSeasonId) select.value = selectedSeasonId;
+  }
+
+  function switchTeamSeason(seasonId) {
+    if (!seasonId) return;
+    var currentName = teamData && teamData.info ? teamData.info.name : '';
+    setLoadingState();
+    getSeasonTeams(seasonId).then(function (teams) {
+      var match = findMatchingTeamForSeason(teams, teamId, currentName);
+      if (match && String(match.id) !== String(teamId)) {
+        window.location.href = 'team.html?id=' + encodeURIComponent(match.id) + '&seasonId=' + encodeURIComponent(seasonId);
+        return;
+      }
+      loadTeamData();
+    }).catch(function () {
+      loadTeamData();
+    });
+  }
+
+  function findMatchingTeamForSeason(teams, currentTeamId, currentName) {
+    var nameKey = String(currentName || '').toLowerCase();
+    for (var i = 0; i < teams.length; i++) {
+      if (String(teams[i].id) === String(currentTeamId)) return teams[i];
+    }
+    if (!nameKey) return null;
+    for (var j = 0; j < teams.length; j++) {
+      if (String(teams[j].name || '').toLowerCase() === nameKey) return teams[j];
+    }
+    return null;
   }
 
   // --- 渲染球隊基本資料（需求 5.1）---
@@ -206,7 +326,7 @@
 
     // 從 history 中取最新賽季
     if (data.history && data.history.length > 0) {
-      var latest = data.history[0];
+      var latest = findHistoryForSelectedSeason(data.history) || data.history[0];
       wins = latest.wins || 0;
       losses = latest.losses || 0;
       rank = latest.rank;
@@ -222,7 +342,17 @@
     }
     if (rankBadge && rank != null) {
       rankBadge.textContent = '#' + rank;
+    } else if (rankBadge) {
+      rankBadge.textContent = '';
     }
+  }
+
+  function findHistoryForSelectedSeason(history) {
+    if (!selectedSeasonId) return null;
+    for (var i = 0; i < history.length; i++) {
+      if (String(history[i].seasonId) === String(selectedSeasonId)) return history[i];
+    }
+    return null;
   }
 
   // --- 填充 H2H 下拉選單及綁定事件（需求 5.4）---
