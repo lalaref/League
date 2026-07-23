@@ -1249,7 +1249,7 @@ function computeTeamStandings(games, teams, seasonConfig) {
   if (!teams || teams.length === 0) return [];
   var completedGames = [];
   for (var i = 0; i < games.length; i++) {
-    if (games[i].status === 'completed') {
+    if (games[i].status === 'completed' && String(games[i].type || '').toLowerCase() !== 'playoff') {
       completedGames.push(games[i]);
     }
   }
@@ -1531,6 +1531,20 @@ describe('computeTeamStandings', () => {
     const teamA = standings.find(s => s.teamId === 'tA');
     expect(teamA.wins).toBe(1);
     expect(teamA.losses).toBe(0);
+  });
+
+  it('should skip playoff games in standings', () => {
+    const games = [
+      { homeTeamId: 'tA', awayTeamId: 'tB', homeScore: 80, awayScore: 70, status: 'completed', type: 'regular', date: '2024-01-01' },
+      { homeTeamId: 'tA', awayTeamId: 'tB', homeScore: 60, awayScore: 90, status: 'completed', type: 'Playoff', date: '2024-01-02' },
+    ];
+    const standings = computeTeamStandings(games, teams);
+    const teamA = standings.find(s => s.teamId === 'tA');
+    const teamB = standings.find(s => s.teamId === 'tB');
+    expect(teamA.wins).toBe(1);
+    expect(teamA.losses).toBe(0);
+    expect(teamB.wins).toBe(0);
+    expect(teamB.losses).toBe(1);
   });
 
   it('should calculate streak correctly', () => {

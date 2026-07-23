@@ -12,17 +12,20 @@ var VALID_GET_ACTIONS = [
   'seasons', 'teams', 'players', 'games', 'boxscore',
   'standings', 'leaders', 'playerProfile', 'teamProfile',
   'schedule', 'playoffs', 'shotchart', 'advancedStats',
-  'achievements', 'archive', 'announcements', 'recentAchievements', 'teamByToken'
+  'achievements', 'archive', 'announcements', 'recentAchievements', 'teamByToken', 'teamAvailability', 'teamAvailabilityNotes', 'scheduleAdminNote'
 ];
 
 var VALID_POST_ACTIONS = [
   'submitBoxScore', 'updateBoxScore', 'createGame', 'updateGame',
   'submitShotLocation', 'generatePlayoffs', 'archiveSeason',
+  'createSeason', 'updateSeason', 'deleteSeason',
   'createAnnouncement', 'updateAnnouncement', 'deleteAnnouncement',
   'cancelGame', 'deleteGame',
   'createTeam', 'updateTeam', 'deleteTeam',
+  'copyTeamsToSeason',
   'createPlayer', 'updatePlayer', 'deletePlayer',
-  'publicUpdateTeam', 'publicCreatePlayer', 'publicUpdatePlayer', 'publicDeletePlayer'
+  'publicUpdateTeam', 'publicCreatePlayer', 'publicUpdatePlayer', 'publicDeletePlayer', 'publicSaveTeamAvailability',
+  'saveScheduleAdminNote'
 ];
 
 // ============================================================
@@ -135,17 +138,62 @@ function clearRelatedCache(action, params) {
       }
     } else if (action === 'createGame' || action === 'updateGame' || action === 'cancelGame' || action === 'deleteGame') {
       var seasonId2 = params && params.seasonId ? params.seasonId : '';
+      var leaderCats2 = ['pts', 'reb', 'ast', 'stl', 'blk', 'fg_pct', 'tp_pct', 'ft_pct'];
+      leaderCats2.forEach(function(cat) { keysToRemove.push('leaders_' + seasonId2 + '_' + cat); });
       keysToRemove.push('games_' + seasonId2, 'games', 'schedule_' + seasonId2, 'schedule');
+      keysToRemove.push('standings_' + seasonId2, 'standings', 'leaders_' + seasonId2, 'leaders', 'recentAchievements_' + seasonId2);
+      if (params && params.gameId) keysToRemove.push('boxscore_' + params.gameId);
+      if (params && params.entries && params.entries.length > 0) {
+        for (var gi = 0; gi < params.entries.length; gi++) {
+          var gameEntry = params.entries[gi];
+          if (gameEntry.playerId) keysToRemove.push('playerProfile_' + gameEntry.playerId, 'advancedStats_' + gameEntry.playerId, 'achievements_' + gameEntry.playerId);
+          if (gameEntry.teamId) keysToRemove.push('teamProfile_' + gameEntry.teamId);
+        }
+      }
     } else if (action === 'submitShotLocation') {
       keysToRemove.push('shotchart_' + (params && params.playerId || ''), 'shotchart_' + (params && params.gameId || ''));
     } else if (action === 'generatePlayoffs') {
       var seasonId3 = params && params.seasonId ? params.seasonId : '';
       keysToRemove.push('playoffs_' + seasonId3, 'playoffs');
-    } else if (action === 'archiveSeason') {
+    } else if (action === 'createTeam' || action === 'updateTeam' || action === 'deleteTeam' || action === 'copyTeamsToSeason' || action === 'publicUpdateTeam' || action === 'publicSaveTeamAvailability') {
+      var teamSeasonId = params && (params.seasonId || params.targetSeasonId) ? (params.seasonId || params.targetSeasonId) : '';
+      keysToRemove.push('teams_' + teamSeasonId, 'teams', 'standings_' + teamSeasonId, 'standings', 'schedule_' + teamSeasonId, 'schedule');
+      keysToRemove.push('teamAvailability_' + teamSeasonId, 'teamAvailability', 'teamAvailabilityNotes_' + teamSeasonId, 'teamAvailabilityNotes');
+    } else if (action === 'createPlayer' || action === 'updatePlayer' || action === 'deletePlayer' || action === 'publicCreatePlayer' || action === 'publicUpdatePlayer' || action === 'publicDeletePlayer') {
+      var playerSeasonId = '';
+      var playerTeamId = params && params.teamId ? _str(params.teamId) : '';
+      if (!playerTeamId && params && params.teamToken) {
+        var teamByToken = _getTeamByToken(_str(params.teamToken));
+        if (teamByToken) playerTeamId = _str(teamByToken.id);
+      }
+      if (!playerTeamId && params && params.playerId) {
+        var playerRowsForCache = _sheetToObjects('Players');
+        for (var pc = 0; pc < playerRowsForCache.length; pc++) {
+          if (_str(playerRowsForCache[pc].id) === _str(params.playerId)) { playerTeamId = _str(playerRowsForCache[pc].teamId); break; }
+        }
+      }
+      if (playerTeamId) {
+        var teamRowsForCache = _sheetToObjects('Teams');
+        for (var tc = 0; tc < teamRowsForCache.length; tc++) {
+          if (_str(teamRowsForCache[tc].id) === playerTeamId) { playerSeasonId = _str(teamRowsForCache[tc].seasonId); break; }
+        }
+      }
+      keysToRemove.push('players_' + playerTeamId, 'players');
+      if (params && params.playerId) keysToRemove.push('playerProfile_' + params.playerId, 'advancedStats_' + params.playerId, 'achievements_' + params.playerId);
+      if (playerSeasonId) {
+        ['pts','reb','ast','stl','blk','fg_pct','tp_pct','ft_pct','tpm'].forEach(function(cat) {
+          keysToRemove.push('leaders_' + playerSeasonId + '_' + cat);
+        });
+        keysToRemove.push('leaders_' + playerSeasonId, 'leaders', 'teams_' + playerSeasonId, 'teams');
+      }
+    } else if (action === 'createSeason' || action === 'updateSeason' || action === 'deleteSeason' || action === 'archiveSeason') {
       var seasonId4 = params && params.seasonId ? params.seasonId : '';
       keysToRemove.push('archive_' + seasonId4, 'archive', 'seasons');
     } else if (action === 'createAnnouncement' || action === 'updateAnnouncement' || action === 'deleteAnnouncement') {
       keysToRemove.push('announcements');
+    } else if (action === 'saveScheduleAdminNote') {
+      var noteSeasonId = params && params.seasonId ? params.seasonId : '';
+      keysToRemove.push('scheduleAdminNote_' + noteSeasonId, 'scheduleAdminNote');
     }
 
     if (keysToRemove.length > 0) cache.removeAll(keysToRemove);
@@ -189,7 +237,124 @@ function _sheetToObjects(name) {
 
 function _str(v) { return (v != null && v !== '') ? String(v) : ''; }
 function _num(v) { var n = Number(v); return isNaN(n) ? 0 : n; }
+function _isPlayoffGame(g) { return String((g && g.type) || '').trim().toLowerCase() === 'playoff'; }
+function _jerseyNumber(v) { return (v !== '' && v != null) ? _str(v) : ''; }
 function _rnd(v, d) { var f = Math.pow(10, d || 1); return Math.round(_num(v) * f) / f; }
+
+function _ensureColumns(sheet, columnNames) {
+  var lastCol = sheet.getLastColumn();
+  var headers = lastCol > 0 ? sheet.getRange(1, 1, 1, lastCol).getValues()[0] : [];
+  var existing = {};
+  headers.forEach(function(h) { if (h) existing[String(h).trim()] = true; });
+  columnNames.forEach(function(name) {
+    if (!existing[name]) {
+      sheet.getRange(1, sheet.getLastColumn() + 1).setValue(name);
+      existing[name] = true;
+    }
+  });
+}
+
+function _todayYmd() {
+  return Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
+}
+
+function _addDaysYmd(ymd, days) {
+  var parts = String(ymd).split('-');
+  var d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+  d.setDate(d.getDate() + days);
+  return Utilities.formatDate(d, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+}
+
+function _cellYmd(value) {
+  if (value instanceof Date) return Utilities.formatDate(value, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+  var str = _str(value);
+  if (_isYmd(str)) return str;
+  var parsed = new Date(str);
+  if (!isNaN(parsed.getTime())) return Utilities.formatDate(parsed, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+  return str;
+}
+
+function _nextOpenAvailabilityStartYmd() {
+  var today = new Date();
+  today.setHours(0, 0, 0, 0);
+  var day = today.getDay();
+  var daysUntilNextMonday = (8 - day) % 7;
+  if (daysUntilNextMonday === 0) daysUntilNextMonday = 7;
+  if (day === 1) {
+    today.setDate(today.getDate() + 7);
+  } else {
+    today.setDate(today.getDate() + daysUntilNextMonday + 7);
+  }
+  return Utilities.formatDate(today, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+}
+
+function _isYmd(value) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(String(value || ''));
+}
+
+function _isWeekendYmd(ymd) {
+  var parts = String(ymd).split('-');
+  var date = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+  var day = date.getDay();
+  return day === 0 || day === 6;
+}
+
+function _getAvailabilitySheet() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('TeamAvailability');
+  var headers = ['id', 'seasonId', 'teamId', 'teamName', 'unavailableDate', 'note', 'submittedBy', 'updatedAt'];
+  if (!sheet) {
+    sheet = ss.insertSheet('TeamAvailability');
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+  } else {
+    _ensureColumns(sheet, headers);
+  }
+  return sheet;
+}
+
+function _getTeamAvailabilityNotesSheet() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('TeamAvailabilityNotes');
+  var headers = ['id', 'seasonId', 'teamId', 'teamName', 'startDate', 'endDate', 'note', 'submittedBy', 'updatedAt'];
+  if (!sheet) {
+    sheet = ss.insertSheet('TeamAvailabilityNotes');
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+  } else {
+    _ensureColumns(sheet, headers);
+  }
+  return sheet;
+}
+
+function _getScheduleAdminNotesSheet() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('ScheduleAdminNotes');
+  var headers = ['id', 'seasonId', 'startDate', 'endDate', 'note', 'updatedAt'];
+  if (!sheet) {
+    sheet = ss.insertSheet('ScheduleAdminNotes');
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+  } else {
+    _ensureColumns(sheet, headers);
+  }
+  return sheet;
+}
+
+function _seasonColMap(sheet) {
+  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  var map = {};
+  headers.forEach(function(h, i) { if (h) map[String(h).trim()] = i; });
+  return { headers: headers, map: map };
+}
+
+function _findSeasonRow(sheet, colMap, seasonId) {
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) return -1;
+  var idIdx = colMap['id'] !== undefined ? colMap['id'] : 0;
+  var data = sheet.getRange(2, 1, lastRow - 1, sheet.getLastColumn()).getValues();
+  for (var i = 0; i < data.length; i++) {
+    if (String(data[i][idIdx]) === String(seasonId)) return i + 2;
+  }
+  return -1;
+}
 
 // ============================================================
 // GET 處理器  (return raw data — doGet wraps in createSuccessResponse)
@@ -198,7 +363,9 @@ function _rnd(v, d) { var f = Math.pow(10, d || 1); return Math.round(_num(v) * 
 function handleGetSeasons(e) {
   return _sheetToObjects('Seasons').map(function(r) {
     return { id: _str(r.id), name: _str(r.name), status: _str(r.status),
-             startDate: _str(r.startDate), endDate: _str(r.endDate) };
+             startDate: _str(r.startDate), endDate: _str(r.endDate),
+             playoffTopN: r.playoffTopN !== '' && r.playoffTopN != null ? _num(r.playoffTopN) : 8,
+             minGamesForRanking: r.minGamesForRanking !== '' && r.minGamesForRanking != null ? _num(r.minGamesForRanking) : 3 };
   }).filter(function(s) { return s.id; });
 }
 
@@ -208,10 +375,12 @@ function handleGetTeams(e) {
   if (sid) rows = rows.filter(function(r) { return _str(r.seasonId) === sid; });
   return rows.map(function(r) {
     return { id: _str(r.id), seasonId: _str(r.seasonId), name: _str(r.name),
+             division: _str(r.division),
              captain: _str(r.captain), captainWhatsApp: _str(r.captainWhatsApp || r.whatsapp),
              logo: _str(r.logo), description: _str(r.description),
              jerseyHome: _str(r.jerseyHome), jerseyAway: _str(r.jerseyAway),
              whatsapp: _str(r.captainWhatsApp || r.whatsapp),
+             parentTeamId: _str(r.parentTeamId),
              teamToken: _str(r.teamToken) };
   }).filter(function(t) { return t.id; });
 }
@@ -228,15 +397,90 @@ function handleGetTeamByToken(e) {
   var playerRows = _sheetToObjects('Players').filter(function(p) { return _str(p.teamId) === _str(team.id); });
   var players = playerRows.map(function(p) {
     return { id: _str(p.id), teamId: _str(p.teamId), name: _str(p.name),
-             number: (p.number !== '' && p.number != null) ? _num(p.number) : '',
-             position: _str(p.position), photo: _str(p.photo) };
+             number: _jerseyNumber(p.number),
+             position: _str(p.position), photo: _str(p.photo), leaderPhoto: _str(p.leaderPhoto) };
   });
   var payload = { team: { id: _str(team.id), seasonId: _str(team.seasonId), name: _str(team.name),
+                           division: _str(team.division),
                            captain: _str(team.captain), captainWhatsApp: _str(team.captainWhatsApp || team.whatsapp),
                            logo: _str(team.logo), description: _str(team.description),
                            jerseyHome: _str(team.jerseyHome), jerseyAway: _str(team.jerseyAway) },
                   players: players };
   return createSuccessResponse(payload, false);
+}
+
+function handleGetTeamAvailability(e) {
+  var sid = e && e.parameter ? _str(e.parameter.seasonId) : '';
+  var startDate = e && e.parameter ? _str(e.parameter.startDate) : '';
+  var endDate = e && e.parameter ? _str(e.parameter.endDate) : '';
+  var rows = _sheetToObjects('TeamAvailability');
+  if (sid) rows = rows.filter(function(r) { return _str(r.seasonId) === sid; });
+  if (startDate) rows = rows.filter(function(r) { return _cellYmd(r.unavailableDate) >= startDate; });
+  if (endDate) rows = rows.filter(function(r) { return _cellYmd(r.unavailableDate) <= endDate; });
+  rows.sort(function(a, b) {
+    return _cellYmd(a.unavailableDate).localeCompare(_cellYmd(b.unavailableDate)) || _str(a.teamName).localeCompare(_str(b.teamName));
+  });
+  return rows.map(function(r) {
+    return {
+      id: _str(r.id),
+      seasonId: _str(r.seasonId),
+      teamId: _str(r.teamId),
+      teamName: _str(r.teamName),
+      unavailableDate: _cellYmd(r.unavailableDate),
+      note: _str(r.note),
+      submittedBy: _str(r.submittedBy),
+      updatedAt: _str(r.updatedAt)
+    };
+  });
+}
+
+function handleGetTeamAvailabilityNotes(e) {
+  var sid = e && e.parameter ? _str(e.parameter.seasonId) : '';
+  var startDate = e && e.parameter ? _str(e.parameter.startDate) : '';
+  var endDate = e && e.parameter ? _str(e.parameter.endDate) : '';
+  var rows = _sheetToObjects('TeamAvailabilityNotes');
+  if (sid) rows = rows.filter(function(r) { return _str(r.seasonId) === sid; });
+  if (startDate) rows = rows.filter(function(r) { return _cellYmd(r.endDate) >= startDate; });
+  if (endDate) rows = rows.filter(function(r) { return _cellYmd(r.startDate) <= endDate; });
+  rows.sort(function(a, b) {
+    return _str(a.teamName).localeCompare(_str(b.teamName)) || _cellYmd(a.startDate).localeCompare(_cellYmd(b.startDate));
+  });
+  return rows.map(function(r) {
+    return {
+      id: _str(r.id),
+      seasonId: _str(r.seasonId),
+      teamId: _str(r.teamId),
+      teamName: _str(r.teamName),
+      startDate: _cellYmd(r.startDate),
+      endDate: _cellYmd(r.endDate),
+      note: _str(r.note),
+      submittedBy: _str(r.submittedBy),
+      updatedAt: _str(r.updatedAt)
+    };
+  });
+}
+
+function handleGetScheduleAdminNote(e) {
+  var sid = e && e.parameter ? _str(e.parameter.seasonId) : '';
+  var startDate = e && e.parameter ? _str(e.parameter.startDate) : '';
+  var endDate = e && e.parameter ? _str(e.parameter.endDate) : '';
+  if (!sid || !startDate || !endDate) return { seasonId: sid, startDate: startDate, endDate: endDate, note: '', updatedAt: '' };
+
+  var rows = _sheetToObjects('ScheduleAdminNotes');
+  for (var i = rows.length - 1; i >= 0; i--) {
+    var row = rows[i];
+    if (_str(row.seasonId) === sid && _str(row.startDate) === startDate && _str(row.endDate) === endDate) {
+      return {
+        id: _str(row.id),
+        seasonId: _str(row.seasonId),
+        startDate: _str(row.startDate),
+        endDate: _str(row.endDate),
+        note: _str(row.note),
+        updatedAt: _str(row.updatedAt)
+      };
+    }
+  }
+  return { seasonId: sid, startDate: startDate, endDate: endDate, note: '', updatedAt: '' };
 }
 
 function handleGetPlayers(e) {
@@ -245,8 +489,8 @@ function handleGetPlayers(e) {
   if (tid) rows = rows.filter(function(r) { return _str(r.teamId) === tid; });
   return rows.map(function(r) {
     return { id: _str(r.id), teamId: _str(r.teamId), name: _str(r.name),
-             number: (r.number !== '' && r.number != null) ? _num(r.number) : '',
-             position: _str(r.position), photo: _str(r.photo) };
+             number: _jerseyNumber(r.number),
+             position: _str(r.position), photo: _str(r.photo), leaderPhoto: _str(r.leaderPhoto) };
   }).filter(function(p) { return p.id; });
 }
 
@@ -324,16 +568,16 @@ function handleGetStandings(e) {
   var sid = e && e.parameter ? _str(e.parameter.seasonId) : '';
   var teamRows = _sheetToObjects('Teams');
   var gameRows = _sheetToObjects('Games').filter(function(g) {
-    return _str(g.seasonId) === sid && _str(g.status) === 'completed' && _str(g.type) !== 'playoff';
+    return _str(g.seasonId) === sid && _str(g.status) === 'completed' && !_isPlayoffGame(g);
   });
   var teams = {};
   teamRows.filter(function(t){return _str(t.seasonId)===sid;}).forEach(function(t) {
-    teams[_str(t.id)] = { teamId: _str(t.id), teamName: _str(t.name), wins:0, losses:0, draws:0, pf:0, pa:0 };
+    teams[_str(t.id)] = { teamId: _str(t.id), teamName: _str(t.name), division:_str(t.division), wins:0, losses:0, draws:0, pf:0, pa:0 };
   });
   gameRows.forEach(function(g) {
     var hid=_str(g.homeTeamId), aid=_str(g.awayTeamId), hs=_num(g.homeScore), as_=_num(g.awayScore);
-    if (!teams[hid]) teams[hid] = { teamId:hid, teamName:'', wins:0, losses:0, draws:0, pf:0, pa:0 };
-    if (!teams[aid]) teams[aid] = { teamId:aid, teamName:'', wins:0, losses:0, draws:0, pf:0, pa:0 };
+    if (!teams[hid]) teams[hid] = { teamId:hid, teamName:'', division:'', wins:0, losses:0, draws:0, pf:0, pa:0 };
+    if (!teams[aid]) teams[aid] = { teamId:aid, teamName:'', division:'', wins:0, losses:0, draws:0, pf:0, pa:0 };
     teams[hid].pf+=hs; teams[hid].pa+=as_; teams[aid].pf+=as_; teams[aid].pa+=hs;
     if (hs>as_) { teams[hid].wins++; teams[aid].losses++; }
     else if (as_>hs) { teams[aid].wins++; teams[hid].losses++; }
@@ -341,7 +585,7 @@ function handleGetStandings(e) {
   });
   var standings = Object.keys(teams).map(function(tid) {
     var t=teams[tid], played=t.wins+t.losses+t.draws;
-    return { teamId:t.teamId, teamName:t.teamName, played:played,
+    return { teamId:t.teamId, teamName:t.teamName, division:t.division, played:played,
              wins:t.wins, losses:t.losses, draws:t.draws,
              points:t.wins*2+t.draws, diff:t.pf-t.pa, pointsFor:t.pf, pointsAgainst:t.pa };
   });
@@ -369,36 +613,72 @@ function handleGetLeaders(e) {
   var cat = e && e.parameter ? _str(e.parameter.cat || e.parameter.category || 'pts') : 'pts';
   var gameRows = _sheetToObjects('Games');
   var seasonGameIds = {};
-  gameRows.filter(function(g){return _str(g.seasonId)===sid&&_str(g.status)==='completed';})
+  gameRows.filter(function(g){return _str(g.seasonId)===sid&&_str(g.status)==='completed'&&!_isPlayoffGame(g);})
     .forEach(function(g){seasonGameIds[_str(g.id)]=true;});
   var playerMap = {}, teamMap = {};
   _sheetToObjects('Players').forEach(function(p){playerMap[_str(p.id)]=p;});
   _sheetToObjects('Teams').forEach(function(t){teamMap[_str(t.id)]=t;});
-  var agg = _aggregateBoxBySeasonGames(_sheetToObjects('BoxScores'), seasonGameIds);
+  var boxRows = _sheetToObjects('BoxScores');
+  var teamGameTotals = {}, playerTeamGameKeys = {};
+  boxRows.forEach(function(b) {
+    var gid = _str(b.gameId);
+    if (!seasonGameIds[gid]) return;
+    var tid = _str(b.teamId), key = gid + '|' + tid;
+    if (!teamGameTotals[key]) teamGameTotals[key] = { fga:0, fta:0, to:0 };
+    teamGameTotals[key].fga += _num(b.fga);
+    teamGameTotals[key].fta += _num(b.fta);
+    teamGameTotals[key].to += _num(b.to);
+    var pidForUsage = _str(b.playerId);
+    if (!playerTeamGameKeys[pidForUsage]) playerTeamGameKeys[pidForUsage] = {};
+    playerTeamGameKeys[pidForUsage][key] = true;
+  });
+  var agg = _aggregateBoxBySeasonGames(boxRows, seasonGameIds);
   var leaders = Object.keys(agg).map(function(pid) {
     var s=agg[pid], gp=s.gp||1, p=playerMap[pid]||{}, tm=teamMap[s.teamId]||{};
     var fgPct=s.fga>0?_rnd(s.fgm/s.fga*100,1):0;
     var tpPct=s.tpa>0?_rnd(s.tpm/s.tpa*100,1):0;
     var ftPct=s.fta>0?_rnd(s.ftm/s.fta*100,1):0;
+    var tsDen = 2 * (s.fga + 0.44 * s.fta);
+    var tsPct = tsDen > 0 ? _rnd(s.pts / tsDen * 100, 1) : 0;
+    var teamPoss = 0;
+    var usageKeys = playerTeamGameKeys[pid] || {};
+    Object.keys(usageKeys).forEach(function(key) {
+      var teamGame = teamGameTotals[key] || {};
+      teamPoss += _num(teamGame.fga) + 0.44 * _num(teamGame.fta) + _num(teamGame.to);
+    });
+    var playerPoss = _num(s.fga) + 0.44 * _num(s.fta) + _num(s.to);
+    var usgPct = teamPoss > 0 ? _rnd(playerPoss / teamPoss * 100, 1) : 0;
+    var missedFG = _num(s.fga) - _num(s.fgm), missedFT = _num(s.fta) - _num(s.ftm);
+    var per = _rnd((_num(s.pts)+_num(s.reb)+_num(s.ast)+_num(s.stl)+_num(s.blk)-missedFG-0.5*missedFT-_num(s.to))/gp,1);
     var val;
-    if (cat==='pts') val=_rnd(s.pts/gp,1);
-    else if (cat==='reb') val=_rnd(s.reb/gp,1);
-    else if (cat==='ast') val=_rnd(s.ast/gp,1);
-    else if (cat==='stl') val=_rnd(s.stl/gp,1);
-    else if (cat==='blk') val=_rnd(s.blk/gp,1);
+    var totalCats = { pts: s.pts, reb: s.reb, ast: s.ast, stl: s.stl, blk: s.blk };
+    if (cat==='pts') val=s.pts;
+    else if (cat==='reb') val=s.reb;
+    else if (cat==='ast') val=s.ast;
+    else if (cat==='stl') val=s.stl;
+    else if (cat==='blk') val=s.blk;
     else if (cat==='tpm') val=(s.tpm||0);
     else if (cat==='fg_pct') val=fgPct;
     else if (cat==='tp_pct') val=tpPct;
     else if (cat==='ft_pct') val=ftPct;
-    else val=_rnd(s.pts/gp,1);
+    else if (cat==='per') val=per;
+    else if (cat==='tsPct'||cat==='ts_pct') val=tsPct;
+    else if (cat==='usgPct'||cat==='usg_pct') val=usgPct;
+    else val=s.pts;
     // Filter zero-attempt shooting stats
     if (cat==='fg_pct'&&s.fga===0) return null;
     if (cat==='tp_pct'&&s.tpa===0) return null;
     if (cat==='ft_pct'&&s.fta===0) return null;
+    if ((cat==='tsPct'||cat==='ts_pct')&&tsDen===0) return null;
+    if ((cat==='usgPct'||cat==='usg_pct')&&teamPoss===0) return null;
     if (cat==='tpm'&&(s.tpm||0)===0) return null;
-    return { playerId:pid, playerName:_str(p.name||''), teamId:s.teamId,
+    return { playerId:pid, playerName:_str(p.name||''), teamId:s.teamId, category:cat,
              teamName:_str(tm.name||''), value:val, gamesPlayed:s.gp,
-             photo:_str(p.photo||''), number:(p.number!==''&&p.number!=null)?_num(p.number):'' };
+             statMode:(totalCats.hasOwnProperty(cat)||cat==='tpm')?'total':'rate',
+             total:totalCats.hasOwnProperty(cat)?totalCats[cat]:val,
+             average:totalCats.hasOwnProperty(cat)?_rnd(totalCats[cat]/gp,1):val,
+             photo:_str(p.photo||''), leaderPhoto:_str(p.leaderPhoto||''),
+             number:_jerseyNumber(p.number) };
   }).filter(function(l){return l!==null;});
   leaders.sort(function(a,b){return b.value-a.value;});
   leaders.forEach(function(l,i){l.rank=i+1;});
@@ -419,11 +699,15 @@ function handleGetPlayerProfile(e) {
   for (var i=0;i<playerRows.length;i++){if(_str(playerRows[i].id)===pid){player=playerRows[i];break;}}
   if (!player) return {};
   var team=teamMap[_str(player.teamId)]||{};
-  var playerBox=boxRows.filter(function(b){return _str(b.playerId)===pid;});
+  var linkedPlayerIds = _linkedPlayerIdSet(playerRows, pid, teamRows);
+  var playerBox=boxRows.filter(function(b){return linkedPlayerIds[_str(b.playerId)] === true;});
   var gameLogs=[], seasonStats={};
   playerBox.forEach(function(b) {
     var g=gameMap[_str(b.gameId)]; if(!g||!g.id) return;
-    var sid=_str(g.seasonId), isHome=_str(g.homeTeamId)===_str(player.teamId);
+    var boxPlayer = null;
+    for (var pi=0;pi<playerRows.length;pi++){if(_str(playerRows[pi].id)===_str(b.playerId)){boxPlayer=playerRows[pi];break;}}
+    var boxTeamId = boxPlayer ? _str(boxPlayer.teamId) : _str(player.teamId);
+    var sid=_str(g.seasonId), isHome=_str(g.homeTeamId)===boxTeamId;
     var oppId=isHome?_str(g.awayTeamId):_str(g.homeTeamId), opp=teamMap[oppId]||{};
     var ts=isHome?_num(g.homeScore):_num(g.awayScore), os=isHome?_num(g.awayScore):_num(g.homeScore);
     var reb=_num(b.reb)||(_num(b.oreb)+_num(b.dreb));
@@ -463,9 +747,12 @@ function handleGetPlayerProfile(e) {
              tpPct:s.tpa>0?_rnd(s.tpm/s.tpa*100,1):0,
              ftPct:s.fta>0?_rnd(s.ftm/s.fta*100,1):0 };
   });
-  return { info:{ id:pid, name:_str(player.name), number:(player.number!==''&&player.number!=null)?_num(player.number):'',
+  var mvpCount = gameRows.filter(function(g) {
+    return linkedPlayerIds[_str(g.mvpPlayerId)] === true && _str(g.status) === 'completed';
+  }).length;
+  return { info:{ id:pid, name:_str(player.name), number:_jerseyNumber(player.number),
     teamId:_str(player.teamId), teamName:_str(team.name||''), position:_str(player.position||''),
-    photo:_str(player.photo||''), gamesPlayed:gameLogs.length }, seasonAvg:avg, gameLogs:gameLogs, seasonHistory:seasonHistory };
+    photo:_str(player.photo||''), gamesPlayed:gameLogs.length, mvpCount:mvpCount }, seasonAvg:avg, gameLogs:gameLogs, seasonHistory:seasonHistory };
 }
 
 function handleGetTeamProfile(e) {
@@ -477,38 +764,50 @@ function handleGetTeamProfile(e) {
   var teamMap={}, seasonMap={};
   teamRows.forEach(function(t){teamMap[_str(t.id)]=t;}); seasonRows.forEach(function(s){seasonMap[_str(s.id)]=s;});
   var team=teamMap[tid]; if(!team) return {};
+  var linkedTeamIds = _linkedTeamIdSet(teamRows, tid);
   var teamPlayers=playerRows.filter(function(p){return _str(p.teamId)===tid;});
   var playerMap={}; teamPlayers.forEach(function(p){playerMap[_str(p.id)]=p;});
+  var linkedPlayerIdsByCurrentPlayer = {};
+  teamPlayers.forEach(function(p) {
+    linkedPlayerIdsByCurrentPlayer[_str(p.id)] = _linkedPlayerIdSet(playerRows, _str(p.id), teamRows);
+  });
   // Roster stats
   var pBox={};
   boxRows.forEach(function(b){
-    var pid=_str(b.playerId); if(!playerMap[pid]) return;
-    if(!pBox[pid]) pBox[pid]={gp:0,pts:0,reb:0,ast:0,stl:0,blk:0,fgm:0,fga:0};
-    var s=pBox[pid]; s.gp++; s.pts+=_num(b.pts); s.reb+=_num(b.reb)||(_num(b.oreb)+_num(b.dreb));
+    var pid=_str(b.playerId);
+    var currentPid = '';
+    Object.keys(linkedPlayerIdsByCurrentPlayer).forEach(function(rosterPid) {
+      if (!currentPid && linkedPlayerIdsByCurrentPlayer[rosterPid][pid]) currentPid = rosterPid;
+    });
+    if(!currentPid) return;
+    if(!pBox[currentPid]) pBox[currentPid]={gp:0,pts:0,reb:0,ast:0,stl:0,blk:0,fgm:0,fga:0};
+    var s=pBox[currentPid]; s.gp++; s.pts+=_num(b.pts); s.reb+=_num(b.reb)||(_num(b.oreb)+_num(b.dreb));
     s.ast+=_num(b.ast); s.stl+=_num(b.stl); s.blk+=_num(b.blk); s.fgm+=_num(b.fgm); s.fga+=_num(b.fga);
   });
   var roster=teamPlayers.map(function(p){
     var s=pBox[_str(p.id)]||{gp:0,pts:0,reb:0,ast:0,stl:0,blk:0,fgm:0,fga:0}, gp=s.gp||1;
-    return { id:_str(p.id), name:_str(p.name), number:(p.number!==''&&p.number!=null)?_num(p.number):'',
+    return { id:_str(p.id), name:_str(p.name), number:_jerseyNumber(p.number),
              position:_str(p.position||''), pts:_rnd(s.pts/gp,1), reb:_rnd(s.reb/gp,1),
              ast:_rnd(s.ast/gp,1), stl:_rnd(s.stl/gp,1), blk:_rnd(s.blk/gp,1),
              fgPct:s.fga>0?_rnd(s.fgm/s.fga*100,1):0, gamesPlayed:s.gp };
   }).sort(function(a,b){return (_num(a.number)||999)-(_num(b.number)||999);});
   // Season history + H2H
-  var teamGames=gameRows.filter(function(g){return _str(g.homeTeamId)===tid||_str(g.awayTeamId)===tid;});
+  var teamGames=gameRows.filter(function(g){return linkedTeamIds[_str(g.homeTeamId)]===true||linkedTeamIds[_str(g.awayTeamId)]===true;});
   var shist={}, h2h={};
   teamGames.forEach(function(g){
-    var isHome=_str(g.homeTeamId)===tid, oppId=isHome?_str(g.awayTeamId):_str(g.homeTeamId);
+    var isHome=linkedTeamIds[_str(g.homeTeamId)]===true, oppId=isHome?_str(g.awayTeamId):_str(g.homeTeamId);
     var opp=teamMap[oppId]||{}, ts=isHome?_num(g.homeScore):_num(g.awayScore), os=isHome?_num(g.awayScore):_num(g.homeScore);
+    var oppLinkedIds = _linkedTeamIdSet(teamRows, oppId);
+    var oppKey = Object.keys(oppLinkedIds).sort()[0] || oppId;
     var sid=_str(g.seasonId);
-    if (_str(g.status)==='completed'&&_str(g.type)!=='playoff') {
+    if (_str(g.status)==='completed'&&!_isPlayoffGame(g)) {
       if(!shist[sid]) shist[sid]={wins:0,losses:0,draws:0};
       if(ts>os) shist[sid].wins++; else if(os>ts) shist[sid].losses++; else shist[sid].draws++;
     }
     if (_str(g.status)==='completed') {
-      if(!h2h[oppId]) h2h[oppId]={teamName:_str(opp.name||oppId),wins:0,losses:0,draws:0,games:[]};
-      if(ts>os) h2h[oppId].wins++; else if(os>ts) h2h[oppId].losses++; else h2h[oppId].draws++;
-      h2h[oppId].games.push({gameId:_str(g.id),date:_str(g.date),homeScore:_num(g.homeScore),awayScore:_num(g.awayScore),won:ts>os});
+      if(!h2h[oppKey]) h2h[oppKey]={teamName:_str(opp.name||oppKey),wins:0,losses:0,draws:0,games:[]};
+      if(ts>os) h2h[oppKey].wins++; else if(os>ts) h2h[oppKey].losses++; else h2h[oppKey].draws++;
+      h2h[oppKey].games.push({gameId:_str(g.id),date:_str(g.date),homeScore:_num(g.homeScore),awayScore:_num(g.awayScore),won:ts>os});
     }
   });
   Object.keys(h2h).forEach(function(k){h2h[k].games.sort(function(a,b){return (b.date||'').localeCompare(a.date||'');});});
@@ -524,30 +823,68 @@ function handleGetTeamProfile(e) {
 function handleGetPlayoffs(e) {
   var sid = e && e.parameter ? _str(e.parameter.seasonId) : '';
   var teamMap = _buildTeamMap(_sheetToObjects('Teams'));
-  var games=_sheetToObjects('Games').filter(function(g){return _str(g.seasonId)===sid&&_str(g.type)==='playoff';});
-  if (!games.length) return { rounds:[] };
+  var games=_sheetToObjects('Games').filter(function(g){return _str(g.seasonId)===sid&&_isPlayoffGame(g);});
+  if (!games.length) return { rounds:[], brackets:[] };
   var roundMap={};
+  var bracketRoundMap={}; // { seed: { round: [games] } }
   games.forEach(function(g){
     var r=_num(g.playoffRound)||1; if(!roundMap[r]) roundMap[r]=[];
     var ht=teamMap[_str(g.homeTeamId)]||{}, at=teamMap[_str(g.awayTeamId)]||{};
-    roundMap[r].push({id:_str(g.id),homeTeamId:_str(g.homeTeamId),awayTeamId:_str(g.awayTeamId),
+    var gameObj={id:_str(g.id),homeTeamId:_str(g.homeTeamId),awayTeamId:_str(g.awayTeamId),
       homeTeamName:_str(g.homeTeamName||ht.name||''),awayTeamName:_str(g.awayTeamName||at.name||''),
       homeScore:(g.homeScore!==''&&g.homeScore!=null)?_num(g.homeScore):null,
       awayScore:(g.awayScore!==''&&g.awayScore!=null)?_num(g.awayScore):null,
-      status:_str(g.status||'scheduled'),seed:_str(g.playoffSeed||'')});
+      status:_str(g.status||'scheduled'),seed:_normalizePlayoffSeed(g.playoffSeed),label:_str(g.notes||'')};
+    roundMap[r].push(gameObj);
+    var seed=_normalizePlayoffSeed(g.playoffSeed);
+    if (seed) {
+      if (!bracketRoundMap[seed]) bracketRoundMap[seed]={};
+      if (!bracketRoundMap[seed][r]) bracketRoundMap[seed][r]=[];
+      bracketRoundMap[seed][r].push(gameObj);
+    }
   });
   var names=['首輪','準決賽','決賽','總決賽'];
   var rounds=Object.keys(roundMap).sort(function(a,b){return _num(a)-_num(b);}).map(function(r,i){
     return {name:names[_num(r)-1]||('Round '+r),round:_num(r),games:roundMap[r]};
   });
-  return { rounds:rounds };
+  var bracketMeta={
+    champions:    {name:'🏆 冠軍組',     roundNames:['準決賽','冠軍賽']},
+    consolation:  {name:'🥈 排名賽',     roundNames:['排名賽','排名決賽']}
+  };
+  var brackets=[];
+  ['champions','consolation'].forEach(function(seed){
+    if (!bracketRoundMap[seed]) return;
+    var meta=bracketMeta[seed]||{name:seed,roundNames:[]};
+    var bRounds=Object.keys(bracketRoundMap[seed]).sort(function(a,b){return _num(a)-_num(b);}).map(function(r,i){
+      return {name:(meta.roundNames[i]||('Round '+r)),round:_num(r),games:bracketRoundMap[seed][r]};
+    });
+    brackets.push({id:seed,name:meta.name,rounds:bRounds});
+  });
+  return { rounds:rounds, brackets:brackets };
+}
+
+function _normalizePlayoffSeed(seed) {
+  var value = _str(seed).toLowerCase();
+  if (value === 'championship' || value === 'champion' || value === 'champions') return 'champions';
+  if (value === 'consolidation' || value === 'consolation' || value === 'consoloation' || value === 'ranking' || value === 'rankings') return 'consolation';
+  return value;
+}
+
+function _divisionSeedLabel(division, index) {
+  var value = _str(division).trim();
+  if (!value) return index === 0 ? 'A' : 'B';
+  if (/^[A-Z]$/i.test(value)) return value.toUpperCase();
+  return value.charAt(0).toUpperCase();
 }
 
 function handleGetShotChart(e) {
   var pid=e&&e.parameter?_str(e.parameter.playerId):'';
   var gid=e&&e.parameter?_str(e.parameter.gameId):'';
   var rows=_sheetToObjects('ShotLocations');
-  if (pid) rows=rows.filter(function(r){return _str(r.playerId)===pid;});
+  if (pid) {
+    var linkedPlayerIds = _linkedPlayerIdSet(_sheetToObjects('Players'), pid, _sheetToObjects('Teams'));
+    rows=rows.filter(function(r){return linkedPlayerIds[_str(r.playerId)]===true;});
+  }
   if (gid) rows=rows.filter(function(r){return _str(r.gameId)===gid;});
   return rows.map(function(r){
     return {id:_str(r.id),playerId:_str(r.playerId),gameId:_str(r.gameId),
@@ -559,7 +896,8 @@ function handleGetShotChart(e) {
 function handleGetAdvancedStats(e) {
   var pid=e&&e.parameter?_str(e.parameter.playerId):'';
   if (!pid) return {};
-  var playerBox=_sheetToObjects('BoxScores').filter(function(b){return _str(b.playerId)===pid;});
+  var linkedPlayerIds = _linkedPlayerIdSet(_sheetToObjects('Players'), pid, _sheetToObjects('Teams'));
+  var playerBox=_sheetToObjects('BoxScores').filter(function(b){return linkedPlayerIds[_str(b.playerId)]===true;});
   if (!playerBox.length) return {ts_pct:0,usg_pct:0,per:0};
   var t={gp:0,pts:0,fga:0,fta:0,fgm:0,tpm:0,reb:0,ast:0,stl:0,blk:0,to:0,ftm:0};
   playerBox.forEach(function(b){
@@ -586,7 +924,10 @@ function handleGetAdvancedStats(e) {
 function handleGetAchievements(e) {
   var pid=e&&e.parameter?_str(e.parameter.playerId):'';
   var rows=_sheetToObjects('Achievements');
-  if (pid) rows=rows.filter(function(r){return _str(r.playerId)===pid;});
+  if (pid) {
+    var linkedPlayerIds = _linkedPlayerIdSet(_sheetToObjects('Players'), pid, _sheetToObjects('Teams'));
+    rows=rows.filter(function(r){return linkedPlayerIds[_str(r.playerId)]===true;});
+  }
   return rows.map(function(r){
     return {id:_str(r.id),playerId:_str(r.playerId),gameId:_str(r.gameId||''),
       type:_str(r.type),date:_str(r.date),description:_str(r.description||'')};
@@ -636,11 +977,14 @@ function handleGetRecentAchievements(e) {
   var sid=e&&e.parameter?_str(e.parameter.seasonId):'';
   var playerMap={};
   _sheetToObjects('Players').forEach(function(p){playerMap[_str(p.id)]=p;});
+  var gameSeasonMap={};
+  _sheetToObjects('Games').forEach(function(g){gameSeasonMap[_str(g.id)]=_str(g.seasonId);});
   var rows=_sheetToObjects('Achievements').map(function(r){
     var p=playerMap[_str(r.playerId)]||{};
     return {id:_str(r.id),playerId:_str(r.playerId),playerName:_str(p.name||''),
       gameId:_str(r.gameId||''),type:_str(r.type),date:_str(r.date),description:_str(r.description||'')};
   }).filter(function(a){return a.playerId;});
+  if (sid) rows = rows.filter(function(a){return !a.gameId || gameSeasonMap[_str(a.gameId)] === sid;});
   rows.sort(function(a,b){return (b.date||'').localeCompare(a.date||'');});
   return rows.slice(0,10);
 }
@@ -653,6 +997,10 @@ function handleSubmitBoxScore(e, body) {
   if (!body.entries || !Array.isArray(body.entries) || body.entries.length === 0) return createErrorResponse(400, '缺少必要參數：entries');
   var validation = validateBoxScore(body.entries);
   if (!validation.valid) return createErrorResponse(400, '數據驗證失敗：' + JSON.stringify(validation.errors));
+  var game = _objectById(_sheetToObjects('Games'), body.gameId);
+  if (!game) return createErrorResponse(404, '找不到比賽：' + body.gameId);
+  var associationError = _validateBoxScoreEntriesForGame(game, body.entries, body.mvpPlayerId);
+  if (associationError) return createErrorResponse(400, associationError);
 
   try {
     var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -779,6 +1127,53 @@ function _gameColMap(sheet) {
   return { headers: headers, map: m };
 }
 
+function _objectById(rows, id) {
+  for (var i = 0; i < rows.length; i++) {
+    if (_str(rows[i].id) === _str(id)) return rows[i];
+  }
+  return null;
+}
+
+function _validateGameTeamsForSeason(seasonId, homeTeamId, awayTeamId) {
+  if (_str(homeTeamId) === _str(awayTeamId)) return '主隊及客隊不可相同';
+  var teamRows = _sheetToObjects('Teams');
+  var homeTeam = _objectById(teamRows, homeTeamId);
+  var awayTeam = _objectById(teamRows, awayTeamId);
+  if (!homeTeam) return '找不到主隊：' + homeTeamId;
+  if (!awayTeam) return '找不到客隊：' + awayTeamId;
+  if (_str(homeTeam.seasonId) !== _str(seasonId)) return '主隊不屬於此賽季，請選擇同一賽季的球隊';
+  if (_str(awayTeam.seasonId) !== _str(seasonId)) return '客隊不屬於此賽季，請選擇同一賽季的球隊';
+  return '';
+}
+
+function _gameHasBoxScore(gameId) {
+  return _sheetToObjects('BoxScores').some(function(b) { return _str(b.gameId) === _str(gameId); });
+}
+
+function _validateBoxScoreEntriesForGame(game, entries, mvpPlayerId) {
+  var playerRows = _sheetToObjects('Players');
+  var playerMap = {};
+  playerRows.forEach(function(p) { playerMap[_str(p.id)] = p; });
+  var allowedTeams = {};
+  allowedTeams[_str(game.homeTeamId)] = true;
+  allowedTeams[_str(game.awayTeamId)] = true;
+  for (var i = 0; i < entries.length; i++) {
+    var entry = entries[i];
+    var teamId = _str(entry.teamId);
+    var playerId = _str(entry.playerId);
+    if (!allowedTeams[teamId]) return 'Box Score 內有球隊不屬於此比賽：' + teamId;
+    var player = playerMap[playerId];
+    if (!player) return '找不到球員：' + playerId;
+    if (_str(player.teamId) !== teamId) return '球員 ' + _str(player.name || playerId) + ' 不屬於所選球隊';
+  }
+  if (mvpPlayerId) {
+    var mvpPlayer = playerMap[_str(mvpPlayerId)];
+    if (!mvpPlayer) return '找不到 MVP 球員：' + mvpPlayerId;
+    if (!allowedTeams[_str(mvpPlayer.teamId)]) return 'MVP 球員不屬於此比賽的兩隊';
+  }
+  return '';
+}
+
 function _findGameRow(sheet, colMap, gameId) {
   var lastRow = sheet.getLastRow();
   if (lastRow < 2) return -1;
@@ -795,6 +1190,8 @@ function handleCreateGame(e, body) {
   if (!body.date) return createErrorResponse(400, '缺少必要參數：date');
   if (!body.homeTeamId) return createErrorResponse(400, '缺少必要參數：homeTeamId');
   if (!body.awayTeamId) return createErrorResponse(400, '缺少必要參數：awayTeamId');
+  var teamError = _validateGameTeamsForSeason(body.seasonId, body.homeTeamId, body.awayTeamId);
+  if (teamError) return createErrorResponse(400, teamError);
   try {
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var sheet = ss.getSheetByName('Games');
@@ -825,6 +1222,16 @@ function handleUpdateGame(e, body) {
     var cm = _gameColMap(sheet);
     var rowNum = _findGameRow(sheet, cm.map, body.gameId);
     if (rowNum === -1) return createErrorResponse(404, '找不到比賽：' + body.gameId);
+    var currentValues = sheet.getRange(rowNum, 1, 1, sheet.getLastColumn()).getValues()[0];
+    var currentSeasonId = cm.map['seasonId'] !== undefined ? _str(currentValues[cm.map['seasonId']]) : '';
+    body.seasonId = currentSeasonId;
+    var nextHomeTeamId = body.homeTeamId !== undefined ? body.homeTeamId : (cm.map['homeTeamId'] !== undefined ? currentValues[cm.map['homeTeamId']] : '');
+    var nextAwayTeamId = body.awayTeamId !== undefined ? body.awayTeamId : (cm.map['awayTeamId'] !== undefined ? currentValues[cm.map['awayTeamId']] : '');
+    var teamError = _validateGameTeamsForSeason(currentSeasonId, nextHomeTeamId, nextAwayTeamId);
+    if (teamError) return createErrorResponse(400, teamError);
+    if ((body.homeTeamId !== undefined || body.awayTeamId !== undefined) && _gameHasBoxScore(body.gameId)) {
+      return createErrorResponse(400, '此比賽已有 Box Score，不能更改主隊或客隊；請先刪除相關數據');
+    }
     ['date','time','venue','homeTeamId','awayTeamId','type'].forEach(function(f) {
       if (body[f] !== undefined && cm.map[f] !== undefined)
         sheet.getRange(rowNum, cm.map[f] + 1).setValue(body[f]);
@@ -845,6 +1252,10 @@ function handleCancelGame(e, body) {
     var cm = _gameColMap(sheet);
     var rowNum = _findGameRow(sheet, cm.map, body.gameId);
     if (rowNum === -1) return createErrorResponse(404, '找不到比賽：' + body.gameId);
+    if (cm.map['seasonId'] !== undefined) {
+      body.seasonId = _str(sheet.getRange(rowNum, cm.map['seasonId'] + 1).getValue());
+    }
+    body.entries = _sheetToObjects('BoxScores').filter(function(b){return _str(b.gameId) === _str(body.gameId);});
     if (cm.map['status'] !== undefined) sheet.getRange(rowNum, cm.map['status'] + 1).setValue('cancelled');
     if (cm.map['updatedAt'] !== undefined) sheet.getRange(rowNum, cm.map['updatedAt'] + 1).setValue(new Date().toISOString());
     return createSuccessResponse({ message: '比賽已取消', gameId: body.gameId }, false);
@@ -867,7 +1278,117 @@ function handleSubmitShotLocation(e, body) {
 
 function handleGeneratePlayoffs(e, body) {
   if (!body.seasonId) return createErrorResponse(400, '缺少必要參數：seasonId');
-  return createSuccessResponse({ message: '季後賽對陣表生成成功', seasonId: body.seasonId }, false);
+  var sid = body.seasonId;
+  try {
+    // Get current regular-season standings
+    var fakeE = { parameter: { seasonId: sid } };
+    var standings = handleGetStandings(fakeE);
+    if (standings.length < 4) return createErrorResponse(400, '需要至少 4 支球隊才能生成季後賽（目前：' + standings.length + ' 支）');
+
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName('Games');
+    if (!sheet) return createErrorResponse(500, '找不到 Games 工作表');
+    var cm = _gameColMap(sheet);
+
+    // Prevent duplicate generation
+    var existing = _sheetToObjects('Games').filter(function(g) {
+      return _str(g.seasonId) === sid && _isPlayoffGame(g);
+    });
+    if (existing.length > 0) return createErrorResponse(400, '此賽季的季後賽對陣已存在（共 ' + existing.length + ' 場），請先刪除現有季後賽比賽再重新生成');
+
+    var divisionMap = {};
+    standings.forEach(function(team) {
+      var division = _str(team.division).toUpperCase();
+      if (!division) return;
+      if (!divisionMap[division]) divisionMap[division] = [];
+      divisionMap[division].push(team);
+    });
+
+    var matchups;
+    var divisionKeys = Object.keys(divisionMap).sort();
+    if (divisionKeys.length >= 2) {
+      var divAKey = divisionKeys[0], divBKey = divisionKeys[1];
+      var divA = divisionMap[divAKey], divB = divisionMap[divBKey];
+      if (divA.length < 2 || divB.length < 2) return createErrorResponse(400, '兩個分組各需要至少 2 支球隊才能生成季後賽');
+      var divALabel = _divisionSeedLabel(divAKey, 0);
+      var divBLabel = _divisionSeedLabel(divBKey, 1);
+      matchups = [
+        { home: divA[0], away: divB[1], seed: 'champions', round: 1, label: divALabel + '1 vs ' + divBLabel + '2' },
+        { home: divB[0], away: divA[1], seed: 'champions', round: 1, label: divBLabel + '1 vs ' + divALabel + '2' }
+      ];
+      if (divA.length >= 7 && divB.length >= 7) {
+        matchups.push(
+          { home: divA[2], away: divB[6], seed: 'consolation', round: 1, label: divALabel + '3 vs ' + divBLabel + '7' },
+          { home: divB[2], away: divA[6], seed: 'consolation', round: 1, label: divBLabel + '3 vs ' + divALabel + '7' },
+          { home: divA[3], away: divB[5], seed: 'consolation', round: 1, label: divALabel + '4 vs ' + divBLabel + '6' },
+          { home: divB[3], away: divA[5], seed: 'consolation', round: 1, label: divBLabel + '4 vs ' + divALabel + '6' },
+          { home: divA[4], away: divB[4], seed: 'consolation', round: 1, label: divALabel + '5 vs ' + divBLabel + '5' }
+        );
+      } else if (divA.length >= 6 && divB.length >= 6) {
+        matchups.push(
+          { home: divA[2], away: divB[5], seed: 'consolation', round: 1, label: divALabel + '3 vs ' + divBLabel + '6' },
+          { home: divB[2], away: divA[5], seed: 'consolation', round: 1, label: divBLabel + '3 vs ' + divALabel + '6' },
+          { home: divA[3], away: divB[4], seed: 'consolation', round: 1, label: divALabel + '4 vs ' + divBLabel + '5' },
+          { home: divB[3], away: divA[4], seed: 'consolation', round: 1, label: divBLabel + '4 vs ' + divALabel + '5' }
+        );
+      } else if (divA.length >= 4 && divB.length >= 4) {
+        matchups.push(
+          { home: divA[2], away: divB[3], seed: 'consolation', round: 1, label: divALabel + '3 vs ' + divBLabel + '4' },
+          { home: divB[2], away: divA[3], seed: 'consolation', round: 1, label: divBLabel + '3 vs ' + divALabel + '4' }
+        );
+      } else if (divA.length >= 3 && divB.length >= 3) {
+        matchups.push({ home: divA[2], away: divB[2], seed: 'consolation', round: 1, label: divALabel + '3 vs ' + divBLabel + '3' });
+      }
+    } else {
+      matchups = [
+        { home: standings[0], away: standings[3], seed: 'champions', round: 1, label: '1 vs 4' },
+        { home: standings[1], away: standings[2], seed: 'champions', round: 1, label: '2 vs 3' }
+      ];
+      if (standings.length >= 12) {
+        matchups.push(
+          { home: standings[4], away: standings[11], seed: 'consolation', round: 1, label: '5 vs 12' },
+          { home: standings[5], away: standings[10], seed: 'consolation', round: 1, label: '6 vs 11' },
+          { home: standings[6], away: standings[9], seed: 'consolation', round: 1, label: '7 vs 10' },
+          { home: standings[7], away: standings[8], seed: 'consolation', round: 1, label: '8 vs 9' }
+        );
+      } else if (standings.length >= 8) {
+        matchups.push(
+          { home: standings[4], away: standings[7], seed: 'consolation', round: 1, label: '5 vs 8' },
+          { home: standings[5], away: standings[6], seed: 'consolation', round: 1, label: '6 vs 7' }
+        );
+      } else if (standings.length >= 6) {
+        matchups.push({ home: standings[4], away: standings[5], seed: 'consolation', round: 1, label: '5 vs 6' });
+      }
+    }
+
+    var gameIds = [];
+    matchups.forEach(function(m) {
+      var gameId = Utilities.getUuid();
+      var row = new Array(cm.headers.length).fill('');
+      function s(f, v) { if (cm.map[f] !== undefined) row[cm.map[f]] = v; }
+      s('id',           gameId);
+      s('seasonId',     sid);
+      s('date',         '');
+      s('time',         '');
+      s('venue',        '');
+      s('homeTeamId',   m.home.teamId);
+      s('awayTeamId',   m.away.teamId);
+      s('homeTeamName', m.home.teamName);
+      s('awayTeamName', m.away.teamName);
+      s('type',         'playoff');
+      s('status',       'scheduled');
+      s('playoffRound', m.round);
+      s('playoffSeed',  m.seed);
+      s('notes',        m.label || '');
+      s('updatedAt',    new Date().toISOString());
+      sheet.appendRow(row);
+      gameIds.push(gameId);
+    });
+
+    return createSuccessResponse({ message: '季後賽對陣表生成成功，共 ' + gameIds.length + ' 場', seasonId: sid, gamesCreated: gameIds.length }, false);
+  } catch(err) {
+    return createErrorResponse(500, '季後賽生成失敗：' + err.message);
+  }
 }
 
 function handleArchiveSeason(e, body) {
@@ -875,20 +1396,138 @@ function handleArchiveSeason(e, body) {
   return createSuccessResponse({ message: '賽季封存成功', seasonId: body.seasonId }, false);
 }
 
+function handleCreateSeason(e, body) {
+  if (!body.name) return createErrorResponse(400, '缺少必要參數：name');
+  if (!body.startDate) return createErrorResponse(400, '缺少必要參數：startDate');
+  if (!body.endDate) return createErrorResponse(400, '缺少必要參數：endDate');
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName('Seasons');
+    if (!sheet) return createErrorResponse(500, '找不到 Seasons 工作表');
+    var cm = _seasonColMap(sheet);
+    var seasonId = Utilities.getUuid();
+    var now = new Date().toISOString();
+    var row = new Array(cm.headers.length).fill('');
+    function set(f, v) { if (cm.map[f] !== undefined) row[cm.map[f]] = v !== undefined && v !== null ? v : ''; }
+    set('id', seasonId);
+    set('name', body.name);
+    set('startDate', body.startDate);
+    set('endDate', body.endDate);
+    set('status', body.status || 'active');
+    set('playoffTopN', body.playoffTopN !== undefined ? body.playoffTopN : 8);
+    set('minGamesForRanking', body.minGamesForRanking !== undefined ? body.minGamesForRanking : 3);
+    set('createdAt', now);
+    set('updatedAt', now);
+    sheet.appendRow(row);
+    return createSuccessResponse({ message: '賽季建立成功', seasonId: seasonId }, false);
+  } catch(err) { return createErrorResponse(500, '賽季建立失敗：' + err.message); }
+}
+
+function handleUpdateSeason(e, body) {
+  if (!body.seasonId) return createErrorResponse(400, '缺少必要參數：seasonId');
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName('Seasons');
+    if (!sheet) return createErrorResponse(500, '找不到 Seasons 工作表');
+    var cm = _seasonColMap(sheet);
+    var rowNum = _findSeasonRow(sheet, cm.map, body.seasonId);
+    if (rowNum === -1) return createErrorResponse(404, '找不到賽季：' + body.seasonId);
+    ['name','startDate','endDate','status','playoffTopN','minGamesForRanking'].forEach(function(f) {
+      if (body[f] !== undefined && cm.map[f] !== undefined) sheet.getRange(rowNum, cm.map[f] + 1).setValue(body[f]);
+    });
+    if (cm.map['updatedAt'] !== undefined) sheet.getRange(rowNum, cm.map['updatedAt'] + 1).setValue(new Date().toISOString());
+    return createSuccessResponse({ message: '賽季更新成功', seasonId: body.seasonId }, false);
+  } catch(err) { return createErrorResponse(500, '賽季更新失敗：' + err.message); }
+}
+
+function handleDeleteSeason(e, body) {
+  if (!body.seasonId) return createErrorResponse(400, '缺少必要參數：seasonId');
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName('Seasons');
+    if (!sheet) return createErrorResponse(500, '找不到 Seasons 工作表');
+    var usedByTeams = _sheetToObjects('Teams').some(function(t) { return _str(t.seasonId) === _str(body.seasonId); });
+    var usedByGames = _sheetToObjects('Games').some(function(g) { return _str(g.seasonId) === _str(body.seasonId); });
+    if (usedByTeams || usedByGames) return createErrorResponse(400, '此賽季已有球隊或比賽，無法刪除');
+    var cm = _seasonColMap(sheet);
+    var rowNum = _findSeasonRow(sheet, cm.map, body.seasonId);
+    if (rowNum === -1) return createErrorResponse(404, '找不到賽季：' + body.seasonId);
+    sheet.deleteRow(rowNum);
+    return createSuccessResponse({ message: '賽季已刪除', seasonId: body.seasonId }, false);
+  } catch(err) { return createErrorResponse(500, '賽季刪除失敗：' + err.message); }
+}
+
 function handleCreateAnnouncement(e, body) {
   if (!body.title) return createErrorResponse(400, '缺少必要參數：title');
   if (!body.content) return createErrorResponse(400, '缺少必要參數：content');
-  return createSuccessResponse({ message: '公告發佈成功', announcementId: 'new-ann-id' }, false);
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName('Announcements');
+    if (!sheet) return createErrorResponse(500, '找不到 Announcements 工作表');
+    var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    var colMap = {};
+    headers.forEach(function(h, i) { colMap[h] = i; });
+    var newId = Utilities.getUuid();
+    var today = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
+    var row = new Array(headers.length).fill('');
+    var set = function(f, v) { if (colMap[f] !== undefined) row[colMap[f]] = v !== undefined ? v : ''; };
+    set('id', newId);
+    set('date', today);
+    set('title', body.title);
+    set('content', body.content);
+    set('photo', body.photo || '');
+    set('pinned', body.pinned === true || body.pinned === 'true' ? 'TRUE' : 'FALSE');
+    set('hidden', body.hidden === true || body.hidden === 'true' ? 'TRUE' : 'FALSE');
+    sheet.appendRow(row);
+    return createSuccessResponse({ message: '公告發佈成功', announcementId: newId }, false);
+  } catch(err) { return createErrorResponse(500, '公告發佈失敗：' + err.message); }
 }
 
 function handleUpdateAnnouncement(e, body) {
   if (!body.announcementId) return createErrorResponse(400, '缺少必要參數：announcementId');
-  return createSuccessResponse({ message: '公告更新成功', announcementId: body.announcementId }, false);
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName('Announcements');
+    if (!sheet) return createErrorResponse(500, '找不到 Announcements 工作表');
+    var lastRow = sheet.getLastRow();
+    var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    var colMap = {};
+    headers.forEach(function(h, i) { colMap[h] = i + 1; });
+    var data = sheet.getRange(2, 1, lastRow - 1, sheet.getLastColumn()).getValues();
+    var rowNum = -1;
+    for (var i = 0; i < data.length; i++) {
+      if (String(data[i][0]) === String(body.announcementId)) { rowNum = i + 2; break; }
+    }
+    if (rowNum < 0) return createErrorResponse(404, '找不到公告');
+    ['title', 'content', 'photo'].forEach(function(f) {
+      if (body[f] !== undefined && colMap[f]) sheet.getRange(rowNum, colMap[f]).setValue(body[f]);
+    });
+    if (body.pinned !== undefined && colMap['pinned']) {
+      sheet.getRange(rowNum, colMap['pinned']).setValue(body.pinned === true || body.pinned === 'true' ? 'TRUE' : 'FALSE');
+    }
+    if (body.hidden !== undefined && colMap['hidden']) {
+      sheet.getRange(rowNum, colMap['hidden']).setValue(body.hidden === true || body.hidden === 'true' ? 'TRUE' : 'FALSE');
+    }
+    return createSuccessResponse({ message: '公告更新成功', announcementId: body.announcementId }, false);
+  } catch(err) { return createErrorResponse(500, '公告更新失敗：' + err.message); }
 }
 
 function handleDeleteAnnouncement(e, body) {
   if (!body.announcementId) return createErrorResponse(400, '缺少必要參數：announcementId');
-  return createSuccessResponse({ message: '公告已刪除', announcementId: body.announcementId }, false);
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName('Announcements');
+    if (!sheet) return createErrorResponse(500, '找不到 Announcements 工作表');
+    var lastRow = sheet.getLastRow();
+    var data = sheet.getRange(2, 1, lastRow - 1, sheet.getLastColumn()).getValues();
+    for (var i = data.length - 1; i >= 0; i--) {
+      if (String(data[i][0]) === String(body.announcementId)) {
+        sheet.deleteRow(i + 2);
+        return createSuccessResponse({ message: '公告已刪除', announcementId: body.announcementId }, false);
+      }
+    }
+    return createErrorResponse(404, '找不到公告');
+  } catch(err) { return createErrorResponse(500, '公告刪除失敗：' + err.message); }
 }
 
 function handleDeleteGame(e, body) {
@@ -900,6 +1539,12 @@ function handleDeleteGame(e, body) {
     var cm = _gameColMap(sheet);
     var rowNum = _findGameRow(sheet, cm.map, body.gameId);
     if (rowNum === -1) return createErrorResponse(404, '找不到比賽：' + body.gameId);
+    if (cm.map['seasonId'] !== undefined) {
+      body.seasonId = _str(sheet.getRange(rowNum, cm.map['seasonId'] + 1).getValue());
+    }
+    body.entries = _sheetToObjects('BoxScores').filter(function(b){return _str(b.gameId) === _str(body.gameId);});
+    _deleteRowsByColumnValue(ss, 'BoxScores', 'gameId', body.gameId);
+    _deleteRowsByColumnValue(ss, 'ShotLocations', 'gameId', body.gameId);
     sheet.deleteRow(rowNum);
     return createSuccessResponse({ message: '比賽已刪除', gameId: body.gameId }, false);
   } catch (err) {
@@ -914,6 +1559,7 @@ function handleCreateTeam(e, body) {
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var sheet = ss.getSheetByName('Teams');
     if (!sheet) return createErrorResponse(500, '找不到 Teams 工作表');
+    _ensureColumns(sheet, ['division', 'teamToken', 'parentTeamId']);
     var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
     var colMap = {};
     headers.forEach(function(h, i) { colMap[h] = i; });
@@ -921,6 +1567,7 @@ function handleCreateTeam(e, body) {
     var row = new Array(headers.length).fill('');
     var set = function(f, v) { if (colMap[f] !== undefined) row[colMap[f]] = v || ''; };
     set('id', newId); set('seasonId', body.seasonId); set('name', body.name);
+    set('division', body.division);
     set('captain', body.captain); set('captainWhatsApp', body.captainWhatsApp);
     set('whatsapp', body.captainWhatsApp);
     set('logo', body.logo); set('description', body.description);
@@ -937,6 +1584,7 @@ function handleUpdateTeam(e, body) {
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var sheet = ss.getSheetByName('Teams');
     if (!sheet) return createErrorResponse(500, '找不到 Teams 工作表');
+    _ensureColumns(sheet, ['division', 'teamToken', 'parentTeamId']);
     var lastRow = sheet.getLastRow();
     if (lastRow < 2) return createErrorResponse(404, '找不到球隊');
     var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
@@ -948,7 +1596,7 @@ function handleUpdateTeam(e, body) {
       if (String(data[i][0]) === String(body.teamId)) { rowNum = i + 2; break; }
     }
     if (rowNum < 0) return createErrorResponse(404, '找不到球隊 ID：' + body.teamId);
-    var fields = ['name','captain','captainWhatsApp','whatsapp','logo','description','jerseyHome','jerseyAway','teamToken'];
+    var fields = ['name','division','captain','captainWhatsApp','whatsapp','logo','description','jerseyHome','jerseyAway','teamToken'];
     fields.forEach(function(f) {
       if (body[f] !== undefined && colMap[f]) {
         sheet.getRange(rowNum, colMap[f]).setValue(body[f]);
@@ -964,17 +1612,208 @@ function handleUpdateTeam(e, body) {
 
 function handleDeleteTeam(e, body) {
   if (!body.teamId) return createErrorResponse(400, '缺少必要參數：teamId');
-  return createSuccessResponse({ message: '球隊已刪除', teamId: body.teamId }, false);
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var teamSheet = ss.getSheetByName('Teams');
+    if (!teamSheet) return createErrorResponse(500, '找不到 Teams 工作表');
+    var lastRow = teamSheet.getLastRow();
+    if (lastRow < 2) return createErrorResponse(404, '找不到球隊');
+
+    var headers = teamSheet.getRange(1, 1, 1, teamSheet.getLastColumn()).getValues()[0];
+    var colMap = {};
+    headers.forEach(function(h, i) { colMap[h] = i; });
+    var data = teamSheet.getRange(2, 1, lastRow - 1, teamSheet.getLastColumn()).getValues();
+    var rowNum = -1;
+    var seasonId = '';
+    var teamName = '';
+    for (var i = 0; i < data.length; i++) {
+      if (_str(data[i][colMap['id'] || 0]) === _str(body.teamId)) {
+        rowNum = i + 2;
+        seasonId = colMap['seasonId'] !== undefined ? _str(data[i][colMap['seasonId']]) : '';
+        teamName = colMap['name'] !== undefined ? _str(data[i][colMap['name']]) : '';
+        break;
+      }
+    }
+    if (rowNum < 0) return createErrorResponse(404, '找不到球隊 ID：' + body.teamId);
+
+    var usedByGames = _sheetToObjects('Games').some(function(g) {
+      return _str(g.homeTeamId) === _str(body.teamId) || _str(g.awayTeamId) === _str(body.teamId);
+    });
+    if (usedByGames) return createErrorResponse(400, '此球隊已有賽程或比賽紀錄，請先刪除相關比賽後再刪除球隊');
+
+    _deleteRowsByColumnValue(ss, 'Players', 'teamId', body.teamId);
+    _deleteRowsByColumnValue(ss, 'TeamAvailability', 'teamId', body.teamId);
+    teamSheet.deleteRow(rowNum);
+    body.seasonId = seasonId;
+    return createSuccessResponse({ message: '球隊已刪除', teamId: body.teamId, seasonId: seasonId, teamName: teamName }, false);
+  } catch(err) {
+    return createErrorResponse(500, '球隊刪除失敗：' + err.message);
+  }
+}
+
+function _deleteRowsByColumnValue(ss, sheetName, columnName, value) {
+  var sheet = ss.getSheetByName(sheetName);
+  if (!sheet || sheet.getLastRow() < 2) return 0;
+  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  var colIndex = -1;
+  for (var i = 0; i < headers.length; i++) {
+    if (_str(headers[i]) === columnName) { colIndex = i; break; }
+  }
+  if (colIndex < 0) return 0;
+  var data = sheet.getRange(2, 1, sheet.getLastRow() - 1, sheet.getLastColumn()).getValues();
+  var deleted = 0;
+  for (var rowIdx = data.length - 1; rowIdx >= 0; rowIdx--) {
+    if (_str(data[rowIdx][colIndex]) === _str(value)) {
+      sheet.deleteRow(rowIdx + 2);
+      deleted++;
+    }
+  }
+  return deleted;
+}
+
+function _linkedPlayerIdSet(playerRows, playerId, teamRows) {
+  var player = null;
+  for (var i = 0; i < playerRows.length; i++) {
+    if (_str(playerRows[i].id) === _str(playerId)) { player = playerRows[i]; break; }
+  }
+  var rootId = player ? _str(player.parentPlayerId || player.id) : _str(playerId);
+  var nameKey = player ? _str(player.name).toLowerCase() : '';
+  var numberKey = player ? _str(player.number) : '';
+  var linkedTeamIds = player && teamRows ? _linkedTeamIdSet(teamRows, _str(player.teamId)) : null;
+  var ids = {};
+  playerRows.forEach(function(p) {
+    if (_str(p.id) === rootId || _str(p.parentPlayerId) === rootId || _str(p.id) === _str(playerId)) ids[_str(p.id)] = true;
+    if (nameKey && _str(p.name).toLowerCase() === nameKey && (!numberKey || _str(p.number) === numberKey) && (!linkedTeamIds || linkedTeamIds[_str(p.teamId)] === true)) ids[_str(p.id)] = true;
+  });
+  return ids;
+}
+
+function _linkedTeamIdSet(teamRows, teamId) {
+  var team = null;
+  for (var i = 0; i < teamRows.length; i++) {
+    if (_str(teamRows[i].id) === _str(teamId)) { team = teamRows[i]; break; }
+  }
+  var rootId = team ? _str(team.parentTeamId || team.id) : _str(teamId);
+  var nameKey = team ? _str(team.name).toLowerCase() : '';
+  var ids = {};
+  teamRows.forEach(function(t) {
+    if (_str(t.id) === rootId || _str(t.parentTeamId) === rootId || _str(t.id) === _str(teamId)) ids[_str(t.id)] = true;
+    if (nameKey && _str(t.name).toLowerCase() === nameKey) ids[_str(t.id)] = true;
+  });
+  return ids;
+}
+
+function handleCopyTeamsToSeason(e, body) {
+  if (!body.sourceSeasonId) return createErrorResponse(400, '缺少必要參數：sourceSeasonId');
+  if (!body.targetSeasonId) return createErrorResponse(400, '缺少必要參數：targetSeasonId');
+  if (_str(body.sourceSeasonId) === _str(body.targetSeasonId)) return createErrorResponse(400, '來源賽季及目標賽季不可相同');
+  var teamIds = body.teamIds || [];
+  if (!Array.isArray(teamIds) || teamIds.length === 0) return createErrorResponse(400, '請選擇要複製的球隊');
+
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName('Teams');
+    if (!sheet) return createErrorResponse(500, '找不到 Teams 工作表');
+    _ensureColumns(sheet, ['division', 'teamToken', 'parentTeamId']);
+    var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    var colMap = {};
+    headers.forEach(function(h, i) { colMap[h] = i; });
+
+    var rows = _sheetToObjects('Teams');
+    var selected = {};
+    teamIds.forEach(function(id) { selected[_str(id)] = true; });
+    var sourceRows = rows.filter(function(r) {
+      return _str(r.seasonId) === _str(body.sourceSeasonId) && selected[_str(r.id)];
+    });
+    if (sourceRows.length === 0) return createErrorResponse(404, '找不到可複製的來源球隊');
+
+    var existingNames = {};
+    rows.forEach(function(r) {
+      if (_str(r.seasonId) === _str(body.targetSeasonId)) existingNames[_str(r.name).toLowerCase()] = true;
+    });
+
+    var copied = [];
+    var skipped = [];
+    var teamIdMap = {};
+    sourceRows.forEach(function(src) {
+      var nameKey = _str(src.name).toLowerCase();
+      if (existingNames[nameKey]) {
+        skipped.push(_str(src.name));
+        return;
+      }
+      var newId = Utilities.getUuid();
+      var row = new Array(headers.length).fill('');
+      function set(f, v) { if (colMap[f] !== undefined) row[colMap[f]] = v !== undefined && v !== null ? v : ''; }
+      set('id', newId);
+      set('seasonId', body.targetSeasonId);
+      set('name', _str(src.name));
+      set('division', _str(src.division));
+      set('captain', _str(src.captain));
+      set('captainWhatsApp', _str(src.captainWhatsApp || src.whatsapp));
+      set('whatsapp', _str(src.captainWhatsApp || src.whatsapp));
+      set('logo', _str(src.logo));
+      set('description', _str(src.description));
+      set('jerseyHome', _str(src.jerseyHome));
+      set('jerseyAway', _str(src.jerseyAway));
+      set('teamToken', Utilities.getUuid());
+      set('parentTeamId', _str(src.parentTeamId || src.id));
+      sheet.appendRow(row);
+      existingNames[nameKey] = true;
+      teamIdMap[_str(src.id)] = newId;
+      copied.push({ sourceTeamId: _str(src.id), teamId: newId, name: _str(src.name) });
+    });
+
+    var copiedPlayers = 0;
+    if (copied.length > 0) {
+      var playerSheet = ss.getSheetByName('Players');
+      if (playerSheet) {
+        _ensureColumns(playerSheet, ['parentPlayerId', 'leaderPhoto']);
+        var playerHeaders = playerSheet.getRange(1, 1, 1, playerSheet.getLastColumn()).getValues()[0];
+        var playerColMap = {};
+        playerHeaders.forEach(function(h, i) { playerColMap[h] = i; });
+        var playerRows = _sheetToObjects('Players').filter(function(p) { return !!teamIdMap[_str(p.teamId)]; });
+        playerRows.forEach(function(srcPlayer) {
+          var playerRow = new Array(playerHeaders.length).fill('');
+          function setPlayer(f, v) { if (playerColMap[f] !== undefined) playerRow[playerColMap[f]] = v !== undefined && v !== null ? v : ''; }
+          setPlayer('id', Utilities.getUuid());
+          setPlayer('teamId', teamIdMap[_str(srcPlayer.teamId)]);
+          setPlayer('name', _str(srcPlayer.name));
+          setPlayer('number', srcPlayer.number !== undefined && srcPlayer.number !== null ? srcPlayer.number : '');
+          setPlayer('position', _str(srcPlayer.position));
+          setPlayer('photo', _str(srcPlayer.photo));
+          setPlayer('leaderPhoto', _str(srcPlayer.leaderPhoto));
+          setPlayer('parentPlayerId', _str(srcPlayer.parentPlayerId || srcPlayer.id));
+          playerSheet.appendRow(playerRow);
+          copiedPlayers++;
+        });
+      }
+    }
+
+    return createSuccessResponse({ message: '球隊及球員資料複製完成', copied: copied, skipped: skipped, copiedCount: copied.length, skippedCount: skipped.length, copiedPlayers: copiedPlayers }, false);
+  } catch(err) {
+    return createErrorResponse(500, '球隊資料複製失敗：' + err.message);
+  }
 }
 
 // --- Admin player management ---
+function _validatePlayerImagePayload(body) {
+  var maxLen = 49000;
+  var labels = { photo: '球員照片', leaderPhoto: '排行榜照片' };
+  ['photo', 'leaderPhoto'].forEach(function(field) {
+    var value = body && body[field] !== undefined ? _str(body[field]) : '';
+    if (value && value.length > maxLen) throw new Error(labels[field] + '太大，請重新上載較小圖片');
+  });
+}
+
 function handleCreatePlayer(e, body) {
   if (!body.teamId) return createErrorResponse(400, '缺少必要參數：teamId');
   if (!body.name) return createErrorResponse(400, '缺少必要參數：name');
   try {
+    _validatePlayerImagePayload(body);
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var sheet = ss.getSheetByName('Players');
     if (!sheet) return createErrorResponse(500, '找不到 Players 工作表');
+    _ensureColumns(sheet, ['parentPlayerId', 'photo', 'leaderPhoto']);
     var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
     var colMap = {};
     headers.forEach(function(h, i) { colMap[h] = i; });
@@ -983,7 +1822,7 @@ function handleCreatePlayer(e, body) {
     var set = function(f, v) { if (colMap[f] !== undefined) row[colMap[f]] = v || ''; };
     set('id', newId); set('teamId', _str(body.teamId)); set('name', body.name);
     set('number', body.number !== undefined ? body.number : '');
-    set('position', body.position); set('photo', body.photo);
+    set('position', body.position); set('photo', body.photo); set('leaderPhoto', body.leaderPhoto);
     sheet.appendRow(row);
     return createSuccessResponse({ message: '球員新增成功', playerId: newId }, false);
   } catch(err) { return createErrorResponse(500, '球員新增失敗：' + err.message); }
@@ -992,9 +1831,11 @@ function handleCreatePlayer(e, body) {
 function handleUpdatePlayer(e, body) {
   if (!body.playerId) return createErrorResponse(400, '缺少必要參數：playerId');
   try {
+    _validatePlayerImagePayload(body);
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var sheet = ss.getSheetByName('Players');
     if (!sheet) return createErrorResponse(500, '找不到 Players 工作表');
+    _ensureColumns(sheet, ['parentPlayerId', 'photo', 'leaderPhoto']);
     var lastRow = sheet.getLastRow();
     var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
     var colMap = {};
@@ -1005,7 +1846,7 @@ function handleUpdatePlayer(e, body) {
       if (String(data[i][0]) === String(body.playerId)) { rowNum = i + 2; break; }
     }
     if (rowNum < 0) return createErrorResponse(404, '找不到球員');
-    ['name','number','position','photo'].forEach(function(f) {
+    ['name','number','position','photo','leaderPhoto'].forEach(function(f) {
       if (body[f] !== undefined && colMap[f]) sheet.getRange(rowNum, colMap[f]).setValue(body[f]);
     });
     return createSuccessResponse({ message: '球員更新成功', playerId: body.playerId }, false);
@@ -1053,9 +1894,11 @@ function handlePublicCreatePlayer(e, body) {
   if (!team) return createErrorResponse(403, '無效的球隊 token');
   if (!body.name) return createErrorResponse(400, '缺少必要參數：name');
   try {
+    _validatePlayerImagePayload(body);
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var sheet = ss.getSheetByName('Players');
     if (!sheet) return createErrorResponse(500, '找不到 Players 工作表');
+    _ensureColumns(sheet, ['photo', 'leaderPhoto']);
     var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
     var colMap = {};
     headers.forEach(function(h, i) { colMap[h] = i; });
@@ -1064,7 +1907,7 @@ function handlePublicCreatePlayer(e, body) {
     var set = function(f, v) { if (colMap[f] !== undefined) row[colMap[f]] = v || ''; };
     set('id', newId); set('teamId', _str(team.id)); set('name', body.name);
     set('number', body.number !== undefined ? body.number : '');
-    set('position', body.position); set('photo', body.photo);
+    set('position', body.position); set('photo', body.photo); set('leaderPhoto', body.leaderPhoto);
     sheet.appendRow(row);
     return createSuccessResponse({ message: '球員新增成功', playerId: newId }, false);
   } catch(err) { return createErrorResponse(500, '球員新增失敗：' + err.message); }
@@ -1076,9 +1919,11 @@ function handlePublicUpdatePlayer(e, body) {
   if (!team) return createErrorResponse(403, '無效的球隊 token');
   if (!body.playerId) return createErrorResponse(400, '缺少必要參數：playerId');
   try {
+    _validatePlayerImagePayload(body);
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var sheet = ss.getSheetByName('Players');
     if (!sheet) return createErrorResponse(500, '找不到 Players 工作表');
+    _ensureColumns(sheet, ['photo', 'leaderPhoto']);
     var lastRow = sheet.getLastRow();
     var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
     var colMap = {};
@@ -1092,7 +1937,7 @@ function handlePublicUpdatePlayer(e, body) {
     // Verify player belongs to this team
     var tidIdx = (colMap['teamId'] || 2) - 1;
     if (String(data[rowNum - 2][tidIdx]) !== String(team.id)) return createErrorResponse(403, '此球員不屬於您的球隊');
-    ['name','number','position','photo'].forEach(function(f) {
+    ['name','number','position','photo','leaderPhoto'].forEach(function(f) {
       if (body[f] !== undefined && colMap[f]) sheet.getRange(rowNum, colMap[f]).setValue(body[f]);
     });
     return createSuccessResponse({ message: '球員更新成功', playerId: body.playerId }, false);
@@ -1121,6 +1966,182 @@ function handlePublicDeletePlayer(e, body) {
     }
     return createErrorResponse(404, '找不到球員或無權限刪除');
   } catch(err) { return createErrorResponse(500, '球員刪除失敗：' + err.message); }
+}
+
+function handlePublicSaveTeamAvailability(e, body) {
+  if (!body.teamToken) return createErrorResponse(400, '缺少必要參數：teamToken');
+  var team = _getTeamByToken(_str(body.teamToken));
+  if (!team) return createErrorResponse(403, '無效的球隊 token');
+
+  var dates = body.unavailableDates || [];
+  if (!Array.isArray(dates)) return createErrorResponse(400, 'unavailableDates 必須為陣列');
+
+  var minDate = _nextOpenAvailabilityStartYmd();
+  var maxDate = _addDaysYmd(minDate, 13);
+  var unique = {};
+  var cleanDates = [];
+  for (var i = 0; i < dates.length; i++) {
+    var date = _str(dates[i]);
+    if (!_isYmd(date)) return createErrorResponse(400, '日期格式必須為 YYYY-MM-DD：' + date);
+    if (date < minDate || date > maxDate) return createErrorResponse(400, '只可填寫仍未過星期一截止日的兩星期日期');
+    if (_isWeekendYmd(date)) return createErrorResponse(400, '星期六及星期日不用填寫不可出賽日期');
+    if (!unique[date]) {
+      unique[date] = true;
+      cleanDates.push(date);
+    }
+  }
+  cleanDates.sort();
+
+  try {
+    var sheet = _getAvailabilitySheet();
+    var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    var colMap = {};
+    headers.forEach(function(h, idx) { colMap[h] = idx; });
+    var lastRow = sheet.getLastRow();
+    var seasonId = _str(team.seasonId);
+    var teamId = _str(team.id);
+
+    if (lastRow >= 2) {
+      var data = sheet.getRange(2, 1, lastRow - 1, sheet.getLastColumn()).getValues();
+      for (var rowIdx = data.length - 1; rowIdx >= 0; rowIdx--) {
+        var row = data[rowIdx];
+        var rowSeasonId = _str(row[colMap['seasonId']]);
+        var rowTeamId = _str(row[colMap['teamId']]);
+        var rowDate = _cellYmd(row[colMap['unavailableDate']]);
+        if (rowSeasonId === seasonId && rowTeamId === teamId && rowDate >= minDate && rowDate <= maxDate) {
+          sheet.deleteRow(rowIdx + 2);
+        }
+      }
+    }
+
+    var now = new Date().toISOString();
+    var note = _str(body.note).slice(0, 500);
+    var submittedBy = _str(body.submittedBy || team.captain || team.name).slice(0, 120);
+    _saveTeamAvailabilityNote(seasonId, teamId, _str(team.name), minDate, maxDate, note, submittedBy, now);
+    cleanDates.forEach(function(date) {
+      var newRow = new Array(headers.length).fill('');
+      function set(f, v) { if (colMap[f] !== undefined) newRow[colMap[f]] = v; }
+      set('id', Utilities.getUuid());
+      set('seasonId', seasonId);
+      set('teamId', teamId);
+      set('teamName', _str(team.name));
+      set('unavailableDate', date);
+      set('note', note);
+      set('submittedBy', submittedBy);
+      set('updatedAt', now);
+      sheet.appendRow(newRow);
+    });
+
+    return createSuccessResponse({ message: '不可出賽日期已更新', saved: cleanDates.length, unavailableDates: cleanDates }, false);
+  } catch(err) {
+    return createErrorResponse(500, '不可出賽日期儲存失敗：' + err.message);
+  }
+}
+
+function _saveTeamAvailabilityNote(seasonId, teamId, teamName, startDate, endDate, note, submittedBy, now) {
+  var sheet = _getTeamAvailabilityNotesSheet();
+  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  var colMap = {};
+  headers.forEach(function(h, idx) { colMap[h] = idx; });
+  var lastRow = sheet.getLastRow();
+  var matchRow = 0;
+
+  if (lastRow >= 2) {
+    var data = sheet.getRange(2, 1, lastRow - 1, sheet.getLastColumn()).getValues();
+    for (var i = data.length - 1; i >= 0; i--) {
+      var row = data[i];
+      if (_str(row[colMap['seasonId']]) === seasonId && _str(row[colMap['teamId']]) === teamId && _cellYmd(row[colMap['startDate']]) === startDate && _cellYmd(row[colMap['endDate']]) === endDate) {
+        matchRow = i + 2;
+        break;
+      }
+    }
+  }
+
+  if (!note) {
+    if (matchRow) sheet.deleteRow(matchRow);
+    return;
+  }
+
+  function setRowValue(rowNum, field, value) {
+    if (colMap[field] !== undefined) sheet.getRange(rowNum, colMap[field] + 1).setValue(value);
+  }
+
+  if (matchRow) {
+    setRowValue(matchRow, 'teamName', teamName);
+    setRowValue(matchRow, 'note', note);
+    setRowValue(matchRow, 'submittedBy', submittedBy);
+    setRowValue(matchRow, 'updatedAt', now);
+    return;
+  }
+
+  var newRow = new Array(headers.length).fill('');
+  function set(f, v) { if (colMap[f] !== undefined) newRow[colMap[f]] = v; }
+  set('id', Utilities.getUuid());
+  set('seasonId', seasonId);
+  set('teamId', teamId);
+  set('teamName', teamName);
+  set('startDate', startDate);
+  set('endDate', endDate);
+  set('note', note);
+  set('submittedBy', submittedBy);
+  set('updatedAt', now);
+  sheet.appendRow(newRow);
+}
+
+function handleSaveScheduleAdminNote(e, body) {
+  var seasonId = _str(body.seasonId);
+  var startDate = _str(body.startDate);
+  var endDate = _str(body.endDate);
+  if (!seasonId) return createErrorResponse(400, '缺少必要參數：seasonId');
+  if (!_isYmd(startDate) || !_isYmd(endDate)) return createErrorResponse(400, '日期格式必須為 YYYY-MM-DD');
+  if (startDate > endDate) return createErrorResponse(400, '開始日期不可遲於結束日期');
+
+  try {
+    var sheet = _getScheduleAdminNotesSheet();
+    var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    var colMap = {};
+    headers.forEach(function(h, idx) { colMap[h] = idx; });
+    var lastRow = sheet.getLastRow();
+    var targetRow = -1;
+    if (lastRow >= 2) {
+      var data = sheet.getRange(2, 1, lastRow - 1, sheet.getLastColumn()).getValues();
+      for (var i = 0; i < data.length; i++) {
+        var row = data[i];
+        if (_str(row[colMap['seasonId']]) === seasonId && _str(row[colMap['startDate']]) === startDate && _str(row[colMap['endDate']]) === endDate) {
+          targetRow = i + 2;
+          break;
+        }
+      }
+    }
+
+    var note = _str(body.note).slice(0, 3000);
+    var now = new Date().toISOString();
+    if (!note && targetRow > 0) {
+      sheet.deleteRow(targetRow);
+      return createSuccessResponse({ message: 'Admin note cleared', seasonId: seasonId, startDate: startDate, endDate: endDate, note: '', updatedAt: now }, false);
+    }
+    if (!note) {
+      return createSuccessResponse({ message: 'Admin note empty', seasonId: seasonId, startDate: startDate, endDate: endDate, note: '', updatedAt: now }, false);
+    }
+
+    if (targetRow > 0) {
+      sheet.getRange(targetRow, colMap['note'] + 1).setValue(note);
+      sheet.getRange(targetRow, colMap['updatedAt'] + 1).setValue(now);
+    } else {
+      var newRow = new Array(headers.length).fill('');
+      function set(f, v) { if (colMap[f] !== undefined) newRow[colMap[f]] = v; }
+      set('id', Utilities.getUuid());
+      set('seasonId', seasonId);
+      set('startDate', startDate);
+      set('endDate', endDate);
+      set('note', note);
+      set('updatedAt', now);
+      sheet.appendRow(newRow);
+    }
+    return createSuccessResponse({ message: 'Admin note saved', seasonId: seasonId, startDate: startDate, endDate: endDate, note: note, updatedAt: now }, false);
+  } catch(err) {
+    return createErrorResponse(500, 'Admin note save failed: ' + err.message);
+  }
 }
 
 // ============================================================
@@ -1164,7 +2185,7 @@ function doGet(e) {
     if (VALID_GET_ACTIONS.indexOf(action) === -1) return createErrorResponse(400, '無效的請求動作：' + action);
 
     // boxscore and games are write-through — skip server cache to always return fresh data
-    var NO_CACHE_ACTIONS = ['boxscore', 'games', 'standings', 'schedule'];
+    var NO_CACHE_ACTIONS = ['boxscore', 'games', 'standings', 'schedule', 'teams', 'players', 'leaders', 'teamAvailability', 'teamAvailabilityNotes', 'scheduleAdminNote'];
     var skipCache = NO_CACHE_ACTIONS.indexOf(action) !== -1;
     var cacheKey = buildCacheKey(action, e.parameter);
     if (!skipCache) {
@@ -1192,6 +2213,9 @@ function doGet(e) {
       case 'announcements':       data = handleGetAnnouncements(e);       break;
       case 'recentAchievements':  data = handleGetRecentAchievements(e);  break;
       case 'teamByToken':         return handleGetTeamByToken(e);         // returns full response
+      case 'teamAvailability':    data = handleGetTeamAvailability(e);    break;
+      case 'teamAvailabilityNotes': data = handleGetTeamAvailabilityNotes(e); break;
+      case 'scheduleAdminNote':   data = handleGetScheduleAdminNote(e);   break;
       default: return createErrorResponse(400, '無效的請求動作：' + action);
     }
     if (!skipCache && data !== undefined && data !== null) setCachedResponse(cacheKey, data, CACHE_TTL);
@@ -1205,7 +2229,7 @@ function doGet(e) {
 // ============================================================
 // doPost — 需授權 API
 // ============================================================
-var PUBLIC_POST_ACTIONS = ['publicUpdateTeam', 'publicCreatePlayer', 'publicUpdatePlayer', 'publicDeletePlayer'];
+var PUBLIC_POST_ACTIONS = ['publicUpdateTeam', 'publicCreatePlayer', 'publicUpdatePlayer', 'publicDeletePlayer', 'publicSaveTeamAvailability'];
 
 function doPost(e) {
   try {
@@ -1232,12 +2256,16 @@ function doPost(e) {
       case 'submitShotLocation': result = handleSubmitShotLocation(e, body); break;
       case 'generatePlayoffs': result = handleGeneratePlayoffs(e, body); break;
       case 'archiveSeason': result = handleArchiveSeason(e, body); break;
+      case 'createSeason': result = handleCreateSeason(e, body); break;
+      case 'updateSeason': result = handleUpdateSeason(e, body); break;
+      case 'deleteSeason': result = handleDeleteSeason(e, body); break;
       case 'createAnnouncement': result = handleCreateAnnouncement(e, body); break;
       case 'updateAnnouncement': result = handleUpdateAnnouncement(e, body); break;
       case 'deleteAnnouncement': result = handleDeleteAnnouncement(e, body); break;
       case 'createTeam': result = handleCreateTeam(e, body); break;
       case 'updateTeam': result = handleUpdateTeam(e, body); break;
       case 'deleteTeam': result = handleDeleteTeam(e, body); break;
+      case 'copyTeamsToSeason': result = handleCopyTeamsToSeason(e, body); break;
       case 'createPlayer': result = handleCreatePlayer(e, body); break;
       case 'updatePlayer': result = handleUpdatePlayer(e, body); break;
       case 'deletePlayer': result = handleDeletePlayer(e, body); break;
@@ -1245,6 +2273,8 @@ function doPost(e) {
       case 'publicCreatePlayer': result = handlePublicCreatePlayer(e, body); break;
       case 'publicUpdatePlayer': result = handlePublicUpdatePlayer(e, body); break;
       case 'publicDeletePlayer': result = handlePublicDeletePlayer(e, body); break;
+      case 'publicSaveTeamAvailability': result = handlePublicSaveTeamAvailability(e, body); break;
+      case 'saveScheduleAdminNote': result = handleSaveScheduleAdminNote(e, body); break;
       default: return createErrorResponse(400, '無效的請求動作：' + action);
     }
 
