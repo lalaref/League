@@ -188,7 +188,7 @@
       var homeJerseyHtml = homeJersey ? ' <span class="jersey-badge" title="主場球衣: ' + _escHtml(homeJersey) + '" style="' + _jerseyStyle(homeJersey) + '"></span>' : '';
       var awayJerseyHtml = awayJersey ? ' <span class="jersey-badge" title="客場球衣: ' + _escHtml(awayJersey) + '" style="' + _jerseyStyle(awayJersey) + '"></span>' : '';
 
-      var matchupHtml = _escHtml(homeName) + homeJerseyHtml + ' vs ' + _escHtml(awayName) + awayJerseyHtml;
+      var matchupHtml = _teamLink(game.homeTeamId, homeName) + homeJerseyHtml + ' vs ' + _teamLink(game.awayTeamId, awayName) + awayJerseyHtml;
 
       var result = '';
       if (game.status === 'cancelled') {
@@ -218,13 +218,15 @@
         result = I18n.t('schedule.upcoming');
       }
 
+      var resultHtml = game.id ? '<a class="game-result-link" href="game.html?id=' + encodeURIComponent(game.id) + '">' + _escHtml(result) + '</a>' : _escHtml(result);
+
       tr.innerHTML =
         '<td>' + _escHtml(Utils.formatDateWithDay(game.date)) + '</td>' +
         '<td>' + _escHtml(Utils.formatTime(game.time)) + '</td>' +
         '<td>' + _escHtml(game.venue || '—') + '</td>' +
         '<td>' + _escHtml(division) + '</td>' +
         '<td>' + matchupHtml + '</td>' +
-        '<td>' + _escHtml(result) + '</td>';
+        '<td>' + resultHtml + '</td>';
 
       scheduleTbody.appendChild(tr);
     });
@@ -331,6 +333,7 @@
         var innerGrid = document.createElement('div');
         innerGrid.className = 'playoff-bracket';
         innerGrid.style.gridTemplateColumns = 'repeat(' + (bracket.rounds || []).length + ', minmax(200px, 1fr))';
+        _resolvePlayoffAdvancementPlaceholders(bracket.rounds || []);
 
         (bracket.rounds || []).forEach(function (round, roundIdx) {
           var roundCol = document.createElement('div');
@@ -377,6 +380,7 @@
       return;
     }
 
+    _resolvePlayoffAdvancementPlaceholders(rounds);
     playoffsBracket.style.gridTemplateColumns = 'repeat(' + rounds.length + ', minmax(200px, 1fr))';
 
     rounds.forEach(function (round, roundIdx) {
@@ -418,15 +422,64 @@
     card.innerHTML =
       (label ? '<div class="playoff-matchup-label">' + _escHtml(label) + '</div>' : '') +
       '<div class="playoff-team' + (homeWin ? ' playoff-team--winner' : '') + '">' +
-        '<span class="playoff-team-name">' + _escHtml(homeName) + '</span>' +
+        '<span class="playoff-team-name">' + _teamLink(game.homeTeamId, homeName) + '</span>' +
         '<span class="playoff-team-score">' + _escHtml(String(homeScore)) + '</span>' +
       '</div>' +
       '<div class="playoff-team' + (awayWin ? ' playoff-team--winner' : '') + '">' +
-        '<span class="playoff-team-name">' + _escHtml(awayName) + '</span>' +
+        '<span class="playoff-team-name">' + _teamLink(game.awayTeamId, awayName) + '</span>' +
         '<span class="playoff-team-score">' + _escHtml(String(awayScore)) + '</span>' +
       '</div>';
 
     return card;
+  }
+
+  function _resolvePlayoffAdvancementPlaceholders(rounds) {
+    (rounds || []).forEach(function (round, roundIdx) {
+      if (roundIdx === 0) return;
+      var previousGames = (rounds[roundIdx - 1] && rounds[roundIdx - 1].games) || [];
+      (round.games || []).forEach(function (game) {
+        _setGameTeamName(game, 'home', _resolvePlayoffWinnerPlaceholder(_getGameTeamName(game, 'home'), previousGames));
+        _setGameTeamName(game, 'away', _resolvePlayoffWinnerPlaceholder(_getGameTeamName(game, 'away'), previousGames));
+        if (game.label) game.label = _resolvePlayoffWinnerPlaceholdersInText(game.label, previousGames);
+        if (game.notes) game.notes = _resolvePlayoffWinnerPlaceholdersInText(game.notes, previousGames);
+      });
+    });
+  }
+
+  function _resolvePlayoffWinnerPlaceholdersInText(value, previousGames) {
+    return String(value || '').replace(/(?:勝方|排名賽勝方|Winner\s+Game|Winner\s+Ranking\s+Game)\s*(\d+)/gi, function (token, indexText) {
+      var index = parseInt(indexText, 10) - 1;
+      return _playoffWinnerName(previousGames[index], token);
+    });
+  }
+
+  function _resolvePlayoffWinnerPlaceholder(value, previousGames) {
+    var text = String(value || '');
+    var match = text.match(/(?:勝方|排名賽勝方|Winner\s+Game|Winner\s+Ranking\s+Game)\s*(\d+)/i);
+    if (!match) return value;
+    var index = parseInt(match[1], 10) - 1;
+    return _playoffWinnerName(previousGames[index], value);
+  }
+
+  function _playoffWinnerName(game, fallback) {
+    if (!game) return fallback;
+    var homeScore = game.homeScore != null && game.homeScore !== '' ? Number(game.homeScore) : null;
+    var awayScore = game.awayScore != null && game.awayScore !== '' ? Number(game.awayScore) : null;
+    var isCompleted = game.status === 'completed' || (homeScore !== null && awayScore !== null);
+    if (!isCompleted || !isFinite(homeScore) || !isFinite(awayScore) || homeScore === awayScore) return fallback;
+    return homeScore > awayScore ? _getGameTeamName(game, 'home') : _getGameTeamName(game, 'away');
+  }
+
+  function _getGameTeamName(game, side) {
+    if (!game) return '';
+    if (side === 'home') return game.homeTeamName || game.home || game.homeTeam || game.team1 || 'TBD';
+    return game.awayTeamName || game.away || game.awayTeam || game.team2 || 'TBD';
+  }
+
+  function _setGameTeamName(game, side, value) {
+    if (!game) return;
+    if (side === 'home') game.homeTeamName = value;
+    else game.awayTeamName = value;
   }
 
   // --- 季後賽對陣表觸控支援（手機可縮放/滑動） ---
@@ -513,6 +566,12 @@
     var div = document.createElement('div');
     div.appendChild(document.createTextNode(str));
     return div.innerHTML;
+  }
+
+  function _teamLink(teamId, name) {
+    var label = _escHtml(name || 'TBD');
+    if (!teamId) return label;
+    return '<a class="team-link" href="team.html?id=' + encodeURIComponent(teamId) + '">' + label + '</a>';
   }
 
   // --- 啟動 ---

@@ -268,15 +268,38 @@
     if (!recentGamesEl) return;
     recentGamesEl.innerHTML = '<div class="loading" data-i18n="common.loading">' + I18n.t('common.loading') + '</div>';
 
-    API.getGames(currentSeasonId)
-      .then(function (games) {
-        if (!games || games.length === 0) {
+    var displaySeasons = (homeDisplaySeasons && homeDisplaySeasons.length) ? homeDisplaySeasons : [currentSeason];
+
+    Promise.all(displaySeasons.map(function (season) {
+      return Promise.all([API.getGames(season.id), API.getTeams(season.id)]).then(function (results) {
+        var games = results[0] || [];
+        var teams = results[1] || [];
+        var teamsMap = {};
+        teams.forEach(function (team) {
+          if (team && team.id) teamsMap[team.id] = team;
+        });
+        (games || []).forEach(function (game) {
+          var homeTeam = teamsMap[game.homeTeamId];
+          var awayTeam = teamsMap[game.awayTeamId];
+          if (!game.homeTeamName && homeTeam) game.homeTeamName = homeTeam.name || '';
+          if (!game.awayTeamName && awayTeam) game.awayTeamName = awayTeam.name || '';
+          game._seasonLabel = formatSeasonLabel(season);
+        });
+        return games;
+      });
+    }))
+      .then(function (seasonGames) {
+        var games = [];
+        seasonGames.forEach(function (items) {
+          games = games.concat(items || []);
+        });
+        if (games.length === 0) {
           recentGamesEl.innerHTML = '<p class="text-muted" data-i18n="common.noData">' + I18n.t('common.noData') + '</p>';
           return;
         }
-        // 篩選已完成比賽，按日期降序，取最近 6 場
+        // 篩選已完成比賽，跨首頁顯示賽季按日期降序，取最近 6 場
         var completed = games.filter(function (g) { return g.status === 'completed'; });
-        completed.sort(function (a, b) { return (b.date || '').localeCompare(a.date || ''); });
+        completed.sort(function (a, b) { return (b.date || '').localeCompare(a.date || '') || (b.time || '').localeCompare(a.time || ''); });
         var recent = completed.slice(0, 6);
 
         if (recent.length === 0) {
@@ -317,16 +340,17 @@
     var date = _formatDate(game.date);
     var url = _pageBase + 'game.html?id=' + encodeURIComponent(game.id);
 
-    return '<a class="gr-row" href="' + url + '" aria-label="' + escapeHtml(homeName) + ' vs ' + escapeHtml(awayName) + '">'
+    return '<div class="gr-row" aria-label="' + escapeHtml(homeName) + ' vs ' + escapeHtml(awayName) + '">'
       + '<span class="gr-date">' + escapeHtml(date) + '</span>'
-      + '<span class="gr-team gr-team--home' + (homeWin ? ' gr-team--win' : '') + '">' + escapeHtml(homeName) + '</span>'
-      + '<span class="gr-score">'
+      + '<span class="gr-season">' + escapeHtml(game._seasonLabel || '') + '</span>'
+      + '<span class="gr-team gr-team--home' + (homeWin ? ' gr-team--win' : '') + '">' + teamLink(game.homeTeamId, homeName) + '</span>'
+      + '<a class="gr-score game-result-link" href="' + url + '">'
       + '<span class="' + (homeWin ? 'gr-score-win' : '') + '">' + escapeHtml(String(homeScore)) + '</span>'
       + '<span class="gr-score-sep">-</span>'
       + '<span class="' + (awayWin ? 'gr-score-win' : '') + '">' + escapeHtml(String(awayScore)) + '</span>'
-      + '</span>'
-      + '<span class="gr-team gr-team--away' + (awayWin ? ' gr-team--win' : '') + '">' + escapeHtml(awayName) + '</span>'
-      + '</a>';
+      + '</a>'
+      + '<span class="gr-team gr-team--away' + (awayWin ? ' gr-team--win' : '') + '">' + teamLink(game.awayTeamId, awayName) + '</span>'
+      + '</div>';
   }
 
   // --- Team data cache for jersey colors on home page ---
@@ -803,11 +827,12 @@
         if (seasonData.teams.length === 0) {
           return '<tr><td colspan="8" class="text-muted">' + escapeHtml(formatSeasonLabel(seasonData.season)) + ' · ' + I18n.t('common.noData') + '</td></tr>';
         }
-        var standings = _computeStandings(seasonData.games, seasonData.teams);
+        var regularGames = filterRegularSeasonGames(seasonData.games);
+        var standings = _computeStandings(regularGames, seasonData.teams);
         var label = formatSeasonLabel(seasonData.season);
         var seasonName = seasonData.season.name || 'Standings';
         var head = '<tr><td colspan="8" style="background:#111;color:#fff;font-weight:900;text-align:left;text-transform:uppercase;letter-spacing:.08em"><span class="home-season-label">' + escapeHtml(label) + '</span> · <span class="home-season-name">' + escapeHtml(seasonName) + '</span></td></tr>';
-        return head + renderStandingsRows(standings, seasonData.teams, seasonData.games, seasonData.season);
+        return head + renderStandingsRows(standings, seasonData.teams, regularGames, seasonData.season);
       }).join('');
       standingsBody.innerHTML = html || '<tr><td colspan="8" class="text-muted" data-i18n="common.noData">' + I18n.t('common.noData') + '</td></tr>';
     }).catch(function () {
@@ -836,6 +861,7 @@
 
     games.forEach(function (g) {
       if (g.status !== 'completed') return;
+      if (String(g.type || '').toLowerCase() === 'playoff') return;
       if (!table[g.homeTeamId] || !table[g.awayTeamId]) return;
 
       var hasQuarters = g.homeQ1 || g.homeQ2 || g.homeQ3 || g.homeQ4 ||
@@ -898,6 +924,18 @@
     return _sortStandings(rows, allResults);
   }
 
+  function filterRegularSeasonGames(games) {
+    return (games || []).filter(function (game) {
+      return game && String(game.type || '').toLowerCase() !== 'playoff';
+    });
+  }
+
+  function teamLink(teamId, name) {
+    var label = escapeHtml(name || '—');
+    if (!teamId) return label;
+    return '<a class="team-link" href="team.html?id=' + encodeURIComponent(teamId) + '">' + label + '</a>';
+  }
+
   /**
    * 排名排序：積分 → 全組得失球差
    */
@@ -954,7 +992,7 @@
 
     return '<tr>' +
       '<td>' + rank + '</td>' +
-      '<td>' + escapeHtml(name) + '</td>' +
+      '<td>' + teamLink(team.id, name) + '</td>' +
       '<td>' + played + '</td>' +
       '<td>' + wins + '</td>' +
       '<td>' + draws + '</td>' +

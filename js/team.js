@@ -52,18 +52,71 @@
 
   // --- 載入球隊數據 ---
   function loadTeamData() {
+    setLoadingState();
     API.getTeamProfile(teamId)
       .then(function (data) {
-        teamData = data;
-        renderTeamInfo(data.info || data);
-        renderRoster(data.roster);
-        renderHistory(data.history);
-        renderCurrentRecord(data);
-        populateH2HDropdown(data);
+        if (!hasTeamDetails(data)) return loadTeamFallback(data);
+        renderTeamPage(data);
       })
       .catch(function () {
-        showError(I18n.t('error.loadFailed'));
+        loadTeamFallback().catch(function () {
+          showError(I18n.t('error.loadFailed'));
+        });
       });
+  }
+
+  function setLoadingState() {
+    var nameEl = document.getElementById('team-name');
+    var rosterBody = document.getElementById('roster-body');
+    var loadingText = document.documentElement.lang === 'en' ? 'Loading...' : '載入中...';
+    if (nameEl) nameEl.textContent = loadingText;
+    if (rosterBody) rosterBody.innerHTML = '<tr><td colspan="8" class="loading">' + loadingText + '</td></tr>';
+  }
+
+  function hasTeamDetails(data) {
+    if (!data) return false;
+    var info = data.info || data;
+    return !!(info && (info.name || info.teamName || info.id) || (data.roster && data.roster.length) || data.history || data.h2h);
+  }
+
+  function renderTeamPage(data) {
+    teamData = data || {};
+    renderTeamInfo(teamData.info || teamData);
+    renderRoster(teamData.roster);
+    renderHistory(teamData.history);
+    renderCurrentRecord(teamData);
+    populateH2HDropdown(teamData);
+  }
+
+  function loadTeamFallback(existingData) {
+    return API.getSeasons().then(function (seasons) {
+      var seasonList = seasons || [];
+      return Promise.all(seasonList.map(function (season) {
+        return API.getTeams(season.id).then(function (teams) {
+          return { season: season, teams: teams || [] };
+        }).catch(function () {
+          return { season: season, teams: [] };
+        });
+      }));
+    }).then(function (seasonTeams) {
+      var match = null;
+      for (var i = 0; i < seasonTeams.length && !match; i++) {
+        var teams = seasonTeams[i].teams || [];
+        for (var j = 0; j < teams.length; j++) {
+          if (String(teams[j].id) === String(teamId)) {
+            match = Object.assign({}, teams[j], { seasonId: seasonTeams[i].season.id });
+            break;
+          }
+        }
+      }
+      if (!match) throw new Error('Team not found');
+      renderTeamPage(Object.assign({}, existingData || {}, {
+        info: match,
+        roster: (existingData && existingData.roster) || [],
+        history: (existingData && existingData.history) || [],
+        h2h: (existingData && existingData.h2h) || {}
+      }));
+    });
   }
 
   // --- 渲染球隊基本資料（需求 5.1）---
@@ -73,17 +126,18 @@
     var captainEl = document.getElementById('team-captain');
     var descEl = document.getElementById('team-description');
 
-    if (nameEl) nameEl.textContent = info.name || '—';
+    var displayName = info.name || info.teamName || '—';
+    if (nameEl) nameEl.textContent = displayName;
     if (logoEl && info.logo) {
       logoEl.src = info.logo;
-      logoEl.alt = info.name || '';
+      logoEl.alt = displayName;
     }
     if (captainEl) captainEl.textContent = info.captain || '—';
     if (descEl) descEl.textContent = info.description || '—';
 
     // 更新頁面標題
-    if (info.name) {
-      document.title = info.name + ' — ALL-IN Basketball League';
+    if (displayName && displayName !== '—') {
+      document.title = displayName + ' — ALL-IN Basketball League';
     }
   }
 
@@ -176,16 +230,25 @@
     var select = document.getElementById('h2h-team-select');
     if (!select) return;
 
+    while (select.options.length > 1) {
+      select.remove(1);
+    }
+    select.value = '';
+
     // 從 h2h 數據中取得可對比的球隊列表
     var h2hData = data.h2h || {};
     var teamIds = Object.keys(h2hData);
+    var info = (data && (data.info || data)) || {};
 
     if (teamIds.length === 0) {
       // 嘗試從 API 取得同賽季球隊列表
       API.getSeasons()
         .then(function (seasons) {
           if (!seasons || seasons.length === 0) return;
-          var activeSeason = getDefaultSeason(seasons);
+          var activeSeason = info.seasonId
+            ? seasons.find(function (season) { return String(season.id) === String(info.seasonId); })
+            : getDefaultSeason(seasons);
+          if (!activeSeason) return;
           return API.getTeams(activeSeason.id);
         })
         .then(function (teams) {
@@ -212,6 +275,17 @@
       });
     }
 
+    // 綁定選擇事件
+    select.addEventListener('change', function () {
+      var selectedId = select.value;
+      if (!selectedId) {
+        document.getElementById('h2h-result').style.display = 'none';
+        document.getElementById('h2h-empty').style.display = 'none';
+        return;
+      }
+      renderH2H(selectedId, h2hData);
+    });
+  }
 
   function getDefaultSeason(seasons) {
     var list = seasons || [];
@@ -235,17 +309,6 @@
       || /season\s*1/.test(name)
       || name.indexOf('第一') !== -1
       || String(season.minGamesForRanking || '') === '7';
-  }
-    // 綁定選擇事件
-    select.addEventListener('change', function () {
-      var selectedId = select.value;
-      if (!selectedId) {
-        document.getElementById('h2h-result').style.display = 'none';
-        document.getElementById('h2h-empty').style.display = 'none';
-        return;
-      }
-      renderH2H(selectedId, h2hData);
-    });
   }
 
   // --- 渲染 H2H 對賽紀錄（需求 5.4）---

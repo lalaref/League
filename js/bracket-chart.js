@@ -2,6 +2,7 @@ var SeasonBracketChart = (function () {
   'use strict';
 
   var SEASON_ONE_ID = '845ca40d-4346-448f-bbe2-06b4104bdbda';
+  var _lastTeamMap = {};
 
   function init() {
     var targets = document.querySelectorAll('[data-season-bracket="season1"]');
@@ -48,6 +49,7 @@ var SeasonBracketChart = (function () {
     var teams = options && options.teams ? options.teams : [];
     var games = options && options.games ? options.games : [];
     var teamMap = buildTeamMap(teams);
+    _lastTeamMap = teamMap;
     var groups = normalizeBracketGroups(data, teamMap, teams, games);
     if (!groups.length) {
       target.innerHTML = '<div class="nba-bracket-state">Season 1 playoff bracket 尚未公布</div>';
@@ -121,18 +123,11 @@ var SeasonBracketChart = (function () {
     if (rounds.length === 1 && rounds[0].games.length >= 2) {
       rounds.push({
         name: '決賽',
-        games: [{
-          label: 'Winner Game 1 vs Winner Game 2',
-          homeName: '勝方 1',
-          awayName: '勝方 2',
-          homeScore: '',
-          awayScore: '',
-          homeWin: false,
-          awayWin: false
-        }]
+        games: [buildAdvancementGame(rounds[0].games, '勝方 1', '勝方 2', 'Winner Game 1 vs Winner Game 2')]
       });
     }
 
+    resolveAdvancementPlaceholders(rounds);
     return rounds;
   }
 
@@ -157,19 +152,60 @@ var SeasonBracketChart = (function () {
     if (firstRoundGames.length >= 2) {
       rounds.push({
         name: '排名決賽',
-        games: [{
-          label: 'Winner Ranking Game 1 vs Winner Ranking Game 2',
-          homeName: '排名賽勝方 1',
-          awayName: '排名賽勝方 2',
-          homeScore: '',
-          awayScore: '',
-          homeWin: false,
-          awayWin: false
-        }]
+        games: [buildAdvancementGame(firstRoundGames, '排名賽勝方 1', '排名賽勝方 2', 'Winner Ranking Game 1 vs Winner Ranking Game 2')]
       });
     }
 
+    resolveAdvancementPlaceholders(rounds);
     return rounds;
+  }
+
+  function buildAdvancementGame(previousGames, homeFallback, awayFallback, label) {
+    var homeName = winnerName(previousGames && previousGames[0], homeFallback);
+    var awayName = winnerName(previousGames && previousGames[1], awayFallback);
+    return {
+      label: homeName + ' vs ' + awayName,
+      homeName: homeName,
+      awayName: awayName,
+      homeScore: '',
+      awayScore: '',
+      homeWin: false,
+      awayWin: false
+    };
+  }
+
+  function resolveAdvancementPlaceholders(rounds) {
+    (rounds || []).forEach(function (round, roundIdx) {
+      if (roundIdx === 0) return;
+      var previousGames = (rounds[roundIdx - 1] && rounds[roundIdx - 1].games) || [];
+      (round.games || []).forEach(function (game) {
+        game.homeName = resolveWinnerPlaceholder(game.homeName, previousGames);
+        game.awayName = resolveWinnerPlaceholder(game.awayName, previousGames);
+        game.label = resolveWinnerPlaceholdersInText(game.label, previousGames);
+      });
+    });
+  }
+
+  function resolveWinnerPlaceholdersInText(value, previousGames) {
+    return String(value || '').replace(/(?:勝方|排名賽勝方|Winner\s+Game|Winner\s+Ranking\s+Game)\s*(\d+)/gi, function (token, indexText) {
+      var index = parseInt(indexText, 10) - 1;
+      return winnerName(previousGames[index], token);
+    });
+  }
+
+  function resolveWinnerPlaceholder(value, previousGames) {
+    var text = String(value || '');
+    var match = text.match(/(?:勝方|排名賽勝方|Winner\s+Game|Winner\s+Ranking\s+Game)\s*(\d+)/i);
+    if (!match) return value;
+    var index = parseInt(match[1], 10) - 1;
+    return winnerName(previousGames[index], value);
+  }
+
+  function winnerName(game, fallback) {
+    if (!game) return fallback;
+    if (game.homeWin) return game.homeName || fallback;
+    if (game.awayWin) return game.awayName || fallback;
+    return fallback;
   }
 
   function rankingGame(home, away) {
@@ -321,9 +357,26 @@ var SeasonBracketChart = (function () {
 
   function renderTeam(name, score, isWinner) {
     return '<div class="nba-bracket-team' + (isWinner ? ' is-winner' : '') + '">'
-      + '<span>' + esc(name) + '</span>'
+      + '<span>' + teamLinkByName(name) + '</span>'
       + '<strong>' + esc(String(score)) + '</strong>'
       + '</div>';
+  }
+
+  function teamLinkByName(name) {
+    var id = findTeamIdByName(name);
+    var label = esc(name);
+    if (!id) return label;
+    return '<a class="team-link team-link--dark" href="team.html?id=' + encodeURIComponent(id) + '">' + label + '</a>';
+  }
+
+  function findTeamIdByName(name) {
+    var target = normalizeName(name);
+    if (!target || target === 'tbd' || target.indexOf('勝方') !== -1) return '';
+    var ids = Object.keys(_lastTeamMap || {});
+    for (var i = 0; i < ids.length; i++) {
+      if (normalizeName(_lastTeamMap[ids[i]]) === target) return ids[i];
+    }
+    return '';
   }
 
   function buildTeamMap(teams) {

@@ -54,11 +54,11 @@
     var homeNameEl = document.getElementById('home-team-name');
     var awayNameEl = document.getElementById('away-team-name');
     if (homeNameEl) {
-      homeNameEl.textContent = game.homeTeamName || game.homeTeamId || '—';
+      _setTeamNameLink(homeNameEl, game.homeTeamId, game.homeTeamName || game.homeTeamId || '—');
       if (game.homeJersey) _addJerseyBadge(homeNameEl, game.homeJersey, '主');
     }
     if (awayNameEl) {
-      awayNameEl.textContent = game.awayTeamName || game.awayTeamId || '—';
+      _setTeamNameLink(awayNameEl, game.awayTeamId, game.awayTeamName || game.awayTeamId || '—');
       if (game.awayJersey) _addJerseyBadge(awayNameEl, game.awayJersey, '客');
     }
 
@@ -320,6 +320,19 @@
     div.innerHTML = '<p class="text-center text-muted">' + _escapeHtml(msg) + '</p>';
     main.innerHTML = '';
     main.appendChild(div);
+  }
+
+  function _setTeamNameLink(el, teamId, name) {
+    el.textContent = '';
+    if (!teamId) {
+      el.textContent = name || '—';
+      return;
+    }
+    var link = document.createElement('a');
+    link.className = 'team-link';
+    link.href = 'team.html?id=' + encodeURIComponent(teamId);
+    link.textContent = name || '—';
+    el.appendChild(link);
   }
 
   /**

@@ -289,7 +289,7 @@
     var diff = team.diff > 0 ? '+' + team.diff : team.diff;
     return '<tr>'
       + '<td>' + rank + '</td>'
-      + '<td>' + escapeHtml(team.teamName) + '</td>'
+      + '<td>' + teamLink(team.id, team.teamName) + '</td>'
       + '<td>' + team.played + '</td>'
       + '<td>' + team.wins + '</td>'
       + '<td>' + team.draws + '</td>'
@@ -297,6 +297,12 @@
       + '<td>' + diff + '</td>'
       + '<td class="text-accent">' + team.points + '</td>'
       + '</tr>';
+  }
+
+  function teamLink(teamId, name) {
+    var label = escapeHtml(name || '—');
+    if (!teamId) return label;
+    return '<a class="team-link" href="team.html?id=' + encodeURIComponent(teamId) + '">' + label + '</a>';
   }
 
   /**
