@@ -15,7 +15,7 @@
             gtag('config', 'G-S64W9C7CYZ');
         </script>
     <title>球隊頁面 — ALL-IN Basketball League</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/styles.css?v=20260723-team-redesign">
     <link rel="stylesheet" href="css/responsive.css">
 </head>
 <body>
@@ -75,8 +75,20 @@
 
     <!-- 主要內容區域 -->
     <main class="main-content">
+        <!-- 賽季選擇 -->
+        <section class="team-season-section" aria-label="選擇賽季">
+            <div class="container">
+                <div class="team-season-controls">
+                    <label for="team-season-select" class="sr-only" data-i18n="standings.selectSeason">選擇賽季</label>
+                    <select id="team-season-select" class="h2h-select" aria-label="選擇賽季" data-i18n-attr="aria-label:standings.selectSeason">
+                        <option value="">載入中...</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
         <!-- 球隊基本資料區域 -->
-        <section class="section team-hero" aria-label="球隊基本資料">
+        <section class="team-hero" aria-label="球隊基本資料">
             <div class="container">
                 <div class="team-profile-card">
                     <div class="team-logo-wrapper">
@@ -85,11 +97,11 @@
                     <div class="team-info">
                         <h1 id="team-name" class="team-name">—</h1>
                         <div class="team-meta">
-                            <div class="team-detail-item">
+                            <div class="team-detail-item team-detail-item--captain">
                                 <span class="detail-label" data-i18n="team.captain">隊長</span>
                                 <span class="detail-value" id="team-captain">—</span>
                             </div>
-                            <div class="team-detail-item">
+                            <div class="team-detail-item team-detail-item--description">
                                 <span class="detail-label" data-i18n="team.description">球隊簡介</span>
                                 <span class="detail-value" id="team-description">—</span>
                             </div>
@@ -106,10 +118,13 @@
         </section>
 
         <!-- 球員名單 -->
-        <section class="section" aria-label="球員名單">
+        <section class="section team-content-section" aria-label="球員名單">
             <div class="container">
-                <h2 class="section-title" data-i18n="team.roster">球員名單</h2>
-                <div class="table-wrapper">
+                <div class="team-section-heading">
+                    <h2 class="section-title" data-i18n="team.roster">球員名單</h2>
+                    <p class="team-section-kicker">Roster</p>
+                </div>
+                <div class="table-wrapper team-table-panel">
                     <table class="data-table" id="roster-table">
                         <thead>
                             <tr>
@@ -132,10 +147,13 @@
         </section>
 
         <!-- 排名歷史 -->
-        <section class="section" aria-label="排名歷史" id="history-section" style="display:none;">
+        <section class="section team-content-section" aria-label="排名歷史" id="history-section" style="display:none;">
             <div class="container">
-                <h2 class="section-title" data-i18n="team.history">排名歷史</h2>
-                <div class="table-wrapper">
+                <div class="team-section-heading">
+                    <h2 class="section-title" data-i18n="team.history">排名歷史</h2>
+                    <p class="team-section-kicker">Season record</p>
+                </div>
+                <div class="table-wrapper team-table-panel">
                     <table class="data-table" id="history-table">
                         <thead>
                             <tr>
@@ -155,9 +173,12 @@
         </section>
 
         <!-- 球隊對比（H2H） -->
-        <section class="section" aria-label="歷史對賽紀錄">
+        <section class="section team-content-section team-h2h-section" aria-label="歷史對賽紀錄">
             <div class="container">
-                <h2 class="section-title" data-i18n="team.h2h">歷史對賽紀錄</h2>
+                <div class="team-section-heading">
+                    <h2 class="section-title" data-i18n="team.h2h">歷史對賽紀錄</h2>
+                    <p class="team-section-kicker">Head to head</p>
+                </div>
                 <div class="h2h-controls">
                     <label for="h2h-team-select" class="h2h-label" data-i18n="team.selectTeam">選擇對比球隊</label>
                     <select id="h2h-team-select" class="h2h-select">
@@ -168,7 +189,7 @@
                     <div class="h2h-summary" id="h2h-summary">
                         <!-- 動態載入 -->
                     </div>
-                    <div class="table-wrapper">
+                    <div class="table-wrapper team-table-panel">
                         <table class="data-table" id="h2h-table">
                             <thead>
                                 <tr>
@@ -215,10 +236,10 @@
         document.getElementById('current-year').textContent = new Date().getFullYear();
     </script>
     <script src="js/utils.js?v=20260409"></script>
-    <script src="js/api.js?v=20260409"></script>
+    <script src="js/api.js?v=20260723-team-season-selector"></script>
     <script src="js/i18n.js?v=20260409"></script>
     <script src="js/navigation.js?v=20260409"></script>
-    <script src="js/team.js?v=20260723-stable-team-details"></script>
+    <script src="js/team.js?v=20260723-team-logo-cards"></script>
     <script>
         I18n.init();
     </script>
