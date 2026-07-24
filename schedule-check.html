@@ -165,6 +165,7 @@
 
 <div class="nyp-section" id="nyp-section" style="display:none">
   <h2>Remaining Preset Division Opponents per Team</h2>
+  <span class="section-note">Based on completed games in schedule.html</span>
   <div class="nyp-table-wrap">
     <table class="nyp-table" id="nyp-table">
       <thead>
@@ -175,6 +176,23 @@
         </tr>
       </thead>
       <tbody id="nyp-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="nyp-section" id="recommended-section" style="display:none">
+  <h2>Recommended Remaining Matchups</h2>
+  <span class="section-note">Uses completed games as locked results and recalculates the remaining regular-season matchups.</span>
+  <div class="nyp-table-wrap">
+    <table class="nyp-table" id="recommended-table">
+      <thead>
+        <tr>
+          <th>Division</th>
+          <th>Matchup</th>
+          <th>Note</th>
+        </tr>
+      </thead>
+      <tbody id="recommended-body"></tbody>
     </table>
   </div>
 </div>
@@ -238,6 +256,8 @@ var adminAvailabilityNote = document.getElementById('admin-availability-note');
 var adminNoteStatus = document.getElementById('admin-note-status');
 var nypSection   = document.getElementById('nyp-section');
 var nypBody      = document.getElementById('nyp-body');
+var recommendedSection = document.getElementById('recommended-section');
+var recommendedBody = document.getElementById('recommended-body');
 var matrixHead   = document.getElementById('matrix-head');
 var matrixBody   = document.getElementById('matrix-body');
 var issuesSec    = document.getElementById('issues-section');
@@ -282,6 +302,7 @@ function loadSeason(seasonId) {
   tableWrap.style.display = 'none';
   issuesSec.style.display = 'none';
   nypSection.style.display = 'none';
+  recommendedSection.style.display = 'none';
   divisionSection.style.display = 'none';
   availabilitySection.style.display = 'none';
 
@@ -529,6 +550,8 @@ function render(games, teams, season) {
   // --- Build per-team schedule: teamId -> { roundNum: opponentName } ---
   var teamSchedule = {}; // teamId -> { 1: opp, 2: opp, ... }
   teamIds.forEach(function(id) { teamSchedule[id] = {}; });
+  var completedOpponentsByTeam = {};
+  teamIds.forEach(function(id) { completedOpponentsByTeam[id] = []; });
 
   games.forEach(function(g) {
     var round = g.date ? dateToRound[g.date] : null;
@@ -543,6 +566,12 @@ function render(games, teams, season) {
     if (!teamSchedule[awayId][round]) teamSchedule[awayId][round] = [];
     teamSchedule[homeId][round].push(awayName);
     teamSchedule[awayId][round].push(homeName);
+    if (isCompletedGame(g)) {
+      if (!completedOpponentsByTeam[homeId]) completedOpponentsByTeam[homeId] = [];
+      if (!completedOpponentsByTeam[awayId]) completedOpponentsByTeam[awayId] = [];
+      completedOpponentsByTeam[homeId].push(awayId);
+      completedOpponentsByTeam[awayId].push(homeId);
+    }
   });
 
   // --- Detect issues ---
@@ -550,6 +579,9 @@ function render(games, teams, season) {
 
   if (rules.isDivisionRoundRobin) {
     var divisionNames = SeasonRules.getDivisionNames(context);
+    if ((teamIds.length * rules.expectedGames) % 2 !== 0) {
+      issues.push(teamIds.length + ' teams × ' + rules.expectedGames + ' games/team creates an odd number of team-game slots; one team must play 4 or 6 unless another team is added/removed.');
+    }
     if (rules.divisionCount && divisionNames.length !== rules.divisionCount) {
       issues.push('Expected ' + rules.divisionCount + ' divisions, found ' + divisionNames.length + '.');
     }
@@ -681,12 +713,11 @@ function render(games, teams, season) {
   nypBody.innerHTML = '';
   sortedIds.forEach(function(tid) {
     var name = teamMap[tid];
-    var sched = teamSchedule[tid];
     var playedSet = {};
-    Object.keys(sched).forEach(function(r) {
-      sched[r].forEach(function(opp) { playedSet[opp] = true; });
+    (completedOpponentsByTeam[tid] || []).forEach(function(oid) {
+      playedSet[teamMap[oid] || oid] = true;
     });
-    var currentTotal = Object.keys(sched).reduce(function(sum, round) { return sum + sched[round].length; }, 0);
+    var currentTotal = (completedOpponentsByTeam[tid] || []).length;
     var remainingSlots = Math.max(0, rules.expectedGames - currentTotal);
     var unplayed = remainingSlots <= 0 ? [] : SeasonRules.getExpectedOpponentIds(tid, context)
       .map(function(oid) { return teamMap[oid]; })
@@ -712,6 +743,8 @@ function render(games, teams, season) {
     nypBody.appendChild(tr);
   });
   nypSection.style.display = 'block';
+
+  renderRecommendedMatchups(games, context, completedOpponentsByTeam);
 
   // --- Render matrix ---
   sortedIds.forEach(function(tid) {
@@ -766,6 +799,169 @@ function render(games, teams, season) {
       issuesList.appendChild(div);
     });
   }
+}
+
+function isCompletedGame(game) {
+  return String((game && game.status) || '').toLowerCase() === 'completed';
+}
+
+function renderRecommendedMatchups(games, context, completedOpponentsByTeam) {
+  if (!recommendedSection || !recommendedBody || !context || !context.rules.isDivisionRoundRobin) return;
+  recommendedBody.innerHTML = '';
+  var divisions = SeasonRules.getDivisionNames(context);
+  var hasRows = false;
+
+  divisions.forEach(function(division) {
+    var solution = solveDivisionMatchups(division, context, completedOpponentsByTeam);
+    if (!solution || !solution.matchups.length) {
+      var emptyTr = document.createElement('tr');
+      emptyTr.innerHTML = '<td>' + esc(division) + '</td><td><span class="nyp-none">No recommendation available</span></td><td>Check division size or existing matchups</td>';
+      recommendedBody.appendChild(emptyTr);
+      hasRows = true;
+      return;
+    }
+    if (solution.lowTeamName) {
+      var noteTr = document.createElement('tr');
+      noteTr.innerHTML = '<td>' + esc(division) + '</td><td><span class="nyp-opp">' + esc(solution.lowTeamName) + '</span></td><td>Division has odd 5-game slots; this team is assigned 4 regular-season games in this recommendation.</td>';
+      recommendedBody.appendChild(noteTr);
+      hasRows = true;
+    }
+    solution.matchups.forEach(function(matchup) {
+      var tr = document.createElement('tr');
+      var note = matchup.returningRematch ? 'Season 1 rematch only if unavoidable' : 'Recommended';
+      tr.innerHTML = '<td>' + esc(division) + '</td><td><span class="nyp-opp">' + esc(matchup.home) + '</span> vs <span class="nyp-opp">' + esc(matchup.away) + '</span></td><td>' + esc(note) + '</td>';
+      recommendedBody.appendChild(tr);
+      hasRows = true;
+    });
+  });
+  recommendedSection.style.display = hasRows ? 'block' : 'none';
+}
+
+function solveDivisionMatchups(division, context, completedOpponentsByTeam) {
+  var ids = (context.divisions[division] || []).slice().sort(function(a, b) {
+    return (context.teamMap[a] || '').localeCompare(context.teamMap[b] || '');
+  });
+  if (!ids.length) return null;
+  var candidates = [];
+  if ((ids.length * context.rules.expectedGames) % 2 !== 0) {
+    ids.forEach(function(id) { candidates.push(solveDivisionWithLowTeam(division, context, completedOpponentsByTeam, id)); });
+  } else {
+    candidates.push(solveDivisionWithLowTeam(division, context, completedOpponentsByTeam, ''));
+  }
+  candidates = candidates.filter(function(x) { return !!x; }).sort(function(a, b) {
+    if (a.penalty !== b.penalty) return a.penalty - b.penalty;
+    return (a.lowTeamName || '').localeCompare(b.lowTeamName || '');
+  });
+  return candidates[0] || null;
+}
+
+function solveDivisionWithLowTeam(division, context, completedOpponentsByTeam, lowTeamId) {
+  var ids = (context.divisions[division] || []).slice().sort(function(a, b) {
+    return (context.teamMap[a] || '').localeCompare(context.teamMap[b] || '');
+  });
+  var need = ids.map(function(id) {
+    var target = id === lowTeamId ? context.rules.expectedGames - 1 : context.rules.expectedGames;
+    return target - ((completedOpponentsByTeam[id] || []).length);
+  });
+  if (need.some(function(n) { return n < 0; })) return null;
+  var totalNeed = need.reduce(function(sum, n) { return sum + n; }, 0);
+  if (totalNeed % 2 !== 0) return null;
+
+  var indexById = {};
+  ids.forEach(function(id, index) { indexById[id] = index; });
+  var edgesByNode = ids.map(function() { return []; });
+  for (var i = 0; i < ids.length; i++) {
+    for (var j = i + 1; j < ids.length; j++) {
+      if ((completedOpponentsByTeam[ids[i]] || []).indexOf(ids[j]) !== -1) continue;
+      var aTeam = context.teamMeta[ids[i]] || {};
+      var bTeam = context.teamMeta[ids[j]] || {};
+      var returningRematch = SeasonRules.isReturningTeam(aTeam) && SeasonRules.isReturningTeam(bTeam);
+      var penalty = returningRematch ? 100 : ((SeasonRules.isReturningTeam(aTeam) || SeasonRules.isReturningTeam(bTeam)) ? 1 : 0);
+      var edge = { i: i, j: j, penalty: penalty, returningRematch: returningRematch };
+      edgesByNode[i].push(edge);
+      edgesByNode[j].push(edge);
+    }
+  }
+  edgesByNode.forEach(function(edges) {
+    edges.sort(function(a, b) {
+      if (a.penalty !== b.penalty) return a.penalty - b.penalty;
+      return ((context.teamMap[ids[a.i]] || '') + (context.teamMap[ids[a.j]] || '')).localeCompare((context.teamMap[ids[b.i]] || '') + (context.teamMap[ids[b.j]] || ''));
+    });
+  });
+
+  var best = null;
+  var bestPenalty = Infinity;
+  var memo = {};
+  var chosenKeys = {};
+
+  function chosenKey(edge) { return Math.min(edge.i, edge.j) + '-' + Math.max(edge.i, edge.j); }
+  function remainingSlots() { return need.reduce(function(sum, n) { return sum + n; }, 0); }
+  function stateKey() {
+    return need.join(',') + '|' + Object.keys(chosenKeys).sort().join(',');
+  }
+  function hasCapacity() {
+    for (var node = 0; node < ids.length; node++) {
+      var capacity = 0;
+      edgesByNode[node].forEach(function(edge) {
+        if (!chosenKeys[chosenKey(edge)]) capacity++;
+      });
+      if (need[node] > capacity) return false;
+    }
+    return true;
+  }
+  function pickPivot() {
+    var pivot = -1;
+    var minOptions = 999;
+    for (var node = 0; node < need.length; node++) {
+      if (need[node] <= 0) continue;
+      var options = edgesByNode[node].filter(function(edge) {
+        var other = edge.i === node ? edge.j : edge.i;
+        return !chosenKeys[chosenKey(edge)] && need[other] > 0;
+      }).length;
+      if (options < minOptions) { minOptions = options; pivot = node; }
+    }
+    return pivot;
+  }
+  function search(chosen, penalty) {
+    if (penalty >= bestPenalty) return;
+    var remaining = remainingSlots();
+    if (remaining === 0) { best = chosen.slice(); bestPenalty = penalty; return; }
+    if (remaining < 0 || remaining % 2 !== 0) return;
+    var key = stateKey();
+    if (memo[key] != null && memo[key] <= penalty) return;
+    memo[key] = penalty;
+    if (!hasCapacity()) return;
+    var pivot = pickPivot();
+    if (pivot < 0) return;
+    edgesByNode[pivot].forEach(function(edge) {
+      var other = edge.i === pivot ? edge.j : edge.i;
+      var key = chosenKey(edge);
+      if (chosenKeys[key] || need[other] <= 0) return;
+      chosenKeys[key] = true;
+      need[edge.i]--;
+      need[edge.j]--;
+      chosen.push(edge);
+      search(chosen, penalty + edge.penalty);
+      chosen.pop();
+      need[edge.i]++;
+      need[edge.j]++;
+      delete chosenKeys[key];
+    });
+  }
+  search([], 0);
+  if (!best) return null;
+  return {
+    lowTeamId: lowTeamId,
+    lowTeamName: lowTeamId ? (context.teamMap[lowTeamId] || lowTeamId) : '',
+    penalty: bestPenalty,
+    matchups: best.map(function(edge) {
+      return {
+        home: context.teamMap[ids[edge.i]] || ids[edge.i],
+        away: context.teamMap[ids[edge.j]] || ids[edge.j],
+        returningRematch: edge.returningRematch
+      };
+    })
+  };
 }
 
 function shouldAvoidReturningMatchup(game, context) {
