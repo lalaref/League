@@ -113,6 +113,7 @@
   function loadPlayerData() {
     API.getPlayerProfile(playerId)
       .then(function (data) {
+        data = normalizePlayerProfileData(data || {});
         renderProfile(data);
         renderSeasonAvg(data.seasonAvg);
         renderTrendChart(data.gameLogs);
@@ -127,6 +128,84 @@
       .catch(function () {
         showError(I18n.t('error.loadFailed'));
       });
+  }
+
+  function normalizePlayerProfileData(data) {
+    data.gameLogs = dedupeGameLogs(data.gameLogs || []);
+    data.seasonAvg = calculateCurrentSeasonAverage(data.gameLogs, data.seasonHistory, data.seasonAvg);
+    if (data.info) data.info.gamesPlayed = data.gameLogs.length;
+    return data;
+  }
+
+  function dedupeGameLogs(gameLogs) {
+    var latestByGame = {};
+    (gameLogs || []).forEach(function (log, index) {
+      var key = log.gameId || [log.date || '', log.opponent || log.opponentName || '', log.teamScore, log.opponentScore].join('|');
+      if (!key) key = 'row|' + index;
+      latestByGame[key] = log;
+    });
+    return Object.keys(latestByGame).map(function (key) { return latestByGame[key]; });
+  }
+
+  function calculateCurrentSeasonAverage(gameLogs, seasonHistory, fallback) {
+    var currentSeasonId = getCurrentSeasonId(seasonHistory);
+    if (!currentSeasonId) return fallback || null;
+    var currentLogs = (gameLogs || []).filter(function (log) {
+      return String(log.seasonId || '') === String(currentSeasonId);
+    });
+    if (!currentLogs.length) return fallback || null;
+    return calculateSeasonAverage(currentLogs, fallback);
+  }
+
+  function getCurrentSeasonId(seasonHistory) {
+    if (!seasonHistory || !seasonHistory.length) return '';
+    return seasonHistory[0].seasonId || '';
+  }
+
+  function calculateSeasonAverage(gameLogs, fallback) {
+    if (!gameLogs || gameLogs.length === 0) return fallback || null;
+    var total = { pts: 0, reb: 0, ast: 0, stl: 0, blk: 0, fgm: 0, fga: 0, tpm: 0, tpa: 0, ftm: 0, fta: 0 };
+    gameLogs.forEach(function (g) {
+      total.pts += num(g.pts);
+      total.reb += num(g.reb);
+      total.ast += num(g.ast);
+      total.stl += num(g.stl);
+      total.blk += num(g.blk);
+      total.fgm += num(g.fgm);
+      total.fga += num(g.fga);
+      total.tpm += num(g.tpm);
+      total.tpa += num(g.tpa);
+      total.ftm += num(g.ftm);
+      total.fta += num(g.fta);
+    });
+    var gp = gameLogs.length;
+    return {
+      gamesPlayed: gp,
+      pts: round(total.pts / gp, 1),
+      reb: round(total.reb / gp, 1),
+      ast: round(total.ast / gp, 1),
+      stl: round(total.stl / gp, 1),
+      blk: round(total.blk / gp, 1),
+      fgm: round(total.fgm / gp, 1),
+      fga: round(total.fga / gp, 1),
+      tpm: round(total.tpm / gp, 1),
+      tpa: round(total.tpa / gp, 1),
+      ftm: round(total.ftm / gp, 1),
+      fta: round(total.fta / gp, 1),
+      fgPct: total.fga > 0 ? round(total.fgm / total.fga * 100, 1) : 0,
+      tpPct: total.tpa > 0 ? round(total.tpm / total.tpa * 100, 1) : 0,
+      ftPct: total.fta > 0 ? round(total.ftm / total.fta * 100, 1) : 0
+    };
+  }
+
+  function num(value) {
+    var n = Number(value);
+    return isNaN(n) ? 0 : n;
+  }
+
+  function round(value, digits) {
+    var factor = Math.pow(10, digits || 0);
+    return Math.round((Number(value) || 0) * factor) / factor;
   }
 
   // --- 渲染球員基本資料（需求 4.1）---
