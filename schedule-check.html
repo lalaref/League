@@ -165,7 +165,7 @@
 
 <div class="nyp-section" id="nyp-section" style="display:none">
   <h2>Remaining Preset Division Opponents per Team</h2>
-  <span class="section-note">Based on completed games in schedule.html</span>
+  <span class="section-note">Based on completed and scheduled regular-season games in schedule.html</span>
   <div class="nyp-table-wrap">
     <table class="nyp-table" id="nyp-table">
       <thead>
@@ -551,7 +551,9 @@ function render(games, teams, season) {
   var teamSchedule = {}; // teamId -> { 1: opp, 2: opp, ... }
   teamIds.forEach(function(id) { teamSchedule[id] = {}; });
   var completedOpponentsByTeam = {};
+  var arrangedOpponentsByTeam = {};
   teamIds.forEach(function(id) { completedOpponentsByTeam[id] = []; });
+  teamIds.forEach(function(id) { arrangedOpponentsByTeam[id] = []; });
 
   games.forEach(function(g) {
     var round = g.date ? dateToRound[g.date] : null;
@@ -571,6 +573,12 @@ function render(games, teams, season) {
       if (!completedOpponentsByTeam[awayId]) completedOpponentsByTeam[awayId] = [];
       completedOpponentsByTeam[homeId].push(awayId);
       completedOpponentsByTeam[awayId].push(homeId);
+    }
+    if (isArrangedGame(g)) {
+      if (!arrangedOpponentsByTeam[homeId]) arrangedOpponentsByTeam[homeId] = [];
+      if (!arrangedOpponentsByTeam[awayId]) arrangedOpponentsByTeam[awayId] = [];
+      arrangedOpponentsByTeam[homeId].push(awayId);
+      arrangedOpponentsByTeam[awayId].push(homeId);
     }
   });
 
@@ -714,10 +722,10 @@ function render(games, teams, season) {
   sortedIds.forEach(function(tid) {
     var name = teamMap[tid];
     var playedSet = {};
-    (completedOpponentsByTeam[tid] || []).forEach(function(oid) {
+    (arrangedOpponentsByTeam[tid] || []).forEach(function(oid) {
       playedSet[teamMap[oid] || oid] = true;
     });
-    var currentTotal = (completedOpponentsByTeam[tid] || []).length;
+    var currentTotal = (arrangedOpponentsByTeam[tid] || []).length;
     var remainingSlots = Math.max(0, rules.expectedGames - currentTotal);
     var unplayed = remainingSlots <= 0 ? [] : SeasonRules.getExpectedOpponentIds(tid, context)
       .map(function(oid) { return teamMap[oid]; })
@@ -744,7 +752,7 @@ function render(games, teams, season) {
   });
   nypSection.style.display = 'block';
 
-  renderRecommendedMatchups(games, context, completedOpponentsByTeam);
+  renderRecommendedMatchups(games, context, arrangedOpponentsByTeam);
 
   // --- Render matrix ---
   sortedIds.forEach(function(tid) {
@@ -805,6 +813,11 @@ function isCompletedGame(game) {
   return String((game && game.status) || '').toLowerCase() === 'completed';
 }
 
+function isArrangedGame(game) {
+  var status = String((game && game.status) || '').toLowerCase();
+  return status !== 'cancelled';
+}
+
 function renderRecommendedMatchups(games, context, completedOpponentsByTeam) {
   if (!recommendedSection || !recommendedBody || !context || !context.rules.isDivisionRoundRobin) return;
   recommendedBody.innerHTML = '';
@@ -815,7 +828,7 @@ function renderRecommendedMatchups(games, context, completedOpponentsByTeam) {
     var solution = solveDivisionMatchups(division, context, completedOpponentsByTeam);
     if (!solution || !solution.matchups.length) {
       var emptyTr = document.createElement('tr');
-      emptyTr.innerHTML = '<td>' + esc(division) + '</td><td><span class="nyp-none">No recommendation available</span></td><td>Check division size or existing matchups</td>';
+      emptyTr.innerHTML = '<td>' + esc(division) + '</td><td><span class="nyp-none">No recommendation available</span></td><td>Current scheduled games may leave an odd or cross-division slot. Fix flagged scheduled games first.</td>';
       recommendedBody.appendChild(emptyTr);
       hasRows = true;
       return;
