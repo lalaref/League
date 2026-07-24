@@ -16,6 +16,7 @@
   var scheduleEmpty = document.getElementById('schedule-empty');
   var scheduleList = document.getElementById('schedule-list');
   var scheduleTbody = document.getElementById('schedule-tbody');
+  var scheduleFormatNote = document.getElementById('schedule-format-note');
 
   // 季後賽
   var playoffsLoading = document.getElementById('playoffs-loading');
@@ -127,7 +128,7 @@
       API.getTeams(currentSeasonId)
     ])
       .then(function (results) {
-        var games = results[0];
+        var games = _regularSeasonGames(results[0] || []);
         var teams = results[1] || [];
         _teamsCache = teams;
         _hideEl(scheduleLoading);
@@ -150,12 +151,31 @@
           });
         }
         _renderScheduleTable(games, teams);
+        _renderScheduleFormatNote(games, teams);
         _showEl(scheduleList);
       })
       .catch(function () {
         _hideEl(scheduleLoading);
         _showEl(scheduleEmpty);
       });
+  }
+
+  function _regularSeasonGames(games) {
+    return (games || []).filter(function (game) {
+      return String(game.type || '').trim().toLowerCase() !== 'playoff';
+    });
+  }
+
+  function _renderScheduleFormatNote(games, teams) {
+    if (!scheduleFormatNote || typeof SeasonRules === 'undefined') return;
+    var context = SeasonRules.buildContext(teams || [], games || [], currentSeason || currentSeasonId);
+    var rules = context.rules;
+    if (!rules.isDivisionRoundRobin) {
+      scheduleFormatNote.textContent = rules.label || '';
+      return;
+    }
+    var divisionCount = SeasonRules.getDivisionNames(context).length;
+    scheduleFormatNote.textContent = 'Regular season: ' + divisionCount + ' divisions · ' + rules.expectedGames + ' games per team · Season 1 rematches avoided where possible';
   }
 
   function _renderScheduleTable(games, teams) {

@@ -3,8 +3,7 @@ var SeasonRules = (function () {
 
   var DEFAULT_EXPECTED_GAMES = 7;
   var SEASON1_ID = '845ca40d-4346-448f-bbe2-06b4104bdbda';
-  var SEASON2_GROUP_MIN_SIZE = 6;
-  var SEASON2_GROUP_MAX_SIZE = 7;
+  var SEASON2_DIVISION_COUNT = 2;
   var SEASON2_EXPECTED_GAMES = 5;
 
   function getRules(season) {
@@ -16,10 +15,12 @@ var SeasonRules = (function () {
       return {
         isDivisionRoundRobin: true,
         expectedGames: SEASON2_EXPECTED_GAMES,
-        groupSize: SEASON2_GROUP_MAX_SIZE,
-        groupMinSize: SEASON2_GROUP_MIN_SIZE,
-        groupMaxSize: SEASON2_GROUP_MAX_SIZE,
-        label: 'Season 2 Division schedule, 5 games/team'
+        divisionCount: SEASON2_DIVISION_COUNT,
+        groupSize: null,
+        groupMinSize: null,
+        groupMaxSize: null,
+        avoidReturningMatchups: true,
+        label: 'Season 2 two-division schedule, 5 regular-season games/team'
       };
     }
     return {
@@ -28,6 +29,8 @@ var SeasonRules = (function () {
       groupSize: null,
       groupMinSize: null,
       groupMaxSize: null,
+      divisionCount: 1,
+      avoidReturningMatchups: false,
       label: 'Single round-robin'
     };
   }
@@ -35,9 +38,6 @@ var SeasonRules = (function () {
   function getDefaultSeason(seasons) {
     seasons = seasons || [];
     if (!seasons.length) return null;
-    for (var s1 = 0; s1 < seasons.length; s1++) {
-      if (isActiveSeason(seasons[s1]) && isSeasonOne(seasons[s1])) return seasons[s1];
-    }
     for (var i = seasons.length - 1; i >= 0; i--) {
       if (isActiveSeason(seasons[i])) return seasons[i];
     }
@@ -125,28 +125,21 @@ var SeasonRules = (function () {
   }
 
   function getPresetOpponentIds(teamId, opponentIds, expectedGames, context) {
-    var skipId = chooseSkippedOpponentId(teamId, opponentIds, context);
-    return opponentIds.filter(function (id) { return id !== skipId; }).slice(0, expectedGames);
-  }
-
-  function chooseSkippedOpponentId(teamId, opponentIds, context) {
     var team = context.teamMeta[teamId] || {};
     var teamReturning = isReturningTeam(team);
-    var sorted = opponentIds.slice().sort(function (a, b) {
+    return opponentIds.slice().sort(function (a, b) {
       var aTeam = context.teamMeta[a] || {};
       var bTeam = context.teamMeta[b] || {};
-      var aScore = skippedOpponentScore(teamReturning, aTeam);
-      var bScore = skippedOpponentScore(teamReturning, bTeam);
-      if (bScore !== aScore) return bScore - aScore;
+      var aScore = opponentPenalty(teamReturning, aTeam, context);
+      var bScore = opponentPenalty(teamReturning, bTeam, context);
+      if (aScore !== bScore) return aScore - bScore;
       return (context.teamMap[a] || '').localeCompare(context.teamMap[b] || '');
-    });
-    return sorted[0];
+    }).slice(0, expectedGames);
   }
 
-  function skippedOpponentScore(teamReturning, opponent) {
+  function opponentPenalty(teamReturning, opponent, context) {
     var opponentReturning = isReturningTeam(opponent);
-    if (teamReturning && opponentReturning) return 10;
-    if (teamReturning || opponentReturning) return 3;
+    if (context && context.rules.avoidReturningMatchups && teamReturning && opponentReturning) return 10;
     return 0;
   }
 
@@ -180,6 +173,7 @@ var SeasonRules = (function () {
     getTeamDivision: getTeamDivision,
     buildContext: buildContext,
     getExpectedOpponentIds: getExpectedOpponentIds,
+    isReturningTeam: isReturningTeam,
     getDivisionNames: getDivisionNames,
     getSortedTeamIds: getSortedTeamIds
   };
