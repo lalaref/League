@@ -187,7 +187,7 @@
       var label = document.createElement('label');
       label.className = 'admin-attendance-item';
       var cb = document.createElement('input');
-      cb.type = 'checkbox'; cb.checked = true;
+      cb.type = 'checkbox'; cb.checked = false;
       cb.dataset.rosterIndex = idx;
       label.appendChild(cb);
       var span = document.createElement('span');
