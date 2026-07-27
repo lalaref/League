@@ -763,9 +763,9 @@
           announcementsEl.innerHTML = '<p class="text-muted" data-i18n="common.noData">' + I18n.t('common.noData') + '</p>';
           return;
         }
-        // Filter out hidden announcements
+        // Filter out hidden announcements and old Season 2 recruitment notices
         var visible = announcements.filter(function (a) {
-          return a.hidden !== true && a.hidden !== 'true';
+          return a.hidden !== true && a.hidden !== 'true' && !isObsoleteSeasonTwoRegistrationAnnouncement(a);
         });
         if (visible.length === 0) {
           announcementsEl.innerHTML = '<p class="text-muted" data-i18n="common.noData">' + I18n.t('common.noData') + '</p>';
@@ -778,6 +778,14 @@
       .catch(function () {
         announcementsEl.innerHTML = '<p class="text-muted">' + I18n.t('error.loadFailed') + ' <button class="btn btn-outline btn-sm" onclick="location.reload()">' + I18n.t('common.retry') + '</button></p>';
       });
+  }
+
+  function isObsoleteSeasonTwoRegistrationAnnouncement(item) {
+    if (!item) return false;
+    var text = [item.title, item.content].join('\n').toLowerCase();
+    var isSeasonTwo = /season\s*2|第二屆|第二季|s2/.test(text);
+    var isRegistrationNotice = /早鳥|報名|招募|留位|參賽|registration|register|early\s*bird|deposit|reserve\s*spot/.test(text);
+    return isSeasonTwo && isRegistrationNotice;
   }
 
   /**
