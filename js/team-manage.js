@@ -20,7 +20,12 @@
   var teamLogoImport = ImageImport.createController({
     input: 't-logo',
     preview: 't-logo-preview',
-    maxSize: 900,
+    maxSize: 520,
+    minSize: 120,
+    quality: 0.76,
+    minQuality: 0.28,
+    maxDataUrlLength: 38000,
+    outputType: 'image/jpeg',
     onError: function (err) { showTeamMsg((err && err.message) || '圖片匯入失敗', 'error'); }
   });
   var playerPhotoImport = ImageImport.createController({
@@ -162,18 +167,18 @@
     var data = {
       teamToken: token,
       name: document.getElementById('t-name').value.trim(),
-      logo: teamLogoImport.getValue(),
       captain: document.getElementById('t-captain').value.trim(),
       captainWhatsApp: document.getElementById('t-whatsapp').value.trim(),
       description: document.getElementById('t-desc').value.trim(),
       jerseyHome: document.getElementById('t-jersey-home').value.trim() || document.getElementById('t-jersey-home-color').value,
       jerseyAway: document.getElementById('t-jersey-away').value.trim() || document.getElementById('t-jersey-away-color').value
     };
+    if (teamLogoImport.isDirty()) data.logo = teamLogoImport.getValue();
     if (!data.name) { showTeamMsg('球隊名稱為必填', 'error'); return; }
     API.post('publicUpdateTeam', data)
       .then(function () { showTeamMsg('球隊資料已更新', 'success'); loadTeamData(); })
-      .catch(function (err) { showTeamMsg(err.message || '更新失敗', 'error'); });
-    });
+      .catch(function (err) { showTeamMsg(formatSaveError(err, '更新失敗'), 'error'); });
+    }).catch(function (err) { showTeamMsg((err && err.message) || '圖片處理失敗，請重新選擇較小圖片', 'error'); });
   }
 
   function savePlayer() {
@@ -182,10 +187,10 @@
       teamToken: token,
       name: document.getElementById('p-name').value.trim(),
       number: document.getElementById('p-number').value.trim(),
-      position: document.getElementById('p-position').value,
-      photo: playerPhotoImport.getValue(),
-      leaderPhoto: playerLeaderPhotoImport.getValue()
+      position: document.getElementById('p-position').value
     };
+    if (!editingPlayerId || playerPhotoImport.isDirty()) data.photo = playerPhotoImport.getValue();
+    if (!editingPlayerId || playerLeaderPhotoImport.isDirty()) data.leaderPhoto = playerLeaderPhotoImport.getValue();
     if (!data.name) { showTeamMsg('球員姓名為必填', 'error'); return; }
 
     var action = editingPlayerId ? 'publicUpdatePlayer' : 'publicCreatePlayer';
@@ -198,8 +203,19 @@
         clearPlayerForm();
         loadTeamData();
       })
-      .catch(function (err) { showTeamMsg(err.message || '儲存失敗', 'error'); });
-    });
+      .catch(function (err) { showTeamMsg(formatSaveError(err, '儲存失敗'), 'error'); });
+    }).catch(function (err) { showTeamMsg((err && err.message) || '圖片處理失敗，請重新選擇較小圖片', 'error'); });
+  }
+
+  function formatSaveError(err, fallback) {
+    var message = err && err.message ? err.message : fallback;
+    if (message === 'Failed to fetch' || message === 'NetworkError when attempting to fetch resource.') {
+      return '儲存失敗：圖片或資料可能太大，請重新選擇較小圖片後再試。';
+    }
+    if (message === '請求超時') {
+      return '儲存逾時：圖片或資料可能太大，請重新選擇較小圖片後再試。';
+    }
+    return message || fallback;
   }
 
   function clearPlayerForm() {

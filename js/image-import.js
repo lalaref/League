@@ -20,6 +20,7 @@ var ImageImport = (function () {
     var input = typeof options.input === 'string' ? document.getElementById(options.input) : options.input;
     var preview = typeof options.preview === 'string' ? document.getElementById(options.preview) : options.preview;
     var value = '';
+    var dirty = false;
     var pending = Promise.resolve();
 
     function render() {
@@ -39,6 +40,7 @@ var ImageImport = (function () {
         if (!file) return;
         pending = read(file, options).then(function (dataUrl) {
           value = dataUrl;
+          dirty = true;
           render();
           if (typeof options.onChange === 'function') options.onChange(dataUrl);
         }).catch(function (err) {
@@ -52,9 +54,11 @@ var ImageImport = (function () {
       getValue: function () { return value; },
       setValue: function (nextValue) {
         value = nextValue || '';
+        dirty = false;
         if (input) input.value = '';
         render();
       },
+      isDirty: function () { return dirty; },
       ready: function () { return pending; }
     };
   }
