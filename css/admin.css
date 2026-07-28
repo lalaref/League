@@ -940,6 +940,207 @@
     }
 }
 
+/* --- Team self-management mobile layout --- */
+.team-manage-page .admin-input[type="file"] {
+    min-height: auto;
+    padding: 10px;
+    line-height: 1.35;
+}
+
+.team-manage-page #team-section {
+    max-width: 980px;
+    margin: 0 auto;
+}
+
+.team-manage-page .admin-color-picker {
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr);
+    gap: var(--spacing-sm);
+    align-items: center;
+}
+
+.team-manage-page .admin-color-input {
+    width: 48px;
+    height: var(--touch-target-min);
+    padding: 2px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+}
+
+@media (max-width: 767px) {
+    .team-manage-page .header-top-inner {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .team-manage-page .ht-right {
+        min-width: 0;
+    }
+
+    .team-manage-page .ht-info-wrap {
+        display: none;
+    }
+
+    .team-manage-page .logo-text {
+        max-width: 96px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .team-manage-page .main-content .section {
+        padding: var(--spacing-lg) 0 calc(var(--spacing-2xl) + 56px);
+    }
+
+    .team-manage-page .container {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .team-manage-page .section-title {
+        font-size: 1.35rem;
+        line-height: 1.25;
+        margin-bottom: var(--spacing-md);
+        overflow-wrap: anywhere;
+    }
+
+    .team-manage-page .admin-card {
+        padding: var(--spacing-md);
+        border-radius: var(--radius-md);
+    }
+
+    .team-manage-page #player-form {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding: var(--spacing-md) !important;
+    }
+
+    .team-manage-page .admin-card-title,
+    .team-manage-page #player-form-title {
+        font-size: 1.1rem;
+        line-height: 1.3;
+    }
+
+    .team-manage-page .admin-toolbar,
+    .team-manage-page .admin-actions {
+        align-items: stretch;
+    }
+
+    .team-manage-page .btn,
+    .team-manage-page .admin-toolbar .btn,
+    .team-manage-page .admin-actions .btn,
+    .team-manage-page #btn-save-team {
+        width: 100%;
+        justify-content: center;
+        min-height: 46px;
+    }
+
+    .team-manage-page .admin-message {
+        position: sticky;
+        top: 8px;
+        z-index: 20;
+        box-shadow: var(--shadow-md);
+    }
+
+    .team-manage-page .table-wrapper {
+        overflow: visible;
+        border: 0;
+        box-shadow: none;
+        border-radius: 0;
+    }
+
+    .team-manage-page .data-table,
+    .team-manage-page .data-table tbody,
+    .team-manage-page .data-table tr,
+    .team-manage-page .data-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .team-manage-page .data-table thead {
+        display: none;
+    }
+
+    .team-manage-page .data-table tr {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+        margin-bottom: var(--spacing-sm);
+        padding: var(--spacing-sm);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        background: var(--color-surface);
+    }
+
+    .team-manage-page .data-table td {
+        display: grid;
+        grid-template-columns: 72px minmax(0, 1fr);
+        align-items: center;
+        gap: var(--spacing-sm);
+        padding: 7px 0;
+        border-top: 0;
+        white-space: normal;
+        min-height: 34px;
+        overflow-wrap: anywhere;
+    }
+
+    .team-manage-page .data-table td::before {
+        content: attr(data-label);
+        color: var(--color-text-secondary);
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-semibold);
+        text-transform: uppercase;
+        letter-spacing: 0;
+    }
+
+    .team-manage-page .data-table td[colspan] {
+        display: block;
+        text-align: center;
+        padding: var(--spacing-md);
+    }
+
+    .team-manage-page .data-table td[colspan]::before {
+        content: none;
+    }
+
+    .team-manage-page .data-table td:last-child {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-xs);
+        align-items: stretch;
+        padding-top: var(--spacing-sm);
+    }
+
+    .team-manage-page .data-table td:last-child::before {
+        content: none;
+    }
+
+    .team-manage-page .data-table td:last-child .btn {
+        width: 100%;
+        margin: 0;
+    }
+
+    .team-manage-page .site-footer {
+        padding-bottom: calc(var(--spacing-xl) + 48px);
+    }
+}
+
+@media (max-width: 380px) {
+    .team-manage-page .container {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .team-manage-page .admin-card {
+        padding: 12px;
+    }
+
+    .team-manage-page .data-table td {
+        grid-template-columns: 64px minmax(0, 1fr);
+    }
+}
+
 /* --- 球衣顏色內聯編輯器 --- */
 .jersey-swatch {
     display: inline-block;

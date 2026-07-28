@@ -18,6 +18,416 @@
 }
 
 /* ===========================
+   全站手機安全網：下於 768px
+   =========================== */
+@media (max-width: 767px) {
+    html,
+    body {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    body {
+        font-size: 15px;
+    }
+
+    .container {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .section {
+        padding: var(--spacing-xl) 0;
+    }
+
+    h1,
+    h2,
+    h3,
+    .hero-title,
+    .section-title,
+    .team-name,
+    .player-name,
+    .leaderboard-title {
+        overflow-wrap: anywhere;
+        letter-spacing: 0;
+    }
+
+    .section-title {
+        font-size: 1.45rem;
+        line-height: 1.25;
+    }
+
+    /* Header / navigation */
+    .header-top-inner {
+        min-height: 58px;
+        max-width: 100%;
+    }
+
+    .ht-logo-wrap {
+        padding-left: 14px;
+        padding-right: 32px;
+        min-width: 0;
+    }
+
+    .nav-logo {
+        min-width: 0;
+    }
+
+    .logo-img {
+        width: 32px;
+        height: 32px;
+        flex: 0 0 auto;
+    }
+
+    .logo-text {
+        max-width: 104px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 18px;
+    }
+
+    .ht-right {
+        min-width: 0;
+    }
+
+    .ht-lang-wrap {
+        padding-left: 8px;
+        padding-right: 10px;
+    }
+
+    .lang-switch-btn {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .nav-links {
+        top: 58px;
+        max-height: calc(100vh - 58px);
+        overflow-y: auto;
+    }
+
+    .nav-link {
+        padding: 13px 18px;
+        white-space: normal;
+        letter-spacing: 0.04em;
+    }
+
+    /* Heroes and page intro areas */
+    .hero-section,
+    .rules-hero,
+    .team-hero,
+    .player-hero,
+    .game-hero {
+        padding: var(--spacing-xl) 0;
+    }
+
+    .hero-title {
+        font-size: 1.9rem;
+        line-height: 1.12;
+    }
+
+    .hero-subtitle,
+    .rules-hero p {
+        font-size: 0.98rem;
+    }
+
+    .hero-cta-btn,
+    .rules-btn,
+    .ft-cta-btn-pri,
+    .ft-cta-btn-sec,
+    .cb-fanclub-btn {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+        min-height: var(--touch-target-min);
+    }
+
+    /* Forms, controls, and tabs */
+    .standings-controls,
+    .team-season-controls,
+    .team-season-controls--directory,
+    .h2h-controls,
+    .compare-player-selectors,
+    .admin-toolbar,
+    .admin-actions {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--spacing-sm);
+    }
+
+    .h2h-select,
+    .standings-controls .h2h-select,
+    .team-season-controls .h2h-select,
+    .team-season-controls--directory .h2h-select,
+    .admin-input,
+    .admin-select,
+    .admin-textarea,
+    input,
+    select,
+    textarea {
+        max-width: 100%;
+        min-width: 0;
+        font-size: 16px;
+    }
+
+    .tabs {
+        display: flex;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        gap: var(--spacing-sm);
+        padding-bottom: var(--spacing-xs);
+        scroll-snap-type: x proximity;
+    }
+
+    .tab-btn {
+        flex: 0 0 auto;
+        min-width: max-content;
+        min-height: var(--touch-target-min);
+        scroll-snap-align: start;
+    }
+
+    .standings-tabs-section .tab-panel.active {
+        display: block !important;
+    }
+
+    .standings-tabs-section .leaderboard-section {
+        width: 100%;
+        min-width: 0;
+    }
+
+    /* Tables and charts */
+    .table-wrapper,
+    .compare-table-wrapper {
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .data-table {
+        min-width: 620px;
+        font-size: 0.82rem;
+    }
+
+    .game-quarter-table {
+        min-width: 420px;
+    }
+
+    #standings-table,
+    #standings-page-table {
+        min-width: 100%;
+        width: 100%;
+        table-layout: auto;
+    }
+
+    #standings-table th,
+    #standings-table td,
+    #standings-page-table th,
+    #standings-page-table td {
+        padding: 8px 5px;
+        white-space: normal;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 8px 10px;
+    }
+
+    .chart-container,
+    .leaderboard-chart-container,
+    .compare-radar-container,
+    .shotchart-container,
+    .archive-trend-chart-container {
+        max-width: 100%;
+        min-height: 260px;
+        overflow: hidden;
+    }
+
+    canvas {
+        max-width: 100% !important;
+    }
+
+    .playoff-bracket-wrapper,
+    .nba-bracket-card,
+    .nba-bracket-scroll {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    .nba-bracket-scroll {
+        padding: 14px 10px 16px;
+    }
+
+    .nba-bracket-grid {
+        min-width: 0 !important;
+        width: 100%;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .nba-bracket-round {
+        min-width: 0;
+    }
+
+    .nba-bracket-round:not(:last-child)::after,
+    .nba-bracket-game::after {
+        content: none;
+    }
+
+    .nba-bracket-round-title,
+    .nba-bracket-label,
+    .nba-bracket-team {
+        width: 100%;
+        min-width: 0;
+    }
+
+    /* Common grids/cards */
+    .games-grid,
+    .stat-cards,
+    .advanced-stats-grid,
+    .achievements-showcase,
+    .archive-season-cards,
+    .archive-awards-grid,
+    .archive-photos-grid,
+    .rules-grid,
+    .cb-stats-grid,
+    .sl-grid,
+    .team-directory-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .rules-card,
+    .leaderboard-section,
+    .admin-card,
+    .team-profile-card,
+    .player-profile-card,
+    .game-card,
+    .cb-sidebar-card {
+        max-width: 100%;
+        overflow-wrap: anywhere;
+    }
+
+    .rules-card[style*="grid-column"] {
+        grid-column: auto !important;
+    }
+
+    .player-profile-card,
+    .team-profile-card,
+    .game-mvp-card,
+    .compare-layout {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+    }
+
+    .player-meta,
+    .team-record,
+    .player-details,
+    .team-meta {
+        justify-content: center;
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Homepage dashboard */
+    .cb-layout {
+        display: block;
+    }
+
+    .cb-left,
+    .cb-right {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .cb-sec-title,
+    .team-section-heading,
+    .team-directory-heading,
+    .sl-section-title {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-xs);
+    }
+
+    .cb-sec-title-line {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .cb-fanclub h2,
+    .ft-cta h2 {
+        font-size: 1.7rem;
+        line-height: 1.18;
+    }
+
+    .ft-cta-btns,
+    .rules-cta {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    /* Footer / floating actions */
+    .site-footer {
+        padding-bottom: calc(var(--spacing-xl) + 52px);
+    }
+
+    .footer-content,
+    .ft-grid,
+    .ft-bottom {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: var(--spacing-md);
+    }
+
+    .footer-links,
+    .ft-bottom-links {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .wa-float {
+        right: 12px;
+        bottom: 12px;
+        width: 50px;
+        height: 50px;
+    }
+
+    .wa-float svg {
+        width: 25px;
+        height: 25px;
+    }
+}
+
+@media (max-width: 380px) {
+    .container {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .ht-logo-wrap {
+        padding-left: 10px;
+        padding-right: 26px;
+    }
+
+    .logo-text {
+        max-width: 84px;
+    }
+
+    .hero-title {
+        font-size: 1.65rem;
+    }
+
+    .section-title {
+        font-size: 1.3rem;
+    }
+
+    .data-table {
+        min-width: 560px;
+    }
+}
+
+/* ===========================
    平板斷點：768px+
    =========================== */
 @media (min-width: 768px) {
