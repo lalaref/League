@@ -26,6 +26,7 @@
 
   var currentSeasonId = '';
   var currentSeason = null;
+  var seasonsCache = [];
 
   // --- 初始化 ---
   function init() {
@@ -34,7 +35,7 @@
     if (seasonSelect) {
       seasonSelect.addEventListener('change', function () {
         currentSeasonId = seasonSelect.value;
-        currentSeason = {
+        currentSeason = seasonsCache.filter(function (season) { return season.id === currentSeasonId; })[0] || {
           id: currentSeasonId,
           name: seasonSelect.options[seasonSelect.selectedIndex] ? seasonSelect.options[seasonSelect.selectedIndex].textContent : currentSeasonId
         };
@@ -88,6 +89,7 @@
           seasonSelect.innerHTML = '<option value="">' + (I18n.t('common.noData')) + '</option>';
           return;
         }
+        seasonsCache = seasons.slice();
         var defaultSeason = _getDefaultSeason(seasons);
         seasons.forEach(function (s) {
           var opt = document.createElement('option');
@@ -132,6 +134,7 @@
         var teams = results[1] || [];
         _teamsCache = teams;
         _hideEl(scheduleLoading);
+        _renderScheduleFormatNote(games, teams);
         if (!games || games.length === 0) {
           _showEl(scheduleEmpty);
           return;
@@ -151,7 +154,6 @@
           });
         }
         _renderScheduleTable(games, teams);
-        _renderScheduleFormatNote(games, teams);
         _showEl(scheduleList);
       })
       .catch(function () {
@@ -162,7 +164,8 @@
 
   function _regularSeasonGames(games) {
     return (games || []).filter(function (game) {
-      return String(game.type || '').trim().toLowerCase() !== 'playoff';
+      var type = String(game.type || 'regular').trim().toLowerCase();
+      return type === 'regular' && String(game.status || '').trim().toLowerCase() !== 'cancelled';
     });
   }
 
@@ -174,8 +177,20 @@
       scheduleFormatNote.textContent = rules.label || '';
       return;
     }
-    var divisionCount = SeasonRules.getDivisionNames(context).length;
-    scheduleFormatNote.textContent = 'Regular season: ' + divisionCount + ' divisions · ' + rules.expectedGames + ' games per team · Season 1 rematches avoided where possible';
+    var divisions = SeasonRules.getDivisionNames(context);
+    var divisionSummary = divisions.map(function (name) {
+      return name + ' ' + (context.divisions[name] || []).length + ' teams';
+    }).join(' · ');
+    var expectedTeams = (rules.divisionCount || divisions.length) * (rules.groupSize || 0);
+    var expectedTotal = Math.floor(((expectedTeams || context.teamIds.length) * rules.expectedGames) / 2);
+    var counts = {}, valid = divisions.length === 2 && divisions.indexOf('Clutch') !== -1 && divisions.indexOf('Fastbreak') !== -1 && context.teamIds.length === expectedTeams && games.length === expectedTotal;
+    context.teamIds.forEach(function (id) { counts[id] = 0; });
+    games.forEach(function (game) {
+      if (counts[game.homeTeamId] === undefined || counts[game.awayTeamId] === undefined) valid = false;
+      else { counts[game.homeTeamId]++; counts[game.awayTeamId]++; }
+    });
+    context.teamIds.forEach(function (id) { if (counts[id] !== rules.expectedGames) valid = false; });
+    scheduleFormatNote.textContent = 'Regular season: ' + divisionSummary + ' · ' + rules.expectedGames + ' games per team · ' + games.length + '/' + expectedTotal + ' games scheduled · ' + (valid ? '✓ format valid' : '⚠ schedule data does not match format');
   }
 
   function _renderScheduleTable(games, teams) {
