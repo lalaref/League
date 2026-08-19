@@ -64,7 +64,7 @@
                 <!-- 單循環賽程生成器 -->
                 <div id="round-robin-panel" class="admin-card" hidden>
                     <h2 class="admin-card-title" data-i18n="admin.roundRobinTitle">單循環賽程</h2>
-                    <p class="admin-hint" data-i18n="admin.roundRobinHint">按分組生成賽程；Season 2 支援 6-7 隊分組，每隊 regular season 保持 5 場。7 隊分組會略過部分同組對戰，Season 1 舊隊之間優先略過。</p>
+                    <p class="admin-hint" data-i18n="admin.roundRobinHint">Season 2 固定為 Clutch 及 Fastbreak 兩組，每組 8 隊；每隊 regular season 合共 5 場。已完成及已安排的賽事會保留並計入 5 場，只生成餘下賽事。</p>
 
                     <div id="rr-matchups" class="rr-matchups-grid"></div>
 
@@ -72,6 +72,18 @@
                         <button id="btn-rr-publish-all" class="btn btn-primary" data-i18n="admin.publishAll" disabled>發佈所有已填賽程</button>
                         <button id="btn-rr-close" class="btn btn-outline" data-i18n="admin.cancel">取消</button>
                     </div>
+                </div>
+
+                <!-- Season 2 playoff / consolation bracket graph -->
+                <div id="playoff-panel" class="admin-card admin-playoff-panel" hidden>
+                    <div class="admin-playoff-heading">
+                        <div>
+                            <h2 class="admin-card-title">Season 2 季後賽對陣圖</h2>
+                            <p id="playoff-status" class="admin-hint"></p>
+                        </div>
+                        <span class="admin-playoff-format">Clutch × Fastbreak</span>
+                    </div>
+                    <div id="playoff-brackets" class="admin-playoff-brackets"></div>
                 </div>
 
                 <!-- 比賽表單 (建立/編輯) -->
@@ -154,7 +166,7 @@
     <script src="../js/i18n.js?v=20260409"></script>
     <script src="../js/navigation.js?v=20260409"></script>
     <script src="auth.js?v=20260410"></script>
-    <script src="schedule.js?v=20260706-s1default"></script>
+    <script src="schedule.js?v=20260819-preserve-played-records"></script>
     <script>I18n.init();</script>
 </body>
 </html>
