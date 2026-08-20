@@ -225,8 +225,9 @@
   function refreshScheduleFromBackend(draftSource, forceShow) {
     var sid = seasonSelect.value;
     return Promise.all([API.getTeams(sid), API.getGames(sid)]).then(function (results) {
-      teams = results[0] || [];
-      var games = results[1] || [];
+      if (!Array.isArray(results[0])) throw new Error('後端球隊資料格式不正確，請更新 Apps Script 部署後再試。');
+      teams = results[0];
+      var games = Array.isArray(results[1]) ? results[1] : [];
       populateTeamSelects();
       renderGamesTable(games);
       restoreRRFromGames(games, draftSource, forceShow);
@@ -581,7 +582,7 @@
     if (!hasDivision) return generateSingleRoundRobin(teamList, '');
 
     teamList.forEach(function (t) {
-      var division = (t.division || 'Unassigned').trim().toUpperCase();
+      var division = normalizeDivision(t);
       if (!divisionGroups[division]) divisionGroups[division] = [];
       divisionGroups[division].push(t);
     });
@@ -818,7 +819,19 @@
       teamById[team.id] = team; counts[team.id] = 0;
       var division = normalizeDivision(team); divisionCounts[division] = (divisionCounts[division] || 0) + 1;
     });
-    if (teams.length !== 16 || divisionCounts.CLUTCH !== 8 || divisionCounts.FASTBREAK !== 8) return 'Season 2 必須為 Clutch 及 Fastbreak 各 8 隊。';
+    if (teams.length !== 16 || divisionCounts.CLUTCH !== 8 || divisionCounts.FASTBREAK !== 8) {
+      var divisionSummary = Object.keys(divisionCounts).sort().map(function (key) {
+        return key + '=' + divisionCounts[key];
+      }).join('、') || '沒有分組資料';
+      var unexpectedTeams = teams.filter(function (team) {
+        var division = normalizeDivision(team);
+        return division !== 'CLUTCH' && division !== 'FASTBREAK';
+      }).map(function (team) {
+        return (team.name || team.id || '未命名球隊') + '（division=' + JSON.stringify(String(team.division || '')) + '）';
+      });
+      return 'Season 2 必須為 Clutch 及 Fastbreak 各 8 隊。實收：共 ' + teams.length + ' 隊（' + divisionSummary + '）。' +
+        (unexpectedTeams.length ? '異常分組球隊：' + unexpectedTeams.join('、') + '。' : '');
+    }
     if ((matchups || []).length !== 40) return '現有及新增賽事合共必須為 40 場。';
     for (var i = 0; i < matchups.length; i++) {
       var match = matchups[i];
@@ -834,8 +847,14 @@
     return (a.name || '').localeCompare(b.name || '');
   }
 
+  function normalizeDivisionValue(value) {
+    var normalized = String(value || '').trim().toUpperCase().replace(/[\s_-]+/g, '');
+    normalized = normalized.replace(/^DIVISION/, '').replace(/DIVISION$/, '');
+    return normalized || 'UNASSIGNED';
+  }
+
   function normalizeDivision(team) {
-    return String((team && team.division) || 'Unassigned').trim().toUpperCase();
+    return normalizeDivisionValue(team && team.division);
   }
 
   function showRoundRobinPanel() {
@@ -1101,8 +1120,8 @@
   function getMatchDivision(homeTeamId, awayTeamId) {
     var home = getTeamById(homeTeamId);
     var away = getTeamById(awayTeamId);
-    var homeDivision = home && home.division ? String(home.division).trim().toUpperCase() : '';
-    var awayDivision = away && away.division ? String(away.division).trim().toUpperCase() : '';
+    var homeDivision = home ? normalizeDivision(home) : '';
+    var awayDivision = away ? normalizeDivision(away) : '';
     if (homeDivision && awayDivision && homeDivision !== awayDivision) return 'Cross';
     return homeDivision || awayDivision || '';
   }
@@ -1115,15 +1134,15 @@
 
   function getTeamsForDivision(division) {
     if (!division) return teams;
-    var normalized = String(division).trim().toUpperCase();
+    var normalized = normalizeDivisionValue(division);
     if (normalized === 'CROSS') return teams;
-    return teams.filter(function (t) { return String(t.division || '').trim().toUpperCase() === normalized; });
+    return teams.filter(function (t) { return normalizeDivision(t) === normalized; });
   }
 
   function getDivisionCounts() {
     var counts = {};
     teams.forEach(function (t) {
-      var division = String(t.division || 'Unassigned').trim().toUpperCase();
+      var division = normalizeDivision(t);
       counts[division] = (counts[division] || 0) + 1;
     });
     return counts;
@@ -1310,7 +1329,7 @@
   function buildPlayoffPreview(standings) {
     var divisions = {};
     standings.forEach(function (team) {
-      var key = String(team.division || '').trim().toUpperCase();
+      var key = normalizeDivision(team);
       if (!divisions[key]) divisions[key] = [];
       divisions[key].push(team);
     });
