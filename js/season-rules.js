@@ -16,6 +16,7 @@ var SeasonRules = (function () {
   function getTeamDivision(team) {
     var value = text((team || {}).division);
     var normalized = value.toLowerCase().replace(/[\s_-]+/g, '');
+    normalized = normalized.replace(/^division/, '').replace(/division$/, '');
     if (normalized === 'clutch') return 'Clutch';
     if (normalized === 'fastbreak') return 'Fastbreak';
     return value || 'Unassigned';
