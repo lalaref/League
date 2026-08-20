@@ -625,8 +625,18 @@
     var deficits = {};
     allTeams.forEach(function (team) { deficits[team.id] = SEASON2_TARGET_GAMES - counts[team.id]; });
     var additions = [], attempts = 0;
-    if (!completeRemainingGames()) {
-      showMsg('已保留所有現有比賽，但無法自動安排餘下賽事至每隊 5 場。請檢查是否有重複對賽或隊伍已超過 5 場。', 'error');
+    var searchDeadline = Date.now() + 100;
+    var maxAttempts = 5000;
+
+    // A new season has a deterministic 5-game schedule: offsets 1, 2 and 4
+    // create 20 unique games per eight-team division (40 games total).
+    if (!result.length) {
+      orderedDivisions.forEach(function (division) {
+        var group = divisionGroups[division].slice().sort(compareTeamName);
+        additions = additions.concat(generateCircularDivisionPairs(group, division, [1, 2, 4]));
+      });
+    } else if (!completeRemainingGames()) {
+      showMsg('已保留所有現有比賽，但無法在限時內自動安排餘下賽事至每隊 5 場。請檢查現有對賽是否重複，或有隊伍已超過 5 場。', 'error');
       return result;
     }
 
@@ -648,7 +658,7 @@
 
     function completeRemainingGames() {
       attempts++;
-      if (attempts > 100000) return false;
+      if (attempts > maxAttempts || Date.now() > searchDeadline) return false;
       var remaining = allTeams.filter(function (team) { return deficits[team.id] > 0; });
       if (!remaining.length) return true;
       var slots = remaining.reduce(function (sum, team) { return sum + deficits[team.id]; }, 0);
@@ -831,6 +841,7 @@
   function showRoundRobinPanel() {
     syncRRInputs();
     var drafts = rrMatchups.length ? rrMatchups.slice() : (loadRRState() || []);
+    showMsg('正在讀取現有賽事並生成餘下賽程…', 'info');
     rrBtn.disabled = true;
     refreshScheduleFromBackend(drafts, true).then(function () {
       var validationError = validateSeason2Matchups(rrMatchups);
@@ -838,6 +849,7 @@
         showMsg(validationError + ' 所有已完成及已安排賽事均已保留。', 'error');
         return;
       }
+      showMsg('賽程已生成：現有已完成及已安排賽事已保留，只加入餘下賽事。', 'success');
       rrPanel.scrollIntoView({ behavior: 'smooth' });
     }).catch(function (err) {
       blockRRUntilReload();
@@ -1211,23 +1223,27 @@
       }
       setRRPublishControlsDisabled(true);
 
-      var requests = toPublish.map(function (match) {
-        return API.post('createGame', {
-          seasonId: seasonSelect.value,
-          date: match.date,
-          time: match.time,
-          venue: match.venue,
-          homeTeamId: match.homeId,
-          awayTeamId: match.awayId,
-          type: 'regular'
-        }).then(function () {
-          return { ok: true };
-        }, function (err) {
-          return { ok: false, error: err };
+      var results = [];
+      var publishSequence = Promise.resolve();
+      toPublish.forEach(function (match) {
+        publishSequence = publishSequence.then(function () {
+          return API.post('createGame', {
+            seasonId: seasonSelect.value,
+            date: match.date,
+            time: match.time,
+            venue: match.venue,
+            homeTeamId: match.homeId,
+            awayTeamId: match.awayId,
+            type: 'regular'
+          }).then(function () {
+            results.push({ ok: true });
+          }, function (err) {
+            results.push({ ok: false, error: err });
+          });
         });
       });
 
-      return Promise.all(requests).then(function (results) {
+      return publishSequence.then(function () {
         var succeeded = results.filter(function (result) { return result.ok; }).length;
         var failed = results.length - succeeded;
         if (failed) {
