@@ -2043,6 +2043,13 @@ img {
     font-weight: var(--font-weight-bold);
 }
 
+.playoff-matchup-schedule {
+    padding: 6px var(--spacing-md) 2px;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+    line-height: 1.4;
+}
+
 .playoff-team {
     display: flex;
     align-items: center;
