@@ -22,6 +22,10 @@
   var homeSelect = document.getElementById('home-team-select');
   var awaySelect = document.getElementById('away-team-select');
   var typeSelect = document.getElementById('game-type');
+  var playoffSettings = document.getElementById('playoff-game-settings');
+  var playoffSeedSelect = document.getElementById('game-playoff-seed');
+  var playoffRoundSelect = document.getElementById('game-playoff-round');
+  var playoffNotesInput = document.getElementById('game-playoff-notes');
 
   // Round-robin panel elements
   var rrPanel = document.getElementById('round-robin-panel');
@@ -35,6 +39,7 @@
   var playoffBracketsEl = document.getElementById('playoff-brackets');
 
   var teams = [];
+  var seasons = [];
   var seasonOneTeams = [];
   var editingGameId = null;
   var rrMatchups = []; // generated round-robin matchups
@@ -74,6 +79,7 @@
   createBtn.addEventListener('click', showCreateForm);
   cancelBtn.addEventListener('click', hideForm);
   saveBtn.addEventListener('click', handleSave);
+  typeSelect.addEventListener('change', updatePlayoffSettings);
   playoffsBtn.addEventListener('click', handleGeneratePlayoffs);
   rrBtn.addEventListener('click', showRoundRobinPanel);
   rrCloseBtn.addEventListener('click', hideRoundRobinPanel);
@@ -84,10 +90,11 @@
   // ============================================================
 
   function loadSeasons() {
-    API.getSeasons().then(function (seasons) {
+    API.getSeasons().then(function (seasonList) {
+      seasons = seasonList || [];
       seasonSelect.innerHTML = '<option value="">--</option>';
-      var defaultSeason = getDefaultSeason(seasons || []);
-      (seasons || []).forEach(function (s) {
+      var defaultSeason = getDefaultSeason(seasons);
+      seasons.forEach(function (s) {
         var o = document.createElement('option');
         o.value = s.id; o.textContent = s.name;
         seasonSelect.appendChild(o);
@@ -115,11 +122,25 @@
     return /(?:season|s)\s*0?2\b/.test(name) || name.indexOf('第二季') !== -1 || name.indexOf('第2季') !== -1;
   }
 
+  function isSeasonOne(season) {
+    var name = String((season && (season.name || season.id)) || '').toLowerCase();
+    return !!season && (String(season.id || '') === SEASON1_ID || /(?:season|s)\s*0?1\b/.test(name) || name.indexOf('第一季') !== -1 || String(season.minGamesForRanking || '') === '7');
+  }
+
+  function getCurrentSeason() {
+    return seasons.filter(function (season) { return String(season.id || '') === String(seasonSelect.value || ''); })[0] || null;
+  }
+
+  function isCurrentSeasonOne() {
+    return isSeasonOne(getCurrentSeason());
+  }
+
   function onSeasonChange() {
     var sid = seasonSelect.value;
+    var currentSeason = getCurrentSeason();
     createBtn.disabled = !sid;
-    playoffsBtn.disabled = !sid;
-    rrBtn.disabled = !sid;
+    playoffsBtn.disabled = !sid || !isSeasonTwo(currentSeason);
+    rrBtn.disabled = !sid || !isSeasonTwo(currentSeason);
     hideForm();
     if (sid) {
       // Load schedule, standings, and playoffs together so the graph is always current.
@@ -260,6 +281,16 @@
     }).catch(function () { showMsg(I18n.t('error.loadFailed'), 'error'); });
   }
 
+  function formatGameType(game) {
+    if (String(game.type || '').toLowerCase() !== 'playoff') return game.type || 'regular';
+    var seed = game.playoffSeed === 'consolation' ? '安慰賽／排名組' : (game.playoffSeed === 'champions' ? '冠軍組' : '未設定組別');
+    var round = Number(game.playoffRound) || 1;
+    var stage = isCurrentSeasonOne()
+      ? (round === 2 ? '決賽' : '準決賽')
+      : (round === 3 ? '決賽' : (round === 2 ? '準決賽' : '首輪'));
+    return 'playoff · ' + seed + ' · ' + stage;
+  }
+
   function renderGamesTable(games) {
     gamesBody.innerHTML = '';
     // Build team map for jersey colors
@@ -303,7 +334,7 @@
           '<td><span class="matchup-team">' + esc(g.homeTeamName || g.homeTeamId) + homeJerseyHtml + '</span> vs <span class="matchup-team">' + esc(g.awayTeamName || g.awayTeamId) + awayJerseyHtml + '</span>' +
             (g.status === 'completed' ? ' <span class="text-accent">' + (g.homeScore||0) + '-' + (g.awayScore||0) + '</span>' : '') +
             statusBadge + '</td>' +
-          '<td>' + esc(g.type || 'regular') + '</td>' +
+          '<td>' + esc(formatGameType(g)) + '</td>' +
           '<td><button class="btn btn-sm btn-outline">' + I18n.t('admin.edit') + '</button>' + cancelBtnHtml + deleteBtnHtml + '</td>';
 
         // Bind jersey color input events
@@ -407,11 +438,33 @@
   // Create / Edit game form
   // ============================================================
 
+  function updatePlayoffSettings(preferredRound) {
+    var isPlayoff = typeSelect.value === 'playoff';
+    playoffSettings.hidden = !isPlayoff;
+    if (!isPlayoff) return;
+
+    var options = isCurrentSeasonOne()
+      ? [{ value: '1', label: '準決賽（第 1 輪）' }, { value: '2', label: '決賽（第 2 輪）' }]
+      : [{ value: '1', label: '首輪（第 1 輪）' }, { value: '2', label: '準決賽（第 2 輪）' }, { value: '3', label: '決賽（第 3 輪）' }];
+    var selected = String(preferredRound || playoffRoundSelect.value || '1');
+    playoffRoundSelect.innerHTML = '';
+    options.forEach(function (option) {
+      var el = document.createElement('option');
+      el.value = option.value;
+      el.textContent = option.label;
+      playoffRoundSelect.appendChild(el);
+    });
+    playoffRoundSelect.value = options.some(function (option) { return option.value === selected; }) ? selected : '1';
+  }
+
   function showCreateForm() {
     editingGameId = null;
     formTitle.textContent = I18n.t('admin.createGame');
     dateInput.value = ''; timeInput.value = ''; venueInput.value = '';
     homeSelect.value = ''; awaySelect.value = ''; typeSelect.value = 'regular';
+    playoffSeedSelect.value = 'champions';
+    playoffNotesInput.value = '';
+    updatePlayoffSettings('1');
     gameForm.hidden = false;
     gameForm.scrollIntoView({ behavior: 'smooth' });
   }
@@ -445,11 +498,18 @@
     homeSelect.value = g.homeTeamId || '';
     awaySelect.value = g.awayTeamId || '';
     typeSelect.value = g.type || 'regular';
+    playoffSeedSelect.value = g.playoffSeed || 'champions';
+    playoffNotesInput.value = g.notes || '';
+    updatePlayoffSettings(g.playoffRound || '1');
     gameForm.hidden = false;
     gameForm.scrollIntoView({ behavior: 'smooth' });
   }
 
-  function hideForm() { gameForm.hidden = true; editingGameId = null; }
+  function hideForm() {
+    gameForm.hidden = true;
+    playoffSettings.hidden = true;
+    editingGameId = null;
+  }
 
   function handleSave() {
     if (!dateInput.value || !homeSelect.value || !awaySelect.value) {
@@ -465,15 +525,30 @@
       awayTeamId: awaySelect.value,
       type: typeSelect.value
     };
+    if (data.type === 'playoff') {
+      data.playoffSeed = playoffSeedSelect.value;
+      data.playoffRound = Number(playoffRoundSelect.value);
+      data.notes = playoffNotesInput.value.trim();
+      if (!data.playoffSeed || !data.playoffRound) {
+        saveBtn.disabled = false;
+        showMsg('請選擇季後賽組別及階段。', 'error');
+        return;
+      }
+    }
     var action = editingGameId ? 'updateGame' : 'createGame';
     if (editingGameId) data.gameId = editingGameId;
 
     API.post(action, data).then(function () {
       showMsg(I18n.t('admin.gameSaved'), 'success');
       hideForm();
-      API.getGames(seasonSelect.value).then(function (games) {
-        renderGamesTable(games);
-        restoreRRFromGames(games);
+      return Promise.all([
+        API.getGames(seasonSelect.value),
+        API.getStandings(seasonSelect.value).catch(function () { return []; }),
+        API.getPlayoffs(seasonSelect.value).catch(function () { return { rounds: [], brackets: [] }; })
+      ]).then(function (results) {
+        renderGamesTable(results[0]);
+        restoreRRFromGames(results[0]);
+        renderPlayoffGraph(results[1], results[2]);
       });
     }).catch(function (err) {
       showMsg(err.message || I18n.t('error.submitFailed'), 'error');
@@ -1303,27 +1378,32 @@
     ((playoffData && playoffData.brackets) || []).forEach(function (bracket) {
       stored[bracket.id] = bracket;
     });
+    var seasonOne = isCurrentSeasonOne();
+    if (seasonOne && !stored.champions && playoffData && playoffData.rounds && playoffData.rounds.length) {
+      stored.champions = { id: 'champions', name: '🏆 冠軍組', rounds: playoffData.rounds };
+    }
     var hasStoredGames = ['champions', 'consolation'].some(function (id) {
       return stored[id] && stored[id].rounds && stored[id].rounds.some(function (round) {
         return round.games && round.games.length;
       });
     });
-    var preview = buildPlayoffPreview(standings || []);
+    var preview = seasonOne ? null : buildPlayoffPreview(standings || []);
 
     playoffPanel.hidden = false;
     playoffStatusEl.textContent = hasStoredGames
-      ? '已發佈的季後賽對陣；完成比賽及建立下一輪後，圖表會自動更新。'
-      : '根據目前分組排名預覽；按「一鍵生成季後賽」發佈 8 場首輪比賽。';
+      ? '已發佈的季後賽對陣；可在上方賽程列表按「編輯」設定組別及階段。'
+      : (seasonOne ? 'Season 1 請使用「建立比賽」，選擇季後賽、組別及準決賽／決賽。' : '根據目前分組排名預覽；按「一鍵生成季後賽」發佈 8 場首輪比賽。');
 
     if (!hasStoredGames && !preview) {
-      playoffStatusEl.textContent = '需要 Clutch 及 Fastbreak 每組至少 8 支球隊，才可建立季後賽及安慰賽對陣。';
-      playoffBracketsEl.innerHTML = '<div class="admin-bracket-empty">暫時未能產生對陣圖</div>';
+      playoffBracketsEl.innerHTML = '<div class="admin-bracket-empty">暫未建立季後賽；請按「建立比賽」設定冠軍組或安慰賽。</div>';
       return;
     }
 
+    var championsTitle = seasonOne ? '🏆 冠軍組' : '🏆 季後賽（排名 1–4）';
+    var consolationTitle = seasonOne ? '🥈 安慰賽／排名組' : '🥈 安慰賽（排名 5–8）';
     playoffBracketsEl.innerHTML =
-      renderAdminBracket('champions', '🏆 季後賽（排名 1–4）', stored.champions, preview && preview.champions) +
-      renderAdminBracket('consolation', '🥈 安慰賽（排名 5–8）', stored.consolation, preview && preview.consolation);
+      renderAdminBracket('champions', championsTitle, stored.champions, preview && preview.champions) +
+      renderAdminBracket('consolation', consolationTitle, stored.consolation, preview && preview.consolation);
   }
 
   function buildPlayoffPreview(standings) {
@@ -1367,16 +1447,37 @@
 
   function renderAdminBracket(id, title, storedBracket, previewGames) {
     var rounds = (storedBracket && storedBracket.rounds) || [];
-    var quarterfinals = rounds[0] && rounds[0].games && rounds[0].games.length ? rounds[0].games : (previewGames || []);
+    function gamesForRound(roundNumber, fallbackIndex) {
+      var match = rounds.filter(function (round) { return Number(round.round) === roundNumber; })[0] || rounds[fallbackIndex];
+      return match && match.games && match.games.length ? match.games : [];
+    }
+
+    if (isCurrentSeasonOne()) {
+      var semifinalFallback = id === 'champions'
+        ? [placeholderGame('冠軍組準決賽勝方待定', '對手待定'), placeholderGame('冠軍組準決賽勝方待定', '對手待定')]
+        : [placeholderGame('排名組準決賽隊伍待定', '對手待定'), placeholderGame('排名組準決賽隊伍待定', '對手待定')];
+      var semifinalsS1 = gamesForRound(1, 0);
+      if (!semifinalsS1.length) semifinalsS1 = semifinalFallback;
+      var finalsS1 = gamesForRound(2, 1);
+      if (!finalsS1.length) finalsS1 = [placeholderGame('準決賽勝方 1', '準決賽勝方 2')];
+      return '<section class="admin-bracket admin-bracket--' + id + '">' +
+        '<h3 class="admin-bracket-title">' + title + '</h3>' +
+        '<div class="admin-bracket-grid admin-bracket-grid--season1">' +
+          renderAdminRound(id === 'champions' ? '準決賽' : '排名準決賽', semifinalsS1) +
+          renderAdminRound(id === 'champions' ? '冠軍賽' : '安慰賽決賽', finalsS1) +
+        '</div>' +
+      '</section>';
+    }
+
+    var quarterfinals = gamesForRound(1, 0);
+    if (!quarterfinals.length) quarterfinals = previewGames || [];
     var semifinalPlaceholders = id === 'champions'
       ? [placeholderGame('第1場勝方', '第3場勝方'), placeholderGame('第2場勝方', '第4場勝方')]
       : [placeholderGame('第5場勝方', '第7場勝方'), placeholderGame('第6場勝方', '第8場勝方')];
-    var semifinals = rounds[1] && rounds[1].games && rounds[1].games.length
-      ? rounds[1].games
-      : semifinalPlaceholders;
-    var finals = rounds[2] && rounds[2].games && rounds[2].games.length
-      ? rounds[2].games
-      : [placeholderGame('準決賽勝方 1', '準決賽勝方 2')];
+    var semifinals = gamesForRound(2, 1);
+    if (!semifinals.length) semifinals = semifinalPlaceholders;
+    var finals = gamesForRound(3, 2);
+    if (!finals.length) finals = [placeholderGame('準決賽勝方 1', '準決賽勝方 2')];
 
     return '<section class="admin-bracket admin-bracket--' + id + '">' +
       '<h3 class="admin-bracket-title">' + title + '</h3>' +
@@ -1396,8 +1497,13 @@
     var html = '<div class="admin-bracket-round"><div class="admin-bracket-round-title">' + title + '</div><div class="admin-bracket-games">';
     (games || []).forEach(function (game) {
       var placeholderClass = game.placeholder ? ' admin-bracket-team--placeholder' : '';
+      var scheduleDetails = [];
+      if (game.date) scheduleDetails.push(Utils.formatDateWithDay(game.date));
+      if (game.time) scheduleDetails.push(Utils.formatTime(game.time));
+      if (game.venue) scheduleDetails.push(game.venue);
       html += '<div class="admin-bracket-game">' +
         '<div class="admin-bracket-label">' + esc(game.label || '') + '</div>' +
+        (scheduleDetails.length ? '<div class="admin-bracket-schedule">' + esc(scheduleDetails.join(' · ')) + '</div>' : '') +
         '<div class="admin-bracket-team' + placeholderClass + '"><span>' + esc(game.homeTeamName || '待定') + '</span><strong>' + formatBracketScore(game.homeScore) + '</strong></div>' +
         '<div class="admin-bracket-team' + placeholderClass + '"><span>' + esc(game.awayTeamName || '待定') + '</span><strong>' + formatBracketScore(game.awayScore) + '</strong></div>' +
       '</div>';
