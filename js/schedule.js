@@ -450,12 +450,17 @@
     var homeScore = game.homeScore != null ? game.homeScore : '';
     var awayScore = game.awayScore != null ? game.awayScore : '';
     var isCompleted = game.status === 'completed' || (homeScore !== '' && awayScore !== '');
+    var scheduleDetails = [];
+    if (game.date) scheduleDetails.push(Utils.formatDateWithDay(game.date));
+    if (game.time) scheduleDetails.push(Utils.formatTime(game.time));
+    if (game.venue) scheduleDetails.push(game.venue);
 
     var homeWin = isCompleted && Number(homeScore) > Number(awayScore);
     var awayWin = isCompleted && Number(awayScore) > Number(homeScore);
 
     card.innerHTML =
       (label ? '<div class="playoff-matchup-label">' + _escHtml(label) + '</div>' : '') +
+      (scheduleDetails.length ? '<div class="playoff-matchup-schedule">' + _escHtml(scheduleDetails.join(' · ')) + '</div>' : '') +
       '<div class="playoff-team' + (homeWin ? ' playoff-team--winner' : '') + '">' +
         '<span class="playoff-team-name">' + _teamLink(game.homeTeamId, homeName) + '</span>' +
         '<span class="playoff-team-score">' + _escHtml(String(homeScore)) + '</span>' +
