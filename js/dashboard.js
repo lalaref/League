@@ -823,6 +823,17 @@
   // --- 球隊排名（需求 3.5）— 從比賽結果前端計算，確保與節分一致 ---
   function loadStandings(seasons) {
     if (!standingsBody) return;
+    var standingsTable = document.getElementById('standings-table');
+    var flatWrapper = standingsTable.parentElement;
+    var standingsContent = document.getElementById('home-standings-content');
+    if (!standingsContent) {
+      standingsContent = document.createElement('div');
+      standingsContent.id = 'home-standings-content';
+      standingsContent.setAttribute('aria-live', 'polite');
+      standingsContent.style.cssText = 'display:flex;flex-direction:column;gap:24px';
+      flatWrapper.parentElement.insertBefore(standingsContent, flatWrapper);
+    }
+    showFlatTable();
     standingsBody.innerHTML = '<tr><td colspan="8" class="loading" data-i18n="common.loading">' + I18n.t('common.loading') + '</td></tr>';
     var displaySeasons = (seasons && seasons.length) ? seasons : [currentSeason];
 
@@ -831,21 +842,88 @@
         return { season: season, games: results[0] || [], teams: results[1] || [] };
       });
     })).then(function (seasonResults) {
-      var html = seasonResults.map(function (seasonData) {
-        if (seasonData.teams.length === 0) {
-          return '<tr><td colspan="8" class="text-muted">' + escapeHtml(formatSeasonLabel(seasonData.season)) + ' · ' + I18n.t('common.noData') + '</td></tr>';
-        }
-        var regularGames = filterRegularSeasonGames(seasonData.games);
-        var standings = _computeStandings(regularGames, seasonData.teams);
-        var label = formatSeasonLabel(seasonData.season);
-        var seasonName = seasonData.season.name || 'Standings';
-        var head = '<tr><td colspan="8" style="background:#111;color:#fff;font-weight:900;text-align:left;text-transform:uppercase;letter-spacing:.08em"><span class="home-season-label">' + escapeHtml(label) + '</span> · <span class="home-season-name">' + escapeHtml(seasonName) + '</span></td></tr>';
-        return head + renderStandingsRows(standings, seasonData.teams, regularGames, seasonData.season);
-      }).join('');
-      standingsBody.innerHTML = html || '<tr><td colspan="8" class="text-muted" data-i18n="common.noData">' + I18n.t('common.noData') + '</td></tr>';
+      var html = seasonResults.map(renderSeasonStandings).join('');
+      if (!html) {
+        showFlatTable();
+        standingsBody.innerHTML = '<tr><td colspan="8" class="text-muted" data-i18n="common.noData">' + I18n.t('common.noData') + '</td></tr>';
+        return;
+      }
+      standingsContent.innerHTML = html;
+      flatWrapper.hidden = true;
+      standingsContent.hidden = false;
     }).catch(function () {
+      showFlatTable();
       standingsBody.innerHTML = '<tr><td colspan="8" class="text-muted">' + I18n.t('error.loadFailed') + '</td></tr>';
     });
+
+    function showFlatTable() {
+      standingsContent.hidden = true;
+      flatWrapper.hidden = false;
+    }
+
+    function renderSeasonStandings(seasonData) {
+      var label = formatSeasonLabel(seasonData.season);
+      var seasonName = seasonData.season.name || 'Standings';
+      var heading = '<div class="home-season-head">'
+        + '<div class="home-season-title"><span class="home-season-label">' + escapeHtml(label) + '</span> · <span class="home-season-name">' + escapeHtml(seasonName) + '</span></div>'
+        + '</div>';
+      if (seasonData.teams.length === 0) {
+        return '<section class="home-season-block">' + heading
+          + '<p class="text-muted">' + I18n.t('common.noData') + '</p></section>';
+      }
+
+      var regularGames = filterRegularSeasonGames(seasonData.games);
+      var standings = _computeStandings(regularGames, seasonData.teams);
+      var context = (typeof SeasonRules !== 'undefined')
+        ? SeasonRules.buildContext(seasonData.teams, regularGames, seasonData.season)
+        : null;
+      var body;
+      if (context && context.rules.isDivisionRoundRobin && context.divisions.Clutch && context.divisions.Fastbreak) {
+        body = renderVerticalDivisions(standings, context);
+      } else {
+        body = standingsTableMarkup(standings.slice(0, 8), label + ' 球隊排名');
+      }
+      return '<section class="home-season-block">' + heading + body + '</section>';
+    }
+
+    function renderVerticalDivisions(standings, context) {
+      var byId = {};
+      standings.forEach(function (team) { byId[String(team.id)] = team; });
+      return '<div style="display:grid;grid-template-columns:1fr;gap:20px">'
+        + ['Clutch', 'Fastbreak'].map(function (division) {
+          var rows = (context.divisions[division] || []).map(function (id) {
+            return byId[String(id)];
+          }).filter(Boolean);
+          rows.sort(function (a, b) {
+            if (b.points !== a.points) return b.points - a.points;
+            if (b.diff !== a.diff) return b.diff - a.diff;
+            if (b.pointsFor !== a.pointsFor) return b.pointsFor - a.pointsFor;
+            return (a.teamName || '').localeCompare(b.teamName || '');
+          });
+          var accent = division === 'Clutch' ? '#cc0000' : '#f59e0b';
+          return '<div style="overflow:hidden;background:#fff;border:1px solid #e5e7eb;border-top:4px solid ' + accent + ';border-radius:10px;box-shadow:0 4px 18px rgba(0,0,0,.08)">'
+            + '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;background:#111827;color:#fff">'
+            + '<h4 style="margin:0;font-family:\'Raleway\',sans-serif;font-size:13px;font-weight:900;letter-spacing:.1em">DIVISION ' + escapeHtml(division.toUpperCase()) + '</h4>'
+            + '<span style="font-size:10px;font-weight:700;color:#cbd5e1">' + rows.length + ' TEAMS</span></div>'
+            + standingsTableMarkup(rows, 'Division ' + division + ' 球隊排名') + '</div>';
+        }).join('') + '</div>';
+    }
+
+    function standingsTableMarkup(rows, ariaLabel) {
+      return '<div class="table-wrapper" style="margin:0"><table class="data-table" aria-label="' + escapeHtml(ariaLabel) + '">'
+        + '<thead><tr>'
+        + '<th>' + escapeHtml(I18n.t('table.rank')) + '</th>'
+        + '<th>' + escapeHtml(I18n.t('table.team')) + '</th>'
+        + '<th>' + escapeHtml(I18n.t('table.played')) + '</th>'
+        + '<th>' + escapeHtml(I18n.t('table.wins')) + '</th>'
+        + '<th>' + escapeHtml(I18n.t('table.draws')) + '</th>'
+        + '<th>' + escapeHtml(I18n.t('table.losses')) + '</th>'
+        + '<th>' + escapeHtml(I18n.t('table.diff')) + '</th>'
+        + '<th>' + escapeHtml(I18n.t('table.points')) + '</th>'
+        + '</tr></thead><tbody>'
+        + rows.map(function (team, idx) { return renderStandingRow(team, idx + 1); }).join('')
+        + '</tbody></table></div>';
+    }
   }
 
   /**

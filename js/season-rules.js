@@ -3,8 +3,16 @@ var SeasonRules = (function () {
 
   function text(value) { return String(value == null ? '' : value).trim(); }
   function isSeasonTwo(season) {
-    var value = typeof season === 'string' ? season : text((season || {}).name || (season || {}).id);
-    return /(?:season|s)\s*0?2\b/i.test(value) || value.indexOf('第二季') !== -1 || value.indexOf('第2季') !== -1;
+    function matchesSeasonTwo(value) {
+      value = text(value);
+      return /(?:season|s)\s*0?2\b/i.test(value) || /第\s*(?:二|2)\s*(?:季|屆)/.test(value);
+    }
+    if (typeof season === 'string') return matchesSeasonTwo(season);
+    season = season || {};
+    return text(season.id) === 'c90f2419-8111-43ef-9506-a2d082426b75'
+      || matchesSeasonTwo(season.name)
+      || matchesSeasonTwo(season.id)
+      || Number(season.minGamesForRanking) === 5;
   }
   function getDefaultSeason(seasons) {
     var list = seasons || [];
@@ -31,8 +39,10 @@ var SeasonRules = (function () {
       var division = getTeamDivision(team); teamIds.push(id); teamMap[id] = team.name || team.teamName || id;
       teamMeta[id] = team; teamDivisions[id] = division; if (!divisions[division]) divisions[division] = []; divisions[division].push(id);
     });
-    var seasonTwo = isSeasonTwo(season);
-    var rules = seasonTwo
+    var hasClutch = !!(divisions.Clutch && divisions.Clutch.length);
+    var hasFastbreak = !!(divisions.Fastbreak && divisions.Fastbreak.length);
+    var divisionRoundRobin = isSeasonTwo(season) || (hasClutch && hasFastbreak);
+    var rules = divisionRoundRobin
       ? { isDivisionRoundRobin:true, expectedGames:5, divisionCount:2, groupSize:8, groupMinSize:8, groupMaxSize:8, avoidReturningMatchups:false, label:'Season 2: Clutch 8 teams · Fastbreak 8 teams · 5 games per team' }
       : { isDivisionRoundRobin:false, expectedGames:Number((season || {}).minGamesForRanking) || 7, avoidReturningMatchups:false, label:'Regular season' };
     return { rules:rules, season:season, teams:teams || [], games:games || [], teamMap:teamMap, teamMeta:teamMeta, teamIds:teamIds, teamDivisions:teamDivisions, divisions:divisions };

@@ -196,6 +196,17 @@
   function loadTeamStandings() {
     var tbody = document.querySelector('#standings-page-table tbody');
     if (!tbody) return;
+    var flatWrapper = document.getElementById('standings-page-table').parentElement;
+    var divisionGrid = document.getElementById('standings-division-grid');
+    if (!divisionGrid) {
+      divisionGrid = document.createElement('div');
+      divisionGrid.id = 'standings-division-grid';
+      divisionGrid.setAttribute('aria-live', 'polite');
+      divisionGrid.style.cssText = 'display:grid;grid-template-columns:1fr;gap:24px;align-items:start';
+      flatWrapper.parentElement.insertBefore(divisionGrid, flatWrapper);
+    }
+
+    showFlatTable();
     tbody.innerHTML = '<tr><td colspan="8" class="loading">載入中...</td></tr>';
 
     Promise.all([
@@ -206,15 +217,71 @@
       var teams = results[1] || [];
       var seasonGames = filterSeasonGames(games);
       if (teams.length === 0) {
+        showFlatTable();
         tbody.innerHTML = '<tr><td colspan="8" class="text-muted">' + I18n.t('common.noData') + '</td></tr>';
         return;
       }
       var standings = _computeStandings(seasonGames, teams);
-      tbody.innerHTML = _renderStandingsRows(standings, teams, seasonGames);
+      var context = (typeof SeasonRules !== 'undefined')
+        ? SeasonRules.buildContext(teams, seasonGames, currentSeason || currentSeasonId)
+        : null;
+      if (context && context.rules.isDivisionRoundRobin && context.divisions.Clutch && context.divisions.Fastbreak) {
+        renderDivisionTables(standings, context);
+      } else {
+        showFlatTable();
+        tbody.innerHTML = _renderStandingsRows(standings, teams, seasonGames);
+      }
     }).catch(function () {
+      showFlatTable();
       tbody.innerHTML = '<tr><td colspan="8" class="text-muted">' + I18n.t('error.loadFailed')
         + ' <button class="btn btn-outline btn-sm" onclick="location.reload()">' + I18n.t('common.retry') + '</button></td></tr>';
     });
+
+    function showFlatTable() {
+      divisionGrid.hidden = true;
+      flatWrapper.hidden = false;
+    }
+
+    function renderDivisionTables(standings, context) {
+      var byId = {};
+      standings.forEach(function (team) { byId[String(team.id)] = team; });
+      var divisionNames = ['Clutch', 'Fastbreak'];
+      divisionGrid.innerHTML = divisionNames.map(function (division) {
+        var rows = (context.divisions[division] || []).map(function (id) {
+          return byId[String(id)];
+        }).filter(Boolean);
+        rows.sort(function (a, b) {
+          if (b.points !== a.points) return b.points - a.points;
+          if (b.diff !== a.diff) return b.diff - a.diff;
+          if (b.pointsFor !== a.pointsFor) return b.pointsFor - a.pointsFor;
+          return a.teamName.localeCompare(b.teamName);
+        });
+        var accent = division === 'Clutch' ? '#cc0000' : '#f59e0b';
+        return '<section class="standings-division-card" style="overflow:hidden;background:#fff;border:1px solid #e5e7eb;border-top:4px solid ' + accent + ';border-radius:10px;box-shadow:0 4px 18px rgba(0,0,0,.08)">'
+          + '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;background:#111827;color:#fff">'
+          + '<h4 style="margin:0;font-family:\'Raleway\',sans-serif;font-size:15px;font-weight:900;letter-spacing:.1em">DIVISION ' + escapeHtml(division.toUpperCase()) + '</h4>'
+          + '<span style="font-size:11px;font-weight:700;color:#cbd5e1">' + rows.length + ' TEAMS</span></div>'
+          + '<div class="table-wrapper" style="margin:0"><table class="data-table" aria-label="Division ' + escapeHtml(division) + ' 球隊排名">'
+          + standingsTableHead()
+          + '<tbody>' + rows.map(function (team, idx) { return _renderStandingRow(team, idx + 1); }).join('') + '</tbody>'
+          + '</table></div></section>';
+      }).join('');
+      flatWrapper.hidden = true;
+      divisionGrid.hidden = false;
+    }
+
+    function standingsTableHead() {
+      return '<thead><tr>'
+        + '<th>' + escapeHtml(I18n.t('table.rank')) + '</th>'
+        + '<th>' + escapeHtml(I18n.t('table.team')) + '</th>'
+        + '<th>' + escapeHtml(I18n.t('table.played')) + '</th>'
+        + '<th>' + escapeHtml(I18n.t('table.wins')) + '</th>'
+        + '<th>' + escapeHtml(I18n.t('table.draws')) + '</th>'
+        + '<th>' + escapeHtml(I18n.t('table.losses')) + '</th>'
+        + '<th>' + escapeHtml(I18n.t('table.diff')) + '</th>'
+        + '<th>' + escapeHtml(I18n.t('table.points')) + '</th>'
+        + '</tr></thead>';
+    }
   }
 
   function _computeStandings(games, teams) {
