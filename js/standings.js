@@ -256,11 +256,14 @@
           if (b.pointsFor !== a.pointsFor) return b.pointsFor - a.pointsFor;
           return a.teamName.localeCompare(b.teamName);
         });
-        var accent = division === 'Clutch' ? '#cc0000' : '#f59e0b';
+        var accent = division === 'Clutch' ? '#dc2626' : '#f59e0b';
+        var headerBackground = division === 'Clutch'
+          ? 'linear-gradient(135deg,#dc2626,#ef4444)'
+          : 'linear-gradient(135deg,#f59e0b,#f97316)';
         return '<section class="standings-division-card" style="overflow:hidden;background:#fff;border:1px solid #e5e7eb;border-top:4px solid ' + accent + ';border-radius:10px;box-shadow:0 4px 18px rgba(0,0,0,.08)">'
-          + '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;background:#111827;color:#fff">'
-          + '<h4 style="margin:0;font-family:\'Raleway\',sans-serif;font-size:15px;font-weight:900;letter-spacing:.1em">DIVISION ' + escapeHtml(division.toUpperCase()) + '</h4>'
-          + '<span style="font-size:11px;font-weight:700;color:#cbd5e1">' + rows.length + ' TEAMS</span></div>'
+          + '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;background:' + headerBackground + ';color:#fff">'
+          + '<h4 style="margin:0;font-family:\'Raleway\',sans-serif;font-size:15px;font-weight:900;letter-spacing:.1em;text-shadow:0 1px 2px rgba(0,0,0,.2)">DIVISION ' + escapeHtml(division.toUpperCase()) + '</h4>'
+          + '<span style="font-size:11px;font-weight:700;color:rgba(255,255,255,.9)">' + rows.length + ' TEAMS</span></div>'
           + '<div class="table-wrapper" style="margin:0"><table class="data-table" aria-label="Division ' + escapeHtml(division) + ' 球隊排名">'
           + standingsTableHead()
           + '<tbody>' + rows.map(function (team, idx) { return _renderStandingRow(team, idx + 1); }).join('') + '</tbody>'
