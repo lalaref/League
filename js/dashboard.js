@@ -836,6 +836,10 @@
     showFlatTable();
     standingsBody.innerHTML = '<tr><td colspan="8" class="loading" data-i18n="common.loading">' + I18n.t('common.loading') + '</td></tr>';
     var displaySeasons = (seasons && seasons.length) ? seasons : [currentSeason];
+    // The homepage should only show current standings; Season 1 remains available in the archive.
+    displaySeasons = displaySeasons.filter(function (season) {
+      return season && !isSeasonOne(season);
+    });
 
     Promise.all(displaySeasons.map(function (season) {
       return Promise.all([API.getGames(season.id), API.getTeams(season.id)]).then(function (results) {

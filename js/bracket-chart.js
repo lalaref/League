@@ -78,6 +78,8 @@ var SeasonBracketChart = (function () {
       if (championshipRounds.length) groups.push({ title: '冠軍組', rounds: championshipRounds });
     }
 
+    mergeSeasonOneFinal(groups, games, teamMap);
+
     if (!hasRankingGroup(groups)) {
       var rankingRounds = buildRankingRounds(teams, games, groups);
       if (rankingRounds.length) groups.push({ title: '排名賽對賽', rounds: rankingRounds });
@@ -91,6 +93,66 @@ var SeasonBracketChart = (function () {
       var title = String(group.title || '').toLowerCase();
       return title.indexOf('排名') !== -1 || title.indexOf('consol') !== -1 || title.indexOf('ranking') !== -1;
     });
+  }
+
+  // Reconcile the Season 1 final from the complete games feed. Legacy final rows
+  // may use non-canonical type/seed values and therefore be absent from brackets.
+  function mergeSeasonOneFinal(groups, games, teamMap) {
+    var finalGame = findSeasonOneFinalGame(games);
+    if (!finalGame) return;
+
+    var championship = (groups || []).find(function (group) {
+      return /冠軍|champion/i.test(String(group.title || ''));
+    });
+    if (!championship) {
+      championship = { title: '🏆 冠軍組', rounds: [] };
+      groups.unshift(championship);
+    }
+
+    var normalizedFinal = normalizeGame(finalGame, teamMap);
+    if (!normalizedFinal) return;
+    var finalRound = championship.rounds.find(function (round) {
+      return /決賽|冠軍賽|final/i.test(String(round.name || ''));
+    });
+    if (finalRound) {
+      finalRound.games = [normalizedFinal];
+    } else {
+      championship.rounds.push({ name: '冠軍賽', games: [normalizedFinal] });
+    }
+    resolveAdvancementPlaceholders(championship.rounds);
+  }
+
+  function findSeasonOneFinalGame(games) {
+    var candidates = (games || []).filter(function (game) {
+      if (!game) return false;
+      var type = String(game.type || '').trim().toLowerCase();
+      var seed = String(game.playoffSeed || game.seed || '').trim().toLowerCase();
+      var notes = String(game.notes || game.label || '').trim().toLowerCase();
+      var round = Number(game.playoffRound || game.round || 0);
+      var context = seed + ' ' + notes;
+      if (/consol|ranking|rankings|安慰|排名/.test(context)) return false;
+      var finalStage = round === 2 || /finals?|決賽|冠軍賽/.test(type + ' ' + seed + ' ' + notes);
+      var playoffLike = type === 'playoff' || type === 'final' || type === 'finals' || round === 2 || /champion|final/.test(seed) || /finals?|決賽|冠軍賽/.test(notes);
+      return finalStage && playoffLike;
+    });
+
+    candidates.sort(function (a, b) {
+      return finalGamePriority(b) - finalGamePriority(a);
+    });
+    return candidates[0] || null;
+  }
+
+  function finalGamePriority(game) {
+    var type = String(game.type || '').trim().toLowerCase();
+    var seed = String(game.playoffSeed || game.seed || '').trim().toLowerCase();
+    var notes = String(game.notes || game.label || '').trim().toLowerCase();
+    var score = Number(game.playoffRound || game.round || 0) === 2 ? 8 : 0;
+    if (type === 'playoff') score += 4;
+    if (/^championship$|^champion$|^champions$/.test(seed)) score += 4;
+    if (/finals?|決賽|冠軍賽/.test(notes)) score += 2;
+    if ((game.homeTeamId || game.homeTeamName) && (game.awayTeamId || game.awayTeamName)) score += 2;
+    if (String(game.status || '').toLowerCase() === 'completed') score += 1;
+    return score;
   }
 
   function normalizeRounds(data, teamMap) {
