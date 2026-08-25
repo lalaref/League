@@ -29,7 +29,7 @@
                     <li role="none"><a href="../team.html" class="nav-link" role="menuitem" data-i18n="nav.teams">球隊</a></li>
                     <li role="none"><a href="../player.html" class="nav-link" role="menuitem" data-i18n="nav.players">球員</a></li>
                     <li role="none"><a href="../standings.html" class="nav-link" role="menuitem" data-i18n="nav.standings">排行榜</a></li>
-                    <li role="none"><a href="../archive.html" class="nav-link" role="menuitem" data-i18n="nav.archive">歷史檔案</a></li>
+                    <li role="none"><a href="../archive.html" class="nav-link" role="menuitem" data-i18n="nav.archive">Hall of Fame 冠軍球隊</a></li>
                     <li role="none"><a href="index.html" class="nav-link active" role="menuitem" data-i18n="nav.admin">管理後台</a></li>
                 </ul>
                 <div class="nav-actions">
@@ -356,9 +356,10 @@
             tbody.querySelectorAll('.btn-delete').forEach(function (btn) {
                 btn.addEventListener('click', function () {
                     var id = btn.getAttribute('data-id');
-                    if (!confirm('Delete this team?')) return;
-                    API.post('deleteTeam', { teamId: id }).then(function () {
-                        showMsg('Deleted', 'success');
+                    if (!confirm('Delete this team? Its unplayed scheduled/cancelled games and players will also be deleted.')) return;
+                    API.post('deleteTeam', { teamId: id }).then(function (result) {
+                        var deletedGames = result && result.deletedGames ? ' (' + result.deletedGames + ' scheduled game(s) also deleted)' : '';
+                        showMsg('Deleted' + deletedGames, 'success');
                         loadTeams();
                     }).catch(function (err) { showMsg((err && err.message) || I18n.t('error.submitFailed'), 'error'); });
                 });
