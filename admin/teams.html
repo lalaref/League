@@ -356,10 +356,9 @@
             tbody.querySelectorAll('.btn-delete').forEach(function (btn) {
                 btn.addEventListener('click', function () {
                     var id = btn.getAttribute('data-id');
-                    if (!confirm('Delete this team? Its unplayed scheduled/cancelled games and players will also be deleted.')) return;
-                    API.post('deleteTeam', { teamId: id }).then(function (result) {
-                        var deletedGames = result && result.deletedGames ? ' (' + result.deletedGames + ' scheduled game(s) also deleted)' : '';
-                        showMsg('Deleted' + deletedGames, 'success');
+                    if (!confirm('Remove this team from active team management? Existing matchups, division assignments, scores, and standings points will remain unchanged.')) return;
+                    API.post('deleteTeam', { teamId: id }).then(function () {
+                        showMsg('Team removed; matchup and standings points preserved', 'success');
                         loadTeams();
                     }).catch(function (err) { showMsg((err && err.message) || I18n.t('error.submitFailed'), 'error'); });
                 });
