@@ -205,9 +205,12 @@
    * Saved drafts may restore date/time/venue only for regenerated new pairs.
    */
   function restoreRRFromGames(games, draftSource, forceShow) {
+    var activeTeamIds = {};
+    teams.forEach(function (team) { activeTeamIds[String(team.id)] = true; });
     var regularGames = (games || []).filter(function (g) {
       return String(g.type || 'regular').trim().toLowerCase() === 'regular' &&
-        String(g.status || 'scheduled').trim().toLowerCase() !== 'cancelled';
+        String(g.status || 'scheduled').trim().toLowerCase() !== 'cancelled' &&
+        activeTeamIds[String(g.homeTeamId)] && activeTeamIds[String(g.awayTeamId)];
     });
     var publishedMatchups = regularGames.map(function (g) {
       return {
