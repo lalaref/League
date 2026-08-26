@@ -211,7 +211,7 @@
 
     Promise.all([
       API.getGames(currentSeasonId),
-      API.getTeams(currentSeasonId)
+      API.getTeams(currentSeasonId, true)
     ]).then(function (results) {
       var games = results[0] || [];
       var teams = results[1] || [];

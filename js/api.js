@@ -202,7 +202,9 @@ var API = (function () {
   function getAchievements(playerId) { return get('achievements', { playerId: playerId }); }
   function getArchive(seasonId) { return get('archive', { seasonId: seasonId }); }
   function getAnnouncements() { return get('announcements'); }
-  function getTeams(seasonId) { return get('teams', { seasonId: seasonId }); }
+  function getTeams(seasonId, includeDeleted) {
+    return get('teams', { seasonId: seasonId, includeDeleted: includeDeleted ? 'true' : undefined });
+  }
   function getPlayers(teamId) { return get('players', { teamId: teamId }); }
   function getGames(seasonId) { return get('games', { seasonId: seasonId }); }
   function getTeamAvailability(seasonId, startDate, endDate) {

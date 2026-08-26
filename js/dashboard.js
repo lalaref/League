@@ -306,12 +306,201 @@
           recentGamesEl.innerHTML = '<p class="text-muted" data-i18n="common.noData">' + I18n.t('common.noData') + '</p>';
           return;
         }
+        adminRecentGames = recent;
         recentGamesEl.innerHTML = recent.map(renderGameCard).join('');
+        ensureAdminScoreUi();
       })
       .catch(function (err) {
         console.error('[Dashboard] loadRecentGames error:', err);
         recentGamesEl.innerHTML = '<p class="text-muted">' + I18n.t('error.loadFailed') + ' <button class="btn btn-outline btn-sm" onclick="location.reload()">' + I18n.t('common.retry') + '</button></p>';
       });
+  }
+
+  // --- ?admin=1 首頁比分快速更新 ---
+  var adminRequested = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('admin') === '1';
+  var adminEnabled = false;
+  var adminRecentGames = [];
+  var adminEditingGame = null;
+  var adminUiReady = false;
+  var ADMIN_AUTH_KEY = 'aibl_admin_auth';
+  var ADMIN_PASSWORD = 'allin2026admin';
+
+  function injectAdminScoreStyles() {
+    if (document.getElementById('admin-score-styles')) return;
+    var style = document.createElement('style');
+    style.id = 'admin-score-styles';
+    style.textContent =
+      '.gr-row--admin{grid-template-columns:90px 42px 1fr 90px 1fr 44px}.gr-edit-score{min-width:38px;min-height:32px;padding:4px 7px;border:1px solid #cc0000;border-radius:6px;background:#fff;color:#cc0000;font-size:12px;font-weight:800;cursor:pointer}.gr-edit-score:hover,.gr-edit-score:focus-visible{background:#cc0000;color:#fff}.admin-score-overlay{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.72)}.admin-score-overlay[hidden]{display:none}.admin-score-dialog{width:min(420px,100%);max-height:calc(100vh - 36px);overflow:auto;background:#fff;border-radius:14px;box-shadow:0 24px 70px rgba(0,0,0,.4);padding:24px;color:#111}.admin-score-title{margin:0 0 6px;font-family:Raleway,sans-serif;font-size:22px;font-weight:900}.admin-score-subtitle{margin:0 0 20px;color:#666;font-size:13px}.admin-score-teams{display:grid;grid-template-columns:1fr auto 1fr;align-items:end;gap:12px}.admin-score-team{display:flex;flex-direction:column;gap:8px;min-width:0;text-align:center}.admin-score-team-name{font-size:13px;font-weight:800;overflow-wrap:anywhere}.admin-score-input{width:100%;box-sizing:border-box;padding:12px 8px;border:2px solid #ddd;border-radius:8px;text-align:center;font:900 28px Raleway,sans-serif}.admin-score-input:focus{outline:none;border-color:#cc0000}.admin-score-vs{padding-bottom:14px;color:#999;font-weight:800}.admin-score-message{min-height:20px;margin:14px 0 0;font-size:13px;text-align:center}.admin-score-message--error{color:#b00020}.admin-score-message--success{color:#087a35}.admin-score-actions{display:flex;gap:10px;margin-top:16px}.admin-score-actions button{flex:1;min-height:44px;border-radius:8px;font-weight:800;cursor:pointer}.admin-score-cancel{border:1px solid #bbb;background:#fff;color:#333}.admin-score-save{border:0;background:#cc0000;color:#fff}.admin-score-save:disabled{opacity:.55;cursor:wait}.admin-login-field{width:100%;box-sizing:border-box;margin-top:8px;padding:12px;border:2px solid #ddd;border-radius:8px;font-size:16px}.admin-login-field:focus{outline:none;border-color:#cc0000}.admin-mode-badge{display:inline-flex;align-items:center;margin-left:8px;padding:3px 7px;border-radius:4px;background:#cc0000;color:#fff;font-size:10px;font-weight:900;letter-spacing:.06em}@media(max-width:480px){.gr-row--admin{grid-template-columns:minmax(0,1fr) 62px minmax(0,1fr) 40px;gap:0 5px;padding:9px 8px}.gr-row--admin .gr-date,.gr-row--admin .gr-season{display:none}.gr-row--admin .gr-team{font-size:11px}.admin-score-dialog{padding:20px 16px}.admin-score-title{font-size:19px}.admin-score-teams{gap:8px}.admin-score-input{font-size:24px}}';
+    document.head.appendChild(style);
+  }
+
+  function isAdminAuthenticated() {
+    try { return sessionStorage.getItem(ADMIN_AUTH_KEY) === 'true'; }
+    catch (err) { return false; }
+  }
+
+  function setAdminAuthenticated() {
+    try { sessionStorage.setItem(ADMIN_AUTH_KEY, 'true'); }
+    catch (err) { /* Private browsing may block storage; current page still works. */ }
+  }
+
+  function ensureAdminScoreUi() {
+    if (!adminRequested) return;
+    injectAdminScoreStyles();
+    createAdminScoreModal();
+    if (isAdminAuthenticated()) {
+      enableAdminScoreMode();
+    } else {
+      showAdminLogin();
+    }
+  }
+
+  function enableAdminScoreMode() {
+    adminEnabled = true;
+    var loginOverlay = document.getElementById('admin-home-login');
+    if (loginOverlay) loginOverlay.remove();
+    if (recentGamesEl && adminRecentGames.length) {
+      recentGamesEl.innerHTML = adminRecentGames.map(renderGameCard).join('');
+      bindAdminScoreButtons();
+    }
+    var title = recentGamesEl && recentGamesEl.parentElement ? recentGamesEl.parentElement.querySelector('.cb-sec-title h3') : null;
+    if (title && !title.querySelector('.admin-mode-badge')) {
+      title.insertAdjacentHTML('beforeend', '<span class="admin-mode-badge">ADMIN</span>');
+    }
+  }
+
+  function showAdminLogin() {
+    if (document.getElementById('admin-home-login')) return;
+    var overlay = document.createElement('div');
+    overlay.id = 'admin-home-login';
+    overlay.className = 'admin-score-overlay';
+    overlay.innerHTML = '<div class="admin-score-dialog" role="dialog" aria-modal="true" aria-labelledby="admin-login-title">'
+      + '<h2 class="admin-score-title" id="admin-login-title">🔒 管理員登入</h2>'
+      + '<p class="admin-score-subtitle">登入後可直接修改最近比賽比分。</p>'
+      + '<label class="admin-score-team-name" for="admin-home-password">管理員密碼</label>'
+      + '<input id="admin-home-password" class="admin-login-field" type="password" autocomplete="current-password">'
+      + '<p id="admin-home-login-error" class="admin-score-message admin-score-message--error" aria-live="polite"></p>'
+      + '<div class="admin-score-actions"><button type="button" class="admin-score-cancel" id="admin-home-exit">離開管理模式</button><button type="button" class="admin-score-save" id="admin-home-login-btn">登入</button></div>'
+      + '</div>';
+    document.body.appendChild(overlay);
+    var input = document.getElementById('admin-home-password');
+    function login() {
+      if (input.value !== ADMIN_PASSWORD) {
+        document.getElementById('admin-home-login-error').textContent = '密碼錯誤，請重新輸入。';
+        input.value = '';
+        input.focus();
+        return;
+      }
+      setAdminAuthenticated();
+      enableAdminScoreMode();
+    }
+    document.getElementById('admin-home-login-btn').addEventListener('click', login);
+    document.getElementById('admin-home-exit').addEventListener('click', function () { window.location.href = window.location.pathname; });
+    input.addEventListener('keydown', function (event) { if (event.key === 'Enter') login(); });
+    setTimeout(function () { input.focus(); }, 0);
+  }
+
+  function createAdminScoreModal() {
+    if (adminUiReady) return;
+    adminUiReady = true;
+    var overlay = document.createElement('div');
+    overlay.id = 'admin-score-modal';
+    overlay.className = 'admin-score-overlay';
+    overlay.hidden = true;
+    overlay.innerHTML = '<div class="admin-score-dialog" role="dialog" aria-modal="true" aria-labelledby="admin-score-title">'
+      + '<h2 class="admin-score-title" id="admin-score-title">更新比賽比分</h2>'
+      + '<p class="admin-score-subtitle" id="admin-score-date"></p>'
+      + '<div class="admin-score-teams">'
+      + '<label class="admin-score-team"><span class="admin-score-team-name" id="admin-score-home-name"></span><input class="admin-score-input" id="admin-score-home" type="number" min="0" max="999" step="1" inputmode="numeric"></label>'
+      + '<span class="admin-score-vs">VS</span>'
+      + '<label class="admin-score-team"><span class="admin-score-team-name" id="admin-score-away-name"></span><input class="admin-score-input" id="admin-score-away" type="number" min="0" max="999" step="1" inputmode="numeric"></label>'
+      + '</div><p id="admin-score-message" class="admin-score-message" aria-live="polite"></p>'
+      + '<div class="admin-score-actions"><button type="button" class="admin-score-cancel" id="admin-score-cancel">取消</button><button type="button" class="admin-score-save" id="admin-score-save">儲存比分</button></div>'
+      + '</div>';
+    document.body.appendChild(overlay);
+    document.getElementById('admin-score-cancel').addEventListener('click', closeAdminScoreModal);
+    document.getElementById('admin-score-save').addEventListener('click', saveAdminScore);
+    overlay.addEventListener('click', function (event) { if (event.target === overlay) closeAdminScoreModal(); });
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && !overlay.hidden) closeAdminScoreModal();
+    });
+  }
+
+  function scoreValue(game, side) {
+    var direct = game[side + 'Score'];
+    if (direct !== undefined && direct !== null && direct !== '' && !isNaN(Number(direct))) return Number(direct);
+    return (parseInt(game[side + 'Q1'], 10) || 0) + (parseInt(game[side + 'Q2'], 10) || 0)
+      + (parseInt(game[side + 'Q3'], 10) || 0) + (parseInt(game[side + 'Q4'], 10) || 0);
+  }
+
+  function bindAdminScoreButtons() {
+    if (!adminEnabled || !recentGamesEl) return;
+    recentGamesEl.querySelectorAll('.gr-edit-score').forEach(function (button) {
+      button.addEventListener('click', function () {
+        var gameId = button.getAttribute('data-game-id');
+        var game = adminRecentGames.find(function (item) { return String(item.id) === String(gameId); });
+        if (game) openAdminScoreModal(game);
+      });
+    });
+  }
+
+  function openAdminScoreModal(game) {
+    adminEditingGame = game;
+    document.getElementById('admin-score-home-name').textContent = game.homeTeamName || game.homeTeam || game.homeTeamId || '主隊';
+    document.getElementById('admin-score-away-name').textContent = game.awayTeamName || game.awayTeam || game.awayTeamId || '客隊';
+    document.getElementById('admin-score-date').textContent = _formatDate(game.date) + (game._seasonLabel ? ' · ' + game._seasonLabel : '');
+    document.getElementById('admin-score-home').value = scoreValue(game, 'home');
+    document.getElementById('admin-score-away').value = scoreValue(game, 'away');
+    var message = document.getElementById('admin-score-message');
+    message.textContent = '';
+    message.className = 'admin-score-message';
+    document.getElementById('admin-score-save').disabled = false;
+    document.getElementById('admin-score-modal').hidden = false;
+    document.getElementById('admin-score-home').focus();
+  }
+
+  function closeAdminScoreModal() {
+    var modal = document.getElementById('admin-score-modal');
+    if (modal) modal.hidden = true;
+    adminEditingGame = null;
+  }
+
+  function saveAdminScore() {
+    if (!adminEditingGame) return;
+    var homeScore = Number(document.getElementById('admin-score-home').value);
+    var awayScore = Number(document.getElementById('admin-score-away').value);
+    var message = document.getElementById('admin-score-message');
+    if (!Number.isInteger(homeScore) || !Number.isInteger(awayScore) || homeScore < 0 || awayScore < 0 || homeScore > 999 || awayScore > 999) {
+      message.textContent = '請輸入 0 至 999 的整數比分。';
+      message.className = 'admin-score-message admin-score-message--error';
+      return;
+    }
+    var button = document.getElementById('admin-score-save');
+    button.disabled = true;
+    message.textContent = '儲存中…';
+    message.className = 'admin-score-message';
+    API.post('updateGame', {
+      gameId: adminEditingGame.id,
+      seasonId: adminEditingGame.seasonId || currentSeasonId,
+      scoreOnly: true,
+      homeScore: homeScore,
+      awayScore: awayScore
+    }).then(function () {
+      adminEditingGame.homeScore = homeScore;
+      adminEditingGame.awayScore = awayScore;
+      ['homeQ1','homeQ2','homeQ3','homeQ4','awayQ1','awayQ2','awayQ3','awayQ4'].forEach(function (field) { adminEditingGame[field] = ''; });
+      message.textContent = '比分已成功更新。';
+      message.className = 'admin-score-message admin-score-message--success';
+      setTimeout(function () {
+        closeAdminScoreModal();
+        loadRecentGames();
+        loadStandings(homeDisplaySeasons);
+      }, 500);
+    }).catch(function (err) {
+      message.textContent = err.message === '請求超時' ? '請求逾時，資料可能已儲存；請重新整理確認。' : (err.message || '更新失敗，請稍後再試。');
+      message.className = 'admin-score-message admin-score-message--error';
+      button.disabled = false;
+    });
   }
 
   /**
@@ -320,27 +509,18 @@
   function renderGameCard(game) {
     var homeName = game.homeTeamName || game.homeTeam || game.homeTeamId || '—';
     var awayName = game.awayTeamName || game.awayTeam || game.awayTeamId || '—';
-
-    // Derive score from quarters when available — they are the source of truth
-    var hasQuarters = game.homeQ1 || game.homeQ2 || game.homeQ3 || game.homeQ4 ||
-                      game.awayQ1 || game.awayQ2 || game.awayQ3 || game.awayQ4;
-    var homeScore, awayScore;
-    if (hasQuarters) {
-      homeScore = (parseInt(game.homeQ1, 10) || 0) + (parseInt(game.homeQ2, 10) || 0) +
-                  (parseInt(game.homeQ3, 10) || 0) + (parseInt(game.homeQ4, 10) || 0);
-      awayScore = (parseInt(game.awayQ1, 10) || 0) + (parseInt(game.awayQ2, 10) || 0) +
-                  (parseInt(game.awayQ3, 10) || 0) + (parseInt(game.awayQ4, 10) || 0);
-    } else {
-      homeScore = game.homeScore != null ? game.homeScore : '—';
-      awayScore = game.awayScore != null ? game.awayScore : '—';
-    }
+    var homeScore = scoreValue(game, 'home');
+    var awayScore = scoreValue(game, 'away');
 
     var homeWin = Number(homeScore) > Number(awayScore);
     var awayWin = Number(awayScore) > Number(homeScore);
     var date = _formatDate(game.date);
     var url = _pageBase + 'game.html?id=' + encodeURIComponent(game.id);
+    var editButton = adminEnabled
+      ? '<button type="button" class="gr-edit-score" data-game-id="' + escapeHtml(String(game.id)) + '" aria-label="修改 ' + escapeHtml(homeName) + ' 對 ' + escapeHtml(awayName) + ' 比分">修改</button>'
+      : '';
 
-    return '<div class="gr-row" aria-label="' + escapeHtml(homeName) + ' vs ' + escapeHtml(awayName) + '">'
+    return '<div class="gr-row' + (adminEnabled ? ' gr-row--admin' : '') + '" aria-label="' + escapeHtml(homeName) + ' vs ' + escapeHtml(awayName) + '">'
       + '<span class="gr-date">' + escapeHtml(date) + '</span>'
       + '<span class="gr-season">' + escapeHtml(game._seasonLabel || '') + '</span>'
       + '<span class="gr-team gr-team--home' + (homeWin ? ' gr-team--win' : '') + '">' + teamLink(game.homeTeamId, homeName) + '</span>'
@@ -350,6 +530,7 @@
       + '<span class="' + (awayWin ? 'gr-score-win' : '') + '">' + escapeHtml(String(awayScore)) + '</span>'
       + '</a>'
       + '<span class="gr-team gr-team--away' + (awayWin ? ' gr-team--win' : '') + '">' + teamLink(game.awayTeamId, awayName) + '</span>'
+      + editButton
       + '</div>';
   }
 
@@ -842,7 +1023,7 @@
     });
 
     Promise.all(displaySeasons.map(function (season) {
-      return Promise.all([API.getGames(season.id), API.getTeams(season.id)]).then(function (results) {
+      return Promise.all([API.getGames(season.id), API.getTeams(season.id, true)]).then(function (results) {
         return { season: season, games: results[0] || [], teams: results[1] || [] };
       });
     })).then(function (seasonResults) {
