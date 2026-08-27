@@ -15,11 +15,11 @@
             gtag('config', 'G-S64W9C7CYZ');
         </script>
     <title>Hall of Fame 冠軍球隊 — ALL-IN Basketball League</title>
-    <link rel="stylesheet" href="css/styles.css?v=20260715-hof-green-flag">
+    <link rel="stylesheet" href="css/styles.css?v=20260827-hof-video-preview">
     <link rel="stylesheet" href="css/responsive.css?v=20260728-site-mobile">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 </head>
-<body>
+<body class="archive-page">
     <!-- 導航列 -->
     <header class="site-header">
         <div class="header-top">
@@ -80,33 +80,36 @@
         <section class="section hero-section" aria-label="Hall of Fame 冠軍球隊標題">
             <div class="container">
                 <h1 class="hero-title" data-i18n="archive.title">Hall of Fame 冠軍球隊</h1>
-                <div class="standings-controls">
-                    <label for="archive-season-select" class="sr-only" data-i18n="archive.selectSeason">選擇歷史賽季</label>
-                    <select id="archive-season-select" class="h2h-select" aria-label="選擇歷史賽季" data-i18n-attr="aria-label:archive.selectSeason">
-                        <option value="" data-i18n="common.loading">載入中...</option>
-                    </select>
-                </div>
+                <select id="archive-season-select" hidden aria-hidden="true" tabindex="-1">
+                    <option value=""></option>
+                </select>
             </div>
         </section>
 
         <!-- 無已完結賽季提示 -->
         <section id="archive-empty" class="section" style="display:none;">
             <div class="container text-center">
-                <div class="hof-empty-card" aria-hidden="true">
+                <div class="hof-empty-card">
                     <div class="hof-flag-wrap">
                         <div class="hof-flag-rod"></div>
                         <div class="hof-flag hof-empty-flag">
                             <div class="hof-flag-top">ALL-IN BASKETBALL LEAGUE</div>
                             <div class="hof-allin-watermark"><img src="images/logo.png" alt=""></div>
-                            <div class="hof-team-photo"><img src="images/logo.png" alt=""></div>
+                            <div class="hof-team-photo"><img src="images/damo.jpeg" alt="達摩 team logo"></div>
                             <div class="hof-year">2026</div>
                             <div class="hof-champion-label">CHAMPIONS</div>
-                            <h3 class="archive-season-card-name hof-team-name">TEAM NAME</h3>
+                            <h3 class="archive-season-card-name hof-team-name">達摩</h3>
                             <p class="archive-season-card-date hof-season-name">SEASON 1</p>
                         </div>
                     </div>
+                    <div class="hof-video">
+                        <a class="hof-video-preview" href="https://youtu.be/nJU8GHVmofk" target="_blank" rel="noopener" aria-label="在 YouTube 觀看 Season 1 冠軍影片">
+                            <img src="https://i.ytimg.com/vi/nJU8GHVmofk/hqdefault.jpg" alt="Season 1 冠軍影片預覽">
+                            <span class="hof-video-play" aria-hidden="true"></span>
+                            <span class="hof-video-caption">觀看冠軍影片</span>
+                        </a>
+                    </div>
                 </div>
-                <p class="text-muted" data-i18n="archive.noCompleted">尚無已完結賽季</p>
             </div>
         </section>
 
@@ -224,7 +227,7 @@
     <script src="js/i18n.js?v=20260409"></script>
     <script src="js/navigation.js?v=20260409"></script>
     <script src="js/charts.js"></script>
-    <script src="js/archive.js?v=20260715-hof-detail-flow"></script>
+    <script src="js/archive.js?v=20260827-hof-video-preview"></script>
     <script>
         I18n.init();
     </script>
