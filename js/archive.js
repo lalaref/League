@@ -181,10 +181,15 @@
       watermark.className = 'hof-allin-watermark';
       watermark.innerHTML = '<img src="images/logo.png" alt="">';
 
+      var isSeasonOne = /season\s*1\b/i.test(season.name || '') || /season\s*1\b/i.test(getSeasonShortName(season));
+      if (isSeasonOne) {
+        championName = '達摩';
+        card.setAttribute('aria-label', year + ' ' + championName);
+      }
       var logoBox = document.createElement('div');
       logoBox.className = 'hof-team-photo';
       var img = document.createElement('img');
-      img.src = championLogo;
+      img.src = isSeasonOne ? 'images/damo.jpeg' : championLogo;
       img.alt = championName ? championName : 'ALL-IN Basketball League';
       img.loading = index < 2 ? 'eager' : 'lazy';
       img.onerror = function () { img.src = 'images/logo.png'; };
@@ -236,7 +241,25 @@
         badgeImg.loading = 'lazy';
         badgeImg.onerror = function () { badge.style.display = 'none'; };
         badge.appendChild(badgeImg);
-        card.appendChild(badge);
+        flagWrap.appendChild(badge);
+      }
+
+      if (isSeasonOne) {
+        var video = document.createElement('div');
+        video.className = 'hof-video';
+
+        var videoPreview = document.createElement('a');
+        videoPreview.className = 'hof-video-preview';
+        videoPreview.href = 'https://youtu.be/nJU8GHVmofk';
+        videoPreview.target = '_blank';
+        videoPreview.rel = 'noopener';
+        videoPreview.setAttribute('aria-label', '在 YouTube 觀看 Season 1 冠軍影片');
+        videoPreview.innerHTML = '<img src="https://i.ytimg.com/vi/nJU8GHVmofk/hqdefault.jpg" alt="Season 1 冠軍影片預覽"><span class="hof-video-play" aria-hidden="true"></span><span class="hof-video-caption">觀看冠軍影片</span>';
+        videoPreview.addEventListener('click', function (event) { event.stopPropagation(); });
+        videoPreview.addEventListener('keydown', function (event) { event.stopPropagation(); });
+
+        video.appendChild(videoPreview);
+        card.appendChild(video);
       }
 
       card.addEventListener('click', function () {
