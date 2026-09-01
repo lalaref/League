@@ -1122,7 +1122,11 @@
   function loadHomeLeaderboards(seasons) {
     if (!homeLeaderboardsEl) return;
     homeLeaderboardsEl.innerHTML = '<p class="text-muted">' + I18n.t('common.loading') + '</p>';
-    var displaySeasons = (seasons && seasons.length) ? seasons : [currentSeason];
+    var displaySeasons = ((seasons && seasons.length) ? seasons : [currentSeason]).filter(isSeasonTwo);
+    if (!displaySeasons.length) {
+      homeLeaderboardsEl.innerHTML = '<p class="text-muted">' + I18n.t('common.noData') + '</p>';
+      return;
+    }
     var categories = [
       { key: 'pts', label: 'POINTS', abbr: 'PTS', color: '#cc0000' },
       { key: 'reb', label: 'REBOUNDS', abbr: 'REB', color: '#1a6fd4' },
