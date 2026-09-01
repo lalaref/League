@@ -641,7 +641,13 @@
     upcomingGamesEl.innerHTML = '<div class="loading" data-i18n="common.loading">' + I18n.t('common.loading') + '</div>';
 
     var comingEl = document.getElementById('coming-matches-list');
-    var displaySeasons = (seasons && seasons.length) ? seasons : [currentSeason];
+    var displaySeasons = ((seasons && seasons.length) ? seasons : [currentSeason]).filter(isSeasonTwo);
+    if (!displaySeasons.length) {
+      var noData = '<p class="text-muted">' + I18n.t('common.noData') + '</p>';
+      upcomingGamesEl.innerHTML = noData;
+      if (comingEl) comingEl.innerHTML = noData;
+      return;
+    }
 
     Promise.all(displaySeasons.map(function (season) {
       return Promise.all([API.getSchedule(season.id), API.getTeams(season.id)]).then(function (results) {
