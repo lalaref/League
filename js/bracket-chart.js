@@ -112,7 +112,8 @@ var SeasonBracketChart = (function () {
     var normalizedFinal = normalizeGame(finalGame, teamMap);
     if (!normalizedFinal) return;
     var finalRound = championship.rounds.find(function (round) {
-      return /決賽|冠軍賽|final/i.test(String(round.name || ''));
+      var roundName = String(round.name || '').trim();
+      return !/準決賽|半決賽|semi[-\s]?final/i.test(roundName) && /決賽|冠軍賽|final/i.test(roundName);
     });
     if (finalRound) {
       finalRound.games = [normalizedFinal];
@@ -391,7 +392,9 @@ var SeasonBracketChart = (function () {
     var homeScore = valueOrBlank(game.homeScore);
     var awayScore = valueOrBlank(game.awayScore);
     var complete = game.status === 'completed' || (homeScore !== '' && awayScore !== '');
+    var gameId = game.id != null && game.id !== '' ? String(game.id) : (game.gameId != null ? String(game.gameId) : '');
     return {
+      id: gameId,
       label: game.label || game.notes || '',
       homeName: homeName,
       awayName: awayName,
@@ -410,10 +413,14 @@ var SeasonBracketChart = (function () {
   }
 
   function renderGame(game) {
+    var detailLink = game.id
+      ? '<a class="nba-bracket-game-detail" href="game.html?id=' + encodeURIComponent(game.id) + '" aria-label="查看詳細 Box Score">查看詳細 Box Score →</a>'
+      : '';
     return '<div class="nba-bracket-game">'
       + (game.label ? '<div class="nba-bracket-label">' + esc(game.label) + '</div>' : '')
       + renderTeam(game.homeName, game.homeScore, game.homeWin)
       + renderTeam(game.awayName, game.awayScore, game.awayWin)
+      + detailLink
       + '</div>';
   }
 

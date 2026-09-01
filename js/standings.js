@@ -20,8 +20,10 @@
 
   // --- DOM 元素 ---
   var seasonSelect = document.getElementById('season-select');
+  var seasonOneBracketSection = document.querySelector('.season-one-bracket-section');
 
   // --- 狀態 ---
+  var SEASON_ONE_ID = '845ca40d-4346-448f-bbe2-06b4104bdbda';
   var currentSeasonId = null;
   var currentSeason = null;
   var chartInstances = {};
@@ -75,6 +77,7 @@
         currentSeason = active;
         currentSeasonId = active.id;
         if (seasonSelect) seasonSelect.value = currentSeasonId;
+        syncSeasonOneBracketVisibility();
         loadAllLeaderboards();
         loadLeaderCards();
         loadTeamStandings();
@@ -98,12 +101,28 @@
     });
   }
 
+  function isSeasonOne(season) {
+    season = season || {};
+    var id = String(season.id || currentSeasonId || '').trim();
+    var name = String(season.name || '').trim();
+    return id === SEASON_ONE_ID
+      || /(?:season|s)\s*0?1\b/i.test(name)
+      || /第\s*(?:一|1)\s*(?:季|屆)/.test(name)
+      || Number(season.minGamesForRanking) === 7;
+  }
+
+  function syncSeasonOneBracketVisibility() {
+    if (!seasonOneBracketSection) return;
+    seasonOneBracketSection.hidden = !isSeasonOne(currentSeason);
+  }
+
   function onSeasonChange() {
     currentSeasonId = seasonSelect ? seasonSelect.value : null;
     currentSeason = {
       id: currentSeasonId,
       name: seasonSelect && seasonSelect.options[seasonSelect.selectedIndex] ? seasonSelect.options[seasonSelect.selectedIndex].textContent : currentSeasonId
     };
+    syncSeasonOneBracketVisibility();
     if (currentSeasonId) {
       loadAllLeaderboards();
       loadLeaderCards();
