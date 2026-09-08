@@ -218,7 +218,23 @@
         .format-step span { color: #374151; line-height: 1.6; }
         .format-arrow { color: #f59e0b; font-size: 1.5rem; font-weight: 700; text-align: center; line-height: 1; }
         .cup-grid { display: grid; grid-template-columns: 1fr; gap: var(--spacing-sm); }
+        .group-demo { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: var(--spacing-sm); }
+        .format-step .group-demo-label { display: block; margin-top: 6px; color: #6b7280; font-size: 0.78rem; }
+        .format-step .group-chip { display: inline-flex; align-items: center; justify-content: center; min-width: 62px; padding: 5px 9px; border: 1px solid #93c5fd; border-radius: 999px; background: #eff6ff; color: #1e3a8a; font-size: 0.82rem; font-weight: 800; }
         .format-step--final { border-color: #f59e0b; background: rgba(245, 158, 11, 0.08); }
+        .format-step--belt { border: 2px solid #f59e0b; background: linear-gradient(135deg, #1a1a2e 0%, #312e81 100%); box-shadow: 0 8px 24px rgba(245, 158, 11, 0.2); }
+        .format-step--belt strong { color: #fbbf24; font-size: 1.2rem; }
+        .format-step--belt span { color: #fff; font-weight: 600; }
+        .gold-belt-highlight {
+            margin-top: var(--spacing-lg);
+            padding: var(--spacing-lg);
+            border: 2px solid #f59e0b;
+            border-radius: var(--radius-lg);
+            background: linear-gradient(135deg, #1a1a2e 0%, #312e81 100%);
+            box-shadow: 0 10px 28px rgba(245, 158, 11, 0.2);
+        }
+        .gold-belt-highlight strong { display: block; margin-bottom: var(--spacing-sm); color: #fbbf24; font-size: 1.25rem; font-weight: 900; }
+        .gold-belt-highlight p { margin: 0; color: #fff; font-size: 1.02rem; line-height: 1.8; }
 
         @media (min-width: 680px) {
             .cup-grid { grid-template-columns: 1fr 1fr; }
@@ -330,6 +346,11 @@
                         <li><strong>比賽保證：</strong>每隊至少 <span class="rules-highlight--gold">6+ 場預賽及常規賽</span>，另外再加 Playoff 盃賽以及金腰帶爭奪戰，最多可以有 <span class="games-max-highlight">10場</span> 以上賽事！</li>
                     </ul>
 
+                    <div class="gold-belt-highlight">
+                        <strong>🏆 終極金腰帶爭奪戰</strong>
+                        <p>Season 3 總冠軍將會迎來終極任務！贏得 Season3 冠軍後，將會同現任金腰帶擁有者（過往冠軍球隊）上演一場金腰帶爭奪戰，決出真正皇者！</p>
+                    </div>
+
                     <div class="format-flow" aria-label="Season 3 賽制流程">
                         <div class="format-step">
                             <strong>預賽</strong>
@@ -345,16 +366,33 @@
                             <div class="format-step">
                                 <strong>MJ23 Cup</strong>
                                 <span>每 4 隊一小組</span>
+                                <span class="group-demo-label">示意分組</span>
+                                <div class="group-demo" aria-label="MJ23 Cup 示意分組">
+                                    <span class="group-chip">小組A</span>
+                                    <span class="group-chip">小組B</span>
+                                    <span class="group-chip">…</span>
+                                </div>
                             </div>
                             <div class="format-step">
                                 <strong>LBJ23 Cup</strong>
                                 <span>每 4 隊一小組</span>
+                                <span class="group-demo-label">示意分組</span>
+                                <div class="group-demo" aria-label="LBJ23 Cup 示意分組">
+                                    <span class="group-chip">小組C</span>
+                                    <span class="group-chip">小組D</span>
+                                    <span class="group-chip">…</span>
+                                </div>
                             </div>
                         </div>
                         <div class="format-arrow" aria-hidden="true">↓</div>
                         <div class="format-step format-step--final">
                             <strong>Playoff 淘汰賽</strong>
-                            <span>每組頭兩名晉級</span>
+                            <span>每組頭兩名晉級｜決出 Season 3 總冠軍</span>
+                        </div>
+                        <div class="format-arrow" aria-hidden="true">↓</div>
+                        <div class="format-step format-step--belt">
+                            <strong>🏆 終極金腰帶爭奪戰</strong>
+                            <span>Season 3 總冠軍 vs 現任金腰帶擁有者</span>
                         </div>
                     </div>
 
@@ -366,7 +404,6 @@
                     <ul class="rules-list rules-list--spaced">
                         <li>🔄 <strong>第一至三節尾段不能換人：</strong>頭三節最後 20 秒將會取消強制換人要求。</li>
                         <li>📺 <strong>新增 Challenge Video Review (CVR)：</strong>每場賽事特設一次 CVR 挑戰權！注意：無論挑戰成唔成功，都會扣除一次暫停，而且用完即止。</li>
-                        <li>🏆 <strong>終極金腰帶爭奪戰：</strong>Season 2 總冠軍將會迎來終極任務！贏得 Season 2 冠軍後，將會同 Season 1 霸主（現任金腰帶擁有者）上演一場金腰帶爭奪戰，決出真正皇者！</li>
                     </ul>
                 </article>
 
