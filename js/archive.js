@@ -322,21 +322,43 @@
     var name = String((season && season.name) || '');
     var match = name.match(/season\s*([0-9]+)/i);
     if (match) return 'SEASON ' + match[1];
+
+    var chineseMatch = name.match(/第([一二三四五六七八九十0-9]+)[屆季]/);
+    if (chineseMatch) {
+      var chineseNumbers = { '一': 1, '二': 2, '三': 3, '四': 4, '五': 5, '六': 6, '七': 7, '八': 8, '九': 9, '十': 10 };
+      var seasonNumber = chineseNumbers[chineseMatch[1]] || parseInt(chineseMatch[1], 10);
+      if (!isNaN(seasonNumber)) return 'SEASON ' + seasonNumber;
+    }
+
     return name ? name.toUpperCase() : '';
   }
 
   function isSeasonOneSeason(season) {
     if (!season) return false;
-    return /season\s*1\b/i.test(season.name || '') ||
-      /season\s*1\b/i.test(getSeasonShortName(season));
+    if (String(season.id || '') === '845ca40d-4346-448f-bbe2-06b4104bdbda') return true;
+    var name = String(season.name || '');
+    return /season\s*1\b/i.test(name) || /第一[屆季]/.test(name) || getSeasonShortName(season) === 'SEASON 1';
   }
 
   function getChampionName(archive, season) {
-    if (isSeasonOneSeason(season) || (archive && /season\s*1\b/i.test(archive.seasonName || ''))) {
+    if (isSeasonOneSeason(season) || (archive && (/season\s*1\b/i.test(archive.seasonName || '') || /第一[屆季]/.test(archive.seasonName || '')))) {
       return '達摩';
     }
+    var playoffChampion = getPlayoffChampionName(archive && archive.playoffs);
+    if (playoffChampion) return playoffChampion;
     if (!archive || !archive.awards) return '';
     return archive.awards.champion || '';
+  }
+
+  function getPlayoffChampionName(playoffs) {
+    var game = findFinalGame(playoffs);
+    if (!game) return '';
+    var homeScore = Number(game.homeScore);
+    var awayScore = Number(game.awayScore);
+    if (isNaN(homeScore) || isNaN(awayScore) || homeScore === awayScore) return '';
+    return homeScore > awayScore
+      ? (game.homeTeamName || game.homeTeam || game.team1 || '')
+      : (game.awayTeamName || game.awayTeam || game.team2 || '');
   }
 
   function findChampionTeam(championName, teams) {
