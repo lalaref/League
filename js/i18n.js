@@ -49,7 +49,7 @@ var I18n = (function () {
     }
 
     var basePath = _getBasePath();
-    var url = basePath + 'i18n/' + lang + '.json?v=20260821-standings-columns';
+    var url = basePath + 'i18n/' + lang + '.json?v=20260908-detail-readability';
 
     return fetch(url)
       .then(function (res) {
