@@ -147,7 +147,8 @@
     seasons.forEach(function (season, index) {
       var archive = archiveCache[season.id] || null;
       var teams = teamCache[season.id] || [];
-      var championName = getChampionName(archive);
+      var isSeasonOne = isSeasonOneSeason(season);
+      var championName = getChampionName(archive, season);
       var championTeam = findChampionTeam(championName, teams);
       var championLogo = getChampionLogo(championTeam);
       var year = getSeasonYear(season);
@@ -181,9 +182,7 @@
       watermark.className = 'hof-allin-watermark';
       watermark.innerHTML = '<img src="images/logo.png" alt="">';
 
-      var isSeasonOne = /season\s*1\b/i.test(season.name || '') || /season\s*1\b/i.test(getSeasonShortName(season));
       if (isSeasonOne) {
-        championName = '達摩';
         card.setAttribute('aria-label', year + ' ' + championName);
       }
       var logoBox = document.createElement('div');
@@ -326,7 +325,16 @@
     return name ? name.toUpperCase() : '';
   }
 
-  function getChampionName(archive) {
+  function isSeasonOneSeason(season) {
+    if (!season) return false;
+    return /season\s*1\b/i.test(season.name || '') ||
+      /season\s*1\b/i.test(getSeasonShortName(season));
+  }
+
+  function getChampionName(archive, season) {
+    if (isSeasonOneSeason(season) || (archive && /season\s*1\b/i.test(archive.seasonName || ''))) {
+      return '達摩';
+    }
     if (!archive || !archive.awards) return '';
     return archive.awards.champion || '';
   }
@@ -393,7 +401,7 @@
         renderSummary(data.summary, data, seasonId);
         renderFinalResult(data.playoffs);
         renderPlayoffs(data.playoffs);
-        renderAwards(data.awards || data);
+        renderAwards(data.awards || data, seasonId);
         renderStandings(data.standings || []);
         renderPhotos(data.photos);
       })
@@ -413,7 +421,7 @@
   function renderDetailTitle(data, seasonId) {
     if (!detailTitle) return;
     var season = findSeasonById(seasonId);
-    var champion = getChampionName(data);
+    var champion = getChampionName(data, season);
     var parts = [];
     if (getSeasonShortName(season)) parts.push(getSeasonShortName(season));
     if (champion) parts.push(champion + ' Champions');
@@ -430,14 +438,15 @@
   // =============================================
   // 渲染獎項
   // =============================================
-  function renderAwards(awards) {
+  function renderAwards(awards, seasonId) {
     if (!awardsGrid || !awards) return;
     awardsGrid.innerHTML = '';
 
     var awardKeys = ['champion', 'playoffMvp', 'scoringLeader', 'reboundLeader', 'assistLeader', 'bestRookie'];
+    var season = findSeasonById(seasonId);
 
     awardKeys.forEach(function (key) {
-      var value = awards[key];
+      var value = key === 'champion' && isSeasonOneSeason(season) ? '達摩' : awards[key];
       if (!value) return;
 
       var card = document.createElement('div');
@@ -666,6 +675,8 @@
   // 渲染賽季回顧文字
   // =============================================
   function renderSummary(summary, data, seasonId) {
+    var season = findSeasonById(seasonId);
+    if (summary && isSeasonOneSeason(season)) summary = String(summary).replace(/大丈夫/g, '達摩');
     if (!summary) summary = buildChampionStory(data, seasonId);
     if (!summary) {
       summarySection.style.display = 'none';
@@ -676,9 +687,9 @@
   }
 
   function buildChampionStory(data, seasonId) {
-    var champion = getChampionName(data);
-    if (!champion) return '';
     var season = findSeasonById(seasonId);
+    var champion = getChampionName(data, season);
+    if (!champion) return '';
     var seasonName = getSeasonShortName(season) || (season && season.name) || '';
     var finalGame = findFinalGame(data && data.playoffs);
     var story = champion + ' became ' + (seasonName ? seasonName + ' ' : '') + 'champions.';
