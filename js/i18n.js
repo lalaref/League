@@ -49,7 +49,7 @@ var I18n = (function () {
     }
 
     var basePath = _getBasePath();
-    var url = basePath + 'i18n/' + lang + '.json?v=20260908-detail-readability';
+    var url = basePath + 'i18n/' + lang + '.json?v=20260908-archive-extra-awards';
 
     return fetch(url)
       .then(function (res) {

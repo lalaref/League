@@ -43,6 +43,9 @@
     scoringLeader: '🔥',
     reboundLeader: '💪',
     assistLeader: '🎯',
+    threePointLeader: '🏀',
+    blockLeader: '🛡️',
+    stealLeader: '⚡',
     bestRookie: '🌟'
   };
 
@@ -52,6 +55,9 @@
     scoringLeader: 'archive.scoringLeader',
     reboundLeader: 'archive.reboundLeader',
     assistLeader: 'archive.assistLeader',
+    threePointLeader: 'archive.threePointLeader',
+    blockLeader: 'archive.blockLeader',
+    stealLeader: 'archive.stealLeader',
     bestRookie: 'archive.bestRookie'
   };
 
@@ -464,7 +470,7 @@
     if (!awardsGrid || !awards) return;
     awardsGrid.innerHTML = '';
 
-    var awardKeys = ['champion', 'playoffMvp', 'scoringLeader', 'reboundLeader', 'assistLeader', 'bestRookie'];
+    var awardKeys = ['champion', 'playoffMvp', 'scoringLeader', 'reboundLeader', 'assistLeader', 'threePointLeader', 'blockLeader', 'stealLeader', 'bestRookie'];
     var season = findSeasonById(seasonId);
 
     awardKeys.forEach(function (key) {
