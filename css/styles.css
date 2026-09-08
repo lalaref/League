@@ -3271,3 +3271,21 @@ img {
     letter-spacing: 0.04em;
     text-align: center;
 }
+
+/* Archive detail readability on light cards */
+.archive-page .archive-final-team-name,
+.archive-page .archive-award-name {
+    color: var(--color-primary);
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-bold);
+    line-height: 1.35;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    overflow-wrap: anywhere;
+}
+
+.archive-page .archive-award-label {
+    color: var(--color-text-secondary);
+    font-weight: var(--font-weight-semibold);
+}
