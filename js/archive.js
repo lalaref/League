@@ -61,6 +61,15 @@
     bestRookie: 'archive.bestRookie'
   };
 
+  var AWARD_TEAM_KEYS = {
+    scoringLeader: 'scoringLeaderTeam',
+    reboundLeader: 'reboundLeaderTeam',
+    assistLeader: 'assistLeaderTeam',
+    threePointLeader: 'threePointLeaderTeam',
+    blockLeader: 'blockLeaderTeam',
+    stealLeader: 'stealLeaderTeam'
+  };
+
   // =============================================
   // 初始化
   // =============================================
@@ -497,8 +506,18 @@
       name.className = 'archive-award-name';
       name.textContent = value;
 
+      var teamKey = AWARD_TEAM_KEYS[key];
+      var teamName = teamKey ? awards[teamKey] : '';
+      var team = null;
+      if (teamName) {
+        team = document.createElement('span');
+        team.className = 'archive-award-team';
+        team.textContent = teamName;
+      }
+
       info.appendChild(label);
       info.appendChild(name);
+      if (team) info.appendChild(team);
       card.appendChild(icon);
       card.appendChild(info);
       awardsGrid.appendChild(card);
