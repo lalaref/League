@@ -3289,3 +3289,11 @@ img {
     color: var(--color-text-secondary);
     font-weight: var(--font-weight-semibold);
 }
+
+.archive-page .archive-award-team {
+    color: var(--color-secondary);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
