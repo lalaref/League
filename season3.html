@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="ALL-IN Basketball League Season 3 港島平日籃球聯賽資訊：預賽、MJ23 Cup、LBJ23 Cup、Playoff、新賽例及參賽收費。">
-    <meta name="keywords" content="ALL-IN Season 3, AIBL Season 3, 港島平日籃球聯賽, 香港籃球比賽, MJ23 Cup, LBJ23 Cup, Playoff, 業餘籃球聯賽">
+    <meta name="description" content="ALL-IN Basketball League Season 3 港島平日籃球聯賽資訊：預賽、常規賽、MJ23／LBJ23 Cup 淘汰賽、新賽例及參賽收費。">
+    <meta name="keywords" content="ALL-IN Season 3, AIBL Season 3, 港島平日籃球聯賽, 香港籃球比賽, MJ23 Cup, LBJ23 Cup, 淘汰賽, 業餘籃球聯賽">
     <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
     <meta name="geo.region" content="HK-HK">
     <meta name="geo.placename" content="Hong Kong Island, Hong Kong">
     <link rel="canonical" href="https://www.aiblhk.com/season3.html">
     <link rel="alternate" hreflang="zh-Hant-HK" href="https://www.aiblhk.com/season3.html">
     <meta property="og:title" content="ALL-IN Basketball League Season 3｜港島平日籃球聯賽">
-    <meta property="og:description" content="Season 3 全新賽制：預賽後進入 MJ23 Cup 或 LBJ23 Cup，每隊至少 6+ 場預賽及常規賽，另加 Playoff 盃賽及金腰帶爭奪戰，最多可有 10 場以上賽事。">
+    <meta property="og:description" content="Season 3 全新賽制：預賽後按排名重新分成常規賽小組；常規賽每組頭 2 名進入 MJ23 Cup 淘汰賽，後 2 名進入 LBJ23 Cup 淘汰賽。">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://www.aiblhk.com/season3.html">
     <meta property="og:image" content="https://www.aiblhk.com/images/logo.png">
@@ -19,7 +19,7 @@
     <meta property="og:locale" content="zh_HK">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="ALL-IN Basketball League Season 3｜港島平日籃球聯賽">
-    <meta name="twitter:description" content="預賽、MJ23 Cup、LBJ23 Cup、Playoff、新賽例及參賽收費。">
+    <meta name="twitter:description" content="預賽、常規賽、MJ23／LBJ23 Cup 淘汰賽、新賽例及參賽收費。">
     <meta name="twitter:image" content="https://www.aiblhk.com/images/logo.png">
     <meta name="theme-color" content="#1a1a2e">
     <script type="application/ld+json">
@@ -31,7 +31,7 @@
                 "@id": "https://www.aiblhk.com/season3.html#event",
                 "name": "ALL-IN Basketball League Season 3",
                 "alternateName": "ALL-IN 全力以赴港島平日籃球聯賽 Season 3",
-                "description": "香港港島平日業餘籃球聯賽 Season 3，設預賽、MJ23 Cup、LBJ23 Cup 及 Playoff；每隊至少 6+ 場預賽及常規賽，另加 Playoff 盃賽及金腰帶爭奪戰，最多可有 10 場以上賽事。",
+                "description": "香港港島平日業餘籃球聯賽 Season 3，設預賽、常規賽及 MJ23／LBJ23 Cup 淘汰賽；每隊至少 6+ 場預賽及常規賽，另加盃賽淘汰賽及金腰帶爭奪戰，最多可有 10 場以上賽事。",
                 "sport": "Basketball",
                 "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
                 "location": {
@@ -79,7 +79,7 @@
                         "name": "Season 3 每隊最少有多少場比賽？",
                         "acceptedAnswer": {
                             "@type": "Answer",
-                            "text": "每隊至少 6+ 場預賽及常規賽，另外再加 Playoff 盃賽以及金腰帶爭奪戰，最多可以有 10 場以上賽事！"
+                            "text": "每隊至少 6+ 場預賽及常規賽，另外再加 MJ23／LBJ23 Cup 淘汰賽以及金腰帶爭奪戰，最多可以有 10 場以上賽事！"
                         }
                     },
                     {
@@ -87,7 +87,7 @@
                         "name": "Season 3 採用甚麼賽制？",
                         "acceptedAnswer": {
                             "@type": "Answer",
-                            "text": "預賽每小組 4 隊，進行單循環三場預賽；其後根據預賽排名進入 MJ23 Cup 或 LBJ23 Cup，每組頭一／兩名進入 Playoff 淘汰賽。球隊數量或會按實際參賽情況調整。"
+                            "text": "預賽每小組 4 隊，進行單循環三場預賽；其後按預賽排名重新分成常規賽小組，每組 4 隊再進行單循環三場常規賽；常規賽每組頭 2 名進入 MJ23 Cup 淘汰賽，後 2 名進入 LBJ23 Cup 淘汰賽。球隊數量或會按實際參賽情況調整。"
                         }
                     },
                     {
@@ -253,8 +253,10 @@
         .format-step span { color: #374151; line-height: 1.6; }
         .format-arrow { color: #f59e0b; font-size: 1.5rem; font-weight: 700; text-align: center; line-height: 1; }
         .cup-grid { display: grid; grid-template-columns: 1fr; gap: var(--spacing-sm); }
+        .cup-grid--outcomes { align-items: start; }
         .group-demo { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: var(--spacing-sm); }
         .format-step .group-demo-label { display: block; margin-top: 6px; color: #6b7280; font-size: 0.78rem; }
+        .format-step .format-adjustment { display: block; margin-top: 8px; color: #92400e; font-size: 0.82rem; font-weight: 700; }
         .format-step .group-chip { display: inline-flex; align-items: center; justify-content: center; min-width: 62px; padding: 5px 9px; border: 1px solid #93c5fd; border-radius: 999px; background: #eff6ff; color: #1e3a8a; font-size: 0.82rem; font-weight: 800; }
         .format-step--final { border-color: #f59e0b; background: rgba(245, 158, 11, 0.08); }
         .format-step--belt { border: 2px solid #f59e0b; background: linear-gradient(135deg, #1a1a2e 0%, #312e81 100%); box-shadow: 0 8px 24px rgba(245, 158, 11, 0.2); }
@@ -273,6 +275,16 @@
 
         @media (min-width: 680px) {
             .cup-grid { grid-template-columns: 1fr 1fr; }
+            .cup-grid--outcomes {
+                grid-template-areas:
+                    "mj lbj"
+                    "mj-arrow ."
+                    "belt .";
+            }
+            .format-step--mj { grid-area: mj; }
+            .format-step--lbj { grid-area: lbj; }
+            .format-arrow--mj { grid-area: mj-arrow; }
+            .cup-grid--outcomes .format-step--belt { grid-area: belt; }
         }
         @media (max-width: 480px) {
             .pricing-item { align-items: flex-start; flex-direction: column; gap: 4px; }
@@ -392,8 +404,9 @@
                     <h2>🏆 Season 3 賽制</h2>
                     <ul class="rules-list">
                         <li><strong>預賽：</strong>每小組 4 隊，單循環三場預賽。（按報隊次序分小組，以繳費／繳訂金為準）</li>
-                        <li><strong>常規賽：</strong>根據預賽排名，進入不同級別的盃賽：<span class="rules-highlight">MJ23 Cup</span> 及 <span class="rules-highlight">LBJ23 Cup</span>。每 4 隊一小組，每組頭一／兩名進入 Playoff 淘汰賽。</li>
-                        <li><strong>比賽保證：</strong>每隊至少 <span class="rules-highlight--gold">6+ 場預賽及常規賽</span>，另外再加 Playoff 盃賽以及金腰帶爭奪戰，最多可以有 <span class="games-max-highlight">10場</span> 以上賽事！</li>
+                        <li><strong>常規賽：</strong>按預賽排名重新分組，每 4 隊一小組，進行單循環三場常規賽。</li>
+                        <li><strong>盃賽：</strong>常規賽每組頭 2 名進入 <span class="rules-highlight">MJ23 Cup</span> 淘汰賽，後 2 名進入 <span class="rules-highlight">LBJ23 Cup</span> 淘汰賽。</li>
+                        <li><strong>比賽保證：</strong>每隊至少 <span class="rules-highlight--gold">6+ 場預賽及常規賽</span>，另外再加 MJ23／LBJ23 Cup 淘汰賽以及金腰帶爭奪戰，最多可以有 <span class="games-max-highlight">10場</span> 以上賽事！</li>
                     </ul>
 
                     <div class="gold-belt-highlight">
@@ -408,41 +421,36 @@
                         </div>
                         <div class="format-arrow" aria-hidden="true">↓</div>
                         <div class="format-step">
-                            <strong>按預賽排名分級</strong>
-                            <span>進入不同級別的盃賽</span>
-                        </div>
-                        <div class="format-arrow" aria-hidden="true">↓</div>
-                        <div class="cup-grid">
-                            <div class="format-step">
-                                <strong>MJ23 Cup</strong>
-                                <span>每 4 隊一小組</span>
-                                <span class="group-demo-label">示意分組</span>
-                                <div class="group-demo" aria-label="MJ23 Cup 示意分組">
-                                    <span class="group-chip">小組A</span>
-                                    <span class="group-chip">小組B</span>
-                                    <span class="group-chip">…</span>
-                                </div>
-                            </div>
-                            <div class="format-step">
-                                <strong>LBJ23 Cup</strong>
-                                <span>每 4 隊一小組</span>
-                                <span class="group-demo-label">示意分組</span>
-                                <div class="group-demo" aria-label="LBJ23 Cup 示意分組">
-                                    <span class="group-chip">小組C</span>
-                                    <span class="group-chip">小組D</span>
-                                    <span class="group-chip">…</span>
-                                </div>
+                            <strong>常規賽</strong>
+                            <span>按預賽排名重新分組｜每 4 隊一小組｜單循環三場</span>
+                            <span class="group-demo-label">示意分組</span>
+                            <div class="group-demo" aria-label="常規賽示意分組">
+                                <span class="group-chip">小組A</span>
+                                <span class="group-chip">小組B</span>
+                                <span class="group-chip">小組C</span>
+                                <span class="group-chip">小組D</span>
+                                <span class="group-chip">…</span>
                             </div>
                         </div>
                         <div class="format-arrow" aria-hidden="true">↓</div>
-                        <div class="format-step format-step--final">
-                            <strong>Playoff 淘汰賽</strong>
-                            <span>每組頭一／兩名晉級｜決出 Season 3 總冠軍</span>
+                        <div class="format-step">
+                            <strong>按常規賽小組排名分流</strong>
+                            <span>每組頭 2 名 → MJ23 Cup｜每組後 2 名 → LBJ23 Cup</span>
+                            <span class="format-adjustment">*按最後小組數量而有所調整</span>
                         </div>
                         <div class="format-arrow" aria-hidden="true">↓</div>
-                        <div class="format-step format-step--belt">
-                            <strong>🏆 終極金腰帶爭奪戰</strong>
-                            <span>Season 3 總冠軍 vs 現任金腰帶擁有者</span>
+                        <div class="cup-grid cup-grid--outcomes">
+                            <div class="format-step format-step--final format-step--mj">
+                                <strong>MJ23 Cup 淘汰賽</strong>
+                            </div>
+                            <div class="format-arrow format-arrow--mj" aria-hidden="true">↓</div>
+                            <div class="format-step format-step--belt">
+                                <strong>🏆 終極金腰帶爭奪戰</strong>
+                                <span>Season 3 總冠軍 vs 現任金腰帶擁有者</span>
+                            </div>
+                            <div class="format-step format-step--final format-step--lbj">
+                                <strong>LBJ23 Cup 淘汰賽</strong>
+                            </div>
                         </div>
                     </div>
 
@@ -464,7 +472,7 @@
                         <li>每場比賽分 4 節，每節 10 分鐘。</li>
                         <li>除暫停外，其他時間不停錶；第四節最後 2 分鐘死球停錶。</li>
                         <li>常規賽法定時間打和，不設加時，各得 2 分。</li>
-                        <li>Playoff 加時 2 分鐘；再打和則黃金罰球，各射 1 球即時分勝負。</li>
+                        <li>MJ23／LBJ23 Cup 淘汰賽加時 2 分鐘；再打和則黃金罰球，各射 1 球即時分勝負。</li>
                     </ul>
                 </article>
 
@@ -529,7 +537,7 @@
                 <strong>📢 SEASON 3 資訊</strong>：實際賽程、分組及賽事安排以賽會最新公布為準。如有查詢，請透過 WhatsApp 聯絡我們。
             </div>
 
-            <p class="rules-hashtags">#籃球聯賽新勢力 #港島區籃球聯賽 #MJ23Cup #LBJ23Cup #Playoff #Season3</p>
+            <p class="rules-hashtags">#籃球聯賽新勢力 #港島區籃球聯賽 #MJ23Cup #LBJ23Cup #淘汰賽 #Season3</p>
         </section>
     </main>
 
