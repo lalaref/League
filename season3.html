@@ -235,6 +235,18 @@
         .pricing-item--returning { border-color: #2563eb; background: rgba(37, 99, 235, 0.08); }
         .pricing-label { color: #374151; font-size: 0.95rem; font-weight: 600; }
         .pricing-amount { color: #b91c1c; font-weight: 800; font-size: 1.2rem; white-space: nowrap; }
+        .game-calculation {
+            margin-top: var(--spacing-md);
+            padding: 12px 14px;
+            border: 1px solid #f59e0b;
+            border-radius: var(--radius-sm);
+            background: rgba(245, 158, 11, 0.08);
+        }
+        .game-calculation-title { display: block; margin-bottom: 8px; color: #1a1a2e; font-size: 0.95rem; font-weight: 800; }
+        .game-calculation-formula { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; color: #374151; font-size: 0.88rem; line-height: 1.5; }
+        .game-calculation-term { white-space: nowrap; }
+        .game-calculation-term strong { color: #b91c1c; font-size: 1rem; }
+        .game-calculation-plus { color: #b45309; font-weight: 900; }
 
         .format-flow {
             display: grid;
@@ -390,6 +402,18 @@
                         <div class="pricing-item pricing-item--returning">
                             <span class="pricing-label">舊隊參賽</span>
                             <span class="pricing-amount">$6,400 ($500訂金)</span>
+                        </div>
+                    </div>
+                    <div class="game-calculation" aria-label="場次計算：3場預賽加3場常規賽，加最多3場淘汰賽，加1場金腰帶爭奪戰">
+                        <strong class="game-calculation-title">場次計算</strong>
+                        <div class="game-calculation-formula">
+                            <span class="game-calculation-term"><strong>3場</strong>（預賽）</span>
+                            <span class="game-calculation-plus" aria-hidden="true">＋</span>
+                            <span class="game-calculation-term"><strong>3場</strong>（常規賽）</span>
+                            <span class="game-calculation-plus" aria-hidden="true">＋</span>
+                            <span class="game-calculation-term"><strong>3場</strong>（淘汰賽最多）</span>
+                            <span class="game-calculation-plus" aria-hidden="true">＋</span>
+                            <span class="game-calculation-term"><strong>1場</strong>（金腰帶爭奪戰）</span>
                         </div>
                     </div>
                     <div class="whatsapp-cta-wrap">
