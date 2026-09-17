@@ -74,9 +74,10 @@ var API = (function () {
    * 發送 GET 請求
    * @param {string} action - API 動作名稱
    * @param {Object} [params={}] - 查詢參數
+   * @param {Object} [opts] - 請求配置，例如 { maxRetries, timeoutMs }
    * @returns {Promise<Object>} API 回應的 data 欄位
    */
-  function get(action, params) {
+  function get(action, params, opts) {
     if (!isOnline()) {
       return Promise.reject(new Error('網絡離線，請檢查網絡連線'));
     }
@@ -93,7 +94,7 @@ var API = (function () {
     var url = BASE_URL + '?' + queryParts.join('&');
     console.log('[API.get] BASE_URL =', BASE_URL, '| url =', url);
 
-    return _requestWithRetry(url, { method: 'GET', redirect: 'follow' }, 0);
+    return _requestWithRetry(url, { method: 'GET', redirect: 'follow' }, 0, opts);
   }
 
   /**
@@ -202,6 +203,9 @@ var API = (function () {
   function getAchievements(playerId) { return get('achievements', { playerId: playerId }); }
   function getArchive(seasonId) { return get('archive', { seasonId: seasonId }); }
   function getAnnouncements() { return get('announcements'); }
+  function incrementSeason3PageView() {
+    return get('season3PageView', null, { maxRetries: 0 });
+  }
   function getTeams(seasonId, includeDeleted) {
     return get('teams', { seasonId: seasonId, includeDeleted: includeDeleted ? 'true' : undefined });
   }
@@ -261,6 +265,7 @@ var API = (function () {
     getAchievements: getAchievements,
     getArchive: getArchive,
     getAnnouncements: getAnnouncements,
+    incrementSeason3PageView: incrementSeason3PageView,
     getTeams: getTeams,
     getPlayers: getPlayers,
     getGames: getGames,
