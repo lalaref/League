@@ -267,6 +267,30 @@
     .hero-cta-btn--details:hover{background:#f2f2f2;color:#1a1a2e}
     .hero-cta-btn--whatsapp{background:#159447;color:#fff}
     .hero-cta-btn--whatsapp:hover{background:#08783e;color:#fff}
+
+    /* Season 3 launch popup */
+    body.season3-popup-open{overflow:hidden}
+    .season3-popup[hidden]{display:none}
+    .season3-popup{position:fixed;inset:0;z-index:2500;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.82);backdrop-filter:blur(4px)}
+    .season3-popup-dialog{position:relative;width:min(92vw,720px);max-height:92vh;overflow:auto;border:1px solid rgba(255,255,255,.2);border-radius:14px;background:#080808;box-shadow:0 24px 80px rgba(0,0,0,.65)}
+    .season3-popup-close{position:absolute;top:10px;right:10px;z-index:2;display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;padding:0;border:1px solid rgba(255,255,255,.45);border-radius:999px;background:rgba(0,0,0,.78);color:#fff;font-size:27px;line-height:1;cursor:pointer;transition:background .2s,transform .2s}
+    .season3-popup-close:hover{background:#cc0000;transform:scale(1.05)}
+    .season3-popup-close:focus-visible{outline:3px solid #fbbf24;outline-offset:3px}
+    .season3-popup-image-link{display:block;background:#000;text-decoration:none}
+    .season3-popup-image{display:block;width:100%;height:auto;max-height:76vh;object-fit:contain}
+    .season3-popup-actions{display:flex;justify-content:center;padding:14px;background:#080808}
+    .season3-popup-detail{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:11px 28px;border-radius:999px;background:#cc0000;color:#fff;font-family:'Raleway',sans-serif;font-size:12px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;transition:background .2s,transform .2s}
+    .season3-popup-detail:hover{background:#a90000;color:#fff;transform:translateY(-1px)}
+    .season3-popup-detail:focus-visible{outline:3px solid #fbbf24;outline-offset:3px}
+
+    @media(max-width:480px){
+      .season3-popup{padding:10px}
+      .season3-popup-dialog{width:96vw;max-height:94vh;border-radius:10px}
+      .season3-popup-close{top:7px;right:7px;width:40px;height:40px}
+      .season3-popup-image{max-height:78vh}
+      .season3-popup-actions{padding:10px}
+      .season3-popup-detail{width:100%;font-size:11px}
+    }
     /* COMING MATCHES */
     .cm-list{display:flex;flex-direction:column;gap:18px}
     .cm-card{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.12);transition:box-shadow .25s,transform .2s}
@@ -407,6 +431,19 @@
     </style>
 </head>
 <body>
+    <div id="season3-launch-popup" class="season3-popup" hidden role="dialog" aria-modal="true" aria-labelledby="season3-popup-title">
+        <div class="season3-popup-dialog" role="document">
+            <h2 id="season3-popup-title" class="sr-only">ALL-IN Basketball League Season 3 現正招隊</h2>
+            <button type="button" class="season3-popup-close" aria-label="關閉 Season 3 宣傳視窗">&times;</button>
+            <a class="season3-popup-image-link" href="https://www.aiblhk.com/season3.html" aria-label="查看 ALL-IN Basketball League Season 3 詳情">
+                <img class="season3-popup-image" src="https://www.aiblhk.com/images/season3.jpeg" alt="ALL-IN Basketball League Season 3 宣傳海報" decoding="async">
+            </a>
+            <div class="season3-popup-actions">
+                <a class="season3-popup-detail" href="https://www.aiblhk.com/season3.html">查看 Season 3 詳情</a>
+            </div>
+        </div>
+    </div>
+
     <!-- 頂部資訊條 -->
     <div class="cb-topbar">
         <div class="cb-topbar-inner">
@@ -799,6 +836,56 @@
         </div><!-- /ft-main -->
 
     </footer>
+
+    <script>
+    (function () {
+        var popup = document.getElementById('season3-launch-popup');
+        var closeButton = popup ? popup.querySelector('.season3-popup-close') : null;
+        var previousFocus = null;
+        if (!popup || !closeButton) return;
+
+        function openPopup() {
+            previousFocus = document.activeElement;
+            popup.hidden = false;
+            document.body.classList.add('season3-popup-open');
+            closeButton.focus();
+        }
+
+        function closePopup() {
+            popup.hidden = true;
+            document.body.classList.remove('season3-popup-open');
+            if (previousFocus && typeof previousFocus.focus === 'function') previousFocus.focus();
+        }
+
+        closeButton.addEventListener('click', closePopup);
+        popup.addEventListener('click', function (event) {
+            if (event.target === popup) closePopup();
+        });
+        document.addEventListener('keydown', function (event) {
+            if (popup.hidden) return;
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                closePopup();
+                return;
+            }
+            if (event.key !== 'Tab') return;
+
+            var focusable = popup.querySelectorAll('button:not([disabled]), a[href]');
+            if (!focusable.length) return;
+            var first = focusable[0];
+            var last = focusable[focusable.length - 1];
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first.focus();
+            }
+        });
+
+        window.addEventListener('load', openPopup);
+    })();
+    </script>
 
     <script>
         document.getElementById('current-year').textContent = new Date().getFullYear();
