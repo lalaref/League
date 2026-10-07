@@ -81,6 +81,42 @@
     .team-standings-section .table-wrapper{margin-bottom:0}
     .standings-division-row td{background:#111827!important;color:#fff!important;font-family:'Raleway',sans-serif;font-size:12px!important;font-weight:900!important;letter-spacing:.08em;text-align:left!important;text-transform:uppercase}
     @media(max-width:820px){.standings-tabs-section .tab-panel.active{grid-template-columns:1fr}.fallback-bar-row{grid-template-columns:minmax(66px,1fr) minmax(96px,2fr) 40px}.standings-tabs-section .data-table th,.standings-tabs-section .data-table td{padding:9px 10px}}
+
+    /* Keep every standings table within a phone viewport. */
+    @media(max-width:767px){
+        .team-standings-section .table-wrapper,
+        .standings-tabs-section .table-wrapper{overflow-x:hidden}
+        .team-standings-section .data-table,
+        .standings-tabs-section .data-table{width:100%;min-width:0;max-width:100%;table-layout:fixed;font-size:.72rem}
+        #standings-page-table{width:100%;min-width:0;max-width:100%;table-layout:fixed}
+        .team-standings-section .data-table th,
+        .team-standings-section .data-table td,
+        .standings-tabs-section .data-table th,
+        .standings-tabs-section .data-table td{min-width:0;padding:8px 4px}
+
+        /* Show the core standings data while retaining all ranking calculations. */
+        .team-standings-section .data-table th:nth-child(3),
+        .team-standings-section .data-table td:nth-child(3),
+        .team-standings-section .data-table th:nth-child(7),
+        .team-standings-section .data-table td:nth-child(7){display:none}
+        .team-standings-section .data-table th{white-space:nowrap;font-size:.66rem;text-align:center}
+        .team-standings-section .data-table th:nth-child(1),.team-standings-section .data-table td:nth-child(1){width:10%;text-align:center}
+        .team-standings-section .data-table th:nth-child(2),.team-standings-section .data-table td:nth-child(2){width:42%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .team-standings-section .data-table th:nth-child(4),.team-standings-section .data-table td:nth-child(4),
+        .team-standings-section .data-table th:nth-child(5),.team-standings-section .data-table td:nth-child(5),
+        .team-standings-section .data-table th:nth-child(6),.team-standings-section .data-table td:nth-child(6){width:10%;text-align:center}
+        .team-standings-section .data-table th:nth-child(8),.team-standings-section .data-table td:nth-child(8){width:18%;text-align:center}
+        .team-standings-section .data-table td:nth-child(2) .team-link{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+        /* Leaderboards retain every column but constrain names to the available width. */
+        .standings-tabs-section .data-table th{white-space:normal;line-height:1.15;font-size:.66rem}
+        .standings-tabs-section .data-table td{white-space:nowrap}
+        .standings-tabs-section .data-table th:nth-child(1),.standings-tabs-section .data-table td:nth-child(1){width:13%;text-align:center}
+        .standings-tabs-section .data-table th:nth-child(2),.standings-tabs-section .data-table td:nth-child(2){width:36%;overflow:hidden;text-overflow:ellipsis}
+        .standings-tabs-section .data-table th:nth-child(3),.standings-tabs-section .data-table td:nth-child(3){width:31%;overflow:hidden;text-overflow:ellipsis}
+        .standings-tabs-section .data-table th:nth-child(4),.standings-tabs-section .data-table td:nth-child(4){width:20%;text-align:right}
+        .standings-tabs-section .data-table td:nth-child(2) a{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    }
     </style></head>
 <body>
     <!-- 導航列 -->
