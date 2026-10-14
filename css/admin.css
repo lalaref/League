@@ -1447,3 +1447,11 @@
     .live-player-number { display: grid; font-size: 2.25rem; }
     .live-player-points { font-size: 1rem; }
 }
+
+/* Focused timekeeper route: no administration navigation or roster-management tools. */
+.timekeeper-mode .site-header,
+.timekeeper-mode .site-footer,
+.timekeeper-mode #player-mgmt-section { display: none !important; }
+.timekeeper-mode .main-content { padding-top: 0; }
+.timekeeper-mode .section { padding-top: 14px; }
+.timekeeper-mode .section-title::after { content: '｜時間員記錄台'; color: #526a96; font-size: .52em; font-weight: 700; }
