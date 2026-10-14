@@ -33,6 +33,8 @@
   var existingBoxScore = null;
   var mobileCurrentIndex = 0;
   var pendingGuestCreations = 0; // tracks in-flight createPlayer calls
+  var guestSyncNeedsReload = false; // never submit a temporary guest ID
+  var rosterLoadToken = 0; // discards late responses from a previously selected game
 
   loadSeasons();
   seasonSelect.addEventListener('change', function () { loadGames(seasonSelect.value); });
@@ -106,6 +108,7 @@
   }
 
   function loadGameRosters(gameId) {
+    var loadToken = ++rosterLoadToken;
     showMessage(I18n.t('common.loading'), 'info');
     var _boxData = null;
     Promise.all([
@@ -113,6 +116,7 @@
       API.getGames(seasonSelect.value),
       API.getTeams(seasonSelect.value)
     ]).then(function (r) {
+      if (loadToken !== rosterLoadToken || gameSelect.value !== gameId) return null;
       _boxData = r[0]; var games = r[1] || []; var teams = r[2] || [];
       currentGame = games.find(function (g) { return g.id === gameId; }) || null;
       console.log('[BoxScore] currentGame:', JSON.stringify(currentGame));
@@ -130,6 +134,7 @@
       if (!currentGame) return [[], []];
       return Promise.all([API.getPlayers(currentGame.homeTeamId), API.getPlayers(currentGame.awayTeamId)]);
     }).then(function (playerResults) {
+      if (!playerResults || loadToken !== rosterLoadToken || gameSelect.value !== gameId) return;
       var rawHome = playerResults[0] || [];
       var rawAway = playerResults[1] || [];
       var homeId = currentGame ? currentGame.homeTeamId : '';
@@ -163,7 +168,11 @@
         }
         showAttendanceSelection();
       }
-    }).catch(function () { existingBoxScore = null; showMessage(I18n.t('error.loadFailed'), 'error'); });
+    }).catch(function () {
+      if (loadToken !== rosterLoadToken || gameSelect.value !== gameId) return;
+      existingBoxScore = null;
+      showMessage(I18n.t('error.loadFailed'), 'error');
+    });
   }
 
   // loadTeamPlayers is superseded by the chained roster fetch inside loadGameRosters
@@ -311,6 +320,18 @@
     if (awayTotalEl) awayTotalEl.value = awayTotal || '';
   }
 
+  function syncRenderedStatsToPlayers() {
+    allPlayers.forEach(function (player, idx) {
+      var hasRenderedInputs = !!getInput(idx, 'pts');
+      if (!hasRenderedInputs) return;
+      player.stats = player.stats || {};
+      STAT_FIELDS.forEach(function (field) {
+        var input = getInput(idx, field);
+        player.stats[field] = input ? (parseInt(input.value, 10) || 0) : 0;
+      });
+    });
+  }
+
   function renderBoxScore() {
     renderDesktopTable(); renderMobileCards();
     desktopWrapper.hidden = false; mobileWrapper.hidden = false; actionsEl.hidden = false;
@@ -335,7 +356,7 @@
         hc.textContent = p.teamName + ' (' + I18n.t(p.side === 'home' ? 'admin.homeTeamPlayers' : 'admin.awayTeamPlayers') + ')';
         hr.appendChild(hc); boxscoreBody.appendChild(hr);
       }
-      var tr = document.createElement('tr'); tr.dataset.playerIndex = idx;
+      var tr = document.createElement('tr'); tr.dataset.playerIndex = idx; tr.dataset.playerId = p.id;
       var nc = document.createElement('td'); nc.className = 'admin-player-name';
       nc.textContent = '#' + (p.number != null && p.number !== '' ? p.number : '?') + ' ' + p.name; tr.appendChild(nc);
       STAT_FIELDS.forEach(function (f) {
@@ -421,6 +442,13 @@
         inp.dataset.playerIndex = idx; inp.dataset.field = f;
         inp.placeholder = '0';
         if (p.stats && p.stats[f] !== undefined && p.stats[f] !== '' && p.stats[f] !== 0) inp.value = p.stats[f];
+        (function (index, field, mobileInput) {
+          mobileInput.addEventListener('input', function () {
+            var desktopInput = document.getElementById('stat-' + index + '-' + field);
+            if (desktopInput) desktopInput.value = mobileInput.value;
+            if (field === 'pts') updateTeamPointTotals();
+          });
+        })(idx, f, inp);
         if (f === 'pts') inp.addEventListener('input', updateTeamPointTotals);
         item.appendChild(inp);
         var err = document.createElement('span'); err.className = 'admin-field-error';
@@ -553,12 +581,14 @@
     var mvpPlayerId = mvpSelect ? mvpSelect.value : '';
     var payload = Object.assign({ gameId: gameSelect.value, seasonId: seasonSelect.value, entries: collectEntries(), mvpPlayerId: mvpPlayerId }, collectQuarterScores());
     API.post('submitBoxScore', payload).then(function () {
+      document.dispatchEvent(new CustomEvent('allin:boxscoreSaved', { detail: { gameId: gameSelect.value } }));
       showMessage(I18n.t('admin.submitSuccess'), 'success');
       submitBtn.hidden = true; updateBtn.hidden = false; existingBoxScore = true;
     }).catch(function (err) {
       if (err.message === '請求超時') {
         // Timeout does NOT mean failure — GAS may have already written the data.
         // Show warning and switch to Update mode to prevent duplicate submission.
+        document.dispatchEvent(new CustomEvent('allin:boxscoreSubmissionUncertain', { detail: { gameId: gameSelect.value } }));
         showMessage('⚠️ 請求逾時，但資料可能已成功儲存。請重新載入頁面確認，或使用「更新 Box Score」按鈕修正數據，切勿重新點擊提交。', 'error');
         submitBtn.hidden = true; updateBtn.hidden = false; existingBoxScore = true;
       } else {
@@ -576,6 +606,7 @@
     var mvpPlayerId = mvpSelect ? mvpSelect.value : '';
     var payload = Object.assign({ gameId: gameSelect.value, seasonId: seasonSelect.value, entries: collectEntries(), mvpPlayerId: mvpPlayerId }, collectQuarterScores());
     API.post('submitBoxScore', payload).then(function () {
+      document.dispatchEvent(new CustomEvent('allin:boxscoreSaved', { detail: { gameId: gameSelect.value } }));
       showMessage(I18n.t('admin.updateSuccess'), 'success');
     }).catch(function (err) {
       showMessage(err.message || I18n.t('error.submitFailed'), 'error');
@@ -597,8 +628,10 @@
 
   // --- Player Management ---
   function removePlayer(idx) {
+    syncRenderedStatsToPlayers();
     if (mobileCurrentIndex >= allPlayers.length - 1) mobileCurrentIndex = Math.max(0, allPlayers.length - 2);
     allPlayers.splice(idx, 1);
+    notifyLiveRosterChanged();
     renderBoxScore();
     populateMvpSelect();
   }
@@ -644,8 +677,23 @@
         if (!seen[p.id]) { freshRoster.push(p); seen[p.id] = true; }
       });
       allRosterPlayers = freshRoster;
+      syncRenderedStatsToPlayers();
+      allPlayers.forEach(function (activePlayer) {
+        if (!activePlayer.isGuest || String(activePlayer.id).indexOf('guest-') !== 0) return;
+        var resolved = freshRoster.filter(function (candidate) {
+          return candidate.side === activePlayer.side && candidate.name === activePlayer.name && String(candidate.number || '') === String(activePlayer.number || '');
+        })[0];
+        if (resolved) activePlayer.id = resolved.id;
+      });
+      guestSyncNeedsReload = allPlayers.some(function (activePlayer) { return activePlayer.isGuest && String(activePlayer.id).indexOf('guest-') === 0; });
+      if (!guestSyncNeedsReload) {
+        notifyLiveRosterChanged();
+        renderBoxScore();
+        populateMvpSelect();
+      }
       refreshAddPlayerDropdown();
-      showMessage('名單已重新載入', 'success');
+      setPendingSubmitState();
+      showMessage(guestSyncNeedsReload ? '未能確認所有臨時球員，請稍後再重新載入。' : '名單已重新載入', guestSyncNeedsReload ? 'error' : 'success');
     }).catch(function () {
       showMessage('名單載入失敗', 'error');
     }).finally(function () {
@@ -699,14 +747,19 @@
     API.post('createPlayer', { teamId: teamId, name: name, number: number })
       .then(function (res) {
         var realId = (res && res.playerId) ? res.playerId : tempId;
-        // Update the object already in allPlayers (same reference)
+        // Keep totals before replacing the temporary player identity and rebuild
+        // both layouts so the live board uses the durable server player ID.
+        syncRenderedStatsToPlayers();
         guest.id = realId;
-        // Also update allRosterPlayers entry
         allRosterPlayers.push(Object.assign({}, guest));
+        notifyLiveRosterChanged();
+        renderBoxScore();
+        populateMvpSelect();
         showMessage('臨時球員已加入並同步更新名單', 'success');
       })
       .catch(function () {
-        showMessage('已加入本場，但同步球員名單失敗。請前往球員管理頁補充後重新載入名單。', 'error');
+        guestSyncNeedsReload = true;
+        showMessage('臨時球員同步結果未能確認。請按「重新載入名單」確認球員後才可提交 Box Score。', 'error');
       })
       .finally(function () {
         pendingGuestCreations--;
@@ -720,13 +773,15 @@
   }
 
   function setPendingSubmitState() {
-    var busy = pendingGuestCreations > 0;
+    var busy = pendingGuestCreations > 0 || guestSyncNeedsReload;
     submitBtn.disabled = busy;
     updateBtn.disabled = busy;
-    if (busy) showMessage('正在同步球員資料，請稍候再提交...', 'info');
+    if (pendingGuestCreations > 0) showMessage('正在同步球員資料，請稍候再提交...', 'info');
+    else if (guestSyncNeedsReload) showMessage('請重新載入名單確認臨時球員後才可提交。', 'error');
   }
 
   function _insertPlayer(player) {
+    syncRenderedStatsToPlayers();
     if (player.side === 'home') {
       var lastHomeIdx = -1;
       allPlayers.forEach(function(p, i) { if (p.side === 'home') lastHomeIdx = i; });
@@ -734,6 +789,11 @@
     } else {
       allPlayers.push(player);
     }
+    notifyLiveRosterChanged();
+  }
+
+  function notifyLiveRosterChanged() {
+    document.dispatchEvent(new CustomEvent('allin:boxscoreRosterChanged', { detail: { gameId: gameSelect.value } }));
   }
 
   function showMessage(text, type) {
