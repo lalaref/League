@@ -15,6 +15,7 @@
   var selectedLabel = document.getElementById('live-selected-player');
   var undoButton = document.getElementById('btn-live-undo');
   var discardButton = document.getElementById('btn-live-discard');
+  var saveDraftButton = document.getElementById('btn-live-save-draft');
   var statusEl = document.getElementById('live-draft-status');
   var gameSelect = document.getElementById('game-select');
   var boxscoreBody = document.getElementById('boxscore-body');
@@ -278,6 +279,11 @@
 
   undoButton.addEventListener('click', undoLast);
   discardButton.addEventListener('click', discardDraft);
+  if (saveDraftButton) saveDraftButton.addEventListener('click', function () {
+    persistDraft();
+    saveDraftButton.textContent = '✓ 草稿已儲存';
+    window.setTimeout(function () { saveDraftButton.textContent = '💾 儲存本機草稿'; }, 1400);
+  });
 
   document.addEventListener('allin:boxscoreRosterChanged', function (event) {
     if (!event.detail || String(event.detail.gameId || '') !== gameId()) return;
