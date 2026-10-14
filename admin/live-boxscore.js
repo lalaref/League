@@ -115,7 +115,7 @@
       button.type = 'button';
       button.className = 'live-player-tile';
       button.dataset.playerIndex = index;
-      button.innerHTML = '<span class="live-player-number">' + escapeHtml(player.label.split(' ')[0]) + '</span><span class="live-player-name">' + escapeHtml(player.label.replace(/^#[^\s]+\s*/, '')) + '</span><strong class="live-player-points" id="live-player-pts-' + index + '">0</strong>';
+      button.innerHTML = '<strong class="live-player-number">' + escapeHtml(player.label.split(' ')[0]) + '</strong><strong class="live-player-points" id="live-player-pts-' + index + '">0</strong>';
       button.addEventListener('click', function () { selectPlayer(index); });
       (player.side === 'home' ? homePlayersEl : awayPlayersEl).appendChild(button);
     });
@@ -127,7 +127,7 @@
     document.querySelectorAll('.live-player-tile').forEach(function (button) {
       button.classList.toggle('is-selected', button.dataset.playerIndex === activePlayerIndex);
     });
-    selectedLabel.textContent = '已選：' + playerMap[activePlayerIndex].label;
+    selectedLabel.textContent = '已選：' + playerMap[activePlayerIndex].label.split(' ')[0];
     refreshDisplay();
   }
 
