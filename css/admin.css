@@ -1414,3 +1414,36 @@
     .live-action-group--stats { grid-column: auto; grid-template-columns: repeat(7, minmax(0, 1fr)); }
     .live-action { min-height: 58px; font-size: .69rem; }
 }
+
+/* Extra-large courtside targets: designed for fast tablet entry. */
+.live-quarter-bar button { min-height: 58px; min-width: 62px; font-size: 1rem; }
+.live-player-grid { gap: 12px; }
+.live-player-tile { min-height: 76px; padding: 10px; border-radius: 12px; }
+.live-player-number { min-width: 40px; height: 40px; font-size: .9rem; }
+.live-player-name { font-size: .98rem; }
+.live-player-points { min-width: 34px; font-size: 1.45rem; }
+.live-action-pad { gap: 12px; padding: 16px; }
+.live-action-group { gap: 10px; }
+.live-action-group--stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.live-action { min-height: 86px; border-width: 2px; border-radius: 13px; font-size: .92rem; }
+.live-action b { font-size: 1.08rem; }
+@media (max-width: 900px) {
+    .live-action-group--stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (max-width: 620px) {
+    .live-quarter-bar button { min-height: 50px; min-width: 52px; font-size: .9rem; }
+    .live-player-tile { min-height: 66px; }
+    .live-player-name { font-size: .8rem; }
+    .live-action-group--stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .live-action { min-height: 70px; font-size: .8rem; }
+}
+
+/* Live board: jersey numbers only, deliberately oversized for courtside use. */
+.live-player-tile { grid-template-columns: 1fr auto; min-height: 96px; text-align: center; }
+.live-player-number { display: grid; place-items: center; width: auto; min-width: 0; height: auto; border-radius: 0; background: transparent; color: #17223a; font-family: var(--font-family-heading, inherit); font-size: clamp(2rem, 5vw, 3.3rem); line-height: 1; }
+.live-player-points { align-self: start; min-width: 34px; font-size: 1.25rem; }
+@media (max-width: 620px) {
+    .live-player-tile { min-height: 78px; grid-template-columns: 1fr auto; }
+    .live-player-number { display: grid; font-size: 2.25rem; }
+    .live-player-points { font-size: 1rem; }
+}
