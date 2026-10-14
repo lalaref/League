@@ -11,6 +11,9 @@
     <link rel="stylesheet" href="../css/admin.css?v=20260715-boxscore-colors">
 </head>
 <body>
+    <script>
+      if (new URLSearchParams(window.location.search).get('timekeeper') === '1') document.body.classList.add('timekeeper-mode');
+    </script>
     <!-- 導航列 -->
     <header class="site-header">
         <nav class="main-nav" aria-label="主導航">

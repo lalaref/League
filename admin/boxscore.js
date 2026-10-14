@@ -26,6 +26,8 @@
   var attendanceAway = document.getElementById('attendance-away');
   var confirmAttendanceBtn = document.getElementById('btn-confirm-attendance');
   var quarterSection = document.getElementById('quarter-scores-section');
+  var requestedGameId = (new URLSearchParams(window.location.search)).get('gameId');
+  var timekeeperMode = (new URLSearchParams(window.location.search)).get('timekeeper') === '1';
 
   var currentGame = null;
   var allRosterPlayers = []; // all players from both teams
@@ -104,6 +106,12 @@
         o.textContent = dateStr + (timeStr ? ' ' + timeStr : '') + ' — ' + (g.homeTeamName || g.homeTeamId) + ' vs ' + (g.awayTeamName || g.awayTeamId) + (g.status === 'completed' ? ' ✓' : '');
         gameSelect.appendChild(o);
       });
+      if (requestedGameId && (games || []).some(function (g) { return String(g.id) === String(requestedGameId); })) {
+        gameSelect.value = requestedGameId;
+        var directGameId = requestedGameId;
+        requestedGameId = '';
+        loadGameRosters(directGameId);
+      }
     }).catch(function () { showMessage(I18n.t('error.loadFailed'), 'error'); });
   }
 
