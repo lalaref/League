@@ -22,6 +22,7 @@
   var homeSelect = document.getElementById('home-team-select');
   var awaySelect = document.getElementById('away-team-select');
   var typeSelect = document.getElementById('game-type');
+  var standingsExemptSelect = document.getElementById('standings-exempt-team');
   var playoffSettings = document.getElementById('playoff-game-settings');
   var playoffSeedSelect = document.getElementById('game-playoff-seed');
   var playoffRoundSelect = document.getElementById('game-playoff-round');
@@ -208,7 +209,9 @@
     var activeTeamIds = {};
     teams.forEach(function (team) { activeTeamIds[String(team.id)] = true; });
     var regularGames = (games || []).filter(function (g) {
+      var standingsExemptIds = String(g.standingsExemptTeamIds || '').split(/[\s,;|]+/).filter(Boolean);
       return String(g.type || 'regular').trim().toLowerCase() === 'regular' &&
+        standingsExemptIds.length === 0 &&
         String(g.status || 'scheduled').trim().toLowerCase() !== 'cancelled' &&
         activeTeamIds[String(g.homeTeamId)] && activeTeamIds[String(g.awayTeamId)];
     });
@@ -285,7 +288,9 @@
   }
 
   function formatGameType(game) {
-    if (String(game.type || '').toLowerCase() !== 'playoff') return game.type || 'regular';
+    if (String(game.type || '').toLowerCase() !== 'playoff') {
+      return String(game.standingsExemptTeamIds || '').trim() ? (game.type || 'regular') + ' · 排名豁免' : (game.type || 'regular');
+    }
     var seed = game.playoffSeed === 'consolation' ? '安慰賽／排名組' : (game.playoffSeed === 'champions' ? '冠軍組' : '未設定組別');
     var round = Number(game.playoffRound) || 1;
     var stage = isCurrentSeasonOne()
@@ -465,6 +470,7 @@
     formTitle.textContent = I18n.t('admin.createGame');
     dateInput.value = ''; timeInput.value = ''; venueInput.value = '';
     homeSelect.value = ''; awaySelect.value = ''; typeSelect.value = 'regular';
+    standingsExemptSelect.value = '';
     playoffSeedSelect.value = 'champions';
     playoffNotesInput.value = '';
     updatePlayoffSettings('1');
@@ -501,6 +507,9 @@
     homeSelect.value = g.homeTeamId || '';
     awaySelect.value = g.awayTeamId || '';
     typeSelect.value = g.type || 'regular';
+    var exemptIds = String(g.standingsExemptTeamIds || '').split(/[\s,;|]+/).filter(Boolean);
+    standingsExemptSelect.value = exemptIds.indexOf(String(g.homeTeamId)) !== -1 ? 'home' :
+      (exemptIds.indexOf(String(g.awayTeamId)) !== -1 ? 'away' : '');
     playoffSeedSelect.value = g.playoffSeed || 'champions';
     playoffNotesInput.value = g.notes || '';
     updatePlayoffSettings(g.playoffRound || '1');
@@ -526,7 +535,9 @@
       venue: venueInput.value,
       homeTeamId: homeSelect.value,
       awayTeamId: awaySelect.value,
-      type: typeSelect.value
+      type: typeSelect.value,
+      standingsExemptTeamIds: standingsExemptSelect.value === 'home' ? [homeSelect.value] :
+        (standingsExemptSelect.value === 'away' ? [awaySelect.value] : [])
     };
     if (data.type === 'playoff') {
       data.playoffSeed = playoffSeedSelect.value;

@@ -120,6 +120,15 @@
                             <option value="playoff" data-i18n="admin.playoff">季後賽</option>
                         </select>
                     </div>
+                    <div class="admin-form-group">
+                        <label for="standings-exempt-team" class="admin-label">排名豁免（特別賽事）</label>
+                        <select id="standings-exempt-team" class="admin-select">
+                            <option value="">兩隊均計入排名及賽程配額</option>
+                            <option value="home">主隊不計入排名及 Season 2 賽程配額</option>
+                            <option value="away">客隊不計入排名及 Season 2 賽程配額</option>
+                        </select>
+                        <p class="admin-hint">只適用於獲批准的補賽：豁免隊的勝負、得失分及排名積分不會變動；另一隊照常計算。</p>
+                    </div>
                     <div id="playoff-game-settings" class="admin-card" hidden>
                         <h3 class="admin-card-title">季後賽設定</h3>
                         <div class="admin-form-row">
