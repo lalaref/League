@@ -183,7 +183,12 @@ var API = (function () {
   // --- GET 便捷方法 ---
 
   function getSeasons() { return get('seasons'); }
-  function getStandings(seasonId) { return get('standings', { seasonId: seasonId }); }
+  function getStandings(seasonId, phase, groupId) {
+    var params = { seasonId: seasonId };
+    if (phase) params.phase = phase;
+    if (groupId) params.groupId = groupId;
+    return get('standings', params);
+  }
   function getPlayerProfile(playerId) { return get('playerProfile', { playerId: playerId }); }
   function getTeamProfile(teamId, seasonId) {
     var params = { teamId: teamId };

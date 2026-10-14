@@ -111,6 +111,14 @@
       || Number(season.minGamesForRanking) === 7;
   }
 
+  function isSeasonThree(season) {
+    season = season || {};
+    var format = String(season.format || season.formatVersion || season.competitionFormat || '').toLowerCase();
+    var name = String(season.name || '').toLowerCase();
+    return format === 'season3' || format === 'season-3' || format === 's3' ||
+      /(?:season|s)\s*0?3\b/.test(name) || name.indexOf('第三季') !== -1 || name.indexOf('第3季') !== -1;
+  }
+
   function syncSeasonOneBracketVisibility() {
     if (!seasonOneBracketSection) return;
     seasonOneBracketSection.hidden = !isSeasonOne(currentSeason);
@@ -213,6 +221,10 @@
   // ─── Team Standings ────────────────────────────────────────────────────────
 
   function loadTeamStandings() {
+    if (isSeasonThree(currentSeason)) {
+      loadSeasonThreeGroupStandings();
+      return;
+    }
     var tbody = document.querySelector('#standings-page-table tbody');
     if (!tbody) return;
     var flatWrapper = document.getElementById('standings-page-table').parentElement;
@@ -303,6 +315,46 @@
         + '<th>' + escapeHtml(I18n.t('table.diff')) + '</th>'
         + '<th>' + escapeHtml(I18n.t('table.points')) + '</th>'
         + '</tr></thead>';
+    }
+  }
+
+  function loadSeasonThreeGroupStandings() {
+    var tbody = document.querySelector('#standings-page-table tbody');
+    if (!tbody) return;
+    var flatWrapper = document.getElementById('standings-page-table').parentElement;
+    var divisionGrid = document.getElementById('standings-division-grid');
+    if (!divisionGrid) {
+      divisionGrid = document.createElement('div');
+      divisionGrid.id = 'standings-division-grid';
+      divisionGrid.setAttribute('aria-live', 'polite');
+      divisionGrid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;align-items:start';
+      flatWrapper.parentElement.insertBefore(divisionGrid, flatWrapper);
+    }
+    flatWrapper.hidden = true;
+    divisionGrid.hidden = false;
+    divisionGrid.innerHTML = '<div class="loading">載入 Season 3 分組排名…</div>';
+
+    API.getGames(currentSeasonId).then(function (games) {
+      var phase = (games || []).some(function (game) { return String(game.phase || '') === 'regular'; }) ? 'regular' : 'preliminary';
+      return Promise.all(['A', 'B', 'C', 'D'].map(function (groupId) {
+        return API.get('standings', { seasonId: currentSeasonId, phase: phase, groupId: groupId })
+          .then(function (rows) { return { groupId: groupId, rows: rows || [] }; });
+      })).then(function (groups) {
+        var phaseLabel = phase === 'regular' ? '常規賽' : '預賽';
+        divisionGrid.innerHTML = groups.map(function (group) {
+          var rows = group.rows;
+          var body = rows.length ? rows.map(function (team) { return _renderStandingRow(team, team.rank || (rows.indexOf(team) + 1)); }).join('') : '<tr><td colspan="8" class="text-muted">暫無賽果</td></tr>';
+          return '<section class="standings-division-card" style="overflow:hidden;background:#fff;border:1px solid #e5e7eb;border-top:4px solid #2563eb;border-radius:10px;box-shadow:0 4px 18px rgba(0,0,0,.08)">'
+            + '<div style="display:flex;justify-content:space-between;gap:12px;padding:14px 16px;background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff"><h4 style="margin:0;font-size:15px;font-weight:900;letter-spacing:.08em">' + phaseLabel + ' GROUP ' + group.groupId + '</h4><span style="font-size:11px;font-weight:700">' + rows.length + ' TEAMS</span></div>'
+            + '<div class="table-wrapper" style="margin:0"><table class="data-table">' + standingsTableHead() + '<tbody>' + body + '</tbody></table></div></section>';
+        }).join('');
+      });
+    }).catch(function () {
+      divisionGrid.innerHTML = '<div class="text-muted">' + I18n.t('error.loadFailed') + '</div>';
+    });
+
+    function standingsTableHead() {
+      return '<thead><tr><th>' + escapeHtml(I18n.t('table.rank')) + '</th><th>' + escapeHtml(I18n.t('table.team')) + '</th><th>' + escapeHtml(I18n.t('table.played')) + '</th><th>' + escapeHtml(I18n.t('table.wins')) + '</th><th>' + escapeHtml(I18n.t('table.draws')) + '</th><th>' + escapeHtml(I18n.t('table.losses')) + '</th><th>' + escapeHtml(I18n.t('table.diff')) + '</th><th>' + escapeHtml(I18n.t('table.points')) + '</th></tr></thead>';
     }
   }
 

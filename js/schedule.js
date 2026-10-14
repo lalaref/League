@@ -165,7 +165,7 @@
   function _regularSeasonGames(games) {
     return (games || []).filter(function (game) {
       var type = String(game.type || 'regular').trim().toLowerCase();
-      return type === 'regular' && String(game.status || '').trim().toLowerCase() !== 'cancelled';
+      return (type === 'regular' || String(game.phase || '') === 'goldBelt') && String(game.status || '').trim().toLowerCase() !== 'cancelled';
     });
   }
 
@@ -211,7 +211,11 @@
       var homeName = game.homeTeamName || game.home || game.homeTeam || '—';
       var awayName = game.awayTeamName || game.away || game.awayTeam || '—';
       var division = '—';
-      if (context && context.rules.isDivisionRoundRobin) {
+      if (game.phase === 'preliminary' || game.phase === 'regular') {
+        division = (game.phase === 'preliminary' ? '預賽' : '常規賽') + (game.groupId ? ' Group ' + game.groupId : '');
+      } else if (game.phase === 'goldBelt') {
+        division = '金腰帶爭奪戰';
+      } else if (context && context.rules.isDivisionRoundRobin) {
         var homeDivision = context.teamDivisions[game.homeTeamId] || 'Unassigned';
         var awayDivision = context.teamDivisions[game.awayTeamId] || 'Unassigned';
         division = homeDivision === awayDivision ? homeDivision : homeDivision + ' / ' + awayDivision;
