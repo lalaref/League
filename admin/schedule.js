@@ -38,6 +38,11 @@
   var playoffPanel = document.getElementById('playoff-panel');
   var playoffStatusEl = document.getElementById('playoff-status');
   var playoffBracketsEl = document.getElementById('playoff-brackets');
+  var season3FormatPanel = document.getElementById('season3-format-panel');
+  var season3PreliminaryBtn = document.getElementById('btn-season3-preliminary');
+  var season3RegularBtn = document.getElementById('btn-season3-regular');
+  var season3CupsBtn = document.getElementById('btn-season3-cups');
+  var season3GoldBeltBtn = document.getElementById('btn-season3-gold-belt');
 
   var teams = [];
   var seasons = [];
@@ -85,6 +90,10 @@
   rrBtn.addEventListener('click', showRoundRobinPanel);
   rrCloseBtn.addEventListener('click', hideRoundRobinPanel);
   rrPublishBtn.addEventListener('click', handlePublishAll);
+  season3PreliminaryBtn.addEventListener('click', function () { runSeason3Action('generateSeason3Preliminary', '確定按現有球隊排序生成 Season 3 預賽 A–D 組及 24 場賽程？此操作不可重複。'); });
+  season3RegularBtn.addEventListener('click', function () { runSeason3Action('generateSeason3RegularSeason', '確認所有預賽結果已完成，並按各組第 1 至第 4 名重組常規賽 A–D 組？'); });
+  season3CupsBtn.addEventListener('click', function () { runSeason3Action('generateSeason3Playoffs', '生成 Season 3 盃賽下一輪：首次建立八強；完成八強後建立準決賽；完成準決賽後建立決賽。確定繼續？'); });
+  season3GoldBeltBtn.addEventListener('click', function () { runSeason3Action('generateSeason3GoldBelt', '確認生成 Season 3 MJ23 Cup 冠軍對達摩的金腰帶爭奪戰？'); });
 
   // ============================================================
   // Season / Team / Game loading
@@ -105,6 +114,9 @@
   }
 
   function getDefaultSeason(seasons) {
+    for (var s3 = 0; s3 < seasons.length; s3++) {
+      if (isActiveSeason(seasons[s3]) && isSeasonThree(seasons[s3])) return seasons[s3];
+    }
     for (var s2 = 0; s2 < seasons.length; s2++) {
       if (isActiveSeason(seasons[s2]) && isSeasonTwo(seasons[s2])) return seasons[s2];
     }
@@ -121,6 +133,12 @@
   function isSeasonTwo(season) {
     var name = String((season && (season.name || season.id)) || '').toLowerCase();
     return /(?:season|s)\s*0?2\b/.test(name) || name.indexOf('第二季') !== -1 || name.indexOf('第2季') !== -1;
+  }
+
+  function isSeasonThree(season) {
+    var format = String((season && (season.formatVersion || season.competitionFormat || season.format)) || '').toLowerCase();
+    var name = String((season && (season.name || season.id)) || '').toLowerCase();
+    return format === 'season3' || format === 'season-3' || format === 's3' || /(?:season|s)\s*0?3\b/.test(name) || name.indexOf('第三季') !== -1 || name.indexOf('第3季') !== -1;
   }
 
   function isSeasonOne(season) {
@@ -142,6 +160,7 @@
     createBtn.disabled = !sid;
     playoffsBtn.disabled = !sid || !isSeasonTwo(currentSeason);
     rrBtn.disabled = !sid || !isSeasonTwo(currentSeason);
+    season3FormatPanel.hidden = !sid || !isSeasonThree(currentSeason);
     hideForm();
     if (sid) {
       // Load schedule, standings, and playoffs together so the graph is always current.
@@ -170,6 +189,31 @@
       playoffPanel.hidden = true;
       playoffBracketsEl.innerHTML = '';
     }
+  }
+
+  function runSeason3Action(action, confirmation) {
+    if (!seasonSelect.value || !isSeasonThree(getCurrentSeason())) return;
+    if (confirmation && !confirm(confirmation)) return;
+    var buttons = [season3PreliminaryBtn, season3RegularBtn, season3CupsBtn, season3GoldBeltBtn];
+    buttons.forEach(function(button) { button.disabled = true; });
+    API.post(action, { seasonId: seasonSelect.value }).then(function (result) {
+      showMsg((result && result.message) || 'Season 3 賽制已更新', 'success');
+      return Promise.all([
+        API.getTeams(seasonSelect.value),
+        API.getGames(seasonSelect.value),
+        API.getStandings(seasonSelect.value).catch(function () { return []; }),
+        API.getPlayoffs(seasonSelect.value).catch(function () { return { brackets: [] }; })
+      ]);
+    }).then(function (results) {
+      teams = results[0] || [];
+      populateTeamSelects();
+      renderGamesTable(results[1] || []);
+      renderPlayoffGraph(results[2] || [], results[3] || { brackets: [] });
+    }).catch(function (err) {
+      showMsg((err && err.message) || I18n.t('error.submitFailed'), 'error');
+    }).finally(function () {
+      buttons.forEach(function(button) { button.disabled = false; });
+    });
   }
 
   /**
@@ -504,6 +548,16 @@
     dateInput.value = _toDateInput(g.date);
     timeInput.value = _toTimeInput(g.time);
     venueInput.value = g.venue || '';
+    if (g.type === 'special') {
+      [[homeSelect, g.homeTeamId, g.homeTeamName], [awaySelect, g.awayTeamId, g.awayTeamName]].forEach(function (item) {
+        var select = item[0], teamId = String(item[1] || '');
+        if (!teamId || select.querySelector('option[value="' + teamId.replace(/"/g, '\\"') + '"]')) return;
+        var option = document.createElement('option');
+        option.value = teamId;
+        option.textContent = item[2] || teamId;
+        select.appendChild(option);
+      });
+    }
     homeSelect.value = g.homeTeamId || '';
     awaySelect.value = g.awayTeamId || '';
     typeSelect.value = g.type || 'regular';
@@ -1393,6 +1447,20 @@
       stored[bracket.id] = bracket;
     });
     var seasonOne = isCurrentSeasonOne();
+    var seasonThree = isSeasonThree(getCurrentSeason());
+    if (seasonThree) {
+      var seasonThreeBrackets = ((playoffData && playoffData.brackets) || []);
+      playoffPanel.hidden = false;
+      playoffStatusEl.textContent = seasonThreeBrackets.length
+        ? 'Season 3 已發佈的 MJ23 Cup／LBJ23 Cup 對陣。金腰帶賽將於 MJ23 Cup 冠軍產生後另行建立。'
+        : '完成全部常規賽後，使用上方「生成 MJ23／LBJ23 Cup」建立兩個盃賽八強。';
+      playoffBracketsEl.innerHTML = seasonThreeBrackets.length ? seasonThreeBrackets.map(function (bracket) {
+        return '<section class="admin-bracket admin-bracket--' + esc(bracket.id) + '"><h3 class="admin-bracket-title">' + esc(bracket.name || bracket.id) + '</h3><div class="admin-bracket-grid">' + (bracket.rounds || []).map(function (round) {
+          return renderAdminRound(round.name || ('Round ' + round.round), round.games || []);
+        }).join('') + '</div></section>';
+      }).join('') : '<div class="admin-bracket-empty">暫未建立 Season 3 盃賽。</div>';
+      return;
+    }
     if (seasonOne && !stored.champions && playoffData && playoffData.rounds && playoffData.rounds.length) {
       stored.champions = { id: 'champions', name: '🏆 冠軍組', rounds: playoffData.rounds };
     }

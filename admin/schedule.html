@@ -61,6 +61,18 @@
                     <button id="btn-generate-playoffs" class="btn btn-outline" data-i18n="admin.generatePlayoffs" disabled>一鍵生成季後賽</button>
                 </div>
 
+                <section id="season3-format-panel" class="admin-card" hidden>
+                    <h2 class="admin-card-title">🏆 Season 3 賽制管理</h2>
+                    <p class="admin-hint">16 隊模式：按現有球隊排序分為預賽 A–D 組（每組 4 隊、3 場）；預賽完成後，所有第 1／2／3／4 名將分別重組為常規賽 A–D 組。常規賽完成後，每組頭 2 名進入 MJ23 Cup，後 2 名進入 LBJ23 Cup。</p>
+                    <div class="admin-actions">
+                        <button id="btn-season3-preliminary" class="btn btn-primary">1. 生成預賽 A–D 組及賽程</button>
+                        <button id="btn-season3-regular" class="btn btn-accent">2. 按預賽排名生成常規賽</button>
+                        <button id="btn-season3-cups" class="btn btn-outline">3. 生成 MJ23／LBJ23 Cup 下一輪</button>
+                        <button id="btn-season3-gold-belt" class="btn btn-outline">4. 生成金腰帶爭奪戰</button>
+                    </div>
+                    <p class="admin-hint">金腰帶爭奪戰會在 MJ23 Cup 冠軍已完成後，安排該隊對達摩；不會計入常規賽排名或盃賽晉級。</p>
+                </section>
+
                 <!-- 單循環賽程生成器 -->
                 <div id="round-robin-panel" class="admin-card" hidden>
                     <h2 class="admin-card-title" data-i18n="admin.roundRobinTitle">單循環賽程</h2>
@@ -118,6 +130,7 @@
                         <select id="game-type" class="admin-select">
                             <option value="regular" data-i18n="admin.regular">常規賽</option>
                             <option value="playoff" data-i18n="admin.playoff">季後賽</option>
+                            <option value="special">特別賽／金腰帶爭奪戰</option>
                         </select>
                     </div>
                     <div class="admin-form-group">
@@ -137,6 +150,8 @@
                                 <select id="game-playoff-seed" class="admin-select">
                                     <option value="champions">冠軍組</option>
                                     <option value="consolation">安慰賽／排名組</option>
+                                    <option value="mj23">MJ23 Cup</option>
+                                    <option value="lbj23">LBJ23 Cup</option>
                                 </select>
                             </div>
                             <div class="admin-form-group">
@@ -192,11 +207,11 @@
 
     <script>document.getElementById('current-year').textContent = new Date().getFullYear();</script>
     <script src="../js/utils.js?v=20260409"></script>
-    <script src="../js/api.js?v=20260409"></script>
+    <script src="../js/api.js?v=20261013-season3"></script>
     <script src="../js/i18n.js?v=20260409"></script>
     <script src="../js/navigation.js?v=20260409"></script>
     <script src="auth.js?v=20260410"></script>
-    <script src="schedule.js?v=20260820-season1-finals"></script>
+    <script src="schedule.js?v=20261013-season3-format"></script>
     <script>I18n.init();</script>
 </body>
 </html>
