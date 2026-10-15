@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#13213f">
+  <meta name="description" content="ALL-IN 賽前上陣名單設定">
+  <title>設定上陣名單｜ALL-IN Basketball League</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+  <link rel="stylesheet" href="../css/admin.css?v=20261014-matchup-roster">
+  <style>
+    body{background:linear-gradient(145deg,#eef4ff,#f8fafc);min-height:100vh}.matchup-shell{max-width:980px;margin:0 auto;padding:28px 18px 50px}.matchup-hero{padding:24px;border-radius:18px;background:#13213f;color:#fff;box-shadow:0 12px 28px rgba(15,35,70,.2)}.matchup-hero h1{margin:0;font-size:clamp(1.45rem,4vw,2.25rem)}.matchup-hero p{margin:8px 0 0;color:#c9d8f4}.matchup-card{margin-top:18px;padding:20px;border:1px solid #d7e2f4;border-radius:18px;background:#fff;box-shadow:0 6px 18px rgba(15,35,70,.08)}.matchup-game-detail{margin:0;color:#526a96;font-weight:800}.matchup-team-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}.matchup-team{border:1px solid #c8d8f2;border-radius:14px;overflow:hidden;background:#f8fbff}.matchup-team h2{margin:0;padding:13px 16px;background:#dbeafe;color:#1e3a8a;font-size:1rem}.matchup-team--away h2{background:#fee2e2;color:#991b1b}.matchup-player-list{display:grid;gap:8px;padding:12px;max-height:480px;overflow:auto}.matchup-player{display:flex;align-items:center;gap:10px;padding:11px 12px;border:1px solid #d8e3f4;border-radius:10px;background:#fff;cursor:pointer;font-weight:800;color:#1e293b}.matchup-player:has(input:checked){border-color:#2563eb;background:#eff6ff}.matchup-player input{width:20px;height:20px;accent-color:#2563eb}.matchup-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:18px}.matchup-actions .btn{min-height:52px;font-weight:900}.matchup-note{margin:0;color:#64748b;font-size:.88rem;line-height:1.45}.matchup-empty{padding:32px 8px;text-align:center;color:#64748b}@media(max-width:640px){.matchup-shell{padding:15px 12px 35px}.matchup-team-grid{grid-template-columns:1fr}.matchup-actions{align-items:stretch;flex-direction:column-reverse}.matchup-actions .btn{width:100%}}
+  </style>
+</head>
+<body>
+  <main class="matchup-shell">
+    <header class="matchup-hero"><h1>🏀 賽前上陣名單</h1><p>預先勾選兩隊本場上陣球員；比賽日會自動載入至即時記錄台。</p></header>
+    <section class="matchup-card">
+      <a class="btn btn-outline btn-sm" href="timekeeper.html">← 返回時間員記錄台</a>
+      <p id="matchup-game-detail" class="matchup-game-detail" style="margin-top:16px">載入比賽資料中…</p>
+      <div id="matchup-status" class="admin-message" role="alert" hidden></div>
+      <div id="matchup-teams" class="matchup-team-grid" aria-live="polite"></div>
+      <div class="matchup-actions"><p class="matchup-note">只會儲存本場上陣名單，不會建立 Box Score 或影響任何統計。</p><button id="btn-save-matchup-roster" type="button" class="btn btn-primary" disabled>儲存上陣名單</button></div>
+    </section>
+  </main>
+  <script src="../js/utils.js?v=20260409"></script>
+  <script src="../js/api.js?v=20261014-matchup-roster"></script>
+  <script src="auth.js?v=20260410"></script>
+  <script src="matchup-roster.js?v=20261014-matchup-roster"></script>
+</body>
+</html>

@@ -119,13 +119,15 @@
     var loadToken = ++rosterLoadToken;
     showMessage(I18n.t('common.loading'), 'info');
     var _boxData = null;
+    var _savedGameRoster = null;
     Promise.all([
       API.getBoxScore(gameId),
       API.getGames(seasonSelect.value),
-      API.getTeams(seasonSelect.value)
+      API.getTeams(seasonSelect.value),
+      API.getGameRoster(gameId)
     ]).then(function (r) {
       if (loadToken !== rosterLoadToken || gameSelect.value !== gameId) return null;
-      _boxData = r[0]; var games = r[1] || []; var teams = r[2] || [];
+      _boxData = r[0]; var games = r[1] || []; var teams = r[2] || []; _savedGameRoster = r[3] || null;
       currentGame = games.find(function (g) { return g.id === gameId; }) || null;
       console.log('[BoxScore] currentGame:', JSON.stringify(currentGame));
 
@@ -173,6 +175,24 @@
         existingBoxScore = null;
         if (allRosterPlayers.length === 0) {
           showMessage('找不到球員資料。請先在球員管理頁面新增球員。', 'error'); return;
+        }
+        var savedHomeIds = Array.isArray(_savedGameRoster && _savedGameRoster.homePlayerIds) ? _savedGameRoster.homePlayerIds.map(String) : [];
+        var savedAwayIds = Array.isArray(_savedGameRoster && _savedGameRoster.awayPlayerIds) ? _savedGameRoster.awayPlayerIds.map(String) : [];
+        if (savedHomeIds.length && savedAwayIds.length) {
+          var rosterById = {};
+          allRosterPlayers.forEach(function(player) { rosterById[String(player.id)] = player; });
+          var selectedHome = savedHomeIds.map(function(id) { return rosterById[id]; }).filter(function(player) { return player && player.side === 'home'; });
+          var selectedAway = savedAwayIds.map(function(id) { return rosterById[id]; }).filter(function(player) { return player && player.side === 'away'; });
+          if (selectedHome.length === savedHomeIds.length && selectedAway.length === savedAwayIds.length) {
+            allPlayers = selectedHome.concat(selectedAway);
+            attendanceSection.hidden = true;
+            showQuarterScores();
+            populateMvpSelect();
+            renderBoxScore();
+            showMessage('已載入預先設定的上陣名單；如有臨時更改，可在下方管理名單。', 'success');
+            return;
+          }
+          showMessage('預先設定的上陣名單與目前球員資料不符，請重新確認出席名單。', 'error');
         }
         showAttendanceSelection();
       }
