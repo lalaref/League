@@ -115,17 +115,25 @@ var API = (function () {
       return Promise.reject(new Error('BASE_URL is not configured correctly. Current value: ' + url));
     }
     var body = Object.assign({}, data, { action: action, apiKey: API_KEY });
+    return postBody(url, body);
+  }
 
+  // Public tokenized links use their own scoped token, never the admin API key.
+  function postPublic(action, data) {
+    if (!isOnline()) return Promise.reject(new Error('網絡離線，請檢查網絡連線'));
+    var url = BASE_URL;
+    if (!url || url.indexOf('script.google.com') === -1) return Promise.reject(new Error('BASE_URL is not configured correctly.'));
+    return postBody(url, Object.assign({}, data, { action: action }));
+  }
+
+  function postBody(url, body) {
     var options = {
       method: 'POST',
       redirect: 'follow',
-      headers: {
-        'Content-Type': 'text/plain'
-      },
+      headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify(body)
     };
-
-    // POST 請求不重試（非冪等，避免重複提交）
+    // POST requests are not retried because callers may be changing records.
     return _requestWithRetry(url, options, 0, { maxRetries: 0, timeoutMs: POST_TIMEOUT_MS });
   }
 
@@ -198,6 +206,7 @@ var API = (function () {
   function getLeaders(seasonId, category) { return get('leaders', { seasonId: seasonId, cat: category }); }
   function getBoxScore(gameId) { return get('boxscore', { gameId: gameId }); }
   function getGameRoster(gameId) { return get('gameRoster', { gameId: gameId }); }
+  function getGameLineupByToken(gameId, teamToken) { return get('gameLineupByToken', { gameId: gameId, teamToken: teamToken }); }
   function getSchedule(seasonId) { return get('schedule', { seasonId: seasonId }); }
   function getPlayoffs(seasonId) { return get('playoffs', { seasonId: seasonId }); }
   function getShotChart(playerId, gameId) {
@@ -214,6 +223,9 @@ var API = (function () {
   }
   function getTeams(seasonId, includeDeleted) {
     return get('teams', { seasonId: seasonId, includeDeleted: includeDeleted ? 'true' : undefined });
+  }
+  function getTeamsWithTokens(seasonId) {
+    return get('teams', { seasonId: seasonId, includeTokens: 'true', apiKey: API_KEY });
   }
   function getPlayers(teamId) { return get('players', { teamId: teamId }); }
   function getGames(seasonId) { return get('games', { seasonId: seasonId }); }
@@ -243,6 +255,9 @@ var API = (function () {
   function saveGameRoster(gameId, homePlayerIds, awayPlayerIds) {
     return post('saveGameRoster', { gameId: gameId, homePlayerIds: homePlayerIds, awayPlayerIds: awayPlayerIds });
   }
+  function savePublicGameRoster(gameId, teamToken, playerIds) {
+    return postPublic('publicSaveGameRoster', { gameId: gameId, teamToken: teamToken, playerIds: playerIds });
+  }
   function submitShotLocation(gameId, playerId, x, y, made) {
     return post('submitShotLocation', { gameId: gameId, playerId: playerId, x: x, y: y, made: made });
   }
@@ -261,6 +276,7 @@ var API = (function () {
     setApiKey: setApiKey,
     get: get,
     post: post,
+    postPublic: postPublic,
     getSeasons: getSeasons,
     getStandings: getStandings,
     getPlayerProfile: getPlayerProfile,
@@ -268,6 +284,7 @@ var API = (function () {
     getLeaders: getLeaders,
     getBoxScore: getBoxScore,
     getGameRoster: getGameRoster,
+    getGameLineupByToken: getGameLineupByToken,
     getSchedule: getSchedule,
     getPlayoffs: getPlayoffs,
     getShotChart: getShotChart,
@@ -277,6 +294,7 @@ var API = (function () {
     getAnnouncements: getAnnouncements,
     incrementSeason3PageView: incrementSeason3PageView,
     getTeams: getTeams,
+    getTeamsWithTokens: getTeamsWithTokens,
     getPlayers: getPlayers,
     getGames: getGames,
     getTeamAvailability: getTeamAvailability,
@@ -284,6 +302,7 @@ var API = (function () {
     submitBoxScore: submitBoxScore,
     updateBoxScore: updateBoxScore,
     saveGameRoster: saveGameRoster,
+    savePublicGameRoster: savePublicGameRoster,
     submitShotLocation: submitShotLocation,
     saveTeamAvailability: saveTeamAvailability
   };
