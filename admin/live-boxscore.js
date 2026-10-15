@@ -13,8 +13,6 @@
   var saveDraftButton = document.getElementById('btn-live-save-draft');
   var reviewButton = document.getElementById('btn-live-review');
   var statusEl = document.getElementById('live-draft-status');
-  var homeTimeoutsEl = document.getElementById('live-home-timeouts');
-  var awayTimeoutsEl = document.getElementById('live-away-timeouts');
   var timeoutHalfEl = document.getElementById('live-timeout-half');
   var gameSelect = document.getElementById('game-select');
   var boxscoreBody = document.getElementById('boxscore-body');
@@ -32,8 +30,8 @@
 
   function createDefaultTimeouts() {
     return {
-      first: { home: 2, away: 2 },
-      second: { home: 3, away: 3 }
+      first: { home: [false, false], away: [false, false] },
+      second: { home: [false, false, false], away: [false, false, false] }
     };
   }
 
@@ -44,30 +42,42 @@
     timeouts = createDefaultTimeouts();
     ['first', 'second'].forEach(function (half) {
       ['home', 'away'].forEach(function (side) {
-        var value = savedTimeouts && savedTimeouts[half] && Number(savedTimeouts[half][side]);
-        if (Number.isFinite(value)) timeouts[half][side] = Math.max(0, Math.min(timeoutLimit(half), Math.round(value)));
+        var saved = savedTimeouts && savedTimeouts[half] ? savedTimeouts[half][side] : null;
+        if (Array.isArray(saved)) {
+          timeouts[half][side] = timeouts[half][side].map(function (_, slot) { return !!saved[slot]; });
+        } else if (Number.isFinite(Number(saved))) {
+          // Version 3 drafts stored remaining counts, so mark the matching
+          // number of leftmost FIBA score-sheet boxes when restoring them.
+          var usedCount = timeoutLimit(half) - Math.max(0, Math.min(timeoutLimit(half), Math.round(Number(saved))));
+          timeouts[half][side] = timeouts[half][side].map(function (_, slot) { return slot < usedCount; });
+        }
       });
     });
   }
 
   function refreshTimeoutDisplay() {
     var half = currentTimeoutHalf();
-    var bank = timeouts[half];
-    if (homeTimeoutsEl) homeTimeoutsEl.textContent = bank.home;
-    if (awayTimeoutsEl) awayTimeoutsEl.textContent = bank.away;
+    var limit = timeoutLimit(half);
     if (timeoutHalfEl) timeoutHalfEl.textContent = half === 'first' ? '上半場：每隊 2 次' : '下半場：每隊 3 次';
-    document.querySelectorAll('[data-timeout-side][data-timeout-change]').forEach(function (button) {
+    document.querySelectorAll('[data-timeout-side][data-timeout-slot]').forEach(function (button) {
       var side = button.dataset.timeoutSide;
-      var change = Number(button.dataset.timeoutChange);
-      if (!bank || (side !== 'home' && side !== 'away')) return;
-      button.disabled = change < 0 ? bank[side] <= 0 : bank[side] >= timeoutLimit(half);
+      var slot = Number(button.dataset.timeoutSlot);
+      if (side !== 'home' && side !== 'away') return;
+      var available = slot >= 0 && slot < limit;
+      button.hidden = !available;
+      if (!available) return;
+      var used = !!timeouts[half][side][slot];
+      button.textContent = used ? '×' : '';
+      button.classList.toggle('is-used', used);
+      button.setAttribute('aria-pressed', used ? 'true' : 'false');
+      button.setAttribute('aria-label', (side === 'home' ? '主隊' : '客隊') + '第 ' + (slot + 1) + ' 次暫停' + (used ? '已記錄，點按清除' : '，點按記錄'));
     });
   }
 
-  function changeTimeout(side, change) {
+  function toggleTimeoutSlot(side, slot) {
     var half = currentTimeoutHalf();
-    if ((side !== 'home' && side !== 'away') || (change !== -1 && change !== 1)) return;
-    timeouts[half][side] = Math.max(0, Math.min(timeoutLimit(half), timeouts[half][side] + change));
+    if ((side !== 'home' && side !== 'away') || slot < 0 || slot >= timeoutLimit(half)) return;
+    timeouts[half][side][slot] = !timeouts[half][side][slot];
     persistDraft();
     refreshTimeoutDisplay();
   }
@@ -169,6 +179,14 @@
       button.addEventListener('click', function () { selectPlayer(index); });
       (player.side === 'home' ? homePlayersEl : awayPlayersEl).appendChild(button);
     });
+    updateRosterDensity();
+  }
+
+  function updateRosterDensity() {
+    var largestTeam = Math.max(homePlayersEl.children.length, awayPlayersEl.children.length);
+    panel.classList.remove('live-entry-panel--dense', 'live-entry-panel--extra-dense');
+    if (largestTeam > 10) panel.classList.add('live-entry-panel--extra-dense');
+    else if (largestTeam > 5) panel.classList.add('live-entry-panel--dense');
   }
 
   function selectPlayer(index) {
@@ -242,13 +260,13 @@
       [1, 2, 3, 4].forEach(function (quarter) { quarters[side + 'Q' + quarter] = numberValue(quarterInput(side, quarter)); });
     });
     return {
-      version: 3,
+      version: 4,
       savedAt: new Date().toISOString(),
       stats: stats,
       quarters: quarters,
       timeouts: {
-        first: { home: timeouts.first.home, away: timeouts.first.away },
-        second: { home: timeouts.second.home, away: timeouts.second.away }
+        first: { home: timeouts.first.home.slice(), away: timeouts.first.away.slice() },
+        second: { home: timeouts.second.home.slice(), away: timeouts.second.away.slice() }
       },
       activeQuarter: activeQuarter,
       activePlayerId: activePlayerIndex !== null && playerMap[activePlayerIndex] ? playerMap[activePlayerIndex].id : ''
@@ -274,7 +292,7 @@
         statusEl.textContent = '上次提交可能已成功。請先重新載入並核對伺服器資料，暫不自動還原草稿。';
         return;
       }
-      if ((draft.version !== 2 && draft.version !== 3) || !draft.stats) {
+      if ((draft.version !== 2 && draft.version !== 3 && draft.version !== 4) || !draft.stats) {
         statusEl.textContent = '發現舊版草稿，為保護球員資料不會自動還原';
         return;
       }
@@ -317,9 +335,9 @@
     });
   });
 
-  document.querySelectorAll('[data-timeout-side][data-timeout-change]').forEach(function (button) {
+  document.querySelectorAll('[data-timeout-side][data-timeout-slot]').forEach(function (button) {
     button.addEventListener('click', function () {
-      changeTimeout(button.dataset.timeoutSide, Number(button.dataset.timeoutChange));
+      toggleTimeoutSlot(button.dataset.timeoutSide, Number(button.dataset.timeoutSlot));
     });
   });
 

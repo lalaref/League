@@ -8,7 +8,7 @@
     <title>Box Score 輸入 — ALL-IN Basketball League</title>
     <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="../css/responsive.css">
-    <link rel="stylesheet" href="../css/admin.css?v=20260715-boxscore-colors">
+    <link rel="stylesheet" href="../css/admin.css?v=20261015-auto-fit-roster-v2">
 </head>
 <body>
     <script>
@@ -89,9 +89,9 @@
                         <button type="button" id="btn-live-discard" class="live-discard">清除本機草稿</button>
                     </div>
                     <div class="live-timeout-strip" aria-label="暫停次數">
-                        <div><span>主隊暫停</span><button type="button" data-timeout-side="home" data-timeout-change="-1" aria-label="主隊使用暫停">−</button><strong id="live-home-timeouts">2</strong><button type="button" data-timeout-side="home" data-timeout-change="1" aria-label="還原主隊暫停">＋</button></div>
+                        <div class="live-timeout-team"><span>主隊暫停</span><div class="live-timeout-boxes" role="group" aria-label="主隊暫停記錄"><button type="button" class="live-timeout-box" data-timeout-side="home" data-timeout-slot="0" aria-label="主隊第 1 次暫停"></button><button type="button" class="live-timeout-box" data-timeout-side="home" data-timeout-slot="1" aria-label="主隊第 2 次暫停"></button><button type="button" class="live-timeout-box" data-timeout-side="home" data-timeout-slot="2" aria-label="主隊第 3 次暫停"></button></div></div>
                         <span id="live-timeout-half">上半場：每隊 2 次</span>
-                        <div><span>客隊暫停</span><button type="button" data-timeout-side="away" data-timeout-change="-1" aria-label="客隊使用暫停">−</button><strong id="live-away-timeouts">2</strong><button type="button" data-timeout-side="away" data-timeout-change="1" aria-label="還原客隊暫停">＋</button></div>
+                        <div class="live-timeout-team live-timeout-team--away"><span>客隊暫停</span><div class="live-timeout-boxes" role="group" aria-label="客隊暫停記錄"><button type="button" class="live-timeout-box" data-timeout-side="away" data-timeout-slot="0" aria-label="客隊第 1 次暫停"></button><button type="button" class="live-timeout-box" data-timeout-side="away" data-timeout-slot="1" aria-label="客隊第 2 次暫停"></button><button type="button" class="live-timeout-box" data-timeout-side="away" data-timeout-slot="2" aria-label="客隊第 3 次暫停"></button></div></div>
                     </div>
                     <p id="live-selected-player" class="live-selected-player">先點選球員，再記錄事件</p>
                     <div class="live-rosters">
@@ -248,7 +248,7 @@
     <script src="../js/navigation.js?v=20260409"></script>
     <script src="auth.js?v=20260410"></script>
     <script src="boxscore.js?v=20261014-matchup-roster"></script>
-    <script src="live-boxscore.js?v=20261013-tablet-live"></script>
+    <script src="live-boxscore.js?v=20261015-auto-fit-roster-v2"></script>
     <script>I18n.init();</script>
 </body>
 </html>
