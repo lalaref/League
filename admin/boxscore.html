@@ -9,6 +9,18 @@
     <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="../css/responsive.css">
     <link rel="stylesheet" href="../css/admin.css?v=20261015-auto-fit-roster-v2">
+    <style>
+      /* Fallback: keep timeout score-sheet boxes visible even when a cached admin.css is served. */
+      .live-timeout-strip { display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); align-items:center; gap:10px; padding:7px 12px; background:#fffaf0; border-bottom:1px solid #f2d49a; color:#6b4a0a; font-size:.8rem; font-weight:800; }
+      .live-timeout-team { display:flex; align-items:center; gap:7px; min-width:0; }
+      .live-timeout-team--away { justify-content:flex-end; }
+      .live-timeout-boxes { display:flex; gap:5px; }
+      .live-timeout-box { -webkit-appearance:none; appearance:none; display:grid; flex:0 0 36px; width:36px; height:36px; place-items:center; padding:0; border:2px solid #7c5204; border-radius:3px; background:#fff; color:#b91c1c; font-family:Arial,sans-serif; font-size:2rem; font-weight:900; line-height:1; }
+      .live-timeout-box.is-used { background:#fff7df; }
+      .live-timeout-box[hidden] { display:none !important; }
+      #live-timeout-half { color:#8a5b09; text-align:center; white-space:nowrap; font-size:.76rem; }
+      @media (max-width:620px) { .live-timeout-strip { gap:6px; padding:6px 8px; font-size:.72rem; } .live-timeout-team { gap:5px; } .live-timeout-boxes { gap:3px; } .live-timeout-box { flex-basis:29px; width:29px; height:29px; font-size:1.55rem; } #live-timeout-half { font-size:.68rem; } }
+    </style>
 </head>
 <body>
     <script>
