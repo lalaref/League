@@ -6,6 +6,7 @@
   var teamsEl = document.getElementById('matchup-teams');
   var statusEl = document.getElementById('matchup-status');
   var saveButton = document.getElementById('btn-save-matchup-roster');
+  var liveEntryLink = document.getElementById('btn-start-live-entry');
 
   if (!gameId || !detailEl || !teamsEl || !saveButton) {
     if (detailEl) detailEl.textContent = '缺少比賽資料，請從時間員記錄台重新選擇比賽。';
@@ -51,6 +52,11 @@
       if (!game) throw new Error('找不到此比賽');
       if (String(game.status || '').toLowerCase() === 'completed' || String(game.status || '').toLowerCase() === 'cancelled') {
         throw new Error('此比賽已完成或取消，不能再設定上陣名單');
+      }
+      if (liveEntryLink) {
+        liveEntryLink.href = 'boxscore.html?timekeeper=1&gameId=' + encodeURIComponent(gameId);
+        liveEntryLink.removeAttribute('aria-disabled');
+        liveEntryLink.removeAttribute('tabindex');
       }
       return Promise.all([API.getPlayers(game.homeTeamId), API.getPlayers(game.awayTeamId)]).then(function (rosters) {
         playersBySide.home = (rosters[0] || []).filter(function (player) { return String(player.teamId) === String(game.homeTeamId); });
