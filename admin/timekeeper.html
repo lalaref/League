@@ -8,14 +8,14 @@
   <title>時間員記錄台｜ALL-IN Basketball League</title>
   <link rel="stylesheet" href="../css/styles.css">
   <link rel="stylesheet" href="../css/responsive.css">
-  <link rel="stylesheet" href="../css/admin.css?v=20261013-timekeeper">
+  <link rel="stylesheet" href="../css/admin.css?v=20261014-team-lineup-links">
   <style>
-    body{background:linear-gradient(145deg,#eef4ff,#f8fafc);min-height:100vh}.timekeeper-shell{max-width:920px;margin:0 auto;padding:28px 18px 50px}.timekeeper-hero{padding:24px;border-radius:18px;background:#13213f;color:#fff;box-shadow:0 12px 28px rgba(15,35,70,.2)}.timekeeper-hero h1{margin:0;font-size:clamp(1.45rem,4vw,2.25rem)}.timekeeper-hero p{margin:8px 0 0;color:#c9d8f4}.timekeeper-card{margin-top:18px;padding:20px;border:1px solid #d7e2f4;border-radius:18px;background:#fff;box-shadow:0 6px 18px rgba(15,35,70,.08)}.timekeeper-games{display:grid;gap:12px;margin-top:14px}.timekeeper-game{display:grid;grid-template-columns:1fr auto;align-items:center;gap:14px;padding:17px;border:1px solid #c8d8f2;border-radius:14px;background:#f8fbff}.timekeeper-game time{display:block;color:#526a96;font-size:.86rem;font-weight:800}.timekeeper-game strong{display:block;margin-top:3px;color:#17223a;font-size:1.05rem}.timekeeper-game-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}.timekeeper-game .btn{min-height:52px;padding-inline:16px;font-size:.92rem;white-space:nowrap}.timekeeper-empty{padding:35px 10px;color:#64748b;text-align:center}@media(max-width:560px){.timekeeper-shell{padding:15px 12px 35px}.timekeeper-game{grid-template-columns:1fr}.timekeeper-game-actions{justify-content:stretch}.timekeeper-game .btn{width:100%}}
+    body{background:linear-gradient(145deg,#eef4ff,#f8fafc);min-height:100vh}.timekeeper-shell{max-width:980px;margin:0 auto;padding:28px 18px 50px}.timekeeper-hero{padding:27px;border:3px solid #0c2450;border-radius:20px;background:linear-gradient(125deg,#06255a,#1556af);color:#fff;box-shadow:0 12px 28px rgba(15,35,70,.25)}.timekeeper-eyebrow{display:inline-block;padding:5px 10px;border-radius:999px;background:#fbbf24;color:#422600;font-size:.72rem;font-weight:1000;letter-spacing:.08em}.timekeeper-hero h1{margin:11px 0 5px;font-size:clamp(1.7rem,4vw,2.45rem);font-weight:1000;letter-spacing:.02em;text-shadow:0 2px 1px rgba(0,0,0,.24)}.timekeeper-hero p{margin:0;color:#e4efff;font-size:1rem;font-weight:700}.timekeeper-card{margin-top:18px;padding:20px;border:1px solid #d7e2f4;border-radius:18px;background:#fff;box-shadow:0 6px 18px rgba(15,35,70,.08)}.timekeeper-games{display:grid;gap:14px;margin-top:14px}.timekeeper-game{padding:17px;border:1px solid #c8d8f2;border-radius:14px;background:#f8fbff}.timekeeper-game-head{display:grid;grid-template-columns:1fr auto;align-items:center;gap:14px}.timekeeper-game time{display:block;color:#526a96;font-size:.86rem;font-weight:800}.timekeeper-game strong{display:block;margin-top:3px;color:#17223a;font-size:1.08rem}.timekeeper-game-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}.timekeeper-game .btn{min-height:48px;padding-inline:14px;font-size:.9rem;white-space:nowrap}.timekeeper-share{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px;padding-top:14px;border-top:1px solid #d8e5f7}.timekeeper-share-card{display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:10px;border-radius:10px;background:#fff;border:1px solid #d5e2f5}.timekeeper-share-card strong{display:block;width:100%;color:#244475;font-size:.83rem}.timekeeper-share-card .btn{min-height:37px;padding-inline:10px;font-size:.78rem}.timekeeper-empty{padding:35px 10px;color:#64748b;text-align:center}@media(max-width:650px){.timekeeper-shell{padding:15px 12px 35px}.timekeeper-game-head{grid-template-columns:1fr}.timekeeper-game-actions{justify-content:stretch}.timekeeper-game-actions .btn{flex:1}.timekeeper-share{grid-template-columns:1fr}.timekeeper-share-card .btn{flex:1}}
   </style>
 </head>
 <body>
   <main class="timekeeper-shell">
-    <header class="timekeeper-hero"><h1>🏀 時間員即時記錄台</h1><p>選擇比賽後進入平板即時統計。此頁不提供其他管理功能。</p></header>
+    <header class="timekeeper-hero"><span class="timekeeper-eyebrow">ALL-IN BASKETBALL LEAGUE</span><h1>🏀 時間員即時記錄台</h1><p>管理本場名單、複製連結給兩隊，並在比賽日進入平板即時統計。</p></header>
     <section class="timekeeper-card">
       <label for="timekeeper-season" class="admin-label">選擇賽季</label>
       <select id="timekeeper-season" class="admin-select"><option value="">載入中…</option></select>
@@ -24,16 +24,66 @@
     </section>
   </main>
   <script src="../js/utils.js?v=20260409"></script>
-  <script src="../js/api.js?v=20261014-matchup-roster"></script>
+  <script src="../js/api.js?v=20261014-public-lineup"></script>
   <script src="auth.js?v=20260410"></script>
   <script>
-  (function(){
-    var seasonSelect=document.getElementById('timekeeper-season'),gamesEl=document.getElementById('timekeeper-games'),statusEl=document.getElementById('timekeeper-status');
-    function showStatus(message,type){statusEl.textContent=message;statusEl.className='admin-message admin-message--'+(type||'info');statusEl.hidden=false}
-    function defaultSeason(seasons){var active=(seasons||[]).filter(function(s){return String(s.status||'').toLowerCase()==='active'});return active[active.length-1]||(seasons||[])[(seasons||[]).length-1]}
-    function loadGames(){var sid=seasonSelect.value;if(!sid){gamesEl.innerHTML='';return}gamesEl.innerHTML='<div class="timekeeper-empty">載入比賽中…</div>';API.getGames(sid).then(function(games){games=(games||[]).filter(function(g){return String(g.status||'').toLowerCase()!=='cancelled'}).sort(function(a,b){return String(b.date||'').localeCompare(String(a.date||''))||String(b.time||'').localeCompare(String(a.time||''))});if(!games.length){gamesEl.innerHTML='<div class="timekeeper-empty">此賽季暫未有可記錄的比賽。</div>';return}var now=new Date(),today=now.getFullYear()+'-'+('0'+(now.getMonth()+1)).slice(-2)+'-'+('0'+now.getDate()).slice(-2);gamesEl.innerHTML=games.map(function(g){var complete=String(g.status||'').toLowerCase()==='completed';var future=!complete&&String(g.date||'').slice(0,10)>today;var label=(g.homeTeamName||g.homeTeamId)+' vs '+(g.awayTeamName||g.awayTeamId);var date=(typeof Utils!=='undefined'?Utils.formatDateWithDay(g.date):g.date)+(g.time?' · '+g.time:'');var id=encodeURIComponent(g.id);var rosterLink=complete?'':'<a class="btn btn-outline" href="matchup-roster.html?gameId='+id+'">設定上陣名單</a>';var scoreLink=future?'<span class="btn btn-outline" aria-disabled="true">比賽日開始記錄</span>':'<a class="btn btn-primary" href="boxscore.html?timekeeper=1&gameId='+id+'">'+(complete?'查看／更正':'開始即時記錄')+'</a>';return '<article class="timekeeper-game"><div><time>'+escapeHtml(date)+'</time><strong>'+escapeHtml(label)+'</strong></div><div class="timekeeper-game-actions">'+rosterLink+scoreLink+'</div></article>'}).join('')}).catch(function(){gamesEl.innerHTML='<div class="timekeeper-empty">無法載入比賽，請重新整理。</div>'})}
-    function escapeHtml(value){var d=document.createElement('div');d.textContent=value||'';return d.innerHTML}
-    API.getSeasons().then(function(seasons){seasonSelect.innerHTML='';(seasons||[]).forEach(function(s){var o=document.createElement('option');o.value=s.id;o.textContent=s.name||s.id;seasonSelect.appendChild(o)});var current=defaultSeason(seasons);if(current){seasonSelect.value=current.id;loadGames()}else{showStatus('沒有可用賽季','error')}}).catch(function(){showStatus('無法載入賽季','error')});seasonSelect.addEventListener('change',loadGames)
+  (function () {
+    var seasonSelect = document.getElementById('timekeeper-season');
+    var gamesEl = document.getElementById('timekeeper-games');
+    var statusEl = document.getElementById('timekeeper-status');
+
+    function showStatus(message, type) { statusEl.textContent = message; statusEl.className = 'admin-message admin-message--' + (type || 'info'); statusEl.hidden = false; }
+    function defaultSeason(seasons) { var active = (seasons || []).filter(function (season) { return String(season.status || '').toLowerCase() === 'active'; }); return active[active.length - 1] || (seasons || [])[seasons.length - 1]; }
+    function escapeHtml(value) { var div = document.createElement('div'); div.textContent = value || ''; return div.innerHTML; }
+    function lineupUrl(gameId, teamToken) { var url = new URL('../game-lineup.html', window.location.href); url.searchParams.set('gameId', gameId); url.searchParams.set('teamToken', teamToken); return url.href; }
+    function shareCard(label, url) {
+      if (!url) return '<div class="timekeeper-share-card"><strong>' + label + '</strong><span>未設定可分享連結</span></div>';
+      return '<div class="timekeeper-share-card"><strong>' + label + '本場名單連結</strong><a class="btn btn-outline" href="' + escapeHtml(url) + '" target="_blank" rel="noopener">開啟</a><button type="button" class="btn btn-primary" data-copy-lineup-url="' + escapeHtml(url) + '">複製連結</button></div>';
+    }
+    function copyText(text) {
+      if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+      return new Promise(function (resolve, reject) { var area = document.createElement('textarea'); area.value = text; area.style.position = 'fixed'; area.style.opacity = '0'; document.body.appendChild(area); area.select(); try { document.execCommand('copy'); area.remove(); resolve(); } catch (error) { area.remove(); reject(error); } });
+    }
+    function loadGames() {
+      var seasonId = seasonSelect.value;
+      if (!seasonId) { gamesEl.innerHTML = ''; return; }
+      gamesEl.innerHTML = '<div class="timekeeper-empty">載入比賽中…</div>';
+      Promise.all([API.getGames(seasonId), API.getTeamsWithTokens(seasonId)]).then(function (results) {
+        var games = (results[0] || []).filter(function (game) { return String(game.status || '').toLowerCase() !== 'cancelled'; });
+        var tokensByTeam = {};
+        (results[1] || []).forEach(function (team) { tokensByTeam[String(team.id)] = team.teamToken || ''; });
+        games.sort(function (a, b) { return String(b.date || '').localeCompare(String(a.date || '')) || String(b.time || '').localeCompare(String(a.time || '')); });
+        if (!games.length) { gamesEl.innerHTML = '<div class="timekeeper-empty">此賽季暫未有可記錄的比賽。</div>'; return; }
+        var now = new Date();
+        var today = now.getFullYear() + '-' + ('0' + (now.getMonth() + 1)).slice(-2) + '-' + ('0' + now.getDate()).slice(-2);
+        gamesEl.innerHTML = games.map(function (game) {
+          var complete = String(game.status || '').toLowerCase() === 'completed';
+          var future = !complete && String(game.date || '').slice(0, 10) > today;
+          var label = (game.homeTeamName || game.homeTeamId) + ' vs ' + (game.awayTeamName || game.awayTeamId);
+          var date = (typeof Utils !== 'undefined' ? Utils.formatDateWithDay(game.date) : game.date) + (game.time ? ' · ' + game.time : '');
+          var gameId = String(game.id);
+          var adminRosterLink = complete ? '' : '<a class="btn btn-outline" href="matchup-roster.html?gameId=' + encodeURIComponent(gameId) + '">管理兩隊名單</a>';
+          var scoreLink = future ? '<span class="btn btn-outline" aria-disabled="true">比賽日開始記錄</span>' : '<a class="btn btn-primary" href="boxscore.html?timekeeper=1&gameId=' + encodeURIComponent(gameId) + '">' + (complete ? '查看／更正' : '開始即時記錄') + '</a>';
+          var shares = complete ? '' : '<div class="timekeeper-share">' + shareCard('主隊', tokensByTeam[String(game.homeTeamId)] ? lineupUrl(gameId, tokensByTeam[String(game.homeTeamId)]) : '') + shareCard('客隊', tokensByTeam[String(game.awayTeamId)] ? lineupUrl(gameId, tokensByTeam[String(game.awayTeamId)]) : '') + '</div>';
+          return '<article class="timekeeper-game"><div class="timekeeper-game-head"><div><time>' + escapeHtml(date) + '</time><strong>' + escapeHtml(label) + '</strong></div><div class="timekeeper-game-actions">' + adminRosterLink + scoreLink + '</div></div>' + shares + '</article>';
+        }).join('');
+      }).catch(function () { gamesEl.innerHTML = '<div class="timekeeper-empty">無法載入比賽，請重新整理。</div>'; });
+    }
+
+    gamesEl.addEventListener('click', function (event) {
+      var button = event.target.closest('[data-copy-lineup-url]');
+      if (!button) return;
+      var original = button.textContent;
+      copyText(button.getAttribute('data-copy-lineup-url')).then(function () { button.textContent = '✓ 已複製'; window.setTimeout(function () { button.textContent = original; }, 1500); }).catch(function () { showStatus('無法複製連結，請按「開啟」後從瀏覽器複製網址。', 'error'); });
+    });
+
+    API.getSeasons().then(function (seasons) {
+      seasonSelect.innerHTML = '';
+      (seasons || []).forEach(function (season) { var option = document.createElement('option'); option.value = season.id; option.textContent = season.name || season.id; seasonSelect.appendChild(option); });
+      var current = defaultSeason(seasons);
+      if (current) { seasonSelect.value = current.id; loadGames(); } else { showStatus('沒有可用賽季', 'error'); }
+    }).catch(function () { showStatus('無法載入賽季', 'error'); });
+    seasonSelect.addEventListener('change', loadGames);
   })();
   </script>
 </body>
