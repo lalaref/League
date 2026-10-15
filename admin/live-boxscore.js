@@ -1,8 +1,3 @@
-/*
- * Tablet-first live box-score controller.
- * Uses the existing boxscore form as the final data source and never sends
- * partial events to the server. A final submit remains atomic in boxscore.js.
- */
 (function () {
   'use strict';
 
@@ -16,7 +11,11 @@
   var undoButton = document.getElementById('btn-live-undo');
   var discardButton = document.getElementById('btn-live-discard');
   var saveDraftButton = document.getElementById('btn-live-save-draft');
+  var reviewButton = document.getElementById('btn-live-review');
   var statusEl = document.getElementById('live-draft-status');
+  var homeTimeoutsEl = document.getElementById('live-home-timeouts');
+  var awayTimeoutsEl = document.getElementById('live-away-timeouts');
+  var timeoutHalfEl = document.getElementById('live-timeout-half');
   var gameSelect = document.getElementById('game-select');
   var boxscoreBody = document.getElementById('boxscore-body');
 
@@ -29,6 +28,55 @@
   var playerIndexById = {};
   var eventStack = [];
   var restoreAttemptedForGame = '';
+  var timeouts = createDefaultTimeouts();
+
+  function createDefaultTimeouts() {
+    return {
+      first: { home: 2, away: 2 },
+      second: { home: 3, away: 3 }
+    };
+  }
+
+  function currentTimeoutHalf() { return activeQuarter <= 2 ? 'first' : 'second'; }
+  function timeoutLimit(half) { return half === 'first' ? 2 : 3; }
+
+  function restoreTimeouts(savedTimeouts) {
+    timeouts = createDefaultTimeouts();
+    ['first', 'second'].forEach(function (half) {
+      ['home', 'away'].forEach(function (side) {
+        var value = savedTimeouts && savedTimeouts[half] && Number(savedTimeouts[half][side]);
+        if (Number.isFinite(value)) timeouts[half][side] = Math.max(0, Math.min(timeoutLimit(half), Math.round(value)));
+      });
+    });
+  }
+
+  function refreshTimeoutDisplay() {
+    var half = currentTimeoutHalf();
+    var bank = timeouts[half];
+    if (homeTimeoutsEl) homeTimeoutsEl.textContent = bank.home;
+    if (awayTimeoutsEl) awayTimeoutsEl.textContent = bank.away;
+    if (timeoutHalfEl) timeoutHalfEl.textContent = half === 'first' ? '上半場：每隊 2 次' : '下半場：每隊 3 次';
+    document.querySelectorAll('[data-timeout-side][data-timeout-change]').forEach(function (button) {
+      var side = button.dataset.timeoutSide;
+      var change = Number(button.dataset.timeoutChange);
+      if (!bank || (side !== 'home' && side !== 'away')) return;
+      button.disabled = change < 0 ? bank[side] <= 0 : bank[side] >= timeoutLimit(half);
+    });
+  }
+
+  function changeTimeout(side, change) {
+    var half = currentTimeoutHalf();
+    if ((side !== 'home' && side !== 'away') || (change !== -1 && change !== 1)) return;
+    timeouts[half][side] = Math.max(0, Math.min(timeoutLimit(half), timeouts[half][side] + change));
+    persistDraft();
+    refreshTimeoutDisplay();
+  }
+
+  function syncQuarterButtons() {
+    document.querySelectorAll('[data-live-quarter]').forEach(function (button) {
+      button.classList.toggle('is-active', Number(button.dataset.liveQuarter) === activeQuarter);
+    });
+  }
 
   function gameId() { return String(gameSelect.value || ''); }
   function draftKey() { return 'allin_live_boxscore_v1_' + gameId(); }
@@ -103,6 +151,7 @@
     if (liveHomeName && homeName) liveHomeName.textContent = homeName.textContent || '主隊';
     if (liveAwayName && awayName) liveAwayName.textContent = awayName.textContent || '客隊';
     panel.hidden = false;
+    if (new URLSearchParams(window.location.search).get('timekeeper') === '1') document.body.classList.add('live-entry-active');
     restoreDraft();
     refreshDisplay();
   }
@@ -175,6 +224,7 @@
       var pointsEl = document.getElementById('live-player-pts-' + index);
       if (pointsEl) pointsEl.textContent = points;
     });
+    refreshTimeoutDisplay();
   }
 
   function snapshot() {
@@ -191,8 +241,18 @@
     ['home', 'away'].forEach(function (side) {
       [1, 2, 3, 4].forEach(function (quarter) { quarters[side + 'Q' + quarter] = numberValue(quarterInput(side, quarter)); });
     });
-    return { version: 2, savedAt: new Date().toISOString(), stats: stats, quarters: quarters, activeQuarter: activeQuarter,
-      activePlayerId: activePlayerIndex !== null && playerMap[activePlayerIndex] ? playerMap[activePlayerIndex].id : '' };
+    return {
+      version: 3,
+      savedAt: new Date().toISOString(),
+      stats: stats,
+      quarters: quarters,
+      timeouts: {
+        first: { home: timeouts.first.home, away: timeouts.first.away },
+        second: { home: timeouts.second.home, away: timeouts.second.away }
+      },
+      activeQuarter: activeQuarter,
+      activePlayerId: activePlayerIndex !== null && playerMap[activePlayerIndex] ? playerMap[activePlayerIndex].id : ''
+    };
   }
 
   function persistDraft() {
@@ -214,7 +274,7 @@
         statusEl.textContent = '上次提交可能已成功。請先重新載入並核對伺服器資料，暫不自動還原草稿。';
         return;
       }
-      if (draft.version !== 2 || !draft.stats) {
+      if ((draft.version !== 2 && draft.version !== 3) || !draft.stats) {
         statusEl.textContent = '發現舊版草稿，為保護球員資料不會自動還原';
         return;
       }
@@ -228,11 +288,13 @@
         var match = key.match(/^(home|away)Q([1-4])$/);
         if (match) setQuarterScore(match[1], Number(match[2]), draft.quarters[key]);
       });
+      restoreTimeouts(draft.timeouts);
       // Event history uses transient row positions, so a restored draft begins
       // with correct player totals but intentionally starts a fresh undo stack.
       eventStack = [];
-      activeQuarter = Number(draft.activeQuarter) || 1;
+      activeQuarter = Math.max(1, Math.min(4, Number(draft.activeQuarter) || 1));
       activePlayerIndex = draft.activePlayerId && playerIndexById[draft.activePlayerId] !== undefined ? playerIndexById[draft.activePlayerId] : null;
+      syncQuarterButtons();
       if (activePlayerIndex !== null) selectPlayer(activePlayerIndex);
       statusEl.textContent = '已還原此裝置的即時記錄草稿';
     } catch (error) { statusEl.textContent = '草稿無法還原'; }
@@ -249,9 +311,15 @@
   document.querySelectorAll('[data-live-quarter]').forEach(function (button) {
     button.addEventListener('click', function () {
       activeQuarter = Number(button.dataset.liveQuarter);
-      document.querySelectorAll('[data-live-quarter]').forEach(function (item) { item.classList.toggle('is-active', item === button); });
+      syncQuarterButtons();
       persistDraft();
       refreshDisplay();
+    });
+  });
+
+  document.querySelectorAll('[data-timeout-side][data-timeout-change]').forEach(function (button) {
+    button.addEventListener('click', function () {
+      changeTimeout(button.dataset.timeoutSide, Number(button.dataset.timeoutChange));
     });
   });
 
@@ -284,14 +352,21 @@
     saveDraftButton.textContent = '✓ 草稿已儲存';
     window.setTimeout(function () { saveDraftButton.textContent = '💾 儲存本機草稿'; }, 1400);
   });
+  if (reviewButton) reviewButton.addEventListener('click', function () {
+    persistDraft();
+    document.body.classList.remove('live-entry-active');
+    document.getElementById('quarter-scores-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
 
   document.addEventListener('allin:boxscoreRosterChanged', function (event) {
     if (!event.detail || String(event.detail.gameId || '') !== gameId()) return;
     try { localStorage.removeItem(draftKey()); } catch (error) { /* ignore */ }
     eventStack = [];
     activePlayerIndex = null;
+    timeouts = createDefaultTimeouts();
     restoreAttemptedForGame = gameId();
     statusEl.textContent = '球員名單已變更；目前統計已保留，本機 Undo／還原草稿已重設';
+    refreshDisplay();
   });
 
   document.addEventListener('allin:boxscoreSubmissionUncertain', function (event) {
@@ -308,6 +383,7 @@
     if (!event.detail || String(event.detail.gameId || '') !== gameId()) return;
     try { localStorage.removeItem(draftKey()); } catch (error) { /* ignore */ }
     eventStack = [];
+    timeouts = createDefaultTimeouts();
     restoreAttemptedForGame = gameId();
     statusEl.textContent = 'Box Score 已提交；本機即時草稿已清除';
     refreshDisplay();
@@ -315,7 +391,17 @@
 
   var observer = new MutationObserver(function () { window.setTimeout(buildPlayers, 0); });
   observer.observe(boxscoreBody, { childList: true, subtree: true });
-  gameSelect.addEventListener('change', function () { activePlayerIndex = null; eventStack = []; restoreAttemptedForGame = ''; panel.hidden = true; });
+  gameSelect.addEventListener('change', function () {
+    activeQuarter = 1;
+    activePlayerIndex = null;
+    eventStack = [];
+    timeouts = createDefaultTimeouts();
+    restoreAttemptedForGame = '';
+    panel.hidden = true;
+    document.body.classList.remove('live-entry-active');
+    syncQuarterButtons();
+    refreshTimeoutDisplay();
+  });
 
   function escapeHtml(value) {
     var div = document.createElement('div');

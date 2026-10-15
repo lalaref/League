@@ -88,6 +88,11 @@
                         <button type="button" id="btn-live-undo" class="live-undo" disabled>↶ Undo</button>
                         <button type="button" id="btn-live-discard" class="live-discard">清除本機草稿</button>
                     </div>
+                    <div class="live-timeout-strip" aria-label="暫停次數">
+                        <div><span>主隊暫停</span><button type="button" data-timeout-side="home" data-timeout-change="-1" aria-label="主隊使用暫停">−</button><strong id="live-home-timeouts">2</strong><button type="button" data-timeout-side="home" data-timeout-change="1" aria-label="還原主隊暫停">＋</button></div>
+                        <span id="live-timeout-half">上半場：每隊 2 次</span>
+                        <div><span>客隊暫停</span><button type="button" data-timeout-side="away" data-timeout-change="-1" aria-label="客隊使用暫停">−</button><strong id="live-away-timeouts">2</strong><button type="button" data-timeout-side="away" data-timeout-change="1" aria-label="還原客隊暫停">＋</button></div>
+                    </div>
                     <p id="live-selected-player" class="live-selected-player">先點選球員，再記錄事件</p>
                     <div class="live-rosters">
                         <section class="live-team-panel live-team-panel--home"><h3>主隊</h3><div id="live-home-players" class="live-player-grid"></div></section>
@@ -99,7 +104,7 @@
                         <div class="live-action-group live-action-group--stats"><span>其他統計</span><button type="button" class="live-action" data-live-event="oreb">O<br>REB</button><button type="button" class="live-action" data-live-event="dreb">D<br>REB</button><button type="button" class="live-action" data-live-event="ast">AST</button><button type="button" class="live-action" data-live-event="stl">STL</button><button type="button" class="live-action" data-live-event="blk">BLK</button><button type="button" class="live-action live-action--danger" data-live-event="to">TO</button><button type="button" class="live-action live-action--danger" data-live-event="foul">Foul</button></div>
                     </div>
                     <p class="live-review-hint">每次點按只更新此平板的草稿及下方 Box Score。完場後核對節分、選擇 MVP，再按原有「提交 Box Score」。</p>
-                    <div class="live-draft-actions"><button type="button" id="btn-live-save-draft" class="btn btn-primary">💾 儲存本機草稿</button></div>
+                    <div class="live-draft-actions"><button type="button" id="btn-live-save-draft" class="btn btn-primary">💾 儲存本機草稿</button><button type="button" id="btn-live-review" class="btn btn-outline">完場核對及提交</button></div>
                 </section>
 
                 <!-- 節分輸入 (Q1-Q4) -->
