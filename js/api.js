@@ -197,6 +197,7 @@ var API = (function () {
   }
   function getLeaders(seasonId, category) { return get('leaders', { seasonId: seasonId, cat: category }); }
   function getBoxScore(gameId) { return get('boxscore', { gameId: gameId }); }
+  function getGameRoster(gameId) { return get('gameRoster', { gameId: gameId }); }
   function getSchedule(seasonId) { return get('schedule', { seasonId: seasonId }); }
   function getPlayoffs(seasonId) { return get('playoffs', { seasonId: seasonId }); }
   function getShotChart(playerId, gameId) {
@@ -239,6 +240,9 @@ var API = (function () {
   function updateBoxScore(gameId, playerId, field, value) {
     return post('updateBoxScore', { gameId: gameId, playerId: playerId, field: field, value: value });
   }
+  function saveGameRoster(gameId, homePlayerIds, awayPlayerIds) {
+    return post('saveGameRoster', { gameId: gameId, homePlayerIds: homePlayerIds, awayPlayerIds: awayPlayerIds });
+  }
   function submitShotLocation(gameId, playerId, x, y, made) {
     return post('submitShotLocation', { gameId: gameId, playerId: playerId, x: x, y: y, made: made });
   }
@@ -263,6 +267,7 @@ var API = (function () {
     getTeamProfile: getTeamProfile,
     getLeaders: getLeaders,
     getBoxScore: getBoxScore,
+    getGameRoster: getGameRoster,
     getSchedule: getSchedule,
     getPlayoffs: getPlayoffs,
     getShotChart: getShotChart,
@@ -278,6 +283,7 @@ var API = (function () {
     getTeamAvailabilityNotes: getTeamAvailabilityNotes,
     submitBoxScore: submitBoxScore,
     updateBoxScore: updateBoxScore,
+    saveGameRoster: saveGameRoster,
     submitShotLocation: submitShotLocation,
     saveTeamAvailability: saveTeamAvailability
   };
