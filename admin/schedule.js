@@ -345,11 +345,14 @@
 
   function renderGamesTable(games) {
     gamesBody.innerHTML = '';
+    var sortedGames = (games || []).slice().sort(function (a, b) {
+      return String(b.date || '').localeCompare(String(a.date || '')) || String(b.time || '').localeCompare(String(a.time || ''));
+    });
     // Build team map for jersey colors
     var teamMap = {};
     teams.forEach(function (t) { teamMap[t.id] = t; });
 
-    (games || []).forEach(function (g) {
+    sortedGames.forEach(function (g) {
         var tr = document.createElement('tr');
         var statusBadge = '';
         if (g.status === 'cancelled') {

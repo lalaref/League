@@ -97,16 +97,19 @@
       gameSelect.disabled = true; hideBoxScore(); return;
     }
     API.getGames(seasonId).then(function (games) {
+      var sortedGames = (games || []).slice().sort(function (a, b) {
+        return String(b.date || '').localeCompare(String(a.date || '')) || String(b.time || '').localeCompare(String(a.time || ''));
+      });
       gameSelect.innerHTML = '<option value="">--</option>';
       gameSelect.disabled = false;
-      (games || []).forEach(function (g) {
+      sortedGames.forEach(function (g) {
         var o = document.createElement('option'); o.value = g.id;
         var dateStr = Utils.formatDateWithDay(g.date);
         var timeStr = Utils.formatTime(g.time);
         o.textContent = dateStr + (timeStr ? ' ' + timeStr : '') + ' — ' + (g.homeTeamName || g.homeTeamId) + ' vs ' + (g.awayTeamName || g.awayTeamId) + (g.status === 'completed' ? ' ✓' : '');
         gameSelect.appendChild(o);
       });
-      if (requestedGameId && (games || []).some(function (g) { return String(g.id) === String(requestedGameId); })) {
+      if (requestedGameId && sortedGames.some(function (g) { return String(g.id) === String(requestedGameId); })) {
         gameSelect.value = requestedGameId;
         var directGameId = requestedGameId;
         requestedGameId = '';
