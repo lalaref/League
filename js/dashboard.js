@@ -979,38 +979,26 @@
       // Forfeit detection (backend may set g.forfeit = 'home'/'away' or g.walkover)
       var forfeitSide = g.forfeit || g.walkover || '';
       var isForfeit = forfeitSide === 'home' || forfeitSide === 'away';
+      var exemptIds = String(g.standingsExemptTeamIds || '').split(/[\s,;|]+/).filter(Boolean);
+      var homeExempt = exemptIds.indexOf(String(g.homeTeamId)) !== -1;
+      var awayExempt = exemptIds.indexOf(String(g.awayTeamId)) !== -1;
 
-      allResults.push({
-        homeId: g.homeTeamId, awayId: g.awayTeamId,
-        homeScore: homeScore, awayScore: awayScore,
-        isForfeit: isForfeit, forfeitSide: forfeitSide
-      });
-
-      table[g.homeTeamId].played++;
-      table[g.awayTeamId].played++;
-      table[g.homeTeamId].pointsFor += homeScore;
-      table[g.homeTeamId].pointsAgainst += awayScore;
-      table[g.awayTeamId].pointsFor += awayScore;
-      table[g.awayTeamId].pointsAgainst += homeScore;
+      if (!homeExempt && !awayExempt) allResults.push({ homeId:g.homeTeamId, awayId:g.awayTeamId, homeScore:homeScore, awayScore:awayScore, isForfeit:isForfeit, forfeitSide:forfeitSide });
+      if (!homeExempt) { table[g.homeTeamId].played++; table[g.homeTeamId].pointsFor += homeScore; table[g.homeTeamId].pointsAgainst += awayScore; }
+      if (!awayExempt) { table[g.awayTeamId].played++; table[g.awayTeamId].pointsFor += awayScore; table[g.awayTeamId].pointsAgainst += homeScore; }
 
       if (isForfeit) {
-        // Forfeiting side gets 0 pts; winner gets 3 pts
-        if (forfeitSide === 'home') {
-          table[g.awayTeamId].wins++;   table[g.awayTeamId].points += 3;
-          table[g.homeTeamId].forfeits++; // 0 pts
-        } else {
-          table[g.homeTeamId].wins++;   table[g.homeTeamId].points += 3;
-          table[g.awayTeamId].forfeits++; // 0 pts
-        }
+        if (forfeitSide === 'home') { if (!awayExempt) { table[g.awayTeamId].wins++; table[g.awayTeamId].points += 3; } if (!homeExempt) table[g.homeTeamId].forfeits++; }
+        else { if (!homeExempt) { table[g.homeTeamId].wins++; table[g.homeTeamId].points += 3; } if (!awayExempt) table[g.awayTeamId].forfeits++; }
       } else if (homeScore > awayScore) {
-        table[g.homeTeamId].wins++;   table[g.homeTeamId].points += 3;
-        table[g.awayTeamId].losses++; table[g.awayTeamId].points += 1;
+        if (!homeExempt) { table[g.homeTeamId].wins++; table[g.homeTeamId].points += 3; }
+        if (!awayExempt) { table[g.awayTeamId].losses++; table[g.awayTeamId].points += 1; }
       } else if (awayScore > homeScore) {
-        table[g.awayTeamId].wins++;   table[g.awayTeamId].points += 3;
-        table[g.homeTeamId].losses++; table[g.homeTeamId].points += 1;
+        if (!awayExempt) { table[g.awayTeamId].wins++; table[g.awayTeamId].points += 3; }
+        if (!homeExempt) { table[g.homeTeamId].losses++; table[g.homeTeamId].points += 1; }
       } else {
-        table[g.homeTeamId].draws++; table[g.homeTeamId].points += 2;
-        table[g.awayTeamId].draws++; table[g.awayTeamId].points += 2;
+        if (!homeExempt) { table[g.homeTeamId].draws++; table[g.homeTeamId].points += 2; }
+        if (!awayExempt) { table[g.awayTeamId].draws++; table[g.awayTeamId].points += 2; }
       }
     });
 

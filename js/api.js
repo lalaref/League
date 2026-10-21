@@ -255,8 +255,11 @@ var API = (function () {
   function saveGameRoster(gameId, homePlayerIds, awayPlayerIds) {
     return post('saveGameRoster', { gameId: gameId, homePlayerIds: homePlayerIds, awayPlayerIds: awayPlayerIds });
   }
-  function savePublicGameRoster(gameId, teamToken, playerIds) {
-    return postPublic('publicSaveGameRoster', { gameId: gameId, teamToken: teamToken, playerIds: playerIds });
+  function savePublicGameRoster(gameId, teamToken, playerIds, jerseyNumberOverrides) {
+    return postPublic('publicSaveGameRoster', { gameId: gameId, teamToken: teamToken, playerIds: playerIds, jerseyNumberOverrides: jerseyNumberOverrides || {} });
+  }
+  function createPublicPlayer(teamToken, name, number) {
+    return postPublic('publicCreatePlayer', { teamToken: teamToken, name: name, number: number || '' });
   }
   function submitShotLocation(gameId, playerId, x, y, made) {
     return post('submitShotLocation', { gameId: gameId, playerId: playerId, x: x, y: y, made: made });
@@ -303,6 +306,7 @@ var API = (function () {
     updateBoxScore: updateBoxScore,
     saveGameRoster: saveGameRoster,
     savePublicGameRoster: savePublicGameRoster,
+    createPublicPlayer: createPublicPlayer,
     submitShotLocation: submitShotLocation,
     saveTeamAvailability: saveTeamAvailability
   };
