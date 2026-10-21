@@ -14,6 +14,8 @@
   var reviewButton = document.getElementById('btn-live-review');
   var statusEl = document.getElementById('live-draft-status');
   var timeoutHalfEl = document.getElementById('live-timeout-half');
+  var homeTeamFoulsEl = document.getElementById('live-home-team-fouls');
+  var awayTeamFoulsEl = document.getElementById('live-away-team-fouls');
   var gameSelect = document.getElementById('game-select');
   var boxscoreBody = document.getElementById('boxscore-body');
 
@@ -175,7 +177,7 @@
       button.type = 'button';
       button.className = 'live-player-tile';
       button.dataset.playerIndex = index;
-      button.innerHTML = '<strong class="live-player-number">' + escapeHtml(player.label.split(' ')[0]) + '</strong><strong class="live-player-points" id="live-player-pts-' + index + '">0</strong>';
+      button.innerHTML = '<strong class="live-player-number">' + escapeHtml(player.label.split(' ')[0]) + '</strong><span class="live-player-points live-player-fouls" title="個人犯規" aria-label="個人犯規"><small>F</small><strong id="live-player-fouls-' + index + '">0</strong></span>';
       button.addEventListener('click', function () { selectPlayer(index); });
       (player.side === 'home' ? homePlayersEl : awayPlayersEl).appendChild(button);
     });
@@ -237,11 +239,16 @@
     awayScoreEl.textContent = awayScore;
     quarterLabel.textContent = 'Q' + activeQuarter;
     undoButton.disabled = eventStack.length === 0;
+    var teamFouls = { home: 0, away: 0 };
     Object.keys(playerMap).forEach(function (index) {
-      var points = numberValue(statInput(index, 'pts'));
-      var pointsEl = document.getElementById('live-player-pts-' + index);
-      if (pointsEl) pointsEl.textContent = points;
+      var fouls = numberValue(statInput(index, 'fouls'));
+      var foulsEl = document.getElementById('live-player-fouls-' + index);
+      if (foulsEl) foulsEl.textContent = fouls;
+      var side = playerMap[index].side;
+      if (side === 'home' || side === 'away') teamFouls[side] += fouls;
     });
+    if (homeTeamFoulsEl) homeTeamFoulsEl.textContent = teamFouls.home;
+    if (awayTeamFoulsEl) awayTeamFoulsEl.textContent = teamFouls.away;
     refreshTimeoutDisplay();
   }
 
