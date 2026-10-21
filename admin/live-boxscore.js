@@ -434,3 +434,4 @@
     return div.innerHTML;
   }
 })();
+// Live foul indicators build: 20261015-foul-totals-v2
