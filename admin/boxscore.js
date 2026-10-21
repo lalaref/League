@@ -162,6 +162,10 @@
       };
       var hp = dedup(homePlayers).map(function(p){ return Object.assign({},p,{teamId:homeId,teamName:currentGame.homeTeamName||homeId,side:'home'}); });
       var ap = dedup(awayPlayers).map(function(p){ return Object.assign({},p,{teamId:awayId,teamName:currentGame.awayTeamName||awayId,side:'away'}); });
+      var homeNumberOverrides = (_savedGameRoster && _savedGameRoster.homeJerseyNumberOverrides) || {};
+      var awayNumberOverrides = (_savedGameRoster && _savedGameRoster.awayJerseyNumberOverrides) || {};
+      hp = hp.map(function(player) { var override = homeNumberOverrides[String(player.id)]; return override ? Object.assign({}, player, { number: override }) : player; });
+      ap = ap.map(function(player) { var override = awayNumberOverrides[String(player.id)]; return override ? Object.assign({}, player, { number: override }) : player; });
       allRosterPlayers = hp.concat(ap);
       console.log('[BoxScore] allRosterPlayers count=' + allRosterPlayers.length);
 
@@ -584,7 +588,7 @@
   // --- Submit / Update ---
   function collectEntries() {
     return allPlayers.map(function (p, idx) {
-      var entry = {playerId: p.id, teamId: p.teamId};
+      var entry = { playerId: p.id, teamId: p.teamId, jerseyNumber: p.number == null ? '' : String(p.number) };
       STAT_FIELDS.forEach(function(f){ var inp = getInput(idx,f); entry[f] = parseInt(inp.value,10)||0; });
       return entry;
     });
@@ -687,10 +691,14 @@
     if (btn) btn.disabled = true;
     Promise.all([
       API.getPlayers(currentGame.homeTeamId),
-      API.getPlayers(currentGame.awayTeamId)
+      API.getPlayers(currentGame.awayTeamId),
+      API.getGameRoster(currentGame.id)
     ]).then(function (results) {
       var homeId = currentGame.homeTeamId;
       var awayId = currentGame.awayTeamId;
+      var savedRoster = results[2] || {};
+      var homeNumberOverrides = savedRoster.homeJerseyNumberOverrides || {};
+      var awayNumberOverrides = savedRoster.awayJerseyNumberOverrides || {};
       // Preserve guest players added this session
       var seen = {};
       var freshRoster = allRosterPlayers.filter(function(p) { return p.isGuest; });
@@ -699,8 +707,14 @@
         return (arr || []).filter(function(p) { return p.teamId === teamId; })
           .map(function(p) { return Object.assign({}, p, { teamId: teamId, teamName: teamName, side: side }); });
       };
-      var hp = mapSide(results[0], homeId, currentGame.homeTeamName || homeId, 'home');
-      var ap = mapSide(results[1], awayId, currentGame.awayTeamName || awayId, 'away');
+      var hp = mapSide(results[0], homeId, currentGame.homeTeamName || homeId, 'home').map(function(player) {
+        var override = homeNumberOverrides[String(player.id)];
+        return override ? Object.assign({}, player, { number: override }) : player;
+      });
+      var ap = mapSide(results[1], awayId, currentGame.awayTeamName || awayId, 'away').map(function(player) {
+        var override = awayNumberOverrides[String(player.id)];
+        return override ? Object.assign({}, player, { number: override }) : player;
+      });
       hp.concat(ap).forEach(function(p) {
         if (!seen[p.id]) { freshRoster.push(p); seen[p.id] = true; }
       });

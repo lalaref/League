@@ -67,7 +67,7 @@
       button.hidden = !available;
       if (!available) return;
       var used = !!timeouts[half][side][slot];
-      button.textContent = used ? '×' : '';
+      button.textContent = used ? '×' : '□';
       button.classList.toggle('is-used', used);
       button.setAttribute('aria-pressed', used ? 'true' : 'false');
       button.setAttribute('aria-label', (side === 'home' ? '主隊' : '客隊') + '第 ' + (slot + 1) + ' 次暫停' + (used ? '已記錄，點按清除' : '，點按記錄'));

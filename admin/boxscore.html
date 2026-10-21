@@ -17,6 +17,7 @@
       .live-timeout-boxes { display:flex; gap:5px; }
       .live-timeout-box { -webkit-appearance:none; appearance:none; display:grid; flex:0 0 36px; width:36px; height:36px; place-items:center; padding:0; border:2px solid #7c5204; border-radius:3px; background:#fff; color:#b91c1c; font-family:Arial,sans-serif; font-size:2rem; font-weight:900; line-height:1; }
       .live-timeout-box.is-used { background:#fff7df; }
+      .live-timeout-box:not(.is-used) { color:transparent; }
       .live-timeout-box[hidden] { display:none !important; }
       #live-timeout-half { color:#8a5b09; text-align:center; white-space:nowrap; font-size:.76rem; }
       @media (max-width:620px) { .live-timeout-strip { gap:6px; padding:6px 8px; font-size:.72rem; } .live-timeout-team { gap:5px; } .live-timeout-boxes { gap:3px; } .live-timeout-box { flex-basis:29px; width:29px; height:29px; font-size:1.55rem; } #live-timeout-half { font-size:.68rem; } }
@@ -105,7 +106,7 @@
                         <span id="live-timeout-half">上半場：每隊 2 次</span>
                         <div class="live-timeout-team live-timeout-team--away"><span>客隊暫停</span><div class="live-timeout-boxes" role="group" aria-label="客隊暫停記錄"><button type="button" class="live-timeout-box" data-timeout-side="away" data-timeout-slot="0" aria-label="客隊第 1 次暫停"></button><button type="button" class="live-timeout-box" data-timeout-side="away" data-timeout-slot="1" aria-label="客隊第 2 次暫停"></button><button type="button" class="live-timeout-box" data-timeout-side="away" data-timeout-slot="2" aria-label="客隊第 3 次暫停"></button></div></div>
                     </div>
-                    <p id="live-selected-player" class="live-selected-player">先點選球員，再記錄事件</p>
+                    <p id="live-selected-player" class="live-selected-player" hidden aria-live="polite">先點選球員，再記錄事件</p>
                     <div class="live-rosters">
                         <section class="live-team-panel live-team-panel--home"><h3>主隊</h3><div id="live-home-players" class="live-player-grid"></div></section>
                         <section class="live-team-panel live-team-panel--away"><h3>客隊</h3><div id="live-away-players" class="live-player-grid"></div></section>
@@ -255,12 +256,12 @@
 
     <script>document.getElementById('current-year').textContent = new Date().getFullYear();</script>
     <script src="../js/utils.js?v=20260409"></script>
-    <script src="../js/api.js?v=20261014-matchup-roster"></script>
+    <script src="../js/api.js?v=20261015-game-number"></script>
     <script src="../js/i18n.js?v=20260409"></script>
     <script src="../js/navigation.js?v=20260409"></script>
     <script src="auth.js?v=20260410"></script>
-    <script src="boxscore.js?v=20261014-matchup-roster"></script>
-    <script src="live-boxscore.js?v=20261015-auto-fit-roster-v2"></script>
+    <script src="boxscore.js?v=20261015-game-number"></script>
+    <script src="live-boxscore.js?v=20261015-timeout-fallback-boxes"></script>
     <script>I18n.init();</script>
 </body>
 </html>
