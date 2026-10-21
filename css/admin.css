@@ -1369,9 +1369,13 @@
 .live-quarter-bar .live-undo:disabled { opacity: .42; }
 .live-quarter-bar .live-discard { background: transparent; border-color: transparent; color: #6b7280; font-size: .75rem; }
 .live-timeout-strip { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 12px; padding: 8px 14px; background: #fffaf0; border-bottom: 1px solid #f2d49a; color: #6b4a0a; font-size: .8rem; font-weight: 800; }
-.live-timeout-team { display: flex; align-items: center; gap: 8px; min-width: 0; }
-.live-timeout-team--away { justify-content: flex-end; }
+.live-timeout-team { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 8px; min-width: 0; }
+.live-timeout-team--away { justify-content: end; }
+.live-timeout-record { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.live-timeout-team--away .live-timeout-record { align-items: flex-end; }
 .live-timeout-boxes { display: flex; gap: 5px; }
+.live-team-fouls { color: #7c5204; font-size: .68rem; font-weight: 900; white-space: nowrap; }
+.live-team-fouls strong { display: inline-block; min-width: 18px; color: #b91c1c; font-size: 1rem; text-align: center; }
 .live-timeout-box { display: grid; width: 38px; height: 38px; place-items: center; border: 2px solid #7c5204; border-radius: 3px; background: #fff; color: #b91c1c; font-family: Arial, sans-serif; font-size: 2rem; font-weight: 900; line-height: 1; touch-action: manipulation; }
 .live-timeout-box.is-used { background: #fff7df; }
 .live-timeout-box:not(.is-used) { color: transparent; }
@@ -1389,6 +1393,9 @@
 .live-player-number { min-width: 31px; height: 31px; display: grid; place-items: center; border-radius: 50%; background: #e2e8f0; color: #1e293b; font-size: .76rem; font-weight: 900; }
 .live-player-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .82rem; font-weight: 800; }
 .live-player-points { min-width: 26px; color: #b91c1c; font-family: var(--font-family-heading, inherit); font-size: 1.15rem; text-align: center; }
+.live-player-fouls { align-self: start; display: flex; align-items: baseline; gap: 2px; min-width: 27px; color: #b91c1c; line-height: 1; }
+.live-player-fouls small { color: #7f1d1d; font-family: inherit; font-size: .58rem; font-weight: 1000; }
+.live-player-fouls strong { font-size: .95rem; }
 .live-action-pad { display: grid; grid-template-columns: 1.7fr .8fr 2.25fr; gap: 9px; padding: 12px; background: #e7eefc; border-top: 1px solid #c7d7f3; }
 .live-action-group { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px; }
 .live-action-group > span { grid-column: 1 / -1; color: #526a96; font-size: .68rem; font-weight: 900; letter-spacing: .08em; }
@@ -1495,7 +1502,7 @@
     .timekeeper-mode.live-entry-active .section,
     .timekeeper-mode.live-entry-active .container { margin: 0; padding: 0; max-width: none; }
     .timekeeper-mode.live-entry-active .live-entry-panel {
-        position: fixed; inset: 0; z-index: 5000; display: grid; grid-template-rows: 70px 56px 42px 38px 142px minmax(0, 1fr) 56px;
+        position: fixed; inset: 0; z-index: 5000; display: grid; grid-template-rows: 70px 56px 56px 38px 142px minmax(0, 1fr) 56px;
         height: 100dvh; margin: 0; border: 0; border-radius: 0; box-shadow: none;
     }
     .timekeeper-mode.live-entry-active .live-score-team { flex-direction: row; padding: 8px 20px; }
@@ -1505,6 +1512,9 @@
     .timekeeper-mode.live-entry-active .live-quarter-bar button { min-height: 42px; min-width: 52px; padding: 0 12px; font-size: .85rem; }
     .timekeeper-mode.live-entry-active .live-timeout-strip { min-height: 0; padding: 3px 12px; gap: 10px; font-size: .74rem; overflow: hidden; }
     .timekeeper-mode.live-entry-active .live-timeout-team { gap: 6px; }
+    .timekeeper-mode.live-entry-active .live-timeout-record { gap: 0; }
+    .timekeeper-mode.live-entry-active .live-team-fouls { font-size: .58rem; }
+    .timekeeper-mode.live-entry-active .live-team-fouls strong { min-width: 14px; font-size: .8rem; }
     .timekeeper-mode.live-entry-active .live-timeout-boxes { gap: 4px; }
     .timekeeper-mode.live-entry-active .live-timeout-box { width: 29px; height: 29px; border-width: 2px; font-size: 1.55rem; }
     .timekeeper-mode.live-entry-active #live-timeout-half { font-size: .7rem; }
