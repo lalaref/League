@@ -1574,3 +1574,8 @@
     .timekeeper-mode.live-entry-active .live-entry-panel--extra-dense .live-action { font-size: .7rem; }
     .timekeeper-mode.live-entry-active .live-entry-panel--extra-dense .live-action b { font-size: .82rem; }
 }
+
+/* Return path for the workflow-separated Timekeeper desk. */
+.timekeeper-return-link, .live-back-timekeeper { display: none; }
+.timekeeper-mode .timekeeper-return-link { display: inline-flex; align-items: center; margin: 0 0 10px; padding: 9px 12px; border: 1px solid #9fc7ad; border-radius: 8px; background: #f0fdf4; color: #14532d; font-weight: 900; text-decoration: none; }
+.timekeeper-mode .live-back-timekeeper { display: inline-grid; place-items: center; min-height: 42px; padding: 0 12px; border: 1px solid #86b99a; border-radius: 9px; background: #f0fdf4; color: #14532d; font-size: .82rem; font-weight: 900; text-decoration: none; white-space: nowrap; }
