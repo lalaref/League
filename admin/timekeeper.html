@@ -15,7 +15,7 @@
 </head>
 <body>
   <main class="timekeeper-shell">
-    <header class="timekeeper-hero"><span class="timekeeper-eyebrow">ALL-IN BASKETBALL LEAGUE</span><h1>🏀 時間員即時記錄台</h1><p>管理本場名單、複製連結給兩隊，並在比賽日進入平板即時統計。</p></header>
+    <header class="timekeeper-hero"><span class="timekeeper-eyebrow">ALL-IN BASKETBALL LEAGUE</span><h1>🏀 時間員即時記錄台</h1><p>管理本場名單、複製連結給兩隊，並可隨時預先開啟平板即時記錄。</p></header>
     <section class="timekeeper-card">
       <label for="timekeeper-season" class="admin-label">選擇賽季</label>
       <select id="timekeeper-season" class="admin-select"><option value="">載入中…</option></select>
@@ -54,16 +54,13 @@
         (results[1] || []).forEach(function (team) { tokensByTeam[String(team.id)] = team.teamToken || ''; });
         games.sort(function (a, b) { return String(b.date || '').localeCompare(String(a.date || '')) || String(b.time || '').localeCompare(String(a.time || '')); });
         if (!games.length) { gamesEl.innerHTML = '<div class="timekeeper-empty">此賽季暫未有可記錄的比賽。</div>'; return; }
-        var now = new Date();
-        var today = now.getFullYear() + '-' + ('0' + (now.getMonth() + 1)).slice(-2) + '-' + ('0' + now.getDate()).slice(-2);
         gamesEl.innerHTML = games.map(function (game) {
           var complete = String(game.status || '').toLowerCase() === 'completed';
-          var future = !complete && String(game.date || '').slice(0, 10) > today;
           var label = (game.homeTeamName || game.homeTeamId) + ' vs ' + (game.awayTeamName || game.awayTeamId);
           var date = (typeof Utils !== 'undefined' ? Utils.formatDateWithDay(game.date) : game.date) + (game.time ? ' · ' + game.time : '');
           var gameId = String(game.id);
           var adminRosterLink = complete ? '' : '<a class="btn btn-outline" href="matchup-roster.html?gameId=' + encodeURIComponent(gameId) + '">管理兩隊名單</a>';
-          var scoreLink = future ? '<span class="btn btn-outline" aria-disabled="true">比賽日開始記錄</span>' : '<a class="btn btn-primary" href="boxscore.html?timekeeper=1&gameId=' + encodeURIComponent(gameId) + '">' + (complete ? '查看／更正' : '開始即時記錄') + '</a>';
+          var scoreLink = '<a class="btn btn-primary" href="boxscore.html?timekeeper=1&gameId=' + encodeURIComponent(gameId) + '">' + (complete ? '查看／更正' : '開始即時記錄') + '</a>';
           var shares = complete ? '' : '<div class="timekeeper-share">' + shareCard('主隊', tokensByTeam[String(game.homeTeamId)] ? lineupUrl(gameId, tokensByTeam[String(game.homeTeamId)]) : '') + shareCard('客隊', tokensByTeam[String(game.awayTeamId)] ? lineupUrl(gameId, tokensByTeam[String(game.awayTeamId)]) : '') + '</div>';
           return '<article class="timekeeper-game"><div class="timekeeper-game-head"><div><time>' + escapeHtml(date) + '</time><strong>' + escapeHtml(label) + '</strong></div><div class="timekeeper-game-actions">' + adminRosterLink + scoreLink + '</div></div>' + shares + '</article>';
         }).join('');

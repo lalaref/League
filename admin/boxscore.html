@@ -8,7 +8,7 @@
     <title>Box Score 輸入 — ALL-IN Basketball League</title>
     <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="../css/responsive.css">
-    <link rel="stylesheet" href="../css/admin.css?v=20261015-foul-totals">
+    <link rel="stylesheet" href="../css/admin.css?v=20261015-timekeeper-return">
     <style>
       /* Fallback: keep timeout score-sheet boxes visible even when a cached admin.css is served. */
       .live-timeout-strip { display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); align-items:center; gap:10px; padding:7px 12px; background:#fffaf0; border-bottom:1px solid #f2d49a; color:#6b4a0a; font-size:.8rem; font-weight:800; }
@@ -23,6 +23,9 @@
       .live-timeout-box.is-used { background:#fff7df; }
       .live-timeout-box:not(.is-used) { color:transparent; }
       .live-timeout-box[hidden] { display:none !important; }
+      .timekeeper-return-link,.live-back-timekeeper { display:none; }
+      .timekeeper-mode .timekeeper-return-link { display:inline-flex; align-items:center; margin:0 0 10px; padding:9px 12px; border:1px solid #9fc7ad; border-radius:8px; background:#f0fdf4; color:#14532d; font-weight:900; text-decoration:none; }
+      .timekeeper-mode .live-back-timekeeper { display:inline-grid; place-items:center; min-height:42px; padding:0 12px; border:1px solid #86b99a; border-radius:9px; background:#f0fdf4; color:#14532d; font-size:.82rem; font-weight:900; text-decoration:none; white-space:nowrap; }
       #live-timeout-half { color:#8a5b09; text-align:center; white-space:nowrap; font-size:.76rem; }
       @media (max-width:620px) { .live-timeout-strip { gap:6px; padding:6px 8px; font-size:.72rem; } .live-timeout-team { gap:5px; } .live-timeout-record { gap:0; } .live-team-fouls { font-size:.57rem; } .live-team-fouls strong { min-width:14px; font-size:.78rem; } .live-timeout-boxes { gap:3px; } .live-timeout-box { flex-basis:29px; width:29px; height:29px; font-size:1.55rem; } #live-timeout-half { font-size:.68rem; } }
     </style>
@@ -65,6 +68,7 @@
     <main class="main-content">
         <section class="section">
             <div class="container">
+                <a class="timekeeper-return-link" href="timekeeper.html">← 返回時間員記錄台</a>
                 <h1 class="section-title" data-i18n="admin.boxScore">Box Score 輸入</h1>
 
                 <!-- 比賽選擇 -->
@@ -98,6 +102,7 @@
                         <div class="live-score-team live-score-team--away"><span id="qs-live-away-name">客隊</span><strong id="live-away-score">0</strong></div>
                     </header>
                     <div class="live-quarter-bar" role="group" aria-label="選擇節數">
+                        <a class="live-back-timekeeper" href="timekeeper.html">← 記錄台</a>
                         <button type="button" class="is-active" data-live-quarter="1">Q1</button>
                         <button type="button" data-live-quarter="2">Q2</button>
                         <button type="button" data-live-quarter="3">Q3</button>
