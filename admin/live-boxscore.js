@@ -29,6 +29,21 @@
   var eventStack = [];
   var restoreAttemptedForGame = '';
   var timeouts = createDefaultTimeouts();
+  var teamFoulsByQuarter = createDefaultTeamFouls();
+
+  function createDefaultTeamFouls() {
+    return { home: { 1: 0, 2: 0, 3: 0, 4: 0 }, away: { 1: 0, 2: 0, 3: 0, 4: 0 } };
+  }
+
+  function restoreTeamFouls(savedTeamFouls) {
+    teamFoulsByQuarter = createDefaultTeamFouls();
+    ['home', 'away'].forEach(function (side) {
+      [1, 2, 3, 4].forEach(function (quarter) {
+        var value = savedTeamFouls && savedTeamFouls[side] ? Number(savedTeamFouls[side][quarter]) : 0;
+        teamFoulsByQuarter[side][quarter] = Number.isFinite(value) ? Math.max(0, Math.round(value)) : 0;
+      });
+    });
+  }
 
   function createDefaultTimeouts() {
     return {
@@ -168,10 +183,19 @@
     refreshDisplay();
   }
 
+  function jerseySortValue(player) {
+    var match = String(player.label || '').match(/#\s*(\d+)/);
+    return match ? Number(match[1]) : Number.MAX_SAFE_INTEGER;
+  }
+
   function renderRoster() {
     homePlayersEl.innerHTML = '';
     awayPlayersEl.innerHTML = '';
-    Object.keys(playerMap).forEach(function (index) {
+    Object.keys(playerMap).sort(function (left, right) {
+      var leftPlayer = playerMap[left], rightPlayer = playerMap[right];
+      var leftNumber = jerseySortValue(leftPlayer), rightNumber = jerseySortValue(rightPlayer);
+      return leftNumber - rightNumber || String(leftPlayer.label).localeCompare(String(rightPlayer.label));
+    }).forEach(function (index) {
       var player = playerMap[index];
       var button = document.createElement('button');
       button.type = 'button';
@@ -187,8 +211,8 @@
   function updateRosterDensity() {
     var largestTeam = Math.max(homePlayersEl.children.length, awayPlayersEl.children.length);
     panel.classList.remove('live-entry-panel--dense', 'live-entry-panel--extra-dense');
-    if (largestTeam > 10) panel.classList.add('live-entry-panel--extra-dense');
-    else if (largestTeam > 5) panel.classList.add('live-entry-panel--dense');
+    if (largestTeam > 12) panel.classList.add('live-entry-panel--extra-dense');
+    else if (largestTeam > 8) panel.classList.add('live-entry-panel--dense');
   }
 
   function selectPlayer(index) {
@@ -211,9 +235,11 @@
     var before = {};
     Object.keys(deltas).forEach(function (field) { before[field] = numberValue(statInput(activePlayerIndex, field)); });
     var quarterBefore = numberValue(quarterInput(activeSide, activeQuarter));
+    var teamFoulsBefore = teamFoulsByQuarter[activeSide][activeQuarter];
     Object.keys(deltas).forEach(function (field) { setNumber(activePlayerIndex, field, before[field] + deltas[field]); });
+    if (deltas.fouls) teamFoulsByQuarter[activeSide][activeQuarter] = Math.max(0, teamFoulsBefore + deltas.fouls);
     if (scoreDelta) changeQuarterScore(activeSide, scoreDelta);
-    eventStack.push({ playerIndex: activePlayerIndex, side: activeSide, quarter: activeQuarter, label: label, before: before, quarterBefore: quarterBefore });
+    eventStack.push({ playerIndex: activePlayerIndex, side: activeSide, quarter: activeQuarter, label: label, before: before, quarterBefore: quarterBefore, teamFoulsBefore: teamFoulsBefore });
     persistDraft();
     refreshDisplay();
   }
@@ -223,6 +249,7 @@
     if (!event) return;
     Object.keys(event.before).forEach(function (field) { setNumber(event.playerIndex, field, event.before[field]); });
     setQuarterScore(event.side, event.quarter, event.quarterBefore);
+    if (event.teamFoulsBefore !== undefined) teamFoulsByQuarter[event.side][event.quarter] = event.teamFoulsBefore;
     activePlayerIndex = event.playerIndex;
     activeSide = event.side;
     persistDraft();
@@ -239,16 +266,13 @@
     awayScoreEl.textContent = awayScore;
     quarterLabel.textContent = 'Q' + activeQuarter;
     undoButton.disabled = eventStack.length === 0;
-    var teamFouls = { home: 0, away: 0 };
     Object.keys(playerMap).forEach(function (index) {
       var fouls = numberValue(statInput(index, 'fouls'));
       var foulsEl = document.getElementById('live-player-fouls-' + index);
       if (foulsEl) foulsEl.textContent = fouls;
-      var side = playerMap[index].side;
-      if (side === 'home' || side === 'away') teamFouls[side] += fouls;
     });
-    if (homeTeamFoulsEl) homeTeamFoulsEl.textContent = teamFouls.home;
-    if (awayTeamFoulsEl) awayTeamFoulsEl.textContent = teamFouls.away;
+    if (homeTeamFoulsEl) homeTeamFoulsEl.textContent = teamFoulsByQuarter.home[activeQuarter];
+    if (awayTeamFoulsEl) awayTeamFoulsEl.textContent = teamFoulsByQuarter.away[activeQuarter];
     refreshTimeoutDisplay();
   }
 
@@ -267,10 +291,11 @@
       [1, 2, 3, 4].forEach(function (quarter) { quarters[side + 'Q' + quarter] = numberValue(quarterInput(side, quarter)); });
     });
     return {
-      version: 4,
+      version: 5,
       savedAt: new Date().toISOString(),
       stats: stats,
       quarters: quarters,
+      teamFoulsByQuarter: { home: Object.assign({}, teamFoulsByQuarter.home), away: Object.assign({}, teamFoulsByQuarter.away) },
       timeouts: {
         first: { home: timeouts.first.home.slice(), away: timeouts.first.away.slice() },
         second: { home: timeouts.second.home.slice(), away: timeouts.second.away.slice() }
@@ -299,7 +324,7 @@
         statusEl.textContent = '上次提交可能已成功。請先重新載入並核對伺服器資料，暫不自動還原草稿。';
         return;
       }
-      if ((draft.version !== 2 && draft.version !== 3 && draft.version !== 4) || !draft.stats) {
+      if ((draft.version !== 2 && draft.version !== 3 && draft.version !== 4 && draft.version !== 5) || !draft.stats) {
         statusEl.textContent = '發現舊版草稿，為保護球員資料不會自動還原';
         return;
       }
@@ -314,6 +339,7 @@
         if (match) setQuarterScore(match[1], Number(match[2]), draft.quarters[key]);
       });
       restoreTimeouts(draft.timeouts);
+      restoreTeamFouls(draft.teamFoulsByQuarter);
       // Event history uses transient row positions, so a restored draft begins
       // with correct player totals but intentionally starts a fresh undo stack.
       eventStack = [];
@@ -389,6 +415,7 @@
     eventStack = [];
     activePlayerIndex = null;
     timeouts = createDefaultTimeouts();
+    teamFoulsByQuarter = createDefaultTeamFouls();
     restoreAttemptedForGame = gameId();
     statusEl.textContent = '球員名單已變更；目前統計已保留，本機 Undo／還原草稿已重設';
     refreshDisplay();
@@ -409,6 +436,7 @@
     try { localStorage.removeItem(draftKey()); } catch (error) { /* ignore */ }
     eventStack = [];
     timeouts = createDefaultTimeouts();
+    teamFoulsByQuarter = createDefaultTeamFouls();
     restoreAttemptedForGame = gameId();
     statusEl.textContent = 'Box Score 已提交；本機即時草稿已清除';
     refreshDisplay();
@@ -421,6 +449,7 @@
     activePlayerIndex = null;
     eventStack = [];
     timeouts = createDefaultTimeouts();
+    teamFoulsByQuarter = createDefaultTeamFouls();
     restoreAttemptedForGame = '';
     panel.hidden = true;
     document.body.classList.remove('live-entry-active');

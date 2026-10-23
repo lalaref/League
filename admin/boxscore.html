@@ -8,7 +8,7 @@
     <title>Box Score 輸入 — ALL-IN Basketball League</title>
     <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="../css/responsive.css">
-    <link rel="stylesheet" href="../css/admin.css?v=20261015-timekeeper-return">
+    <link rel="stylesheet" href="../css/admin.css?v=20261015-quarter-fouls-roster">
     <style>
       /* Fallback: keep timeout score-sheet boxes visible even when a cached admin.css is served. */
       .live-timeout-strip { display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); align-items:center; gap:10px; padding:7px 12px; background:#fffaf0; border-bottom:1px solid #f2d49a; color:#6b4a0a; font-size:.8rem; font-weight:800; }
@@ -111,9 +111,9 @@
                         <button type="button" id="btn-live-discard" class="live-discard">清除本機草稿</button>
                     </div>
                     <div class="live-timeout-strip" aria-label="暫停次數">
-                        <div class="live-timeout-team"><span>主隊暫停</span><div class="live-timeout-record"><div class="live-timeout-boxes" role="group" aria-label="主隊暫停記錄"><button type="button" class="live-timeout-box" data-timeout-side="home" data-timeout-slot="0" aria-label="主隊第 1 次暫停"></button><button type="button" class="live-timeout-box" data-timeout-side="home" data-timeout-slot="1" aria-label="主隊第 2 次暫停"></button><button type="button" class="live-timeout-box" data-timeout-side="home" data-timeout-slot="2" aria-label="主隊第 3 次暫停"></button></div><small class="live-team-fouls">全隊犯規 <strong id="live-home-team-fouls">0</strong></small></div></div>
+                        <div class="live-timeout-team"><span>主隊暫停</span><div class="live-timeout-record"><div class="live-timeout-boxes" role="group" aria-label="主隊暫停記錄"><button type="button" class="live-timeout-box" data-timeout-side="home" data-timeout-slot="0" aria-label="主隊第 1 次暫停"></button><button type="button" class="live-timeout-box" data-timeout-side="home" data-timeout-slot="1" aria-label="主隊第 2 次暫停"></button><button type="button" class="live-timeout-box" data-timeout-side="home" data-timeout-slot="2" aria-label="主隊第 3 次暫停"></button></div><small class="live-team-fouls">本節全隊犯規 <strong id="live-home-team-fouls">0</strong></small></div></div>
                         <span id="live-timeout-half">上半場：每隊 2 次</span>
-                        <div class="live-timeout-team live-timeout-team--away"><span>客隊暫停</span><div class="live-timeout-record"><div class="live-timeout-boxes" role="group" aria-label="客隊暫停記錄"><button type="button" class="live-timeout-box" data-timeout-side="away" data-timeout-slot="0" aria-label="客隊第 1 次暫停"></button><button type="button" class="live-timeout-box" data-timeout-side="away" data-timeout-slot="1" aria-label="客隊第 2 次暫停"></button><button type="button" class="live-timeout-box" data-timeout-side="away" data-timeout-slot="2" aria-label="客隊第 3 次暫停"></button></div><small class="live-team-fouls">全隊犯規 <strong id="live-away-team-fouls">0</strong></small></div></div>
+                        <div class="live-timeout-team live-timeout-team--away"><span>客隊暫停</span><div class="live-timeout-record"><div class="live-timeout-boxes" role="group" aria-label="客隊暫停記錄"><button type="button" class="live-timeout-box" data-timeout-side="away" data-timeout-slot="0" aria-label="客隊第 1 次暫停"></button><button type="button" class="live-timeout-box" data-timeout-side="away" data-timeout-slot="1" aria-label="客隊第 2 次暫停"></button><button type="button" class="live-timeout-box" data-timeout-side="away" data-timeout-slot="2" aria-label="客隊第 3 次暫停"></button></div><small class="live-team-fouls">本節全隊犯規 <strong id="live-away-team-fouls">0</strong></small></div></div>
                     </div>
                     <p id="live-selected-player" class="live-selected-player" hidden aria-live="polite">先點選球員，再記錄事件</p>
                     <div class="live-rosters">
@@ -270,7 +270,7 @@
     <script src="../js/navigation.js?v=20260409"></script>
     <script src="auth.js?v=20260410"></script>
     <script src="boxscore.js?v=20261015-recent-matchups"></script>
-    <script src="live-boxscore.js?v=20261015-foul-totals-v2"></script>
+    <script src="live-boxscore.js?v=20261015-quarter-fouls-roster"></script>
     <script>I18n.init();</script>
 </body>
 </html>
