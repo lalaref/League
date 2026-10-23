@@ -1502,7 +1502,7 @@
     .timekeeper-mode.live-entry-active .section,
     .timekeeper-mode.live-entry-active .container { margin: 0; padding: 0; max-width: none; }
     .timekeeper-mode.live-entry-active .live-entry-panel {
-        position: fixed; inset: 0; z-index: 5000; display: grid; grid-template-rows: 70px 56px 56px 38px 142px minmax(0, 1fr) 56px;
+        position: fixed; inset: 0; z-index: 5000; display: grid; grid-template-rows: 70px 56px 56px 38px 166px minmax(0, 1fr) 56px;
         height: 100dvh; margin: 0; border: 0; border-radius: 0; box-shadow: none;
     }
     .timekeeper-mode.live-entry-active .live-score-team { flex-direction: row; padding: 8px 20px; }
@@ -1522,9 +1522,9 @@
     .timekeeper-mode.live-entry-active .live-rosters { gap: 10px; padding: 7px 12px; overflow: hidden; }
     .timekeeper-mode.live-entry-active .live-team-panel h3 { margin-bottom: 5px; padding: 4px 8px; }
     .timekeeper-mode.live-entry-active .live-player-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; }
-    .timekeeper-mode.live-entry-active .live-player-tile { min-height: 44px; padding: 3px; }
-    .timekeeper-mode.live-entry-active .live-player-number { font-size: 1.45rem; }
-    .timekeeper-mode.live-entry-active .live-player-points { min-width: 20px; font-size: .76rem; }
+    .timekeeper-mode.live-entry-active .live-player-tile { min-height: 52px; padding: 4px; }
+    .timekeeper-mode.live-entry-active .live-player-number { font-size: 1.65rem; }
+    .timekeeper-mode.live-entry-active .live-player-points { min-width: 23px; font-size: .84rem; }
     .timekeeper-mode.live-entry-active .live-action-pad { grid-template-columns: 1.2fr .65fr 1.8fr; gap: 10px; padding: 9px 12px; min-height: 0; overflow: hidden; }
     .timekeeper-mode.live-entry-active .live-action-group { grid-template-rows: 16px minmax(0, 1fr); gap: 5px; min-height: 0; }
     .timekeeper-mode.live-entry-active .live-action-group > span { font-size: .62rem; }
@@ -1561,16 +1561,16 @@
 
 @media (min-width: 768px) and (orientation: landscape) {
     .timekeeper-mode.live-entry-active .live-entry-panel--dense .live-player-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
-    .timekeeper-mode.live-entry-active .live-entry-panel--dense .live-player-tile { min-height: 36px; padding: 2px; }
-    .timekeeper-mode.live-entry-active .live-entry-panel--dense .live-player-number { font-size: 1.2rem; }
-    .timekeeper-mode.live-entry-active .live-entry-panel--dense .live-player-points { min-width: 16px; font-size: .65rem; }
+    .timekeeper-mode.live-entry-active .live-entry-panel--dense .live-player-tile { min-height: 42px; padding: 3px; }
+    .timekeeper-mode.live-entry-active .live-entry-panel--dense .live-player-number { font-size: 1.4rem; }
+    .timekeeper-mode.live-entry-active .live-entry-panel--dense .live-player-points { min-width: 18px; font-size: .7rem; }
     .timekeeper-mode.live-entry-active .live-entry-panel--dense .live-action { font-size: .78rem; }
     .timekeeper-mode.live-entry-active .live-entry-panel--dense .live-action b { font-size: .9rem; }
 
     .timekeeper-mode.live-entry-active .live-entry-panel--extra-dense .live-player-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 3px; }
-    .timekeeper-mode.live-entry-active .live-entry-panel--extra-dense .live-player-tile { min-height: 30px; padding: 1px; }
-    .timekeeper-mode.live-entry-active .live-entry-panel--extra-dense .live-player-number { font-size: 1rem; }
-    .timekeeper-mode.live-entry-active .live-entry-panel--extra-dense .live-player-points { min-width: 13px; font-size: .58rem; }
+    .timekeeper-mode.live-entry-active .live-entry-panel--extra-dense .live-player-tile { min-height: 34px; padding: 2px; }
+    .timekeeper-mode.live-entry-active .live-entry-panel--extra-dense .live-player-number { font-size: 1.1rem; }
+    .timekeeper-mode.live-entry-active .live-entry-panel--extra-dense .live-player-points { min-width: 14px; font-size: .62rem; }
     .timekeeper-mode.live-entry-active .live-entry-panel--extra-dense .live-action { font-size: .7rem; }
     .timekeeper-mode.live-entry-active .live-entry-panel--extra-dense .live-action b { font-size: .82rem; }
 }
