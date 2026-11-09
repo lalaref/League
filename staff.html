@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>工作人員管理 | LaLaRef</title>
+<style>
+:root { color-scheme: light dark; --font-sans: 'Segoe UI', 'Microsoft JhengHei', sans-serif; }
+body { margin: 16px; }
+#lr-staff-preview { max-width: 1240px; margin: 0 auto; }
+</style>
+</head>
+<body>
+<style>
+#lr-staff-preview { --lr-bg:light-dark(#faf7f2,#211e1a); --lr-paper:light-dark(#fffdf9,#2a2621); --lr-soft:light-dark(#f1e7d9,#342d24); --lr-ink:light-dark(#46372b,#f2e6d6); --lr-muted:light-dark(#7b6a59,#c0af9b); --lr-line:light-dark(#dfd2c1,#514433); --lr-accent:light-dark(#815c31,#e5bd89); --lr-button:light-dark(#815c31,#dcb483); --lr-on-button:light-dark(#ffffff,#251c13); --lr-good:light-dark(#226744,#91d6ac); --lr-good-bg:light-dark(#e8f3eb,#20392c); --lr-warn:light-dark(#855414,#e9c17e); --lr-warn-bg:light-dark(#fff1d9,#403221); color:var(--lr-ink); background:var(--lr-bg); border:1px solid var(--lr-line); border-radius:16px; font:400 13px var(--font-sans, sans-serif); overflow-wrap:anywhere; }
+#lr-staff-preview * { box-sizing:border-box; }
+#lr-staff-preview [hidden] { display:none!important; }
+#lr-staff-preview h2,#lr-staff-preview h3,#lr-staff-preview h4 { font-size:inherit; font-weight:500; margin:0; }
+#lr-staff-preview p { margin:8px 0; }
+#lr-staff-preview button,#lr-staff-preview input,#lr-staff-preview select,#lr-staff-preview textarea { font:inherit; border:1px solid var(--lr-line); border-radius:8px; min-height:36px; padding:8px 10px; color:var(--lr-ink); background:var(--lr-paper); max-width:100%; }
+#lr-staff-preview button { cursor:pointer; font-weight:500; }
+#lr-staff-preview button:disabled { cursor:not-allowed; opacity:.5; }
+#lr-staff-preview button.primary { background:var(--lr-button); color:var(--lr-on-button); border-color:var(--lr-button); }
+#lr-staff-preview button.wa { color:var(--lr-good); background:var(--lr-good-bg); border-color:var(--lr-good); }
+#lr-staff-preview label { display:grid; gap:6px; min-width:0; }
+#lr-staff-preview input,#lr-staff-preview select { width:100%; }
+#lr-staff-preview textarea { width:100%; resize:vertical; }
+#lr-staff-preview .top { padding:20px 24px; display:flex; align-items:center; justify-content:space-between; gap:14px; background:var(--lr-soft); border-radius:16px 16px 0 0; }
+#lr-staff-preview .brand { display:flex; align-items:center; gap:12px; }
+#lr-staff-preview .monogram { border:1px solid var(--lr-accent); border-radius:12px; padding:10px; color:var(--lr-accent); font-weight:500; flex-shrink:0; white-space:nowrap; }
+#lr-staff-preview .small { font-size:12px; color:var(--lr-muted); }
+#lr-staff-preview .tag { display:inline-block; padding:4px 8px; border:1px solid var(--lr-line); border-radius:6px; background:var(--lr-paper); font-size:12px; white-space:nowrap; }
+#lr-staff-preview .good { color:var(--lr-good); background:var(--lr-good-bg); border-color:transparent; }
+#lr-staff-preview .warn { color:var(--lr-warn); background:var(--lr-warn-bg); border-color:transparent; }
+#lr-staff-preview .notice { padding:10px 24px; border-bottom:1px solid var(--lr-line); font-size:12px; color:var(--lr-muted); }
+#lr-staff-preview .tabs { display:flex; gap:8px; flex-wrap:wrap; padding:16px 24px 0; }
+#lr-staff-preview .tabs button[aria-selected=true] { color:var(--lr-on-button); background:var(--lr-button); border-color:var(--lr-button); }
+#lr-staff-preview .pane { padding:20px 24px 24px; }
+#lr-staff-preview .row { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+#lr-staff-preview .actions { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
+#lr-staff-preview .event-select { width:min(100%,330px); }
+#lr-staff-preview .metrics { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin:16px 0; }
+#lr-staff-preview .metric { padding:16px; background:var(--lr-paper); border:1px solid var(--lr-line); border-radius:10px; }
+#lr-staff-preview .metric strong { display:block; font-size:inherit; font-weight:500; margin:10px 0 4px; font-variant-numeric:tabular-nums; }
+#lr-staff-preview .event-info { border-left:3px solid var(--lr-accent); padding:4px 0 4px 14px; margin:16px 0; }
+#lr-staff-preview .section-title { margin-top:22px; margin-bottom:12px; }
+#lr-staff-preview .table-wrap { overflow-x:auto; margin:12px 0; }
+#lr-staff-preview table { width:100%; border-collapse:collapse; text-align:left; white-space:nowrap; }
+#lr-staff-preview th { font-weight:500; color:var(--lr-muted); background:var(--lr-soft); }
+#lr-staff-preview td,#lr-staff-preview th { padding:12px 10px; border-bottom:1px solid var(--lr-line); vertical-align:middle; }
+#lr-staff-preview td:first-child,#lr-staff-preview th:first-child { padding-left:12px; }
+#lr-staff-preview td.num,#lr-staff-preview th.num { text-align:right; font-variant-numeric:tabular-nums; }
+#lr-staff-preview td .small { display:block; margin-top:5px; }
+#lr-staff-preview td select { min-width:105px; }
+#lr-staff-preview .form-area { border:1px solid var(--lr-line); border-radius:10px; padding:16px; background:var(--lr-paper); margin:14px 0; }
+#lr-staff-preview .form-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin:14px 0; }
+#lr-staff-preview .form-grid.two { grid-template-columns:repeat(2,minmax(0,1fr)); }
+#lr-staff-preview .note { background:var(--lr-soft); padding:12px 14px; border-radius:8px; font-size:12px; }
+#lr-staff-preview .footer { border-top:1px solid var(--lr-line); padding:12px 24px; color:var(--lr-muted); font-size:12px; }
+#lr-staff-preview .total { text-align:right; padding:14px 0; font-weight:500; font-variant-numeric:tabular-nums; }
+#lr-staff-preview .error { color:var(--lr-warn); margin:8px 0; }
+#lr-staff-preview .empty { text-align:center; padding:28px; color:var(--lr-muted); }
+#lr-staff-preview .checkbox { display:flex; align-items:center; gap:8px; margin:12px 0; }
+#lr-staff-preview .checkbox input { width:auto; min-height:auto; }
+#lr-staff-preview #lr-flash:not(:empty) { padding:12px 24px; background:var(--lr-good-bg); color:var(--lr-good); }
+@media(max-width:640px) { #lr-staff-preview .top,#lr-staff-preview .pane { padding:16px 12px; } #lr-staff-preview .tabs { padding:12px 12px 0; } #lr-staff-preview .notice,#lr-staff-preview .footer { padding:12px; } #lr-staff-preview .metrics { gap:6px; } #lr-staff-preview .metric { padding:10px; } #lr-staff-preview .form-grid,#lr-staff-preview .form-grid.two { grid-template-columns:1fr; } #lr-staff-preview .top { align-items:flex-start; } #lr-staff-preview .top>.tag { white-space:normal; } }
+@media(max-width:480px) { #lr-staff-preview .metrics { grid-template-columns:1fr; } #lr-staff-preview .metric { display:grid; grid-template-columns:1fr auto; align-items:center; gap:6px; } #lr-staff-preview .metric strong { margin:0; } #lr-staff-preview .metric .small:last-child { grid-column:1 / -1; } }
+@media(pointer:coarse) { #lr-staff-preview button,#lr-staff-preview input,#lr-staff-preview select { min-height:44px; } }
+</style>
+<div id="lr-staff-preview" lang="zh-HK">
+  <header class="top">
+    <div class="brand"><span class="monogram" aria-hidden="true">LR</span><div><h2>LaLaRef · 工作人員管理</h2><p class="small">籃球項目分派 / 工作紀錄 / 薪金結算</p></div></div>
+    <span class="tag">工作人員管理</span>
+  </header>
+  <div class="notice">預訂項目自動同步；人員、分派及結算紀錄只儲存在此瀏覽器，不會上傳至預訂試算表。此頁尚未設登入保護，請勿在共用裝置輸入敏感資料；WhatsApp 仍只提供訊息預覽，不會付款。</div>
+  <div id="lr-storage-error" class="notice" role="alert" hidden></div>
+  <nav class="tabs" role="tablist" aria-label="工作人員管理">
+    <button id="lr-tab-events" role="tab" aria-controls="lr-pane-events" aria-selected="true" data-tab="events">項目與分派</button>
+    <button id="lr-tab-staff" role="tab" aria-controls="lr-pane-staff" aria-selected="false" data-tab="staff">工作人員檔案</button>
+    <button id="lr-tab-payroll" role="tab" aria-controls="lr-pane-payroll" aria-selected="false" data-tab="payroll">薪金結算</button>
+  </nav>
+  <div id="lr-flash" role="status" aria-live="polite"></div>
+  <section id="lr-pane-events" class="pane" role="tabpanel" aria-labelledby="lr-tab-events">
+    <div class="row"><label class="event-select">選擇籃球項目（未完成）<select id="lr-project-select"></select></label><div class="actions"><button id="lr-sync-bookings">同步預訂</button><button id="lr-new-event" class="primary">＋ 新增項目</button></div></div>
+    <p id="lr-sync-status" class="small" role="status" aria-live="polite">正在讀取預訂項目…</p>
+    <p class="small">按香港時間，項目結束後自動標記「已完成」並移至下方歷史紀錄，不再出現在分派選單。預訂更新不會改寫已有分派的工時及時薪，請另行核對。</p>
+    <div id="lr-event-editor" class="form-area" hidden>
+      <h3>新增籃球項目</h3>
+      <div class="form-grid two">
+        <label>項目名稱 *<input id="lr-event-name" maxlength="100" placeholder="例如：企業籃球友誼賽"></label>
+        <label>場館及球場 *<input id="lr-event-venue" maxlength="150" placeholder="例如：九龍公園體育館 1 號場"></label>
+        <label>開始日期及時間 *<input type="datetime-local" id="lr-event-start" value="2026-11-21T19:00"></label>
+        <label>結束日期及時間 *<input type="datetime-local" id="lr-event-end" value="2026-11-21T22:00"></label>
+        <label>需要球證人數<input type="number" id="lr-event-refs" min="0" max="99" step="1" value="2"></label>
+        <label>需要紀錄台人數<input type="number" id="lr-event-table" min="0" max="99" step="1" value="1"></label>
+      </div>
+      <div class="actions"><button id="lr-save-event" class="primary">建立項目</button><button id="lr-cancel-event">取消</button></div><p id="lr-event-error" class="error" role="alert"></p>
+    </div>
+    <div id="lr-event-info" class="event-info"></div>
+    <div id="lr-event-metrics" class="metrics"></div>
+    <div class="row section-title"><h3>人員分派紀錄</h3><button id="lr-new-assignment" class="primary">＋ 分派工作人員</button></div>
+    <div class="small">每人可有不同工作時段及時薪；同一人跨場次分派會檢查時間重疊。集合時間不會自動計薪。</div>
+    <div id="lr-assignment-editor" class="form-area" hidden>
+      <h3 id="lr-assignment-title">新增分派</h3>
+      <div class="form-grid">
+        <label>工作人員 *<select id="lr-assignee"></select></label>
+        <label>崗位 *<select id="lr-assignment-role"><option>球證</option><option>紀錄台</option><option>計時員</option><option>其他工作人員</option></select></label>
+        <label>本次時薪（HK$）*<input type="number" id="lr-rate" min="0" max="100000" step="0.01"></label>
+        <label>工作開始 *<input type="datetime-local" id="lr-shift-start"></label>
+        <label>工作結束 *<input type="datetime-local" id="lr-shift-end"></label>
+        <label>不計薪休息（分鐘）<input type="number" id="lr-break" min="0" step="1" value="0"></label>
+      </div>
+      <p id="lr-pay-estimate" class="note" aria-live="polite"></p>
+      <p class="small">正式結算前可改成實際工作時間。時薪保留於此分派，與人員檔案的預設時薪分開。</p>
+      <div class="actions"><button id="lr-save-assignment" class="primary">儲存分派</button><button id="lr-cancel-assignment">取消</button></div><p id="lr-assignment-error" class="error" role="alert"></p>
+    </div>
+    <div class="table-wrap"><table><thead><tr><th>工作人員 / 崗位</th><th>工作時間</th><th class="num">工時</th><th class="num">時薪</th><th class="num">本次金額</th><th>接單狀態</th><th>操作</th></tr></thead><tbody id="lr-assignments"></tbody></table></div>
+    <div id="lr-event-total" class="total"></div>
+    <div id="lr-wa-preview" class="form-area" hidden>
+      <div class="row"><h3>WhatsApp 個人提醒預覽</h3><button id="lr-close-wa">關閉</button></div>
+      <p id="lr-wa-recipient" class="small"></p>
+      <label class="checkbox"><input id="lr-include-pay" type="checkbox">通知中包含此人的時薪及預計薪金</label>
+      <label>預填訊息<textarea id="lr-wa-text" rows="10" readonly></textarea></label>
+      <p class="note">正式版：按 WhatsApp → 開啟該人對話並預填訊息 → 由你按「送出」。此處只展示文字，不會聯絡任何人；開啟對話不代表已送出、已讀或已確認。</p>
+    </div>
+    <details id="lr-project-history">
+      <summary id="lr-history-title">已完成 / 已取消項目</summary>
+      <div class="table-wrap"><table><thead><tr><th>項目 / 預訂編號</th><th>結束時間</th><th>狀態</th><th>操作</th></tr></thead><tbody id="lr-history-list"></tbody></table></div>
+      <p class="small">歷史項目的分派和薪金不會刪除；可查看紀錄及核對未鎖定的實際工時。</p>
+    </details>
+    <p class="note">建議流程：建立人員檔案 → 自動匯入預訂或建立項目 → 分派及 WhatsApp 通知 → 手動記錄接單確認 → 活動後核實工時 → 結算及登記付款。</p>
+  </section>
+  <section id="lr-pane-staff" class="pane" role="tabpanel" aria-labelledby="lr-tab-staff" hidden>
+    <div class="row"><div><h3>工作人員檔案</h3><p class="small">先建立聯絡資料，日後分派直接選人，毋須重複輸入。</p></div><button id="lr-new-staff" class="primary">＋ 新增工作人員</button></div>
+    <div id="lr-staff-editor" class="form-area" hidden>
+      <h3 id="lr-staff-title">新增工作人員</h3>
+      <div class="form-grid">
+        <label>姓名 *<input id="lr-staff-name" maxlength="60" placeholder="工作人員姓名"></label>
+        <label>WhatsApp 電話 *<input id="lr-staff-phone" type="tel" maxlength="25" placeholder="香港 8 位數字或 +國碼"></label>
+        <label>主要崗位<select id="lr-staff-role"><option>球證</option><option>紀錄台</option><option>計時員</option><option>其他工作人員</option></select></label>
+        <label>預設時薪（HK$）*<input id="lr-staff-rate" type="number" min="0" max="100000" step="0.01" value="250"></label>
+        <label>狀態<select id="lr-staff-active"><option value="yes">可分派</option><option value="no">停用</option></select></label>
+        <label>備註<input id="lr-staff-note" maxlength="150" placeholder="例如：可兼任計時員"></label>
+      </div>
+      <div class="actions"><button id="lr-save-staff" class="primary">儲存人員</button><button id="lr-cancel-staff">取消</button></div><p id="lr-staff-error" class="error" role="alert"></p>
+    </div>
+    <div class="table-wrap"><table><thead><tr><th>姓名</th><th>WhatsApp 電話</th><th>主要崗位</th><th class="num">預設時薪</th><th>狀態</th><th>操作</th></tr></thead><tbody id="lr-staff-list"></tbody></table></div>
+    <div class="note">停用只會停止新分派，已有工作及薪金紀錄仍保留。正式版只讓獲授權管理員查看電話及薪酬，不放在公開首頁或公開試算表。</div>
+  </section>
+  <section id="lr-pane-payroll" class="pane" role="tabpanel" aria-labelledby="lr-tab-payroll" hidden>
+    <div class="row"><div><h3>薪金結算</h3><p class="small">按「工作人員 × 項目」彙總多次分派；幣別 HKD，時間為香港時間。</p></div><button id="lr-show-statement">結算單預覽</button></div>
+    <div class="form-grid"><label>項目<select id="lr-pay-project"></select></label><label>工作人員<select id="lr-pay-staff"></select></label><label>工作開始月份<input type="month" id="lr-pay-month" value="2026-11"></label></div>
+    <div id="lr-pay-metrics" class="metrics"></div>
+    <div class="note">應付金額 =（結束 − 開始 − 不計薪休息）÷ 60 × 本次時薪。逐筆四捨五入至港幣仙再加總；婉拒不計薪。先核實實際工時，再登記付款，避免把預計金額當作已出糧。</div>
+    <div class="table-wrap"><table><thead><tr><th>人員 / 項目</th><th class="num">工時</th><th class="num">項目合計</th><th class="num">已付</th><th class="num">未付</th></tr></thead><tbody id="lr-pay-summary"></tbody></table></div>
+    <h4 class="section-title">逐筆核實及付款紀錄</h4>
+    <div class="table-wrap"><table><thead><tr><th>工作人員 / 日期</th><th>工時核實</th><th class="num">金額</th><th>結算狀態</th><th>操作</th></tr></thead><tbody id="lr-pay-details"></tbody></table></div>
+    <div id="lr-payment-editor" class="form-area" hidden>
+      <h4 id="lr-payment-title">登記付款</h4><p class="small">此操作只記錄已在其他渠道完成的付款，不會轉帳。</p>
+      <div class="form-grid"><label>付款日期 *<input type="date" id="lr-payment-date" value="2026-11-16"></label><label>方式<select id="lr-payment-method"><option>FPS 轉數快</option><option>銀行轉帳</option><option>現金</option></select></label><label>參考編號 / 備註<input id="lr-payment-ref" maxlength="100" placeholder="例如：FPS 交易編號"></label></div>
+      <div class="actions"><button id="lr-confirm-payment" class="primary">模擬登記全額付款</button><button id="lr-cancel-payment">取消</button></div><p class="error" id="lr-payment-error" role="alert"></p>
+    </div>
+    <div id="lr-statement-area" class="form-area" hidden><div class="row"><h4>結算單內容預覽</h4><button id="lr-close-statement">關閉</button></div><label>目前篩選結果<textarea id="lr-statement" rows="10" readonly></textarea></label><p class="small">正式版建議提供 CSV 匯出及可列印的個人結算單。</p></div>
+    <p class="small">核實後鎖定工作時間及時薪，已付紀錄不可覆寫。此頁整理工作報酬，不包含法定供款、稅務或銀行付款功能。</p>
+  </section>
+  <footer class="footer">設計規則：電話及薪酬僅限內部存取 · 分派保留當次時薪 · 同時段衝突提示 · 停用人員保留歷史 · 已付帳目鎖定 · 正式版保留修改紀錄</footer>
+</div>
+<script>
+(() => {
+  const root = document.getElementById('lr-staff-preview');
+  const el = id => root.querySelector('#lr-' + id);
+  const escape = value => String(value ?? '').replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character]));
+  const money = cents => 'HK$ ' + (cents / 100).toLocaleString('en-HK', {minimumFractionDigits:2,maximumFractionDigits:2});
+  const hours = minutes => (minutes / 60).toLocaleString('en-HK', {maximumFractionDigits:2}) + ' 小時';
+  const date = value => value.slice(0,10).replaceAll('-','/');
+  const timestamp = value => Date.parse(value + '+08:00');
+  const duration = assignment => Math.round((timestamp(assignment.end) - timestamp(assignment.start)) / 60000) - assignment.breakMinutes;
+  const amount = assignment => assignment.status === 'declined' ? 0 : Math.round(duration(assignment) * assignment.rate / 60);
+  const flash = text => { el('flash').textContent = text; };
+  const stateKey = 'lalarefStaffState';
+  const bookingCacheKey = 'lalarefStaffBookings';
+  const defaultSheetUrl = 'https://script.google.com/macros/s/AKfycbwObVDmTIBfRYm-zoQn2TYKGyryfjHqhF0sy_NMG6iou82XvjQ8dBwU3mi8335G2ikOfg/exec';
+  let canSave = true;
+  let saved = null;
+  function storageError(message) {
+    el('storage-error').hidden = false;
+    el('storage-error').textContent = message;
+  }
+  try {
+    saved = JSON.parse(localStorage.getItem(stateKey) || 'null');
+    if (saved && (!Array.isArray(saved.staff) || !Array.isArray(saved.projects) || !Array.isArray(saved.assignments) || !Number.isSafeInteger(saved.counter))) throw new Error('Invalid staff state');
+  } catch (error) {
+    saved = null;
+    canSave = false;
+    storageError('無法讀取本機紀錄。本次變更不會儲存，也不會覆寫原有資料；請檢查瀏覽器儲存設定。');
+  }
+  const staff = saved ? saved.staff : [];
+  const projects = saved ? saved.projects : [];
+  const assignments = saved ? saved.assignments : [];
+  let selectedProject = '';
+  let viewingHistory = false;
+  let editingAssignment = null;
+  let editingStaff = null;
+  let waId = null;
+  let paymentId = null;
+  let counter = saved ? saved.counter : 0;
+  let lastSaved = JSON.stringify({staff,projects,assignments,counter});
+  const hkDate = new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Hong_Kong',year:'numeric',month:'2-digit',day:'2-digit'});
+  const hkTime = new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Hong_Kong',hour:'2-digit',minute:'2-digit',hourCycle:'h23'});
+  const statusLabels = {scheduled:'未開始',ongoing:'進行中',completed:'已完成',cancelled:'已取消'};
+  function projectStatus(item) {
+    if (item.bookingStatus === 'cancelled') return 'cancelled';
+    if (timestamp(item.end) <= Date.now()) return 'completed';
+    return timestamp(item.start) <= Date.now() ? 'ongoing' : 'scheduled';
+  }
+  const isActive = item => ['scheduled','ongoing'].includes(projectStatus(item));
+  function saveState() {
+    if (!canSave) return;
+    const next = JSON.stringify({staff,projects,assignments,counter});
+    if (next === lastSaved) return;
+    try { localStorage.setItem(stateKey,next); lastSaved = next; }
+    catch (error) { storageError('本次變更未能儲存。請勿關閉頁面，並檢查瀏覽器儲存空間及設定。'); }
+  }
+  function bookingSource() {
+    try { return localStorage.getItem('sheetUrl') || defaultSheetUrl; }
+    catch (error) { return defaultSheetUrl; }
+  }
+  function bookingDate(value) {
+    if (typeof value !== 'string') return '';
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      const parsed = new Date(value+'T00:00:00Z');
+      return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0,10) === value ? value : '';
+    }
+    const parsed = new Date(value);
+    return value.includes('T') && Number.isFinite(parsed.getTime()) ? hkDate.format(parsed) : '';
+  }
+  function bookingTime(value) {
+    if (typeof value !== 'string') return '';
+    if (/^([01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/.test(value)) return value.slice(0,5);
+    const parsed = new Date(value);
+    return value.includes('T') && Number.isFinite(parsed.getTime()) ? hkTime.format(parsed) : '';
+  }
+  function importBookings(rows,source) {
+    const skipped = [];
+    for (const row of rows) {
+      if (!row || typeof row !== 'object' || row.code == null) continue;
+      const code = String(row.code).trim();
+      if (!code) continue;
+      const existing = projects.find(item => item.bookingCode === code && item.bookingSource === source);
+      if (row.status === 'cancelled') {
+        if (existing) existing.bookingStatus = 'cancelled';
+        if (!row.matchDate || !row.matchTime || !row.matchEndTime) continue;
+      }
+      const day = bookingDate(row.matchDate), startTime = bookingTime(row.matchTime), endTime = bookingTime(row.matchEndTime);
+      if (!day || !startTime || !endTime || startTime === endTime) { skipped.push(code); continue; }
+      const start = day+'T'+startTime;
+      let end = day+'T'+endTime;
+      if (endTime < startTime) end = hkDate.format(new Date(timestamp(end)+86400000))+'T'+endTime;
+      const venue = String(row.venue || '').trim();
+      const refs = Number(row.refereeCount);
+      if (!venue || !Number.isInteger(refs) || refs < 0 || refs > 99) { skipped.push(code); continue; }
+      const values = {name:venue+' · '+String(row.matchType || '籃球')+'（'+code+'）',venue,start,end,refs,bookingCode:code,bookingSource:source,bookingStatus:String(row.status || 'pending')};
+      if (existing) Object.assign(existing,values);
+      else projects.push({id:'p'+(++counter),table:0,...values});
+    }
+    return [...new Set(skipped)];
+  }
+  function importCachedBookings(source = bookingSource()) {
+    try {
+      const cache = JSON.parse(localStorage.getItem(bookingCacheKey) || 'null');
+      if (cache && cache.source === source && Array.isArray(cache.bookings)) {
+        importBookings(cache.bookings,source);
+        return true;
+      }
+    } catch (error) { el('sync-status').textContent = '預訂快取無法讀取，將重新同步 Google Sheets。'; }
+    return false;
+  }
+  let syncing = false;
+  async function syncBookings() {
+    if (syncing) return;
+    syncing = true;
+    el('sync-bookings').disabled = true;
+    const source = bookingSource();
+    const cached = importCachedBookings(source);
+    renderAll();
+    el('sync-status').textContent = cached ? '已讀取本機預訂快取，正在核對 Google Sheets…' : '正在同步 Google Sheets 預訂…';
+    const startedAt = Date.now();
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(),15000);
+    try {
+      const url = new URL(source);
+      if (url.protocol !== 'https:' || url.hostname !== 'script.google.com' || !/^\/macros\/s\/[^/]+\/exec$/.test(url.pathname)) throw new Error('請在預訂管理頁設定有效的 Google Apps Script 網址');
+      const response = await fetch(url.href,{signal:controller.signal,cache:'no-store'});
+      if (!response.ok) throw new Error('Google Sheets 回應失敗');
+      const data = await response.json();
+      if (!data || data.success !== true || !Array.isArray(data.bookings)) throw new Error('預訂資料格式不正確');
+      if (source !== bookingSource()) return;
+      const skipped = importBookings(data.bookings,source);
+      try {
+        const cache = JSON.parse(localStorage.getItem(bookingCacheKey) || 'null');
+        if (cache && cache.source === source && cache.updatedAt >= startedAt && Array.isArray(cache.bookings)) importBookings(cache.bookings,source);
+      } catch (error) { /* A failed cache must not invalidate a successful sheet read. */ }
+      renderAll();
+      el('sync-status').textContent = '已同步預訂 · '+hkTime.format(new Date())+'（香港時間）；每分鐘及返回頁面時自動更新。'+(skipped.length ? ' 未匯入 '+skipped.length+' 筆（'+skipped.join('、')+'）：請補齊日期、起止時間、地點及人數。' : '');
+    } catch (error) {
+      el('sync-status').textContent = '同步未完成，已保留現有紀錄。'+(error.name === 'AbortError' ? '連線逾時。' : error.message+'。')+' 可按「同步預訂」重試。';
+    } finally {
+      clearTimeout(timeout);
+      syncing = false;
+      el('sync-bookings').disabled = false;
+    }
+  }
+  const person = id => staff.find(item => item.id === id);
+  const project = id => projects.find(item => item.id === id);
+  const task = id => assignments.find(item => item.id === id);
+  const currentAssignments = () => assignments.filter(item => item.project === selectedProject);
+  const metric = (label,value,note) => '<div class="metric"><span class="small">'+escape(label)+'</span><strong>'+escape(value)+'</strong><span class="small">'+escape(note)+'</span></div>';
+  const option = (id,name) => '<option value="'+escape(id)+'">'+escape(name)+'</option>';
+  const fillOptions = (control,items,first) => {
+    const previous = control.value;
+    control.innerHTML = (first ? option('',first) : '') + items.map(item => option(item.id,item.name)).join('');
+    if ([...control.options].some(item => item.value === previous)) control.value = previous;
+  };
+  function refreshOptions() {
+    projects.forEach(item => { item.status = projectStatus(item); });
+    const active = projects.filter(isActive).sort((a,b) => timestamp(a.start)-timestamp(b.start));
+    const selected = project(selectedProject);
+    if (!selected || (!viewingHistory && !isActive(selected))) {
+      selectedProject = active[0]?.id || '';
+      viewingHistory = false;
+      el('assignment-editor').hidden = true;
+      el('wa-preview').hidden = true;
+      waId = null;
+    }
+    fillOptions(el('project-select'),active.map(item => ({id:item.id,name:date(item.start)+' · '+item.name+' · '+statusLabels[item.status]})),active.length ? '請選擇未完成項目' : '目前沒有未完成項目');
+    el('project-select').value = viewingHistory ? '' : selectedProject;
+    el('project-select').disabled = !active.length;
+    fillOptions(el('pay-project'),projects.map(item => ({id:item.id,name:item.name+' · '+statusLabels[item.status]})),'所有項目（含已完成）');
+    fillOptions(el('pay-staff'),staff,'所有工作人員');
+  }
+  function renderHistory() {
+    const history = projects.filter(item => !isActive(item)).sort((a,b) => timestamp(b.end)-timestamp(a.end));
+    el('history-title').textContent = '已完成 / 已取消項目（'+history.length+'）';
+    el('history-list').innerHTML = history.length ? history.map(item => '<tr><td>'+escape(item.name)+'<span class="small">'+escape(item.bookingCode || '手動建立')+'</span></td><td>'+date(item.end)+' '+item.end.slice(11)+'</td><td><span class="tag">'+statusLabels[item.status]+'</span></td><td><button data-history="'+escape(item.id)+'">查看紀錄</button></td></tr>').join('') : '<tr><td colspan="4" class="empty">暫無歷史項目。</td></tr>';
+  }
+  function renderEvents() {
+    const event = project(selectedProject);
+    el('new-assignment').disabled = !event || !isActive(event);
+    el('event-metrics').hidden = !event;
+    if (!event) {
+      el('event-info').innerHTML = '<p>目前沒有未完成的籃球項目。新增預訂後會自動匯入，也可手動建立項目。</p>';
+      el('assignments').innerHTML = '<tr><td colspan="7" class="empty">歷史分派請在下方「已完成 / 已取消項目」查看。</td></tr>';
+      el('event-total').textContent = '';
+      return;
+    }
+    const rows = currentAssignments();
+    const active = rows.filter(item => item.status !== 'declined');
+    const total = active.reduce((sum,item) => sum + amount(item),0);
+    const uniqueRole = role => new Set(active.filter(item => item.role === role).map(item => item.staff)).size;
+    el('event-info').innerHTML = '<div class="row"><h3>'+escape(event.name)+'</h3><span class="tag">'+statusLabels[event.status]+'</span></div><p>'+date(event.start)+' '+event.start.slice(11)+' — '+(event.end.slice(0,10) !== event.start.slice(0,10) ? date(event.end)+' ' : '')+event.end.slice(11)+'（香港時間）</p><p class="small">'+escape(event.venue)+(event.bookingCode?' · 預訂編號：'+escape(event.bookingCode):' · 手動建立')+'</p>'+(isActive(event)?'':'<p class="small">此項目已歸檔，保留工時核對及薪金結算，不再接受新分派。</p>');
+    el('event-metrics').innerHTML = metric('項目人手','球證 '+uniqueRole('球證')+'/'+event.refs+' · 紀錄台 '+uniqueRole('紀錄台')+'/'+event.table,'已分派人數 / 需求；確認狀態見下表')+metric('待確認分派',active.filter(item => item.status === 'pending').length+' 筆','通知後手動記錄接單結果')+metric('預計人員成本',money(total),'各人工作時間 × 本次時薪');
+    el('assignments').innerHTML = rows.length ? rows.map(item => '<tr><td>'+escape(person(item.staff).name)+'<span class="small">'+escape(item.role)+'</span></td><td>'+item.start.slice(11)+'–'+item.end.slice(11)+'<span class="small">'+date(item.start)+(item.start.slice(0,10)!==item.end.slice(0,10)?' 至 '+date(item.end):'')+' · 休息 '+item.breakMinutes+' 分鐘</span></td><td class="num">'+hours(duration(item))+'</td><td class="num">'+money(item.rate)+'</td><td class="num">'+money(amount(item))+'</td><td><select aria-label="'+escape(person(item.staff).name)+'接單狀態" data-status="'+item.id+'" '+(item.verified?'disabled':'')+'><option value="pending" '+(item.status==='pending'?'selected':'')+'>待確認</option><option value="confirmed" '+(item.status==='confirmed'?'selected':'')+'>已確認</option><option value="declined" '+(item.status==='declined'?'selected':'')+'>婉拒</option></select></td><td><div class="actions"><button class="wa" data-whatsapp="'+item.id+'" '+(item.status==='declined' || !isActive(event)?'disabled':'')+'>WhatsApp 提醒</button><button data-edit-assignment="'+item.id+'" '+(item.verified?'disabled':'')+'>'+(item.verified?'已鎖定':'編輯')+'</button></div></td></tr>').join('') : '<tr><td colspan="7" class="empty">尚未分派人員。先建立人員檔案，再按「分派工作人員」。</td></tr>';
+    el('event-total').textContent = '此項目預計合計：'+money(total);
+  }
+  function renderStaff() {
+    if (!staff.length) { el('staff-list').innerHTML = '<tr><td colspan="6" class="empty">尚未建立工作人員，請按「新增工作人員」。</td></tr>'; return; }
+    el('staff-list').innerHTML = staff.map(item => '<tr><td>'+escape(item.name)+(item.note?'<span class="small">'+escape(item.note)+'</span>':'')+'</td><td>'+escape(item.phone || '示範：未填電話')+'</td><td>'+escape(item.role)+'</td><td class="num">'+money(item.rate)+'</td><td><span class="tag '+(item.active?'good':'')+'">'+(item.active?'可分派':'停用')+'</span></td><td><button data-edit-staff="'+item.id+'">編輯檔案</button></td></tr>').join('');
+  }
+  function filteredAssignments() {
+    return assignments.filter(item => item.status !== 'declined' && (!el('pay-project').value || item.project === el('pay-project').value) && (!el('pay-staff').value || item.staff === el('pay-staff').value) && (!el('pay-month').value || item.start.slice(0,7) === el('pay-month').value));
+  }
+  function grouped(rows) {
+    const groups = new Map();
+    rows.forEach(item => {
+      const key = item.staff + ':' + item.project;
+      if (!groups.has(key)) groups.set(key,{staff:item.staff,project:item.project,minutes:0,total:0,paid:0});
+      const group = groups.get(key);
+      group.minutes += duration(item); group.total += amount(item); group.paid += item.payment ? amount(item) : 0;
+    });
+    return [...groups.values()];
+  }
+  function renderPayroll() {
+    const rows = filteredAssignments();
+    const total = rows.reduce((sum,item) => sum+amount(item),0);
+    const paid = rows.filter(item => item.payment).reduce((sum,item) => sum+amount(item),0);
+    const payable = rows.filter(item => item.verified && !item.payment).reduce((sum,item) => sum+amount(item),0);
+    el('pay-metrics').innerHTML = metric('工作報酬合計',money(total),'包含尚未核實的預計金額')+metric('已核實・待付款',money(payable),'須先確認接單及實際工時')+metric('已登記付款',money(paid),'未付合計 '+money(total-paid));
+    const groups = grouped(rows);
+    el('pay-summary').innerHTML = groups.length ? groups.map(item => '<tr><td>'+escape(person(item.staff).name)+'<span class="small">'+escape(project(item.project).name)+'</span></td><td class="num">'+hours(item.minutes)+'</td><td class="num">'+money(item.total)+'</td><td class="num">'+money(item.paid)+'</td><td class="num">'+money(item.total-item.paid)+'</td></tr>').join('') : '<tr><td colspan="5" class="empty">此篩選條件沒有工作紀錄。</td></tr>';
+    el('pay-details').innerHTML = rows.length ? rows.map(item => '<tr><td>'+escape(person(item.staff).name)+'<span class="small">'+date(item.start)+' · '+escape(project(item.project).name)+'</span></td><td><span class="tag '+(item.verified?'good':'warn')+'">'+(item.verified?'已核實':'待核實')+'</span></td><td class="num">'+money(amount(item))+'</td><td>'+(item.payment?'<span class="tag good">已付</span><span class="small">'+escape(item.payment.date)+' · '+escape(item.payment.method)+'</span><span class="small">'+escape(item.payment.reference || '無參考編號')+'</span>':'未付款')+'</td><td>'+(item.payment?'已鎖定':item.verified?'<button data-pay="'+item.id+'">登記付款</button>':'<button data-verify="'+item.id+'" '+(item.status !== 'confirmed'?'disabled':'')+'>核實實際工時</button>'+(item.status !== 'confirmed'?'<span class="small">先確認接單狀態</span>':''))+'</td></tr>').join('') : '<tr><td colspan="5" class="empty">沒有待結算紀錄。</td></tr>';
+    el('statement').value = 'LaLaRef 工作報酬結算（示範）\n'+(el('pay-month').value || '所有月份')+' · HKD\n\n'+groups.map(item => person(item.staff).name+'｜'+project(item.project).name+'\n'+hours(item.minutes)+'｜合計 '+money(item.total)+'｜已付 '+money(item.paid)+'｜未付 '+money(item.total-item.paid)).join('\n\n')+'\n\n合計 '+money(total)+'；已登記付款 '+money(paid)+'；未付 '+money(total-paid)+'\n未核實工時屬預計金額，不代表已出糧。';
+  }
+  function renderAll() { refreshOptions(); renderEvents(); renderHistory(); renderStaff(); renderPayroll(); if (waId) renderWhatsApp(); saveState(); }
+  function openTab(name) {
+    root.querySelectorAll('[data-tab]').forEach(button => button.setAttribute('aria-selected',String(button.dataset.tab === name)));
+    ['events','staff','payroll'].forEach(tab => { el('pane-'+tab).hidden = tab !== name; });
+    flash('');
+    if (name === 'payroll') renderPayroll();
+  }
+  root.querySelectorAll('[data-tab]').forEach(button => { button.onclick = () => openTab(button.dataset.tab); });
+  root.querySelector('.tabs').addEventListener('keydown',event => {
+    if (!['ArrowLeft','ArrowRight','Home','End'].includes(event.key)) return;
+    const buttons = [...root.querySelectorAll('[data-tab]')];
+    const index = buttons.indexOf(event.target);
+    if (index < 0) return;
+    event.preventDefault();
+    const next = event.key === 'Home' ? 0 : event.key === 'End' ? buttons.length-1 : (index+(event.key==='ArrowRight'?1:-1)+buttons.length)%buttons.length;
+    buttons[next].focus(); openTab(buttons[next].dataset.tab);
+  });
+  el('project-select').onchange = () => { selectedProject = el('project-select').value; viewingHistory = false; el('assignment-editor').hidden = true; el('wa-preview').hidden = true; waId = null; renderAll(); };
+  el('new-event').onclick = () => { const today = hkDate.format(new Date()); el('event-start').value = today+'T19:00'; el('event-end').value = today+'T22:00'; el('event-editor').hidden = false; el('event-error').textContent = ''; el('event-name').focus(); };
+  el('cancel-event').onclick = () => { el('event-editor').hidden = true; };
+  el('save-event').onclick = () => {
+    const name = el('event-name').value.trim(), venue = el('event-venue').value.trim(), start = el('event-start').value, end = el('event-end').value;
+    const refs = Number(el('event-refs').value), table = Number(el('event-table').value);
+    if (!name || !venue || !start || !end || timestamp(end) <= timestamp(start) || !Number.isInteger(refs) || !Number.isInteger(table) || refs < 0 || table < 0 || refs > 99 || table > 99) { el('event-error').textContent = '請填寫名稱及地點，結束須晚於開始，人數須為 0–99 的整數。'; return; }
+    const id = 'p'+(++counter); projects.push({id,name,venue,start,end,refs,table}); selectedProject = id; viewingHistory = false;
+    el('event-editor').hidden = true; el('assignment-editor').hidden = true; el('wa-preview').hidden = true; waId = null;
+    renderAll(); flash(timestamp(end) <= Date.now() ? '項目已建立；日期已過，自動移至已完成紀錄。' : '項目已建立，可開始分派工作人員。');
+  };
+  function estimate() {
+    const start = el('shift-start').value, end = el('shift-end').value, rest = Number(el('break').value), rate = Number(el('rate').value);
+    const minutes = start && end ? Math.round((timestamp(end)-timestamp(start))/60000)-rest : NaN;
+    el('pay-estimate').textContent = Number.isFinite(minutes) && minutes > 0 && rest >= 0 && Number.isFinite(rate) && rate >= 0 ? '計薪時間 '+hours(minutes)+' × '+money(Math.round(rate*100))+' / 小時 = '+money(Math.round(minutes*Math.round(rate*100)/60)) : '請輸入有效時段、休息時間及時薪。';
+  }
+  function openAssignment(id) {
+    const selected = project(selectedProject);
+    if (!selected || (!id && !isActive(selected))) { flash('請選擇未完成的項目後再分派人員。'); return; }
+    editingAssignment = id;
+    const item = id ? task(id) : null;
+    const available = staff.filter(member => member.active || (item && member.id === item.staff));
+    if (!available.length) { openTab('staff'); flash('請先新增可分派的工作人員。'); return; }
+    fillOptions(el('assignee'),available);
+    if (item) el('assignee').value = item.staff;
+    const member = person(el('assignee').value), event = project(selectedProject);
+    el('assignment-title').textContent = item ? '編輯分派 / 核對實際工時' : '新增分派';
+    el('assignment-role').value = item ? item.role : member.role;
+    el('rate').value = (item ? item.rate : member.rate)/100;
+    el('shift-start').value = item ? item.start : event.start;
+    el('shift-end').value = item ? item.end : event.end;
+    el('break').value = item ? item.breakMinutes : 0;
+    el('assignment-error').textContent = ''; el('assignment-editor').hidden = false; estimate(); el('assignee').focus();
+  }
+  el('new-assignment').onclick = () => openAssignment(null);
+  el('cancel-assignment').onclick = () => { el('assignment-editor').hidden = true; };
+  el('assignee').onchange = () => { const member = person(el('assignee').value); el('assignment-role').value = member.role; el('rate').value = member.rate/100; estimate(); };
+  ['shift-start','shift-end','break','rate'].forEach(id => { el(id).oninput = estimate; });
+  el('save-assignment').onclick = () => {
+    const existing = editingAssignment ? task(editingAssignment) : null;
+    const selected = project(selectedProject);
+    if (!selected || (!existing && !isActive(selected))) { el('assignment-error').textContent = '項目已完成或取消，不能新增分派。'; return; }
+    if (existing?.verified) { el('assignment-error').textContent = '已核實的工作紀錄不可修改。'; return; }
+    const start = el('shift-start').value, end = el('shift-end').value, rest = Number(el('break').value), rateValue = Number(el('rate').value);
+    if (!start || !end || !el('rate').value || !Number.isFinite(rateValue) || rateValue < 0 || rateValue > 100000 || !el('rate').validity.valid || !Number.isInteger(rest) || rest < 0 || (timestamp(end)-timestamp(start))/60000 <= rest) { el('assignment-error').textContent = '請檢查時間及時薪，休息分鐘須為非負整數並少於整段工時；跨午夜請選翌日日期。'; return; }
+    const memberId = el('assignee').value;
+    const candidate = {id:existing ? existing.id : 'a'+(++counter),project:selectedProject,staff:memberId,role:el('assignment-role').value,start,end,breakMinutes:rest,rate:Math.round(rateValue*100),status:existing ? existing.status : 'pending',verified:false,payment:null};
+    const conflict = assignments.find(item => item.id !== candidate.id && item.staff === memberId && item.status !== 'declined' && candidate.status !== 'declined' && timestamp(item.start) < timestamp(end) && timestamp(item.end) > timestamp(start));
+    if (conflict) { el('assignment-error').textContent = '時間重疊：'+person(memberId).name+' 已獲分派「'+project(conflict.project).name+'」。請調整時段或改派其他人。'; return; }
+    if (existing) Object.assign(existing,candidate); else assignments.push(candidate);
+    el('assignment-editor').hidden = true; renderAll(); flash('分派已更新，時薪獨立保留；紀錄僅儲存於此瀏覽器。');
+  };
+  root.addEventListener('change',event => {
+    const control = event.target.closest('[data-status]');
+    if (!control) return;
+    const item = task(control.dataset.status), next = control.value;
+    if (item.verified) return;
+    const conflict = next !== 'declined' && assignments.find(other => other.id !== item.id && other.staff === item.staff && other.status !== 'declined' && timestamp(other.start) < timestamp(item.end) && timestamp(other.end) > timestamp(item.start));
+    if (conflict) { control.value = item.status; flash('此人有時間重疊的其他分派，請先調整時段。'); return; }
+    item.status = next; renderAll(); flash('接單狀態已手動更新；不代表系統收到 WhatsApp 回覆。');
+  });
+  function renderWhatsApp() {
+    const item = task(waId), member = person(item.staff), event = project(item.project);
+    el('wa-recipient').textContent = '收件人：'+member.name+' · '+(member.phone || '示範人員尚未填電話，正式發送前必須補填');
+    el('wa-text').value = member.name+'，你好！\n\nLaLaRef 工作提醒\n項目：'+event.name+'\n崗位：'+item.role+'\n工作開始：'+date(item.start)+' '+item.start.slice(11)+'\n工作結束：'+date(item.end)+' '+item.end.slice(11)+'\n地點：'+event.venue+'\n請於工作開始前 15 分鐘到場準備。\n'+(item.breakMinutes?'不計薪休息：'+item.breakMinutes+' 分鐘\n':'')+(el('include-pay').checked?'本次時薪：'+money(item.rate)+'\n預計工作報酬：'+money(amount(item))+'（以核實工時為準）\n':'')+'\n收到後請回覆「確認出席」，如有問題請盡早通知。謝謝！';
+  }
+  el('include-pay').onchange = renderWhatsApp;
+  el('close-wa').onclick = () => { el('wa-preview').hidden = true; waId = null; };
+  function openStaff(id) {
+    editingStaff = id;
+    const member = id ? person(id) : null;
+    el('staff-title').textContent = member ? '編輯工作人員' : '新增工作人員';
+    el('staff-name').value = member ? member.name : '';
+    el('staff-phone').value = member ? member.phone : '';
+    el('staff-role').value = member ? member.role : '球證';
+    el('staff-rate').value = member ? member.rate/100 : 250;
+    el('staff-active').value = member && !member.active ? 'no' : 'yes';
+    el('staff-note').value = member ? member.note : '';
+    el('staff-error').textContent = ''; el('staff-editor').hidden = false; el('staff-name').focus();
+  }
+  el('new-staff').onclick = () => openStaff(null);
+  el('cancel-staff').onclick = () => { el('staff-editor').hidden = true; };
+  el('save-staff').onclick = () => {
+    const name = el('staff-name').value.trim();
+    let phone = el('staff-phone').value.replace(/[\s()-]/g,'');
+    if (/^[2-9]\d{7}$/.test(phone)) phone = '+852'+phone;
+    const rate = Number(el('staff-rate').value);
+    if (!name || !/^\+[1-9]\d{6,14}$/.test(phone) || !el('staff-rate').value || !Number.isFinite(rate) || rate < 0 || rate > 100000 || !el('staff-rate').validity.valid) { el('staff-error').textContent = '請填寫姓名、有效電話（香港 8 位數字或 +國碼）及非負時薪（最多兩位小數）。'; return; }
+    if (staff.some(item => item.id !== editingStaff && item.phone === phone)) { el('staff-error').textContent = '此電話已有工作人員檔案，請先核對，避免重複建立。'; return; }
+    const data = {id:editingStaff || 's'+(++counter),name,phone,role:el('staff-role').value,rate:Math.round(rate*100),active:el('staff-active').value==='yes',note:el('staff-note').value.trim()};
+    if (editingStaff) Object.assign(person(editingStaff),data); else staff.push(data);
+    el('staff-editor').hidden = true; el('assignment-editor').hidden = true; renderAll(); flash('人員檔案已暫存；已有分派的時薪及金額保持不變。');
+  };
+  ['pay-project','pay-staff','pay-month'].forEach(id => { el(id).onchange = () => { el('payment-editor').hidden = true; paymentId = null; renderPayroll(); }; });
+  el('show-statement').onclick = () => { renderPayroll(); el('statement-area').hidden = false; el('statement').focus(); };
+  el('close-statement').onclick = () => { el('statement-area').hidden = true; };
+  el('cancel-payment').onclick = () => { el('payment-editor').hidden = true; paymentId = null; };
+  el('confirm-payment').onclick = () => {
+    const item = task(paymentId);
+    if (!item || !item.verified || item.payment) return;
+    const paidDate = el('payment-date').value;
+    if (!paidDate || paidDate < item.end.slice(0,10)) { el('payment-error').textContent = '請選擇工作結束當日或之後的付款日期。'; return; }
+    item.payment = {date:paidDate,method:el('payment-method').value,reference:el('payment-ref').value.trim()};
+    el('payment-editor').hidden = true; paymentId = null; renderAll(); flash('已模擬登記此筆全額付款並鎖定紀錄；沒有進行任何轉帳。');
+  };
+  root.addEventListener('click',event => {
+    const button = event.target.closest('button');
+    if (!button || button.disabled) return;
+    if (button.dataset.history) {
+      selectedProject = button.dataset.history; viewingHistory = true;
+      el('assignment-editor').hidden = true; el('wa-preview').hidden = true; waId = null;
+      renderAll(); el('project-select').focus();
+    }
+    if (button.dataset.editAssignment) openAssignment(button.dataset.editAssignment);
+    if (button.dataset.editStaff) openStaff(button.dataset.editStaff);
+    if (button.dataset.whatsapp) { waId = button.dataset.whatsapp; el('include-pay').checked = false; renderWhatsApp(); el('wa-preview').hidden = false; el('wa-text').focus(); }
+    if (button.dataset.verify) {
+      const item = task(button.dataset.verify);
+      if (item.status !== 'confirmed' || item.verified) return;
+      item.verified = true; renderAll(); flash('已模擬核實 '+person(item.staff).name+' 的 '+hours(duration(item))+'，本次時薪及工時已鎖定。正式操作前請先完成實際工時核對。');
+    }
+    if (button.dataset.pay) {
+      paymentId = button.dataset.pay; const item = task(paymentId);
+      if (!item.verified || item.payment) return;
+      el('payment-title').textContent = '登記付款：'+person(item.staff).name+' · '+money(amount(item));
+      el('payment-date').value = item.end.slice(0,10); el('payment-ref').value = ''; el('payment-error').textContent = ''; el('payment-editor').hidden = false; el('payment-date').focus();
+    }
+  });
+  el('pay-month').value = hkDate.format(new Date()).slice(0,7);
+  el('sync-bookings').onclick = syncBookings;
+  window.addEventListener('storage',event => {
+    if (event.key === bookingCacheKey && importCachedBookings()) {
+      renderAll(); el('sync-status').textContent = '已自動帶入預訂管理頁的最新紀錄。';
+    }
+    if (event.key === 'sheetUrl') syncBookings();
+  });
+  document.addEventListener('visibilitychange',() => {
+    if (!document.hidden) { renderAll(); syncBookings(); }
+  });
+  window.addEventListener('focus',() => { renderAll(); syncBookings(); });
+  setInterval(() => {
+    if (!document.hidden && projects.some(item => item.status !== projectStatus(item))) renderAll();
+  },30000);
+  setInterval(() => { if (!document.hidden) syncBookings(); },60000);
+  renderAll();
+  syncBookings();
+})();
+</script>
+</body>
+</html>
