@@ -155,7 +155,8 @@
     "homeTeam": "主隊",
     "awayTeam": "客隊",
     "final": "終場",
-    "shareWhatsApp": "WhatsApp 分享"
+    "shareWhatsApp": "WhatsApp 分享",
+    "viewDetails": "查看比賽詳情 →"
   },
   "admin": {
     "title": "管理後台",

@@ -155,7 +155,8 @@
     "homeTeam": "Home",
     "awayTeam": "Away",
     "final": "Final",
-    "shareWhatsApp": "Share via WhatsApp"
+    "shareWhatsApp": "Share via WhatsApp",
+    "viewDetails": "View Game Details →"
   },
   "admin": {
     "title": "Admin Dashboard",
