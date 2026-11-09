@@ -462,6 +462,13 @@
     var homeWin = isCompleted && Number(homeScore) > Number(awayScore);
     var awayWin = isCompleted && Number(awayScore) > Number(homeScore);
 
+    var gameId = game.id != null && game.id !== '' ? String(game.id) : '';
+    var detailLabel = I18n.t('game.viewDetails');
+    if (detailLabel === 'game.viewDetails') detailLabel = '查看比賽詳情 →';
+    var detailLink = gameId
+      ? '<a class="playoff-matchup-detail" href="game.html?id=' + encodeURIComponent(gameId) + '" data-i18n="game.viewDetails">' + _escHtml(detailLabel) + '</a>'
+      : '';
+
     card.innerHTML =
       (label ? '<div class="playoff-matchup-label">' + _escHtml(label) + '</div>' : '') +
       (scheduleDetails.length ? '<div class="playoff-matchup-schedule">' + _escHtml(scheduleDetails.join(' · ')) + '</div>' : '') +
@@ -472,7 +479,8 @@
       '<div class="playoff-team' + (awayWin ? ' playoff-team--winner' : '') + '">' +
         '<span class="playoff-team-name">' + _teamLink(game.awayTeamId, awayName) + '</span>' +
         '<span class="playoff-team-score">' + _escHtml(String(awayScore)) + '</span>' +
-      '</div>';
+      '</div>' +
+      detailLink;
 
     return card;
   }
