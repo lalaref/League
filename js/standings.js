@@ -21,9 +21,11 @@
   // --- DOM 元素 ---
   var seasonSelect = document.getElementById('season-select');
   var seasonOneBracketSection = document.querySelector('.season-one-bracket-section');
+  var seasonTwoBracketSection = document.querySelector('.season-two-bracket-section');
 
   // --- 狀態 ---
   var SEASON_ONE_ID = '845ca40d-4346-448f-bbe2-06b4104bdbda';
+  var SEASON_TWO_ID = 'c90f2419-8111-43ef-9506-a2d082426b75';
   var currentSeasonId = null;
   var currentSeason = null;
   var chartInstances = {};
@@ -77,7 +79,7 @@
         currentSeason = active;
         currentSeasonId = active.id;
         if (seasonSelect) seasonSelect.value = currentSeasonId;
-        syncSeasonOneBracketVisibility();
+        syncBracketVisibility();
         loadAllLeaderboards();
         loadLeaderCards();
         loadTeamStandings();
@@ -119,9 +121,18 @@
       /(?:season|s)\s*0?3\b/.test(name) || name.indexOf('第三季') !== -1 || name.indexOf('第3季') !== -1;
   }
 
-  function syncSeasonOneBracketVisibility() {
-    if (!seasonOneBracketSection) return;
-    seasonOneBracketSection.hidden = !isSeasonOne(currentSeason);
+  function syncBracketVisibility() {
+    if (seasonOneBracketSection) seasonOneBracketSection.hidden = !isSeasonOne(currentSeason);
+    if (seasonTwoBracketSection) seasonTwoBracketSection.hidden = !isSeasonTwo(currentSeason);
+  }
+
+  function isSeasonTwo(season) {
+    season = season || {};
+    var id = String(season.id || currentSeasonId || '').trim();
+    var name = String(season.name || '').trim();
+    return id === SEASON_TWO_ID
+      || /(?:season|s)\s*0?2\b/i.test(name)
+      || /第\s*(?:二|2)\s*(?:季|屆)/.test(name);
   }
 
   function onSeasonChange() {
@@ -130,7 +141,7 @@
       id: currentSeasonId,
       name: seasonSelect && seasonSelect.options[seasonSelect.selectedIndex] ? seasonSelect.options[seasonSelect.selectedIndex].textContent : currentSeasonId
     };
-    syncSeasonOneBracketVisibility();
+    syncBracketVisibility();
     if (currentSeasonId) {
       loadAllLeaderboards();
       loadLeaderCards();
