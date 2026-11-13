@@ -386,10 +386,16 @@
 
         var innerGrid = document.createElement('div');
         innerGrid.className = 'playoff-bracket';
+        var isSeasonTwo = typeof SeasonRules !== 'undefined' && SeasonRules.isSeasonTwo(currentSeason || currentSeasonId);
+        if (isSeasonTwo && SeasonRules.completePlayoffRounds) {
+          SeasonRules.completePlayoffRounds(bracket.rounds || [], [
+            I18n.t('schedule.roundFirst'),
+            I18n.t('schedule.roundSemi'),
+            I18n.t('schedule.roundFinal')
+          ]);
+        }
         innerGrid.style.gridTemplateColumns = 'repeat(' + (bracket.rounds || []).length + ', minmax(200px, 1fr))';
         _resolvePlayoffAdvancementPlaceholders(bracket.rounds || []);
-        var padSlots = typeof SeasonRules !== 'undefined' && SeasonRules.isSeasonTwo(currentSeason || currentSeasonId);
-        var leafCount = (((bracket.rounds || [])[0] || {}).games || []).length;
 
         (bracket.rounds || []).forEach(function (round, roundIdx) {
           var roundCol = document.createElement('div');
@@ -405,17 +411,6 @@
           (round.games || []).forEach(function (game) {
             gamesContainer.appendChild(_createPlayoffMatchup(game));
           });
-          if (padSlots) {
-            var expected = Math.floor(leafCount / Math.pow(2, roundIdx));
-            while (gamesContainer.children.length < expected) {
-              var referenceGame = (round.games || [])[0] || (((bracket.rounds || [])[0] || {}).games || [])[0] || {};
-              var slot = _createPlayoffMatchup(referenceGame);
-              slot.classList.add('playoff-matchup--slot');
-              slot.setAttribute('aria-hidden', 'true');
-              gamesContainer.appendChild(slot);
-            }
-          }
-
           roundCol.appendChild(gamesContainer);
           innerGrid.appendChild(roundCol);
         });

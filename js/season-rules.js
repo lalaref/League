@@ -100,5 +100,50 @@ var SeasonRules = (function () {
     return ordered.filter(function (game) { return !!game; });
   }
 
-  return { isSeasonTwo:isSeasonTwo, getDefaultSeason:getDefaultSeason, getTeamDivision:getTeamDivision, isReturningTeam:isReturningTeam, buildContext:buildContext, getDivisionNames:getDivisionNames, getExpectedOpponentIds:getExpectedOpponentIds, orderPlayoffBracketGames:orderPlayoffBracketGames };
+  // Missing later rounds are display-only pending games; no API or game records change.
+  function completePlayoffRounds(rounds, roundNames) {
+    if (!rounds || !rounds.length) return rounds || [];
+    var firstGames = rounds[0].games || [];
+    if (firstGames.length < 2) return rounds;
+    var names = roundNames || ['首輪', '準決賽', '決賽'];
+    while (Math.floor(firstGames.length / Math.pow(2, rounds.length)) >= 1) {
+      var roundIdx = rounds.length;
+      rounds.push({ name:names[roundIdx] || ('Round ' + (roundIdx + 1)), games:[] });
+    }
+    for (var i = 1; i < rounds.length; i++) {
+      var games = rounds[i].games || (rounds[i].games = []);
+      var previousGames = rounds[i - 1].games || [];
+      var expected = Math.floor(firstGames.length / Math.pow(2, i));
+      while (games.length < expected) {
+        var gameIdx = games.length;
+        var home = playoffWinner(previousGames[gameIdx * 2]);
+        var away = playoffWinner(previousGames[gameIdx * 2 + 1]);
+        games.push({
+          homeTeamId:home ? home.id : '',
+          awayTeamId:away ? away.id : '',
+          homeTeamName:home && home.name ? home.name : '勝方 ' + (gameIdx * 2 + 1),
+          awayTeamName:away && away.name ? away.name : '勝方 ' + (gameIdx * 2 + 2),
+          homeScore:'',
+          awayScore:'',
+          status:'pending',
+          label:'Pending'
+        });
+      }
+    }
+    return rounds;
+  }
+  function playoffWinner(game) {
+    if (!game) return null;
+    var homeScore = game.homeScore != null && game.homeScore !== '' ? Number(game.homeScore) : null;
+    var awayScore = game.awayScore != null && game.awayScore !== '' ? Number(game.awayScore) : null;
+    var completed = game.status === 'completed' || (homeScore !== null && awayScore !== null);
+    if (!completed || !isFinite(homeScore) || !isFinite(awayScore) || homeScore === awayScore) return null;
+    var homeWin = homeScore > awayScore;
+    return {
+      id:text(homeWin ? game.homeTeamId : game.awayTeamId),
+      name:text(homeWin ? (game.homeTeamName || game.home || game.homeTeam || game.team1) : (game.awayTeamName || game.away || game.awayTeam || game.team2))
+    };
+  }
+
+  return { isSeasonTwo:isSeasonTwo, getDefaultSeason:getDefaultSeason, getTeamDivision:getTeamDivision, isReturningTeam:isReturningTeam, buildContext:buildContext, getDivisionNames:getDivisionNames, getExpectedOpponentIds:getExpectedOpponentIds, orderPlayoffBracketGames:orderPlayoffBracketGames, completePlayoffRounds:completePlayoffRounds };
 })();

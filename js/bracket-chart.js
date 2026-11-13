@@ -121,6 +121,7 @@ var SeasonBracketChart = (function () {
         if (!legacySeasonOne && rawRounds.length) {
           var ordered = orderBracketSlots(bracket.id, rawRounds[0].games, standings);
           if (ordered) rawRounds = [Object.assign({}, rawRounds[0], { games: ordered })].concat(rawRounds.slice(1));
+          if (typeof SeasonRules !== 'undefined' && SeasonRules.completePlayoffRounds) rawRounds = SeasonRules.completePlayoffRounds(rawRounds);
         }
         var rounds = normalizeRounds({ rounds: rawRounds }, teamMap, legacySeasonOne);
         if (rounds.length) groups.push({ title: bracket.name || 'Playoff Bracket', rounds: rounds, tree: !legacySeasonOne });
@@ -130,10 +131,7 @@ var SeasonBracketChart = (function () {
       if (championshipRounds.length) groups.push({ title: '冠軍組', rounds: championshipRounds, tree: !legacySeasonOne });
     }
 
-    if (!legacySeasonOne) {
-      groups.forEach(padBracketSlots);
-      return groups;
-    }
+    if (!legacySeasonOne) return groups;
 
     mergeSeasonOneFinal(groups, games, teamMap);
 
@@ -148,17 +146,6 @@ var SeasonBracketChart = (function () {
   function orderBracketSlots(seed, games, standings) {
     if (typeof SeasonRules === 'undefined' || !SeasonRules.orderPlayoffBracketGames) return null;
     return SeasonRules.orderPlayoffBracketGames(seed, games, standings);
-  }
-
-  // Invisible slots keep each later round aligned with the two games feeding it,
-  // even while later rounds are only partially scheduled.
-  function padBracketSlots(group) {
-    if (!group.tree || !group.rounds.length) return;
-    var leafCount = group.rounds[0].games.length;
-    group.rounds.forEach(function (round, idx) {
-      var expected = Math.floor(leafCount / Math.pow(2, idx));
-      while (round.games.length < expected) round.games.push({ slot: true });
-    });
   }
 
   function hasRankingGroup(groups) {    return (groups || []).some(function (group) {
@@ -485,13 +472,6 @@ var SeasonBracketChart = (function () {
   }
 
   function renderGame(game) {
-    if (game.slot) {
-      return '<div class="nba-bracket-game nba-bracket-game--slot" aria-hidden="true">'
-        + renderTeam('', '', false)
-        + renderTeam('', '', false)
-        + '<span class="nba-bracket-game-detail">&nbsp;</span>'
-        + '</div>';
-    }
     var detailLink = game.id
       ? '<a class="nba-bracket-game-detail" href="game.html?id=' + encodeURIComponent(game.id) + '" aria-label="查看詳細 Box Score">查看詳細 Box Score →</a>'
       : '';
