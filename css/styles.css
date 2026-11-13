@@ -2029,6 +2029,10 @@ img {
     overflow: hidden;
 }
 
+.playoff-matchup--slot {
+    visibility: hidden;
+}
+
 .playoff-matchup-label {
     display: inline-flex;
     align-items: center;
@@ -2213,6 +2217,21 @@ img {
     gap: 28px;
     min-width: 520px;
     align-items: center;
+}
+
+/* Tree layout: rounds stretch to a shared height and spread evenly, so a game sits
+   level with the midpoint of the two games feeding it. */
+.nba-bracket-grid--tree {
+    align-items: stretch;
+}
+
+.nba-bracket-grid--tree .nba-bracket-games {
+    flex: 1;
+    justify-content: space-around;
+}
+
+.nba-bracket-game--slot {
+    visibility: hidden;
 }
 
 .nba-bracket-round {
