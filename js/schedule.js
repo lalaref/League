@@ -307,11 +307,13 @@
 
     Promise.all([
       API.getPlayoffs(currentSeasonId),
-      API.getTeams(currentSeasonId)
+      API.getTeams(currentSeasonId),
+      API.getStandings(currentSeasonId)
     ])
       .then(function (results) {
         var data = results[0];
         var teams = results[1] || [];
+        var standings = results[2] || [];
         _hideEl(playoffsLoading);
         if (!data || (!data.rounds && !data.bracket)) {
           _showEl(playoffsEmpty);
@@ -337,6 +339,7 @@
             data.bracket.forEach(function (roundGames) { resolveGames(roundGames); });
           }
         }
+        _orderPlayoffBracketSlots(data, standings);
         _renderPlayoffBracket(data);
         _showEl(playoffsBracketWrapper);
         _initBracketTouch();
@@ -345,6 +348,18 @@
         _hideEl(playoffsLoading);
         _showEl(playoffsEmpty);
       });
+  }
+
+  // Round 1 arrives in sheet order; bracket position follows division seeding instead.
+  function _orderPlayoffBracketSlots(data, standings) {
+    if (!data || !data.brackets) return;
+    if (typeof SeasonRules === 'undefined' || !SeasonRules.orderPlayoffBracketGames) return;
+    data.brackets.forEach(function (bracket) {
+      var first = (bracket.rounds || [])[0];
+      if (!first) return;
+      var ordered = SeasonRules.orderPlayoffBracketGames(bracket.id, first.games, standings);
+      if (ordered) first.games = ordered;
+    });
   }
 
   /**
@@ -373,6 +388,8 @@
         innerGrid.className = 'playoff-bracket';
         innerGrid.style.gridTemplateColumns = 'repeat(' + (bracket.rounds || []).length + ', minmax(200px, 1fr))';
         _resolvePlayoffAdvancementPlaceholders(bracket.rounds || []);
+        var padSlots = typeof SeasonRules !== 'undefined' && SeasonRules.isSeasonTwo(currentSeason || currentSeasonId);
+        var leafCount = (((bracket.rounds || [])[0] || {}).games || []).length;
 
         (bracket.rounds || []).forEach(function (round, roundIdx) {
           var roundCol = document.createElement('div');
@@ -388,6 +405,16 @@
           (round.games || []).forEach(function (game) {
             gamesContainer.appendChild(_createPlayoffMatchup(game));
           });
+          if (padSlots) {
+            var expected = Math.floor(leafCount / Math.pow(2, roundIdx));
+            while (gamesContainer.children.length < expected) {
+              var referenceGame = (round.games || [])[0] || (((bracket.rounds || [])[0] || {}).games || [])[0] || {};
+              var slot = _createPlayoffMatchup(referenceGame);
+              slot.classList.add('playoff-matchup--slot');
+              slot.setAttribute('aria-hidden', 'true');
+              gamesContainer.appendChild(slot);
+            }
+          }
 
           roundCol.appendChild(gamesContainer);
           innerGrid.appendChild(roundCol);

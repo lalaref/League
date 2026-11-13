@@ -47,11 +47,13 @@ var SeasonBracketChart = (function () {
         target.setAttribute('data-season-id', season.id);
         return Promise.all([
           API.getPlayoffs(season.id),
-          API.getTeams(season.id)
+          API.getTeams(season.id),
+          API.getStandings(season.id)
         ]).then(function (results) {
           render(target, results[0] || {}, {
             season: season,
             teams: results[1] || [],
+            standings: results[2] || [],
             kicker: 'Season 2',
             legacySeasonOne: false
           });
@@ -92,9 +94,10 @@ var SeasonBracketChart = (function () {
     var games = options && options.games ? options.games : [];
     var kicker = options && options.kicker ? options.kicker : 'Season 1';
     var legacySeasonOne = !(options && options.legacySeasonOne === false);
+    var standings = options && options.standings ? options.standings : [];
     var teamMap = buildTeamMap(teams);
     _lastTeamMap = teamMap;
-    var groups = normalizeBracketGroups(data, teamMap, teams, games, legacySeasonOne);
+    var groups = normalizeBracketGroups(data, teamMap, teams, games, legacySeasonOne, standings);
     if (!groups.length) {
       target.innerHTML = '<div class="nba-bracket-state">' + esc(kicker) + ' playoff bracket 尚未公布</div>';
       return;
@@ -109,20 +112,28 @@ var SeasonBracketChart = (function () {
       + groups.map(renderBracketGroup).join('');
   }
 
-  function normalizeBracketGroups(data, teamMap, teams, games, legacySeasonOne) {
+  function normalizeBracketGroups(data, teamMap, teams, games, legacySeasonOne, standings) {
     var groups = [];
 
     if (data && data.brackets && data.brackets.length) {
       data.brackets.forEach(function (bracket) {
-        var rounds = normalizeRounds({ rounds: bracket.rounds || [] }, teamMap, legacySeasonOne);
-        if (rounds.length) groups.push({ title: bracket.name || 'Playoff Bracket', rounds: rounds });
+        var rawRounds = bracket.rounds || [];
+        if (!legacySeasonOne && rawRounds.length) {
+          var ordered = orderBracketSlots(bracket.id, rawRounds[0].games, standings);
+          if (ordered) rawRounds = [Object.assign({}, rawRounds[0], { games: ordered })].concat(rawRounds.slice(1));
+        }
+        var rounds = normalizeRounds({ rounds: rawRounds }, teamMap, legacySeasonOne);
+        if (rounds.length) groups.push({ title: bracket.name || 'Playoff Bracket', rounds: rounds, tree: !legacySeasonOne });
       });
     } else {
       var championshipRounds = normalizeRounds(data || {}, teamMap, legacySeasonOne);
-      if (championshipRounds.length) groups.push({ title: '冠軍組', rounds: championshipRounds });
+      if (championshipRounds.length) groups.push({ title: '冠軍組', rounds: championshipRounds, tree: !legacySeasonOne });
     }
 
-    if (!legacySeasonOne) return groups;
+    if (!legacySeasonOne) {
+      groups.forEach(padBracketSlots);
+      return groups;
+    }
 
     mergeSeasonOneFinal(groups, games, teamMap);
 
@@ -134,8 +145,23 @@ var SeasonBracketChart = (function () {
     return groups;
   }
 
-  function hasRankingGroup(groups) {
-    return (groups || []).some(function (group) {
+  function orderBracketSlots(seed, games, standings) {
+    if (typeof SeasonRules === 'undefined' || !SeasonRules.orderPlayoffBracketGames) return null;
+    return SeasonRules.orderPlayoffBracketGames(seed, games, standings);
+  }
+
+  // Invisible slots keep each later round aligned with the two games feeding it,
+  // even while later rounds are only partially scheduled.
+  function padBracketSlots(group) {
+    if (!group.tree || !group.rounds.length) return;
+    var leafCount = group.rounds[0].games.length;
+    group.rounds.forEach(function (round, idx) {
+      var expected = Math.floor(leafCount / Math.pow(2, idx));
+      while (round.games.length < expected) round.games.push({ slot: true });
+    });
+  }
+
+  function hasRankingGroup(groups) {    return (groups || []).some(function (group) {
       var title = String(group.title || '').toLowerCase();
       return title.indexOf('排名') !== -1 || title.indexOf('consol') !== -1 || title.indexOf('ranking') !== -1;
     });
@@ -425,7 +451,7 @@ var SeasonBracketChart = (function () {
   function renderBracketGroup(group) {
     return '<div class="nba-bracket-group">'
       + '<div class="nba-bracket-group-title">' + esc(group.title || 'Bracket') + '</div>'
-      + '<div class="nba-bracket-scroll"><div class="nba-bracket-grid" style="grid-template-columns:repeat(' + group.rounds.length + ', minmax(220px, 1fr))">'
+      + '<div class="nba-bracket-scroll"><div class="nba-bracket-grid' + (group.tree ? ' nba-bracket-grid--tree' : '') + '" style="grid-template-columns:repeat(' + group.rounds.length + ', minmax(220px, 1fr))">'
       + group.rounds.map(renderRound).join('')
       + '</div></div>'
       + '</div>';
@@ -459,6 +485,13 @@ var SeasonBracketChart = (function () {
   }
 
   function renderGame(game) {
+    if (game.slot) {
+      return '<div class="nba-bracket-game nba-bracket-game--slot" aria-hidden="true">'
+        + renderTeam('', '', false)
+        + renderTeam('', '', false)
+        + '<span class="nba-bracket-game-detail">&nbsp;</span>'
+        + '</div>';
+    }
     var detailLink = game.id
       ? '<a class="nba-bracket-game-detail" href="game.html?id=' + encodeURIComponent(game.id) + '" aria-label="查看詳細 Box Score">查看詳細 Box Score →</a>'
       : '';

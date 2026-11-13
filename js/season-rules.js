@@ -55,5 +55,50 @@ var SeasonRules = (function () {
     var division = (context.teamDivisions || {})[teamId];
     return ((context.divisions || {})[division] || []).filter(function (id) { return id !== teamId; });
   }
-  return { isSeasonTwo:isSeasonTwo, getDefaultSeason:getDefaultSeason, getTeamDivision:getTeamDivision, isReturningTeam:isReturningTeam, buildContext:buildContext, getDivisionNames:getDivisionNames, getExpectedOpponentIds:getExpectedOpponentIds };
+
+  // Season 2 playoff brackets seed round 1 by regular-season division rank, crossed
+  // between Clutch and Fastbreak (mirrors backend handleGeneratePlayoffs). Slot order is
+  // bracket position, not chronological order: slots 1+2 feed the first semi-final.
+  var PLAYOFF_SLOT_SEEDS = {
+    champions: [[1, 4], [3, 2], [2, 3], [4, 1]],
+    consolation: [[5, 8], [7, 6], [6, 7], [8, 5]]
+  };
+
+  function buildDivisionRankMap(standings) {
+    var ranks = {};
+    (standings || []).forEach(function (row) {
+      var division = getTeamDivision(row);
+      if (division !== 'Clutch' && division !== 'Fastbreak') return;
+      var id = text(row.teamId || row.id);
+      if (!id) return;
+      if (!ranks[division]) ranks[division] = [];
+      ranks[division].push(id);
+    });
+    return ranks;
+  }
+
+  // Returns the games in bracket slot order, or null when the seeding cannot be matched
+  // confidently (e.g. incomplete standings) so callers keep the API order.
+  function orderPlayoffBracketGames(seed, games, standings) {
+    var slots = PLAYOFF_SLOT_SEEDS[text(seed).toLowerCase()];
+    if (!slots || !games || games.length < 2) return null;
+    var ranks = buildDivisionRankMap(standings);
+    if (!ranks.Clutch || !ranks.Fastbreak) return null;
+    var used = {}, ordered = [], matched = 0;
+    games.forEach(function (game) {
+      var home = text(game.homeTeamId), away = text(game.awayTeamId);
+      for (var i = 0; i < slots.length; i++) {
+        if (used[i]) continue;
+        var clutch = ranks.Clutch[slots[i][0] - 1], fastbreak = ranks.Fastbreak[slots[i][1] - 1];
+        if (!clutch || !fastbreak) continue;
+        if ((home === clutch && away === fastbreak) || (home === fastbreak && away === clutch)) {
+          ordered[i] = game; used[i] = true; matched++; return;
+        }
+      }
+    });
+    if (matched !== games.length) return null;
+    return ordered.filter(function (game) { return !!game; });
+  }
+
+  return { isSeasonTwo:isSeasonTwo, getDefaultSeason:getDefaultSeason, getTeamDivision:getTeamDivision, isReturningTeam:isReturningTeam, buildContext:buildContext, getDivisionNames:getDivisionNames, getExpectedOpponentIds:getExpectedOpponentIds, orderPlayoffBracketGames:orderPlayoffBracketGames };
 })();
