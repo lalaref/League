@@ -1368,6 +1368,9 @@
 .live-quarter-bar .live-undo { margin-left: auto; background: #fff7df; border-color: #e6bf64; color: #775207; }
 .live-quarter-bar .live-undo:disabled { opacity: .42; }
 .live-quarter-bar .live-discard { background: transparent; border-color: transparent; color: #6b7280; font-size: .75rem; }
+.live-quarter-bar .live-edit-numbers { background: #fff; }
+.live-quarter-bar .live-edit-numbers.is-active { background: #f59e0b; border-color: #f59e0b; color: #fff; }
+.live-player-tile--add { border-style: dashed; color: #526a96; font-size: 1.7rem; font-weight: 900; place-items: center; }
 .live-timeout-strip { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 12px; padding: 8px 14px; background: #fffaf0; border-bottom: 1px solid #f2d49a; color: #6b4a0a; font-size: .8rem; font-weight: 800; }
 .live-timeout-team { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 8px; min-width: 0; }
 .live-timeout-team--away { justify-content: end; }
