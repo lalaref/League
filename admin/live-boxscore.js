@@ -220,24 +220,15 @@
     var button = document.createElement('button');
     button.type = 'button';
     button.className = 'live-player-tile live-player-tile--add';
-    button.setAttribute('aria-label', (side === 'home' ? '主隊' : '客隊') + '加入後備球衣號碼');
+    button.setAttribute('aria-label', (side === 'home' ? '主隊' : '客隊') + '加入上陣球員');
     button.textContent = '＋';
     button.addEventListener('click', function () { addSpareNumber(side); });
     return button;
   }
 
   function addSpareNumber(side) {
-    var number = window.prompt((side === 'home' ? '主隊' : '客隊') + '後備球衣號碼：');
-    if (number === null) return;
-    number = String(number).trim();
-    if (!/^\d{1,3}$/.test(number)) {
-      selectedLabel.hidden = false;
-      selectedLabel.textContent = '請輸入 0–999 的球衣號碼';
-      selectedLabel.classList.add('is-warning');
-      return;
-    }
-    document.dispatchEvent(new CustomEvent('allin:boxscoreAddSpareNumber', {
-      detail: { gameId: gameId(), side: side, number: number }
+    document.dispatchEvent(new CustomEvent('allin:boxscoreShowSparePicker', {
+      detail: { gameId: gameId(), side: side }
     }));
   }
 

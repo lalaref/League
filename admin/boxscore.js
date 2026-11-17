@@ -38,6 +38,7 @@
   var guestSyncNeedsReload = false; // never submit a temporary guest ID
   var rosterLoadToken = 0; // discards late responses from a previously selected game
   var rosterPersistTimer = null; // debounces saveGameRoster server writes
+  var rosterWriteQueue = Promise.resolve(); // serializes saveGameRoster writes to avoid LockService 409s
 
   loadSeasons();
   seasonSelect.addEventListener('change', function () { loadGames(seasonSelect.value); });
@@ -55,7 +56,7 @@
   if (addRosterBtn) addRosterBtn.addEventListener('click', addRosterPlayer);
   if (addGuestBtn) addGuestBtn.addEventListener('click', addGuestPlayer);
   if (reloadRosterBtn) reloadRosterBtn.addEventListener('click', reloadRosterPlayers);
-  document.addEventListener('allin:boxscoreAddSpareNumber', handleSpareNumberRequest);
+  document.addEventListener('allin:boxscoreShowSparePicker', handleShowSparePicker);
   document.addEventListener('allin:boxscoreJerseyNumberChanged', handleJerseyNumberChanged);
 
   function loadSeasons() {
@@ -691,7 +692,25 @@
     return overrides;
   }
 
-  function persistRosterSelection(baseMessage) {
+  function writeRosterSelection(targetGameId, homeIds, awayIds, payloadOverrides, baseMessage, isRetry) {
+    // Promise.resolve 包一層：saveGameRoster 若同步拋錯也能走 catch（重試／錯誤提示），不會靜默消失
+    return Promise.resolve().then(function () {
+      return API.saveGameRoster(targetGameId, homeIds, awayIds, payloadOverrides);
+    }).then(function () {
+      if (String(gameSelect.value || '') !== targetGameId) return;
+      if (baseMessage) showMessage(baseMessage + '；名單已同步到伺服器。', 'success');
+    }).catch(function (err) {
+      if (String(gameSelect.value || '') !== targetGameId) return;
+      if (!isRetry) {
+        // 最常見是伺服器鎖定衝突或 GAS 執行逾時：4 秒後以畫面上最新名單自動重試一次（重試再失敗則顯示錯誤）
+        window.setTimeout(function () { persistRosterSelection(baseMessage, true); }, 4000);
+        return;
+      }
+      showMessage('名單同步到伺服器失敗：' + (err.message || '請重試'), 'error');
+    });
+  }
+
+  function persistRosterSelection(baseMessage, isRetry) {
     if (!currentGame || !gameSelect.value) return;
     if (pendingGuestCreations > 0) return;
     var status = String(currentGame.status || '').toLowerCase();
@@ -705,46 +724,139 @@
     rosterPersistTimer = window.setTimeout(function () {
       rosterPersistTimer = null;
       if (String(gameSelect.value || '') !== targetGameId) return;
-      API.saveGameRoster(targetGameId, homeIds, awayIds, payloadOverrides).then(function () {
-        if (baseMessage) showMessage(baseMessage + '；名單已同步到伺服器。', 'success');
+      rosterWriteQueue = rosterWriteQueue.then(function () {
+        return writeRosterSelection(targetGameId, homeIds, awayIds, payloadOverrides, baseMessage, !!isRetry);
       }).catch(function (err) {
-        if (String(gameSelect.value || '') !== targetGameId) return;
-        showMessage('名單同步到伺服器失敗：' + (err.message || '請重試'), 'error');
+        // 保險：任何未預期錯誤不得卡死佇列（一般錯誤已在 writeRosterSelection 內處理）
+        console.error('[boxscore] 名單同步佇列錯誤：', err);
       });
     }, 700);
   }
 
-  function handleSpareNumberRequest(event) {
+  function handleShowSparePicker(event) {
     var detail = event.detail || {};
     if (!currentGame || String(detail.gameId || '') !== String(gameSelect.value || '')) return;
-    var side = detail.side === 'away' ? 'away' : 'home';
+    openSparePicker(detail.side === 'away' ? 'away' : 'home');
+  }
+
+  function closeSparePicker() {
+    var overlay = document.getElementById('admin-spare-picker-overlay');
+    if (overlay) overlay.remove();
+  }
+
+  function playerNumberLabel(player) {
+    return '#' + (player.number != null && player.number !== '' ? player.number : '?');
+  }
+
+  function openSparePicker(side) {
+    closeSparePicker();
     var sideLabel = side === 'home' ? '主隊' : '客隊';
-    var number = String(detail.number || '').trim();
     var activeIds = {};
     allPlayers.forEach(function (p) { if (p.id) activeIds[p.id] = true; });
-    var candidates = allRosterPlayers.filter(function (p) {
-      return p.side === side && !activeIds[p.id] && String(p.number == null ? '' : p.number) === number;
+    var candidates = allRosterPlayers.filter(function (p) { return p.side === side && !activeIds[p.id]; })
+      .slice()
+      .sort(function (a, b) {
+        var na = parseInt(a.number, 10), nb = parseInt(b.number, 10);
+        var ca = isNaN(na), cb = isNaN(nb);
+        if (ca !== cb) return ca ? 1 : -1;
+        if (na !== nb) return na - nb;
+        return String(a.name || '').localeCompare(String(b.name || ''));
+      });
+
+    var overlay = document.createElement('div');
+    overlay.id = 'admin-spare-picker-overlay';
+    overlay.className = 'admin-spare-picker-overlay';
+
+    var panel = document.createElement('div');
+    panel.className = 'admin-spare-picker';
+    panel.setAttribute('role', 'dialog');
+    panel.setAttribute('aria-modal', 'true');
+    panel.setAttribute('aria-label', sideLabel + '加入上陣球員');
+
+    var title = document.createElement('h3');
+    title.className = 'admin-spare-picker-title';
+    title.textContent = sideLabel + '：加入上陣球員';
+    panel.appendChild(title);
+
+    var list = document.createElement('div');
+    list.className = 'admin-spare-picker-list';
+    if (candidates.length) {
+      candidates.forEach(function (player) {
+        var row = document.createElement('button');
+        row.type = 'button';
+        row.className = 'admin-spare-picker-row';
+        row.textContent = playerNumberLabel(player) + ' ' + (player.name || '未命名球員');
+        row.addEventListener('click', function () {
+          closeSparePicker();
+          addExistingPlayerToGame(player);
+        });
+        list.appendChild(row);
+      });
+    } else {
+      var empty = document.createElement('p');
+      empty.className = 'admin-spare-picker-empty';
+      empty.textContent = '此隊名單球員已全部上陣。';
+      list.appendChild(empty);
+    }
+    panel.appendChild(list);
+
+    var newRow = document.createElement('button');
+    newRow.type = 'button';
+    newRow.className = 'admin-spare-picker-row admin-spare-picker-row--new';
+    newRow.textContent = '＋ 新球員（不在名單）';
+    newRow.addEventListener('click', function () {
+      newRow.disabled = true;
+      addNewPlayerToGame(side, function (success) {
+        newRow.disabled = false;
+        if (success) closeSparePicker();
+      });
     });
-    if (!candidates.length) {
-      showMessage('找不到 ' + sideLabel + ' #' + number + ' 的未上陣球員。請確認號碼，或先在球員名單管理加入。', 'error');
-      return;
-    }
-    var player = candidates[0];
-    if (candidates.length > 1) {
-      var labels = candidates.map(function (p, idx) { return (idx + 1) + '. ' + p.name; }).join('\n');
-      var choice = window.prompt('同一號碼有多位球員：\n' + labels + '\n請輸入編號：', '1');
-      var selectedIndex = parseInt(choice, 10) - 1;
-      if (!candidates[selectedIndex]) {
-        showMessage('未選擇有效球員，尚未加入後備號碼。', 'error');
-        return;
-      }
-      player = candidates[selectedIndex];
-    }
+    panel.appendChild(newRow);
+
+    var cancel = document.createElement('button');
+    cancel.type = 'button';
+    cancel.className = 'btn btn-outline admin-spare-picker-cancel';
+    cancel.textContent = '取消';
+    cancel.addEventListener('click', closeSparePicker);
+    panel.appendChild(cancel);
+
+    overlay.addEventListener('click', function (event) { if (event.target === overlay) closeSparePicker(); });
+    overlay.appendChild(panel);
+    document.body.appendChild(overlay);
+  }
+
+  function addExistingPlayerToGame(player) {
     _insertPlayer(player);
     renderBoxScore();
     populateMvpSelect();
-    showMessage('已加入後備 #' + number + ' ' + player.name + '；統計將記錄到此球員檔案。', 'success');
-    persistRosterSelection('已加入後備 #' + number + ' ' + player.name + '；統計將記錄到此球員檔案');
+    showMessage('已加入 ' + playerNumberLabel(player) + ' ' + player.name + '；統計將記錄到此球員檔案。', 'success');
+    persistRosterSelection('已加入 ' + playerNumberLabel(player) + ' ' + player.name + '；統計將記錄到此球員檔案');
+  }
+
+  function addNewPlayerToGame(side, onDone) {
+    var sideLabel = side === 'home' ? '主隊' : '客隊';
+    var nameInput = window.prompt(sideLabel + '新球員名稱：');
+    if (!nameInput || !nameInput.trim()) {
+      showMessage('已取消新增球員。', 'info');
+      if (onDone) onDone(false);
+      return;
+    }
+    var name = nameInput.trim();
+    var numberInput = window.prompt(sideLabel + '新球員球衣號碼（可留空）：');
+    var number = numberInput ? numberInput.trim() : '';
+    var teamId = side === 'home' ? currentGame.homeTeamId : currentGame.awayTeamId;
+    var teamName = side === 'home' ? (currentGame.homeTeamName || '主隊') : (currentGame.awayTeamName || '客隊');
+    API.post('createPlayer', { teamId: teamId, name: name, number: number }).then(function (res) {
+      var realId = (res && res.playerId) ? res.playerId : '';
+      if (!realId) throw new Error('未能建立球員');
+      var player = { id: realId, name: name, number: number, profileNumber: number, teamId: teamId, teamName: teamName, side: side };
+      allRosterPlayers.push(player);
+      addExistingPlayerToGame(player);
+      if (onDone) onDone(true);
+    }).catch(function (err) {
+      showMessage('新球員建立失敗：' + (err.message || '請重試'), 'error');
+      if (onDone) onDone(false);
+    });
   }
 
   function handleJerseyNumberChanged(event) {
