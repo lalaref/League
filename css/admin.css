@@ -1371,6 +1371,17 @@
 .live-quarter-bar .live-edit-numbers { background: #fff; }
 .live-quarter-bar .live-edit-numbers.is-active { background: #f59e0b; border-color: #f59e0b; color: #fff; }
 .live-player-tile--add { border-style: dashed; color: #526a96; font-size: 1.7rem; font-weight: 900; place-items: center; }
+
+/* Spare player picker (＋ tile) */
+.admin-spare-picker-overlay { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 20px; background: rgba(15, 23, 42, .55); }
+.admin-spare-picker { width: 100%; max-width: 420px; max-height: 80vh; overflow: auto; padding: 18px; border-radius: 12px; background: #fff; box-shadow: 0 18px 50px rgba(15, 23, 42, .35); }
+.admin-spare-picker-title { margin: 0 0 10px; font-size: 1.05rem; font-weight: 900; color: #1f2937; }
+.admin-spare-picker-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.admin-spare-picker-row { width: 100%; padding: 12px 14px; border: 1px solid #cbd5e1; border-radius: 9px; background: #fff; color: #1f2937; font-size: .98rem; font-weight: 800; text-align: left; cursor: pointer; }
+.admin-spare-picker-row:hover { border-color: #2563eb; background: #eff6ff; }
+.admin-spare-picker-row--new { border-style: dashed; border-color: #526a96; color: #526a96; background: #f8fafc; }
+.admin-spare-picker-empty { margin: 0; color: #6b7280; font-size: .85rem; }
+.admin-spare-picker-cancel { width: 100%; margin-top: 4px; }
 .live-timeout-strip { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 12px; padding: 8px 14px; background: #fffaf0; border-bottom: 1px solid #f2d49a; color: #6b4a0a; font-size: .8rem; font-weight: 800; }
 .live-timeout-team { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 8px; min-width: 0; }
 .live-timeout-team--away { justify-content: end; }
