@@ -9,6 +9,7 @@
   var quarterLabel = document.getElementById('live-quarter-label');
   var selectedLabel = document.getElementById('live-selected-player');
   var undoButton = document.getElementById('btn-live-undo');
+  var editNumbersButton = document.getElementById('btn-live-edit-numbers');
   var discardButton = document.getElementById('btn-live-discard');
   var saveDraftButton = document.getElementById('btn-live-save-draft');
   var reviewButton = document.getElementById('btn-live-review');
@@ -24,6 +25,7 @@
   var activeQuarter = 1;
   var activePlayerIndex = null;
   var activeSide = 'home';
+  var numberEditMode = false;
   var playerMap = {};
   var playerIndexById = {};
   var eventStack = [];
@@ -202,14 +204,78 @@
       button.className = 'live-player-tile';
       button.dataset.playerIndex = index;
       button.innerHTML = '<strong class="live-player-number">' + escapeHtml(player.label.split(' ')[0]) + '</strong><span class="live-player-points live-player-fouls" title="個人犯規" aria-label="個人犯規"><small>F</small><strong id="live-player-fouls-' + index + '">0</strong></span>';
-      button.addEventListener('click', function () { selectPlayer(index); });
+      button.addEventListener('click', function () {
+        if (numberEditMode) changePlayerNumber(index);
+        else selectPlayer(index);
+      });
       (player.side === 'home' ? homePlayersEl : awayPlayersEl).appendChild(button);
     });
+    homePlayersEl.appendChild(createSpareTile('home'));
+    awayPlayersEl.appendChild(createSpareTile('away'));
     updateRosterDensity();
+    if (activePlayerIndex !== null && playerMap[activePlayerIndex]) selectPlayer(activePlayerIndex);
+  }
+
+  function createSpareTile(side) {
+    var button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'live-player-tile live-player-tile--add';
+    button.setAttribute('aria-label', (side === 'home' ? '主隊' : '客隊') + '加入後備球衣號碼');
+    button.textContent = '＋';
+    button.addEventListener('click', function () { addSpareNumber(side); });
+    return button;
+  }
+
+  function addSpareNumber(side) {
+    var number = window.prompt((side === 'home' ? '主隊' : '客隊') + '後備球衣號碼：');
+    if (number === null) return;
+    number = String(number).trim();
+    if (!/^\d{1,3}$/.test(number)) {
+      selectedLabel.hidden = false;
+      selectedLabel.textContent = '請輸入 0–999 的球衣號碼';
+      selectedLabel.classList.add('is-warning');
+      return;
+    }
+    document.dispatchEvent(new CustomEvent('allin:boxscoreAddSpareNumber', {
+      detail: { gameId: gameId(), side: side, number: number }
+    }));
+  }
+
+  function changePlayerNumber(index) {
+    var player = playerMap[index];
+    if (!player) return;
+    var currentNumber = String(player.label || '').split(' ')[0].replace('#', '');
+    var number = window.prompt('更改本場球衣號碼（球員檔案不變）：', currentNumber);
+    if (number === null) return;
+    number = String(number).trim();
+    if (!/^\d{1,3}$/.test(number)) {
+      selectedLabel.hidden = false;
+      selectedLabel.textContent = '請輸入 0–999 的球衣號碼';
+      selectedLabel.classList.add('is-warning');
+      return;
+    }
+    document.dispatchEvent(new CustomEvent('allin:boxscoreJerseyNumberChanged', {
+      detail: { gameId: gameId(), playerIndex: String(index), number: number }
+    }));
+  }
+
+  function setNumberEditMode(enabled) {
+    numberEditMode = !!enabled;
+    if (editNumbersButton) {
+      editNumbersButton.classList.toggle('is-active', numberEditMode);
+      editNumbersButton.setAttribute('aria-pressed', numberEditMode ? 'true' : 'false');
+    }
+    selectedLabel.hidden = false;
+    selectedLabel.classList.toggle('is-warning', numberEditMode);
+    selectedLabel.textContent = numberEditMode ? '更改號碼：請點選球衣按鈕' : '先點選球員，再記錄事件';
+    document.body.classList.toggle('live-edit-numbers', numberEditMode);
   }
 
   function updateRosterDensity() {
-    var largestTeam = Math.max(homePlayersEl.children.length, awayPlayersEl.children.length);
+    var largestTeam = Math.max(
+      homePlayersEl.querySelectorAll('.live-player-tile:not(.live-player-tile--add)').length,
+      awayPlayersEl.querySelectorAll('.live-player-tile:not(.live-player-tile--add)').length
+    );
     panel.classList.remove('live-entry-panel--dense', 'live-entry-panel--extra-dense');
     if (largestTeam > 12) panel.classList.add('live-entry-panel--extra-dense');
     else if (largestTeam > 8) panel.classList.add('live-entry-panel--dense');
@@ -397,6 +463,9 @@
   });
 
   undoButton.addEventListener('click', undoLast);
+  if (editNumbersButton) editNumbersButton.addEventListener('click', function () {
+    setNumberEditMode(!numberEditMode);
+  });
   discardButton.addEventListener('click', discardDraft);
   if (saveDraftButton) saveDraftButton.addEventListener('click', function () {
     persistDraft();
@@ -448,6 +517,7 @@
     activeQuarter = 1;
     activePlayerIndex = null;
     eventStack = [];
+    setNumberEditMode(false);
     timeouts = createDefaultTimeouts();
     teamFoulsByQuarter = createDefaultTeamFouls();
     restoreAttemptedForGame = '';

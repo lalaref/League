@@ -8,7 +8,7 @@
     <title>Box Score 輸入 — ALL-IN Basketball League</title>
     <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="../css/responsive.css">
-    <link rel="stylesheet" href="../css/admin.css?v=20261015-quarter-fouls-roster">
+    <link rel="stylesheet" href="../css/admin.css?v=20261117-live-jersey-buttons">
     <style>
       /* Fallback: keep timeout score-sheet boxes visible even when a cached admin.css is served. */
       .live-timeout-strip { display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); align-items:center; gap:10px; padding:7px 12px; background:#fffaf0; border-bottom:1px solid #f2d49a; color:#6b4a0a; font-size:.8rem; font-weight:800; }
@@ -108,6 +108,7 @@
                         <button type="button" data-live-quarter="3">Q3</button>
                         <button type="button" data-live-quarter="4">Q4</button>
                         <button type="button" id="btn-live-undo" class="live-undo" disabled>↶ Undo</button>
+                        <button type="button" id="btn-live-edit-numbers" class="live-edit-numbers" aria-pressed="false">✎ 號碼</button>
                         <button type="button" id="btn-live-discard" class="live-discard">清除本機草稿</button>
                     </div>
                     <div class="live-timeout-strip" aria-label="暫停次數">
@@ -265,12 +266,12 @@
 
     <script>document.getElementById('current-year').textContent = new Date().getFullYear();</script>
     <script src="../js/utils.js?v=20260409"></script>
-    <script src="../js/api.js?v=20261015-game-number"></script>
+    <script src="../js/api.js?v=20261117-roster-server-sync"></script>
     <script src="../js/i18n.js?v=20260409"></script>
     <script src="../js/navigation.js?v=20260409"></script>
     <script src="auth.js?v=20260410"></script>
-    <script src="boxscore.js?v=20261015-recent-matchups"></script>
-    <script src="live-boxscore.js?v=20261015-quarter-fouls-roster"></script>
+    <script src="boxscore.js?v=20261117-roster-server-sync"></script>
+    <script src="live-boxscore.js?v=20261117-live-jersey-buttons"></script>
     <script>I18n.init();</script>
 </body>
 </html>
