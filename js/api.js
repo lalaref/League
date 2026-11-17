@@ -252,8 +252,10 @@ var API = (function () {
   function updateBoxScore(gameId, playerId, field, value) {
     return post('updateBoxScore', { gameId: gameId, playerId: playerId, field: field, value: value });
   }
-  function saveGameRoster(gameId, homePlayerIds, awayPlayerIds) {
-    return post('saveGameRoster', { gameId: gameId, homePlayerIds: homePlayerIds, awayPlayerIds: awayPlayerIds });
+  function saveGameRoster(gameId, homePlayerIds, awayPlayerIds, jerseyNumberOverrides) {
+    var body = { gameId: gameId, homePlayerIds: homePlayerIds, awayPlayerIds: awayPlayerIds };
+    if (jerseyNumberOverrides) body.jerseyNumberOverrides = jerseyNumberOverrides;
+    return post('saveGameRoster', body);
   }
   function savePublicGameRoster(gameId, teamToken, playerIds, jerseyNumberOverrides) {
     return postPublic('publicSaveGameRoster', { gameId: gameId, teamToken: teamToken, playerIds: playerIds, jerseyNumberOverrides: jerseyNumberOverrides || {} });
