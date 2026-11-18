@@ -77,6 +77,24 @@
                     </div>
                 </div>
 
+                <!-- Season 3 賽制設定 -->
+                <div id="season3-card" class="admin-card" hidden>
+                    <h2 class="admin-card-title">Season 3 賽制設定</h2>
+                    <div id="season3-flag-row" class="admin-toolbar" hidden>
+                        <button id="btn-season3-flag" class="btn btn-primary">標示為 Season 3 賽制</button>
+                    </div>
+                    <p id="season3-status" class="text-muted" style="font-size:0.85rem;margin:0 0 10px"></p>
+                    <div id="season3-draw" hidden>
+                        <div class="admin-toolbar" style="flex-wrap:wrap;gap:8px" id="season3-draw-counters"></div>
+                        <div class="admin-toolbar">
+                            <button id="btn-season3-autodraw" class="btn btn-outline">自動抽籤</button>
+                            <button id="btn-season3-generate" class="btn btn-primary" disabled>確認分組並生成預賽賽程</button>
+                        </div>
+                        <div id="season3-draw-list" class="admin-card" style="background:var(--color-bg);margin:var(--spacing-md) 0"></div>
+                    </div>
+                    <div id="season3-groups-view" hidden></div>
+                </div>
+
                 <!-- 球隊表單 -->
                 <div id="team-form" class="admin-card" hidden>
                     <h2 id="team-form-title" class="admin-card-title" data-i18n="admin.createTeam">建立球隊</h2>
@@ -288,9 +306,10 @@
                 if (t.jerseyHome && t.jerseyAway) jerseyHtml += '<br>';
                 if (t.jerseyAway) jerseyHtml += '<span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:' + _jerseyColor(t.jerseyAway) + ';border:1px solid rgba(255,255,255,0.2);vertical-align:middle"></span> 客:' + _esc(t.jerseyAway);
                 if (!jerseyHtml) jerseyHtml = '—';
+                var divisionLabel = s3TeamLabels[t.id] || t.division || '—';
                 tr.innerHTML =
                     '<td>' + _esc(t.name) + '</td>' +
-                    '<td>' + _esc(t.division || '—') + '</td>' +
+                    '<td>' + _esc(divisionLabel) + '</td>' +
                     '<td style="font-size:0.8rem">' + jerseyHtml + '</td>' +
                     '<td>' + _esc(t.captain) + '</td>' +
                     '<td>' + _esc(t.captainWhatsApp) + '</td>' +
@@ -360,6 +379,7 @@
                     API.post('deleteTeam', { teamId: id }).then(function () {
                         showMsg('Team removed; matchup and standings points preserved', 'success');
                         loadTeams();
+                        loadSeason3Setup();
                     }).catch(function (err) { showMsg((err && err.message) || I18n.t('error.submitFailed'), 'error'); });
                 });
             });
@@ -369,6 +389,7 @@
             createBtn.disabled = !seasonSelect.value;
             importBtn.disabled = !seasonSelect.value;
             loadTeams();
+            loadSeason3Setup();
         });
 
         createBtn.addEventListener('click', function () { resetForm(); formEl.hidden = false; });
@@ -408,6 +429,7 @@
                 showMsg('已複製 ' + ((result && result.copiedCount) || 0) + ' 隊' + players + skipped, 'success');
                 importCard.hidden = true;
                 loadTeams();
+                loadSeason3Setup();
             }).catch(function (err) {
                 showMsg((err && err.message) || I18n.t('error.submitFailed'), 'error');
             }).finally(function () {
@@ -456,6 +478,230 @@
             });
         }
 
+        // --- Season 3 賽制設定 ---
+        var season3Card = document.getElementById('season3-card');
+        var season3FlagRow = document.getElementById('season3-flag-row');
+        var season3FlagBtn = document.getElementById('btn-season3-flag');
+        var season3StatusEl = document.getElementById('season3-status');
+        var season3Draw = document.getElementById('season3-draw');
+        var season3DrawCounters = document.getElementById('season3-draw-counters');
+        var season3DrawList = document.getElementById('season3-draw-list');
+        var season3GroupsView = document.getElementById('season3-groups-view');
+        var season3AutodrawBtn = document.getElementById('btn-season3-autodraw');
+        var season3GenerateBtn = document.getElementById('btn-season3-generate');
+        var season3GroupIds = ['A', 'B', 'C', 'D'];
+        var s3GroupsData = null;
+        var s3TeamLabels = {};
+        var s3DrawState = [];
+
+        function getCurrentSeason() {
+            return allSeasons.filter(function (s) { return s.id === seasonSelect.value; })[0] || null;
+        }
+
+        function isSeasonThree(season) {
+            var format = String((season && (season.formatVersion || season.competitionFormat || season.format)) || '').toLowerCase();
+            var name = String((season && (season.name || season.id)) || '');
+            return format === 'season3' || format === 'season-3' || format === 's3' || /(?:season|s)\s*0?3\b/i.test(name) || /第\s*(?:三|3)\s*(?:季|屆)/.test(name);
+        }
+
+        function resetSeason3Panel() {
+            season3Card.hidden = true;
+            season3FlagRow.hidden = true;
+            season3Draw.hidden = true;
+            season3GroupsView.hidden = true;
+            season3StatusEl.textContent = '';
+            season3DrawCounters.innerHTML = '';
+            season3DrawList.innerHTML = '';
+            season3GroupsView.innerHTML = '';
+            s3GroupsData = null;
+            s3TeamLabels = {};
+            s3DrawState = [];
+        }
+
+        function loadSeason3Setup() {
+            resetSeason3Panel();
+            var season = getCurrentSeason();
+            if (!isSeasonThree(season)) return;
+            season3Card.hidden = false;
+            if (!String((season && (season.formatVersion || season.competitionFormat || season.format)) || '').trim()) {
+                season3FlagRow.hidden = false;
+                return;
+            }
+            season3StatusEl.textContent = '載入中...';
+            Promise.all([
+                API.getTeams(seasonSelect.value),
+                API.get('season3Groups', { seasonId: seasonSelect.value }).catch(function (err) { return { __error: (err && err.message) || '載入失敗' }; }),
+                API.getGames(seasonSelect.value).catch(function () { return []; })
+            ]).then(function (results) {
+                var groupsResult = results[1];
+                if (groupsResult && groupsResult.__error) {
+                    var hint = groupsResult.__error.indexOf('無效的請求動作') !== -1 ? '（請先更新 Apps Script 後端 Code.gs 並重新部署）' : '';
+                    season3StatusEl.textContent = 'Season 3 分組資料載入失敗：' + groupsResult.__error + hint;
+                    return;
+                }
+                s3GroupsData = groupsResult;
+                buildSeason3TeamLabels();
+                if (Object.keys(s3TeamLabels).length) loadTeams();
+                renderSeason3Setup(results[0] || [], results[2] || []);
+            }).catch(function (err) {
+                season3StatusEl.textContent = '載入失敗：' + ((err && err.message) || '請重試');
+            });
+        }
+
+        function buildSeason3TeamLabels() {
+            s3TeamLabels = {};
+            if (!s3GroupsData) return;
+            (s3GroupsData.regular || []).forEach(function (group) {
+                (group.teams || []).forEach(function (row) { s3TeamLabels[row.teamId] = '常規賽 Group ' + group.groupId; });
+            });
+            (s3GroupsData.preliminary || []).forEach(function (group) {
+                (group.teams || []).forEach(function (row) {
+                    if (!s3TeamLabels[row.teamId]) s3TeamLabels[row.teamId] = '預賽 Group ' + group.groupId;
+                });
+            });
+        }
+
+        function renderSeason3Setup(teams, games) {
+            if (s3GroupsData && s3GroupsData.preliminary && s3GroupsData.preliminary.length) {
+                season3Draw.hidden = true;
+                renderSeason3GroupsView(s3GroupsData, games);
+                return;
+            }
+            season3GroupsView.hidden = true;
+            season3GroupsView.innerHTML = '';
+            var count = (teams || []).length;
+            season3StatusEl.textContent = '現有球隊 ' + count + ' 支；' + (count === 16 ? '可進行預賽抽籤' : '預賽抽籤需要剛好 16 支現役球隊');
+            if (count === 16) {
+                season3Draw.hidden = false;
+                setupSeason3Draw(teams);
+            } else {
+                season3Draw.hidden = true;
+            }
+        }
+
+        function setupSeason3Draw(teams) {
+            s3DrawState = teams.map(function (t) { return { id: t.id, name: t.name, group: '' }; });
+            season3DrawList.innerHTML = '';
+            s3DrawState.forEach(function (row, index) {
+                var wrap = document.createElement('div');
+                wrap.className = 'admin-form-row';
+                wrap.style.cssText = 'align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.08)';
+                var label = document.createElement('span');
+                label.textContent = row.name;
+                label.style.cssText = 'flex:1;font-size:0.9rem';
+                var select = document.createElement('select');
+                select.className = 'admin-select';
+                select.style.cssText = 'width:auto;min-width:110px';
+                [''].concat(season3GroupIds).forEach(function (gid) {
+                    var opt = document.createElement('option');
+                    opt.value = gid;
+                    opt.textContent = gid ? 'Group ' + gid : '未分組';
+                    select.appendChild(opt);
+                });
+                select.addEventListener('change', function () {
+                    s3DrawState[index].group = select.value;
+                    updateSeason3DrawCounters();
+                });
+                wrap.appendChild(label);
+                wrap.appendChild(select);
+                season3DrawList.appendChild(wrap);
+            });
+            updateSeason3DrawCounters();
+        }
+
+        function updateSeason3DrawCounters() {
+            var counts = {};
+            season3GroupIds.forEach(function (gid) { counts[gid] = 0; });
+            s3DrawState.forEach(function (row) { if (row.group) counts[row.group]++; });
+            season3DrawCounters.innerHTML = season3GroupIds.map(function (gid) {
+                return '<span style="font-size:0.82rem;font-weight:700;color:' + (counts[gid] === 4 ? '#38a169' : 'inherit') + '">Group ' + gid + ' ' + counts[gid] + '/4</span>';
+            }).join('');
+            var ready = s3DrawState.every(function (row) { return row.group; }) && season3GroupIds.every(function (gid) { return counts[gid] === 4; });
+            season3GenerateBtn.disabled = !ready;
+        }
+
+        function renderSeason3GroupsView(data, games) {
+            season3StatusEl.textContent = '';
+            var html = '';
+            function phaseBlock(title, groups, status, sourceLabelFn) {
+                var inner = (groups || []).map(function (group) {
+                    var names = (group.teams || []).map(function (row) {
+                        return _esc(row.teamName || '未知球隊') + (sourceLabelFn ? sourceLabelFn(row) : '');
+                    }).join('、');
+                    return '<div style="margin-bottom:8px"><strong style="font-size:0.85rem">Group ' + _esc(group.groupId) + '</strong><div class="text-muted" style="font-size:0.88rem">' + names + '</div></div>';
+                }).join('');
+                var progress = status && status.total ? '<div class="text-muted" style="font-size:0.8rem;margin-bottom:8px">' + title + ' ' + status.completed + '/' + status.total + ' 場已完成</div>' : '';
+                return '<h3 style="font-size:0.95rem;margin:0 0 10px">' + _esc(title) + '</h3>' + progress + inner;
+            }
+            html += '<div style="margin-bottom:18px">' + phaseBlock('預賽分組', s3GroupsData.preliminary, s3GroupsData.gamesStatus && s3GroupsData.gamesStatus.preliminary) + '</div>';
+            if (s3GroupsData.regular && s3GroupsData.regular.length) {
+                html += '<div style="margin-bottom:18px">' + phaseBlock('常規賽分組', s3GroupsData.regular, s3GroupsData.gamesStatus && s3GroupsData.gamesStatus.regular, function (row) {
+                    return row.sourceGroupId ? '（預賽 Group ' + _esc(row.sourceGroupId) + ' 第 ' + row.sourceRank + ' 名）' : '';
+                }) + '</div>';
+            }
+            var cupGames = (games || []).filter(function (g) { return g.phase === 'playoffs'; });
+            var beltGames = (games || []).filter(function (g) { return g.phase === 'goldBelt'; });
+            html += '<div class="text-muted" style="font-size:0.85rem">MJ23／LBJ23 Cup：' + (cupGames.length ? cupGames.length + ' 場已生成' : '未生成') + '；金腰帶爭奪戰：' + (beltGames.length ? '已生成' : '未生成') + '</div>';
+            season3GroupsView.innerHTML = html;
+            season3GroupsView.hidden = false;
+        }
+
+        season3FlagBtn.addEventListener('click', function () {
+            if (!seasonSelect.value) return;
+            season3FlagBtn.disabled = true;
+            API.post('updateSeason', { seasonId: seasonSelect.value, formatVersion: 'season3' }).then(function () {
+                showMsg('已標示為 Season 3 賽制', 'success');
+                return API.getSeasons();
+            }).then(function (list) {
+                allSeasons = list || [];
+                loadSeason3Setup();
+            }).catch(function (err) {
+                showMsg((err && err.message) || I18n.t('error.submitFailed'), 'error');
+                season3FlagBtn.disabled = false;
+            });
+        });
+
+        season3AutodrawBtn.addEventListener('click', function () {
+            if (!s3DrawState.length) return;
+            var pool = s3DrawState.map(function (row) { return row.id; });
+            for (var i = pool.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp;
+            }
+            var selects = season3DrawList.querySelectorAll('select');
+            s3DrawState.forEach(function (row, index) {
+                row.group = season3GroupIds[Math.floor(index / 4)];
+                if (selects[index]) selects[index].value = row.group;
+            });
+            updateSeason3DrawCounters();
+        });
+
+        season3GenerateBtn.addEventListener('click', function () {
+            if (season3GenerateBtn.disabled) return;
+            var assignments = {}, summary = {};
+            season3GroupIds.forEach(function (gid) { assignments[gid] = []; summary[gid] = []; });
+            for (var i = 0; i < s3DrawState.length; i++) {
+                var row = s3DrawState[i];
+                if (!row.group || assignments[row.group].indexOf(row.id) !== -1) { showMsg('分組不完整：每隊須指派到一個小組', 'error'); return; }
+                assignments[row.group].push(row.id);
+                summary[row.group].push(row.name);
+            }
+            var complete = season3GroupIds.every(function (gid) { return assignments[gid].length === 4; });
+            if (!complete) { showMsg('分組不完整：每組須剛好 4 隊', 'error'); return; }
+            var message = '確認預賽分組？\n' + season3GroupIds.map(function (gid) {
+                return 'Group ' + gid + '：' + summary[gid].join('、');
+            }).join('\n') + '\n\n確認後生成 24 場單循環預賽賽程，此操作不可重複。';
+            if (!window.confirm(message)) return;
+            season3GenerateBtn.disabled = true;
+            API.post('generateSeason3Preliminary', { seasonId: seasonSelect.value, groupAssignments: assignments }).then(function (result) {
+                showMsg((result && result.message) || 'Season 3 預賽分組及賽程已生成', 'success');
+                loadSeason3Setup();
+            }).catch(function (err) {
+                showMsg((err && err.message) || I18n.t('error.submitFailed'), 'error');
+                updateSeason3DrawCounters();
+            });
+        });
+
         document.getElementById('btn-save-team').addEventListener('click', function () {
             teamLogoImport.ready().then(function () {
             var data = {
@@ -479,6 +725,7 @@
                 showMsg(editingId ? I18n.t('admin.updateSuccess') : I18n.t('admin.submitSuccess'), 'success');
                 resetForm();
                 loadTeams();
+                loadSeason3Setup();
             }).catch(function () { showMsg(I18n.t('error.submitFailed'), 'error'); });
             });
         });
