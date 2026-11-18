@@ -100,7 +100,41 @@
     .nyp-count.zero { color: #4ade80; }
     .nyp-count.some { color: #fbbf24; }
 
+    /* Availability + suggestion controls */
+    .availability-grid { max-height: 320px; overflow-y: auto; padding-right: 4px; }
+    .suggest-controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin-bottom: 14px; }
+    .suggest-field { display: flex; flex-direction: column; gap: 4px; font-size: 10px; color: #888; letter-spacing: .02em; }
+    .suggest-field select, .suggest-field input { background: #1e1e30; border: 1px solid #333; color: #e0e0e0; padding: 7px 9px; border-radius: 6px; font-size: 12px; }
+    .suggest-field input[type="date"] { color-scheme: dark; }
+    .suggest-field input[type="number"] { width: 64px; }
+    .suggest-btn { background: #1e1e30; border: 1px solid #333; color: #e0e0e0; font-size: 12px; font-weight: 600; padding: 8px 13px; border-radius: 6px; cursor: pointer; }
+    .suggest-btn:hover:not(:disabled) { border-color: #f97316; color: #f97316; }
+    .suggest-btn:disabled { opacity: .4; cursor: default; }
+    .suggest-summary { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+    .day-table { width: 100%; }
+    .day-table td { text-align: left; vertical-align: top; }
+    .day-name { color: #e0e0ff; font-weight: 700; white-space: nowrap; }
+    .day-meta { color: #888; font-size: 10px; font-weight: 600; margin-top: 3px; }
+    .day-meta .warn { color: #fb923c; }
+    .unavail-names { color: #fca5a5; font-size: 10px; margin-top: 3px; }
+    .slot-line { display: flex; gap: 6px; align-items: baseline; flex-wrap: wrap; margin: 3px 0; }
+    .slot-no { color: #666; font-size: 10px; }
+    .group-tag { display: inline-block; padding: 1px 5px; border-radius: 4px; background: #22303f; color: #7dd3fc; font-size: 10px; }
+    .vs { color: #666; font-size: 11px; }
+    .existing-line { color: #a0a0c0; font-size: 11px; }
+    .new-flag { color: #fbbf24; font-size: 10px; }
+    .note-flag { color: #fb923c; font-size: 10px; }
+    .conflict-item { background: #1c1010; border-left: 3px solid #f87171; padding: 7px 11px; margin-bottom: 6px; font-size: 12px; border-radius: 0 6px 6px 0; line-height: 1.5; }
+    .unplaced-box { margin-top: 14px; padding: 12px; background: #1c1010; border: 1px solid #7f1d1d; border-radius: 8px; }
+    .unplaced-box h3 { margin: 0 0 8px; font-size: 12px; color: #fca5a5; }
+    .unplaced-item { font-size: 12px; line-height: 1.55; margin-bottom: 6px; color: #e0e0e0; }
+    .unplaced-item span { color: #fbbf24; }
+
     @media (max-width: 480px) {
+      .suggest-controls { gap: 8px; }
+      .suggest-field { flex: 1 1 44%; }
+      .suggest-field select, .suggest-field input { width: 100%; }
+      .slot-line { gap: 4px; }
       body { padding: 14px 8px; }
       h1 { font-size: 17px; }
       select { font-size: 13px; width: 100%; }
@@ -119,22 +153,31 @@
 <a class="back" href="schedule.html">← Back to Schedule</a>
 
 <h1>Schedule Integrity Check</h1>
-<p class="subtitle">Verifies each team follows the selected season format. Season 2 uses two divisions, 5 regular-season games per team, and avoids Season 1 rematches where possible.</p>
+<p class="subtitle">Verifies each team follows the selected season format, cross-checks team availability and suggests matchups per date. Season 2: Clutch／Fastbreak 各 8 隊、每隊 5 場。Season 3: 按分組檢查，未編日期的賽事會建議賽程日期。</p>
 
 <div class="controls">
   <select id="season-select"><option value="">Loading…</option></select>
   <span class="status-bar" id="status-bar"></span>
 </div>
 
+<div class="suggest-controls">
+  <label class="suggest-field" id="phase-field" hidden><span>階段 Phase</span><select id="phase-select"></select></label>
+  <label class="suggest-field"><span>日期由 From</span><input type="date" id="range-start"></label>
+  <label class="suggest-field"><span>至 To</span><input type="date" id="range-end"></label>
+  <label class="suggest-field"><span>每日最多場次 Games/day</span><input type="number" id="games-per-day" min="1" max="6" value="2"></label>
+  <button type="button" class="suggest-btn" id="btn-recompute">重新計算 Recompute</button>
+  <button type="button" class="suggest-btn" id="btn-copy-plan" disabled>複製建議 Copy plan</button>
+</div>
+
 <div class="chips" id="chips" style="display:none"></div>
 
 <div class="nyp-section" id="division-section" style="display:none">
-  <h2>Division Groups</h2>
+  <h2>Divisions / Groups — 分組</h2>
   <div class="nyp-table-wrap">
     <table class="nyp-table" id="division-table">
       <thead>
         <tr>
-          <th>Division</th>
+          <th>分組 Group</th>
           <th>Teams</th>
           <th>Count</th>
         </tr>
@@ -163,8 +206,31 @@
   </div>
 </div>
 
+<div class="nyp-section" id="conflict-section" style="display:none">
+  <h2>Availability Conflicts — 已編排但球隊已請假</h2>
+  <div id="conflict-list"></div>
+</div>
+
+<div class="nyp-section" id="suggestion-section" style="display:none">
+  <h2>Daily Matchup Suggestions — 每日對陣建議</h2>
+  <div class="suggest-summary" id="suggest-summary"></div>
+  <div class="nyp-table-wrap">
+    <table class="nyp-table day-table">
+      <thead>
+        <tr>
+          <th>日期 Date</th>
+          <th>可出賽球隊 Available</th>
+          <th>建議對陣 Suggested matchups</th>
+        </tr>
+      </thead>
+      <tbody id="suggest-body"></tbody>
+    </table>
+  </div>
+  <div id="unplaced-box"></div>
+</div>
+
 <div class="nyp-section" id="nyp-section" style="display:none">
-  <h2>Remaining Preset Division Opponents per Team</h2>
+  <h2>Remaining Opponents per Team — 各隊未對陣對手</h2>
   <span class="section-note">Based on completed and scheduled regular-season games in schedule.html</span>
   <div class="nyp-table-wrap">
     <table class="nyp-table" id="nyp-table">
@@ -187,7 +253,7 @@
     <table class="nyp-table" id="recommended-table">
       <thead>
         <tr>
-          <th>Division</th>
+          <th>分組 Group</th>
           <th>Matchup</th>
           <th>Note</th>
         </tr>
@@ -266,6 +332,29 @@ var loadingMsg   = document.getElementById('loading-msg');
 var seasonsById  = {};
 var currentAdminNoteMeta = null;
 var adminNoteSaveTimer = null;
+var phaseField   = document.getElementById('phase-field');
+var phaseSelect  = document.getElementById('phase-select');
+var rangeStartInput = document.getElementById('range-start');
+var rangeEndInput   = document.getElementById('range-end');
+var gamesPerDayInput = document.getElementById('games-per-day');
+var recomputeBtn = document.getElementById('btn-recompute');
+var copyPlanBtn  = document.getElementById('btn-copy-plan');
+var conflictSection = document.getElementById('conflict-section');
+var conflictList = document.getElementById('conflict-list');
+var suggestionSection = document.getElementById('suggestion-section');
+var suggestSummary = document.getElementById('suggest-summary');
+var suggestBody  = document.getElementById('suggest-body');
+var unplacedBox  = document.getElementById('unplaced-box');
+var state = {
+  seasonId: '', season: null, teams: [], games: [], rawGames: [],
+  availability: [], s3Groups: null, groupInfo: null, planText: '', loading: false
+};
+var SEASON3_PHASES = [
+  { id: 'preliminary', name: '預賽' },
+  { id: 'regular', name: '常規賽' },
+  { id: 'playoffs', name: 'MJ23／LBJ23 Cup' },
+  { id: 'goldBelt', name: '終極金腰帶爭奪戰' }
+];
 
 adminAvailabilityNote.addEventListener('input', function() {
   scheduleAdminNoteSave();
@@ -288,6 +377,14 @@ apiFetch('seasons').then(function(seasons) {
 
 seasonSelect.addEventListener('change', function() { loadSeason(seasonSelect.value); });
 
+[rangeStartInput, rangeEndInput].forEach(function(input) {
+  input.addEventListener('change', function() { if (state.seasonId) loadSeason(state.seasonId); });
+});
+gamesPerDayInput.addEventListener('change', function() { draw(); });
+phaseSelect.addEventListener('change', function() { draw(); });
+recomputeBtn.addEventListener('click', function() { if (state.seasonId) loadSeason(state.seasonId); });
+copyPlanBtn.addEventListener('click', copyPlan);
+
 function getDefaultSeason(seasons) {
   if (typeof SeasonRules !== 'undefined') return SeasonRules.getDefaultSeason(seasons);
   var active = seasons.filter(function(s) { return s.status === 'active'; });
@@ -296,6 +393,8 @@ function getDefaultSeason(seasons) {
 
 function loadSeason(seasonId) {
   if (!seasonId) return;
+  state.seasonId = seasonId;
+  state.loading = true;
   loadingMsg.style.display = 'block';
   loadingMsg.textContent = 'Loading games…';
   chipsEl.style.display = 'none';
@@ -305,24 +404,64 @@ function loadSeason(seasonId) {
   recommendedSection.style.display = 'none';
   divisionSection.style.display = 'none';
   availabilitySection.style.display = 'none';
+  conflictSection.style.display = 'none';
+  suggestionSection.style.display = 'none';
+  syncRangeInputs(seasonId);
 
   var range = getAvailabilityRange();
+  var season = seasonFor(seasonId);
 
   Promise.all([
     apiFetch('schedule', { seasonId: seasonId }),
     apiFetch('teams',    { seasonId: seasonId }),
     safeAvailabilityFetch(seasonId, range.start, range.end),
     safeAdminNoteFetch(seasonId, range.start, range.end),
-    safeTeamAvailabilityNotesFetch(seasonId, range.start, range.end)
+    safeTeamAvailabilityNotesFetch(seasonId, range.start, range.end),
+    isSeasonThree(season) ? safeSeason3GroupsFetch(seasonId) : Promise.resolve(null)
   ]).then(function(results) {
-    var games = (results[0] || []).filter(function(g) { return g.status !== 'cancelled' && g.type !== 'playoff'; });
-    var teams = results[1] || [];
-    var availability = mergeLocalAvailability(results[2] || [], seasonId, range.start, range.end);
-    renderAvailability(availability, range.start, range.end, seasonId, results[3] || {}, results[4] || []);
-    render(games, teams, seasonsById[seasonId] || { id: seasonId, name: seasonSelect.options[seasonSelect.selectedIndex] ? seasonSelect.options[seasonSelect.selectedIndex].textContent : seasonId });
+    state.rawGames = (results[0] || []).filter(function(g) { return g.status !== 'cancelled'; });
+    state.teams = results[1] || [];
+    state.availability = mergeLocalAvailability(results[2] || [], seasonId, range.start, range.end);
+    state.s3Groups = results[5] || null;
+    state.loading = false;
+    renderAvailability(state.availability, range.start, range.end, seasonId, results[3] || {}, results[4] || []);
+    syncPhaseSelect();
+    draw();
   }).catch(function() {
+    state.loading = false;
     loadingMsg.textContent = 'Failed to load data.';
   });
+}
+
+// Re-renders every section from cached data; used by phase / capacity changes.
+function draw() {
+  if (!state.seasonId || state.loading) return;
+  var season = seasonFor(state.seasonId);
+  var seasonThree = isSeasonThree(season);
+  var phase = seasonThree ? (phaseSelect.value || 'preliminary') : '';
+  var games = seasonThree
+    ? state.rawGames.filter(function(g) { return phaseOfGame(g) === phase; })
+    : state.rawGames.filter(function(g) { return g.type !== 'playoff'; });
+  render(games, state.teams, season);
+}
+
+function seasonFor(seasonId) {
+  return seasonsById[seasonId] || {
+    id: seasonId,
+    name: seasonSelect.options[seasonSelect.selectedIndex] ? seasonSelect.options[seasonSelect.selectedIndex].textContent : seasonId
+  };
+}
+
+function syncRangeInputs(seasonId) {
+  if (state.rangeSeasonId === seasonId) return;
+  state.rangeSeasonId = seasonId;
+  var def = defaultAvailabilityRange(seasonFor(seasonId));
+  rangeStartInput.value = def.start;
+  rangeEndInput.value = def.end;
+}
+
+function safeSeason3GroupsFetch(seasonId) {
+  return withTimeout(apiFetch('season3Groups', { seasonId: seasonId }), null, 8000).catch(function() { return null; });
 }
 
 function safeAvailabilityFetch(seasonId, startDate, endDate) {
@@ -357,10 +496,19 @@ function withTimeout(promise, fallback, ms) {
 }
 
 function getAvailabilityRange() {
+  var def = defaultAvailabilityRange(seasonFor(state.seasonId));
+  var start = isYmd(rangeStartInput.value) ? rangeStartInput.value : def.start;
+  var end = isYmd(rangeEndInput.value) ? rangeEndInput.value : def.end;
+  if (end < start) end = start;
+  if (end > addDaysYmd(start, 92)) end = addDaysYmd(start, 92);
+  return { start: start, end: end };
+}
+
+function defaultAvailabilityRange(season) {
   var start = getNextMonday();
-  var end = new Date(start);
-  end.setDate(start.getDate() + 20);
-  return { start: toYmd(start), end: toYmd(end) };
+  var seasonStart = looseYmd(season && (season.startDate || season.start));
+  if (seasonStart && seasonStart > toYmd(start)) start = parseYmd(seasonStart);
+  return { start: toYmd(start), end: addDaysYmd(toYmd(start), 20) };
 }
 
 function getNextMonday() {
@@ -535,6 +683,9 @@ function render(games, teams, season) {
   loadingMsg.style.display = 'none';
 
   var context = SeasonRules.buildContext(teams || [], games || [], season || {});
+  var groupInfo = resolveGroups(season, context, games);
+  if (groupInfo.kind === 'group') applyGroupRules(context, groupInfo);
+  else if (groupInfo.seasonThree) applyPhaseOnlyRules(context, groupInfo);
   var rules = context.rules;
   var teamMap = context.teamMap;
   var teamIds = context.teamIds;
@@ -550,24 +701,17 @@ function render(games, teams, season) {
   // --- Build per-team schedule: teamId -> { roundNum: opponentName } ---
   var teamSchedule = {}; // teamId -> { 1: opp, 2: opp, ... }
   teamIds.forEach(function(id) { teamSchedule[id] = {}; });
+  var pendingSchedule = {}; // teamId -> [opp] for fixtures generated without a date
+  var hasPending = false;
   var completedOpponentsByTeam = {};
   var arrangedOpponentsByTeam = {};
   teamIds.forEach(function(id) { completedOpponentsByTeam[id] = []; });
   teamIds.forEach(function(id) { arrangedOpponentsByTeam[id] = []; });
 
   games.forEach(function(g) {
-    var round = g.date ? dateToRound[g.date] : null;
-    if (!round) return;
     var homeId = g.homeTeamId, awayId = g.awayTeamId;
     var homeName = teamMap[homeId] || homeId;
     var awayName = teamMap[awayId] || awayId;
-    if (!teamSchedule[homeId]) teamSchedule[homeId] = {};
-    if (!teamSchedule[awayId]) teamSchedule[awayId] = {};
-    // Store as array in case multiple games same round (to detect issues)
-    if (!teamSchedule[homeId][round]) teamSchedule[homeId][round] = [];
-    if (!teamSchedule[awayId][round]) teamSchedule[awayId][round] = [];
-    teamSchedule[homeId][round].push(awayName);
-    teamSchedule[awayId][round].push(homeName);
     if (isCompletedGame(g)) {
       if (!completedOpponentsByTeam[homeId]) completedOpponentsByTeam[homeId] = [];
       if (!completedOpponentsByTeam[awayId]) completedOpponentsByTeam[awayId] = [];
@@ -580,6 +724,20 @@ function render(games, teams, season) {
       arrangedOpponentsByTeam[homeId].push(awayId);
       arrangedOpponentsByTeam[awayId].push(homeId);
     }
+    var round = g.date ? dateToRound[g.date] : null;
+    if (!round) {
+      hasPending = true;
+      (pendingSchedule[homeId] = pendingSchedule[homeId] || []).push(awayName);
+      (pendingSchedule[awayId] = pendingSchedule[awayId] || []).push(homeName);
+      return;
+    }
+    if (!teamSchedule[homeId]) teamSchedule[homeId] = {};
+    if (!teamSchedule[awayId]) teamSchedule[awayId] = {};
+    // Store as array in case multiple games same round (to detect issues)
+    if (!teamSchedule[homeId][round]) teamSchedule[homeId][round] = [];
+    if (!teamSchedule[awayId][round]) teamSchedule[awayId][round] = [];
+    teamSchedule[homeId][round].push(awayName);
+    teamSchedule[awayId][round].push(homeName);
   });
 
   // --- Detect issues ---
@@ -629,12 +787,13 @@ function render(games, teams, season) {
     var name = teamMap[tid];
     var sched = teamSchedule[tid];
     var allOpps = [];
-    // Collect all opponents
+    // Collect all opponents (dated fixtures plus generated-but-undated ones)
     Object.keys(sched).forEach(function(r) {
       sched[r].forEach(function(opp) { allOpps.push(opp); });
     });
+    (pendingSchedule[tid] || []).forEach(function(opp) { allOpps.push(opp); });
     // Total games check
-    if (allOpps.length !== rules.expectedGames) {
+    if (!rules.skipCountCheck && allOpps.length !== rules.expectedGames) {
       issues.push(name + ': expected ' + rules.expectedGames + ' games, found ' + allOpps.length + '.');
     }
     // Duplicate opponent check
@@ -664,8 +823,8 @@ function render(games, teams, season) {
   addChip(chipsEl, teamCount + ' Teams', 'ok');
   addChip(chipsEl, gameCount + ' Games', 'ok');
   addChip(chipsEl, totalRounds + ' Rounds', 'ok');
-  if (rules.isDivisionRoundRobin && rules.divisionCount) addChip(chipsEl, rules.divisionCount + ' Divisions', 'ok');
-  addChip(chipsEl, rules.expectedGames + ' Games/Team', 'ok');
+  if (rules.isDivisionRoundRobin && rules.divisionCount) addChip(chipsEl, rules.divisionCount + (groupInfo.seasonThree ? ' Groups' : ' Divisions'), 'ok');
+  if (!rules.skipCountCheck) addChip(chipsEl, rules.expectedGames + ' Games/Team', 'ok');
   if (uniqueIssues.length === 0) {
     addChip(chipsEl, '✓ All Clear', 'ok');
   } else {
@@ -709,6 +868,11 @@ function render(games, teams, season) {
     th.textContent = 'R' + r;
     headRow.appendChild(th);
   }
+  if (hasPending) {
+    var thPending = document.createElement('th');
+    thPending.textContent = '待編排';
+    headRow.appendChild(thPending);
+  }
   var thTotal = document.createElement('th');
   thTotal.textContent = 'Total';
   headRow.appendChild(thTotal);
@@ -750,7 +914,7 @@ function render(games, teams, season) {
     tr.appendChild(tdCount);
     nypBody.appendChild(tr);
   });
-  nypSection.style.display = 'block';
+  nypSection.style.display = rules.skipCountCheck ? 'none' : 'block';
 
   renderRecommendedMatchups(games, context, arrangedOpponentsByTeam);
 
@@ -760,6 +924,7 @@ function render(games, teams, season) {
     var sched = teamSchedule[tid];
     var allOpps = [];
     Object.keys(sched).forEach(function(r) { sched[r].forEach(function(o) { allOpps.push(o); }); });
+    (pendingSchedule[tid] || []).forEach(function(o) { allOpps.push(o); });
 
     // Check duplicates for coloring
     var oppCount = {};
@@ -784,9 +949,19 @@ function render(games, teams, season) {
       tr.appendChild(td);
     }
 
+    if (hasPending) {
+      var tdPending = document.createElement('td');
+      var pend = pendingSchedule[tid] || [];
+      tdPending.innerHTML = pend.length
+        ? pend.map(function(opp) { return '<span class="nyp-opp">' + esc(opp) + '</span>'; }).join(' ')
+        : '<span class="cell-empty">—</span>';
+      tr.appendChild(tdPending);
+    }
+
     var tdTotal = document.createElement('td');
     var total = allOpps.length;
-    tdTotal.innerHTML = '<span class="total ' + (total === rules.expectedGames ? 'ok' : 'bad') + '">' + total + '</span>';
+    var totalClass = rules.skipCountCheck ? '' : (total === rules.expectedGames ? 'ok' : 'bad');
+    tdTotal.innerHTML = '<span class="total ' + totalClass + '">' + total + '</span>';
     tr.appendChild(tdTotal);
 
     matrixBody.appendChild(tr);
@@ -807,6 +982,447 @@ function render(games, teams, season) {
       issuesList.appendChild(div);
     });
   }
+
+  renderConflicts(context);
+  renderSuggestions(context, games, groupInfo, arrangedOpponentsByTeam);
+}
+
+// ============================================================
+// Season 3 / division grouping + availability-aware scheduling
+// ============================================================
+
+function isSeasonThree(season) {
+  season = season || {};
+  var format = String(season.formatVersion || season.competitionFormat || season.format || '').toLowerCase();
+  var label = String(season.name || season.id || '').toLowerCase();
+  return format === 'season3' || format === 'season-3' || format === 's3'
+    || /(?:season|s)\s*0?3\b/.test(label) || /第\s*(?:三|3)\s*(?:季|屆)/.test(label);
+}
+
+function phaseOfGame(game) {
+  game = game || {};
+  var phase = String(game.phase || '').trim();
+  if (phase) return phase;
+  var notes = String(game.notes || '');
+  if (notes.indexOf('預賽') !== -1) return 'preliminary';
+  if (notes.indexOf('常規賽') !== -1) return 'regular';
+  if (notes.indexOf('金腰帶') !== -1) return 'goldBelt';
+  if (game.type === 'playoff') return 'playoffs';
+  return 'regular';
+}
+
+function phaseName(phase) {
+  var found = SEASON3_PHASES.filter(function(item) { return item.id === phase; })[0];
+  return found ? found.name : String(phase || '');
+}
+
+function groupLabelOf(game) {
+  game = game || {};
+  var groupId = String(game.groupId || '').trim();
+  if (groupId === 'goldBelt') return '金腰帶';
+  var notes = String(game.notes || '');
+  if (!groupId && notes.indexOf('金腰帶') !== -1) return '金腰帶';
+  if (groupId) return 'Group ' + groupId;
+  var match = notes.match(/Group\s*([A-Za-z])/);
+  if (match) return 'Group ' + match[1].toUpperCase();
+  var cup = String(game.cup || game.playoffSeed || '').trim().toLowerCase();
+  if (cup === 'mj23') return 'MJ23 Cup';
+  if (cup === 'lbj23') return 'LBJ23 Cup';
+  if (/MJ23/.test(notes)) return 'MJ23 Cup';
+  if (/LBJ23/.test(notes)) return 'LBJ23 Cup';
+  return '';
+}
+
+function syncPhaseSelect() {
+  var season = seasonFor(state.seasonId);
+  var seasonThree = isSeasonThree(season);
+  phaseField.hidden = !seasonThree;
+  if (!seasonThree) { phaseSelect.innerHTML = ''; return; }
+  var counts = {};
+  state.rawGames.forEach(function(game) {
+    var phase = phaseOfGame(game);
+    counts[phase] = (counts[phase] || 0) + 1;
+  });
+  var options = SEASON3_PHASES.filter(function(item) { return counts[item.id]; });
+  if (!options.length) options = SEASON3_PHASES.slice(0, 1);
+  var needsDates = SEASON3_PHASES.filter(function(item) {
+    return state.rawGames.some(function(game) { return phaseOfGame(game) === item.id && !game.date; });
+  });
+  var preferred = (needsDates[0] || options[0]).id;
+  var keep = options.some(function(item) { return item.id === phaseSelect.value; }) ? phaseSelect.value : preferred;
+  var selectedId = keep || preferred;
+  phaseSelect.innerHTML = '';
+  options.forEach(function(item) {
+    var opt = document.createElement('option');
+    opt.value = item.id;
+    opt.textContent = item.name + '（' + (counts[item.id] || 0) + ' 場）';
+    if (item.id === selectedId) opt.selected = true;
+    phaseSelect.appendChild(opt);
+  });
+}
+
+function resolveGroups(season, context, games) {
+  var teamIds = context.teamIds;
+  var phase = isSeasonThree(season) ? (phaseSelect.value || 'preliminary') : '';
+  if (isSeasonThree(season)) {
+    // Only the two round-robin phases have group tables; cups and the belt game do not.
+    var groupPhase = phase === 'preliminary' || phase === 'regular' ? phase : '';
+    var groups = {}, teamGroup = {}, seen = {};
+    var source = groupPhase && state.s3Groups ? state.s3Groups[groupPhase] : null;
+    if (source && source.length) {
+      source.forEach(function(entry) {
+        var label = 'Group ' + entry.groupId;
+        (entry.teams || []).forEach(function(team) {
+          var id = String(team.teamId);
+          if (context.teamMap[id] && !seen[id]) { seen[id] = true; (groups[label] = groups[label] || []).push(id); teamGroup[id] = label; }
+        });
+      });
+    }
+    if (!Object.keys(groups).length) {
+      (games || []).forEach(function(game) {
+        var label = groupLabelOf(game);
+        if (!/^Group /.test(label)) return;
+        [game.homeTeamId, game.awayTeamId].forEach(function(id) {
+          if (!id || !context.teamMap[id] || seen[id]) return;
+          seen[id] = true;
+          (groups[label] = groups[label] || []).push(id);
+          teamGroup[id] = label;
+        });
+      });
+    }
+    var info = { seasonThree: true, phase: phase, phaseName: phaseName(phase), groups: groups, teamGroup: teamGroup };
+    info.kind = groupPhase && Object.keys(groups).length ? 'group' : 'none';
+    if (info.kind === 'none') {
+      info.groups = { 'All Teams': teamIds.slice() };
+      teamIds.forEach(function(id) { info.teamGroup[id] = 'All Teams'; });
+    }
+    info.label = 'Season 3 ' + phaseName(phase);
+    return info;
+  }
+  if (context.rules.isDivisionRoundRobin) {
+    return { kind: 'division', seasonThree: false, groups: context.divisions, teamGroup: context.teamDivisions, label: 'Season 2 divisions' };
+  }
+  var fallback = { 'All Teams': teamIds.slice() }, map = {};
+  teamIds.forEach(function(id) { map[id] = 'All Teams'; });
+  return { kind: 'none', seasonThree: false, groups: fallback, teamGroup: map, label: '' };
+}
+
+// Group formats reuse the division checker, so the context is retargeted at the
+// drawn groups (4 teams, one game per pair) before any check runs.
+function applyGroupRules(context, groupInfo) {
+  var sizes = Object.keys(groupInfo.groups).map(function(label) { return groupInfo.groups[label].length; });
+  var biggest = sizes.length ? Math.max.apply(Math, sizes) : 0;
+  context.divisions = groupInfo.groups;
+  context.teamDivisions = groupInfo.teamGroup;
+  context.rules = {
+    isDivisionRoundRobin: groupInfo.kind === 'group',
+    expectedGames: Math.max(1, biggest - 1),
+    divisionCount: sizes.length,
+    groupSize: biggest,
+    groupMinSize: biggest,
+    groupMaxSize: biggest,
+    avoidReturningMatchups: false,
+    label: groupInfo.label + '：' + sizes.length + ' 組 × ' + biggest + ' 隊 · 每隊 ' + Math.max(1, biggest - 1) + ' 場'
+  };
+}
+
+// Cups and the belt game are single-elimination / exhibition, so the per-team
+// game-count rule cannot be applied; only date and availability checks stay useful.
+function applyPhaseOnlyRules(context, groupInfo) {
+  context.rules = {
+    isDivisionRoundRobin: false,
+    expectedGames: 0,
+    avoidReturningMatchups: false,
+    skipCountCheck: true,
+    label: groupInfo.label
+  };
+}
+
+function unavailableIndex() {
+  var byDate = {};
+  (state.availability || []).forEach(function(row) {
+    var date = looseYmd(row.unavailableDate);
+    if (!date || !row.teamId) return;
+    var day = byDate[date] || (byDate[date] = {});
+    // Presence is the signal; a team that reports no note text is still unavailable.
+    day[String(row.teamId)] = { note: String(row.note || '') };
+  });
+  return byDate;
+}
+
+function renderConflicts(context) {
+  if (!conflictList) return;
+  var unavailable = unavailableIndex();
+  conflictList.innerHTML = '';
+  var rows = state.rawGames.filter(function(game) {
+    if (!game.date) return false;
+    var day = unavailable[game.date];
+    return !!(day && (day[String(game.homeTeamId)] || day[String(game.awayTeamId)]));
+  }).sort(function(a, b) { return String(a.date).localeCompare(String(b.date)); });
+  rows.forEach(function(game) {
+    var day = unavailable[game.date];
+    var blocked = [];
+    [game.homeTeamId, game.awayTeamId].forEach(function(id) {
+      if (!day[String(id)]) return;
+      var name = context.teamMap[id] || (String(game.homeTeamId) === String(id) ? game.homeTeamName : game.awayTeamName) || id;
+      blocked.push(name);
+    });
+    var div = document.createElement('div');
+    div.className = 'conflict-item';
+    div.innerHTML = esc(formatCnDate(game.date)) + (game.time ? ' ' + esc(game.time) : '') + '　'
+      + esc(context.teamMap[game.homeTeamId] || game.homeTeamName || '') + ' vs '
+      + esc(context.teamMap[game.awayTeamId] || game.awayTeamName || '')
+      + '<br><span style="color:#fca5a5">已報不可出賽：' + esc(blocked.join('、')) + '</span>';
+    conflictList.appendChild(div);
+  });
+  conflictSection.style.display = rows.length ? 'block' : 'none';
+}
+
+function candidateDates(start, end, extraDates) {
+  var set = {}, cursor = parseYmd(start), stop = parseYmd(end), today = toYmd(new Date());
+  while (cursor <= stop) {
+    var ymd = toYmd(cursor), dow = cursor.getDay();
+    if (ymd >= today && dow !== 0 && dow !== 6) set[ymd] = true;
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  (extraDates || []).forEach(function(date) { if (date && date >= start && date <= end) set[date] = true; });
+  return Object.keys(set).sort();
+}
+
+function poolFromRemaining(context, arrangedByTeam) {
+  var byName = {}, duplicateNames = false;
+  context.teamIds.forEach(function(id) {
+    var name = context.teamMap[id];
+    if (byName[name]) duplicateNames = true;
+    byName[name] = id;
+  });
+  if (duplicateNames) return [];
+  var out = [];
+  SeasonRules.getDivisionNames(context).forEach(function(division) {
+    var solution = solveDivisionMatchups(division, context, arrangedByTeam);
+    if (!solution) return;
+    solution.matchups.forEach(function(matchup) {
+      var homeId = byName[matchup.home], awayId = byName[matchup.away];
+      if (homeId && awayId) out.push({ gameId: null, homeId: homeId, awayId: awayId, group: division });
+    });
+  });
+  return out;
+}
+
+function suggestMatchups(context, phaseGames, groupInfo, arrangedByTeam) {
+  var range = getAvailabilityRange();
+  var capacity = Math.min(6, Math.max(1, Number(gamesPerDayInput.value) || 2));
+  var teamIds = context.teamIds;
+  var unavailable = unavailableIndex();
+  var existing = {}, load = {}, booked = {};
+  teamIds.forEach(function(id) { booked[id] = {}; });
+
+  state.rawGames.forEach(function(game) {
+    if (!game.date || game.date < range.start || game.date > range.end) return;
+    (existing[game.date] = existing[game.date] || []).push(game);
+    load[game.date] = (load[game.date] || 0) + 1;
+    [game.homeTeamId, game.awayTeamId].forEach(function(id) { if (booked[id]) booked[id][game.date] = true; });
+  });
+
+  var dates = candidateDates(range.start, range.end, Object.keys(existing));
+  var pool = [], poolKind = 'fixture';
+  phaseGames.forEach(function(game) {
+    if (game.date || !game.homeTeamId || !game.awayTeamId) return;
+    pool.push({
+      gameId: game.id, homeId: game.homeTeamId, awayId: game.awayTeamId,
+      group: groupLabelOf(game) || groupInfo.teamGroup[game.homeTeamId] || ''
+    });
+  });
+  if (!pool.length && groupInfo.kind !== 'none') { pool = poolFromRemaining(context, arrangedByTeam); poolKind = 'new'; }
+
+  var assigned = [], unplaced = [], pending = pool.slice(), guard = 0;
+  function freeOn(teamId, ymd) {
+    return !!teamId && !((booked[teamId] || {})[ymd]) && !((unavailable[ymd] || {})[teamId]);
+  }
+  function feasibleDates(item) {
+    return dates.filter(function(ymd) {
+      return (load[ymd] || 0) < capacity && freeOn(item.homeId, ymd) && freeOn(item.awayId, ymd);
+    });
+  }
+  function restPenalty(item, ymd) {
+    var penalty = 0;
+    [item.homeId, item.awayId].forEach(function(id) {
+      var day = booked[id] || {};
+      if (day[addDaysYmd(ymd, -1)] || day[addDaysYmd(ymd, 1)]) penalty += 5;
+    });
+    return penalty;
+  }
+  function blockReason(item) {
+    var bothFree = dates.filter(function(ymd) { return freeOn(item.homeId, ymd) && freeOn(item.awayId, ymd); });
+    return bothFree.length
+      ? '可出賽的日子已排滿（每日上限 ' + capacity + ' 場）'
+      : '兩隊在日期範圍內沒有共同可出賽日';
+  }
+
+  while (pending.length && guard++ < 500) {
+    var pickIndex = -1, pickOptions = null;
+    for (var i = 0; i < pending.length; i++) {
+      var options = feasibleDates(pending[i]);
+      if (!options.length) {
+        unplaced.push({ item: pending[i], reason: blockReason(pending[i]) });
+        pending.splice(i, 1);
+        pickIndex = -1;
+        break;
+      }
+      if (pickIndex === -1 || options.length < pickOptions.length) { pickIndex = i; pickOptions = options; }
+    }
+    if (pickIndex === -1) continue;
+    var item = pending.splice(pickIndex, 1)[0];
+    var bestDate = pickOptions[0], bestScore = Infinity;
+    pickOptions.forEach(function(ymd) {
+      var score = (load[ymd] || 0) * 10 + dates.indexOf(ymd) + restPenalty(item, ymd);
+      if (score < bestScore) { bestScore = score; bestDate = ymd; }
+    });
+    assigned.push({ ymd: bestDate, item: item });
+    load[bestDate] = (load[bestDate] || 0) + 1;
+    [item.homeId, item.awayId].forEach(function(id) { booked[id][bestDate] = true; });
+  }
+
+  return { range: range, capacity: capacity, dates: dates, existing: existing, assigned: assigned, unplaced: unplaced, pool: pool, poolKind: poolKind, unavailable: unavailable };
+}
+
+function renderSuggestions(context, phaseGames, groupInfo, arrangedByTeam) {
+  if (!suggestBody) return;
+  var plan = suggestMatchups(context, phaseGames, groupInfo, arrangedByTeam);
+  var teamIds = context.teamIds;
+  var byDate = {};
+  plan.assigned.forEach(function(entry) { (byDate[entry.ymd] = byDate[entry.ymd] || []).push(entry.item); });
+
+  suggestBody.innerHTML = '';
+  suggestSummary.innerHTML = '';
+  var rows = 0, skipped = 0, lines = [];
+
+  plan.dates.forEach(function(ymd) {
+    var suggested = (byDate[ymd] || []).slice().sort(function(a, b) {
+      return String(a.group).localeCompare(String(b.group)) || String(context.teamMap[a.homeId]).localeCompare(String(context.teamMap[b.homeId]));
+    });
+    var existingGames = plan.existing[ymd] || [];
+    var unavDay = plan.unavailable[ymd] || {};
+    var unavail = teamIds.filter(function(id) { return !!unavDay[id]; });
+    if (!suggested.length && !existingGames.length && !unavail.length) { skipped++; return; }
+    rows++;
+
+    var availableCount = teamIds.length - unavail.length;
+    var groupParts = groupInfo.kind === 'none' ? [] : Object.keys(groupInfo.groups).map(function(label) {
+      var ids = groupInfo.groups[label] || [];
+      var ok = ids.filter(function(id) { return !unavDay[id]; }).length;
+      return (label.indexOf('Group ') === 0 ? label.slice(6) : label) + ' ' + ok + '/' + ids.length;
+    });
+    var availableCell = '<div class="day-meta">' + availableCount + '/' + teamIds.length + ' 可出賽</div>';
+    if (groupInfo.kind !== 'none' && groupParts.length) availableCell += '<div class="day-meta">' + esc(groupParts.join(' · ')) + '</div>';
+    if (unavail.length) {
+      availableCell += '<div class="unavail-names">請假：' + esc(unavail.slice(0, 4).map(function(id) { return context.teamMap[id] || id; }).join('、'))
+        + (unavail.length > 4 ? ' +' + (unavail.length - 4) : '') + '</div>';
+    }
+
+    var matchCell = existingGames.map(function(game) {
+      return '<div class="existing-line">已排 ' + esc(context.teamMap[game.homeTeamId] || game.homeTeamName || '') + ' vs '
+        + esc(context.teamMap[game.awayTeamId] || game.awayTeamName || '') + (game.time ? ' ' + esc(game.time) : '') + '</div>';
+    }).join('');
+    matchCell += suggested.map(function(item, index) {
+      var text = '<div class="slot-line"><span class="slot-no">' + (index + 1) + '.</span>'
+        + (item.group ? '<span class="group-tag">' + esc(item.group) + '</span>' : '')
+        + '<span class="nyp-opp">' + esc(context.teamMap[item.homeId] || item.homeId) + '</span><span class="vs">vs</span>'
+        + '<span class="nyp-opp">' + esc(context.teamMap[item.awayId] || item.awayId) + '</span>'
+        + (plan.poolKind === 'new' ? '<span class="new-flag">需新增</span>' : '')
+        + '</div>';
+      return text;
+    }).join('');
+    if (!suggested.length && !existingGames.length) matchCell += '<span class="cell-empty">—</span>';
+
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td><div class="day-name">' + esc(formatCnDate(ymd)) + '</div></td><td>' + availableCell + '</td><td>' + matchCell + '</td>';
+    suggestBody.appendChild(tr);
+
+    if (suggested.length) {
+      lines.push(formatCnDate(ymd, true));
+      suggested.forEach(function(item) {
+        lines.push((item.group ? item.group + '　' : '') + (context.teamMap[item.homeId] || '') + ' vs ' + (context.teamMap[item.awayId] || ''));
+      });
+    }
+  });
+
+  addChip(suggestSummary, plan.pool.length + ' 場需要編排', plan.pool.length ? 'warn' : 'ok');
+  addChip(suggestSummary, '已建議 ' + plan.assigned.length + ' 場', 'ok');
+  if (plan.unplaced.length) addChip(suggestSummary, '未能編排 ' + plan.unplaced.length + ' 場', 'warn');
+  addChip(suggestSummary, '每日上限 ' + plan.capacity + ' 場', 'ok');
+
+  unplacedBox.innerHTML = '';
+  if (plan.unplaced.length) {
+    var box = document.createElement('div');
+    box.className = 'unplaced-box';
+    box.innerHTML = '<h3>未能編排 / Not scheduled</h3>';
+    plan.unplaced.forEach(function(entry) {
+      var div = document.createElement('div');
+      div.className = 'unplaced-item';
+      div.innerHTML = '• ' + esc(context.teamMap[entry.item.homeId] || entry.item.homeId) + ' vs '
+        + esc(context.teamMap[entry.item.awayId] || entry.item.awayId) + '　<span>' + esc(entry.reason) + '</span>';
+      box.appendChild(div);
+    });
+    unplacedBox.appendChild(box);
+    addChip(suggestSummary, '略過 ' + skipped + ' 個沒有安排的日子', 'ok');
+  } else if (skipped) {
+    addChip(suggestSummary, '略過 ' + skipped + ' 個沒有安排的日子', 'ok');
+  }
+
+  state.planText = lines.join('\n');
+  copyPlanBtn.disabled = !state.planText;
+  suggestionSection.style.display = 'block';
+  if (!rows) {
+    suggestBody.innerHTML = '<tr><td colspan="3" class="text-muted" style="text-align:left">'
+      + esc(plan.pool.length ? '這個日期範圍內沒有可用日子，請擴大範圍。' : '沒有需要編排的場次：所有比賽已有日期，或仍未生成。')
+      + '</td></tr>';
+  }
+}
+
+function addDaysYmd(ymd, days) {
+  var date = parseYmd(ymd);
+  date.setDate(date.getDate() + days);
+  return toYmd(date);
+}
+
+function isYmd(value) { return /^\d{4}-\d{2}-\d{2}$/.test(String(value || '')); }
+
+function looseYmd(value) {
+  var match = String(value || '').trim().match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/);
+  if (!match) return '';
+  return match[1] + '-' + ('0' + match[2]).slice(-2) + '-' + ('0' + match[3]).slice(-2);
+}
+
+function formatCnDate(ymd, withYear) {
+  var parts = String(ymd).split('-');
+  var names = ['日', '一', '二', '三', '四', '五', '六'];
+  var label = Number(parts[2]) + '/' + Number(parts[1]);
+  if (withYear) label += '/' + parts[0];
+  return label + '（' + names[parseYmd(ymd).getDay()] + '）';
+}
+
+function copyPlan() {
+  if (!state.planText) return;
+  var done = function() {
+    copyPlanBtn.textContent = '已複製 Copied';
+    setTimeout(function() { copyPlanBtn.textContent = '複製建議 Copy plan'; }, 2000);
+  };
+  var fallback = function() {
+    var ta = document.createElement('textarea');
+    ta.value = state.planText;
+    ta.setAttribute('readonly', 'readonly');
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch (err) { /* clipboard unavailable */ }
+    document.body.removeChild(ta);
+    done();
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(state.planText).then(done, fallback);
+  } else fallback();
 }
 
 function isCompletedGame(game) {
