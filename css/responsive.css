@@ -249,25 +249,43 @@
     }
 
     .playoff-bracket-wrapper,
-    .nba-bracket-card,
-    .nba-bracket-scroll {
+    .nba-bracket-card {
         max-width: 100%;
+    }
+
+    .nba-bracket-scroll {
+        padding: 14px 12px 16px;
         overflow-x: hidden;
     }
 
-    .nba-bracket-scroll {
-        padding: 14px 10px 16px;
-    }
-
+    /* Phones cannot fit a side-by-side bracket: rounds stack top-to-bottom instead. */
     .nba-bracket-grid {
         min-width: 0 !important;
         width: 100%;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 14px;
+        grid-template-columns: 1fr !important;
+        gap: 0;
+        align-items: start;
     }
 
     .nba-bracket-round {
         min-width: 0;
+        gap: 10px;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+    }
+
+    .nba-bracket-round:first-child {
+        padding-top: 0;
+    }
+
+    .nba-bracket-round:last-child {
+        padding-bottom: 0;
+        border-bottom: 0;
+    }
+
+    .nba-bracket-grid--tree .nba-bracket-games {
+        flex: none;
+        justify-content: flex-start;
     }
 
     .nba-bracket-round:not(:last-child)::after,
@@ -275,11 +293,35 @@
         content: none;
     }
 
+    .nba-bracket-games {
+        gap: 12px;
+    }
+
     .nba-bracket-round-title,
     .nba-bracket-label,
     .nba-bracket-team {
         width: 100%;
         min-width: 0;
+    }
+
+    .nba-bracket-team {
+        grid-template-columns: minmax(0, 1fr) 34px;
+        gap: 8px;
+        min-height: 34px;
+        padding: 7px 9px;
+    }
+
+    .nba-bracket-team span {
+        white-space: normal;
+        overflow-wrap: anywhere;
+        font-size: 12px;
+    }
+
+    .nba-bracket-team strong { font-size: 14px; }
+
+    .nba-bracket-game-detail {
+        padding: 12px 10px;
+        text-align: center;
     }
 
     /* Common grids/cards */

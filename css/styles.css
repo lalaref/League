@@ -2213,6 +2213,7 @@ img {
     gap: 28px;
     min-width: 520px;
     align-items: center;
+    grid-template-columns: repeat(var(--bracket-rounds, 2), minmax(220px, 1fr));
 }
 
 /* Tree layout: rounds stretch to a shared height and spread evenly, so a game sits
