@@ -438,7 +438,7 @@ var SeasonBracketChart = (function () {
   function renderBracketGroup(group) {
     return '<div class="nba-bracket-group">'
       + '<div class="nba-bracket-group-title">' + esc(group.title || 'Bracket') + '</div>'
-      + '<div class="nba-bracket-scroll"><div class="nba-bracket-grid' + (group.tree ? ' nba-bracket-grid--tree' : '') + '" style="grid-template-columns:repeat(' + group.rounds.length + ', minmax(220px, 1fr))">'
+      + '<div class="nba-bracket-scroll"><div class="nba-bracket-grid' + (group.tree ? ' nba-bracket-grid--tree' : '') + '" style="--bracket-rounds:' + group.rounds.length + '">'
       + group.rounds.map(renderRound).join('')
       + '</div></div>'
       + '</div>';
