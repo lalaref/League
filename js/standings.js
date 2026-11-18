@@ -118,7 +118,7 @@
     var format = String(season.format || season.formatVersion || season.competitionFormat || '').toLowerCase();
     var name = String(season.name || '').toLowerCase();
     return format === 'season3' || format === 'season-3' || format === 's3' ||
-      /(?:season|s)\s*0?3\b/.test(name) || name.indexOf('第三季') !== -1 || name.indexOf('第3季') !== -1;
+      /(?:season|s)\s*0?3\b/.test(name) || /第\s*(?:三|3)\s*(?:季|屆)/.test(name);
   }
 
   function syncBracketVisibility() {
