@@ -122,11 +122,11 @@
       var tr = document.createElement('tr');
       var photoHtml = p.photo ? '<img src="' + esc(p.photo) + '" alt="" style="width:32px;height:32px;border-radius:50%;object-fit:cover">' : '-';
       tr.innerHTML =
-        '<td>' + esc(p.number !== '' && p.number != null ? p.number : '-') + '</td>' +
-        '<td>' + esc(p.name) + '</td>' +
-        '<td>' + esc(p.position || '-') + '</td>' +
-        '<td>' + photoHtml + '</td>' +
-        '<td>' +
+        '<td data-label="背號">' + esc(p.number !== '' && p.number != null ? p.number : '-') + '</td>' +
+        '<td data-label="姓名">' + esc(p.name) + '</td>' +
+        '<td data-label="位置">' + esc(p.position || '-') + '</td>' +
+        '<td data-label="照片">' + photoHtml + '</td>' +
+        '<td data-label="操作">' +
         '<button class="btn btn-sm btn-outline btn-edit-p" data-id="' + p.id + '">編輯</button> ' +
         '<button class="btn btn-sm btn-outline btn-del-p" data-id="' + p.id + '">刪除</button>' +
         '</td>';
