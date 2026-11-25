@@ -18,6 +18,7 @@
   var submitBtn = document.getElementById('btn-submit-boxscore');
   var updateBtn = document.getElementById('btn-update-boxscore');
   var mvpSelectEl = document.getElementById('mvp-select');
+  var mvpAutoCheckEl = document.getElementById('mvp-auto-check');
   var swipeHint = document.getElementById('swipe-hint');
   var playerIndicator = document.getElementById('player-indicator');
   var boxscoreBody = document.getElementById('boxscore-body');
@@ -49,6 +50,17 @@
   submitBtn.addEventListener('click', handleSubmit);
   updateBtn.addEventListener('click', handleUpdate);
   if (mvpSelectEl) mvpSelectEl.addEventListener('change', updateMvpProfileLink);
+  if (mvpSelectEl && mvpAutoCheckEl) {
+    mvpSelectEl.addEventListener('change', function () {
+      // Manual MVP choice overrides auto-selection
+      if (mvpAutoCheckEl.checked) mvpAutoCheckEl.checked = false;
+    });
+    mvpAutoCheckEl.addEventListener('change', function () {
+      if (mvpAutoCheckEl.checked) autoSelectMvp();
+    });
+  }
+  boxscoreBody.addEventListener('input', onStatInput);
+  mobileWrapper.addEventListener('input', onStatInput);
   confirmAttendanceBtn.addEventListener('click', confirmAttendance);
   var addRosterBtn = document.getElementById('btn-add-roster-player');
   var addGuestBtn = document.getElementById('btn-add-guest-player');
@@ -184,6 +196,7 @@
         existingBoxScore = _boxData; buildFromExisting(_boxData);
       } else {
         existingBoxScore = null;
+        if (mvpAutoCheckEl) mvpAutoCheckEl.checked = true;
         if (allRosterPlayers.length === 0) {
           showMessage('找不到球員資料。請先在球員管理頁面新增球員。', 'error'); return;
         }
@@ -281,6 +294,7 @@
     });
     mvpSection.hidden = false;
     updateMvpProfileLink();
+    autoSelectMvp();
   }
 
   function updateMvpProfileLink() {
@@ -323,6 +337,8 @@
       var mvpSelect = document.getElementById('mvp-select');
       if (mvpSelect) mvpSelect.value = game.mvpPlayerId;
     }
+    // 已完成的比賽保留原本的 MVP：自動 MVP 預設關閉，除非管理員自行重新開啟
+    if (gameIsCompleted() && mvpAutoCheckEl) mvpAutoCheckEl.checked = false;
     updateMvpProfileLink();
     ['homeQ1','homeQ2','homeQ3','homeQ4','awayQ1','awayQ2','awayQ3','awayQ4'].forEach(function(qf) {
       var el = document.getElementById('qs-' + qf);
@@ -382,6 +398,7 @@
     desktopWrapper.hidden = false; mobileWrapper.hidden = false; actionsEl.hidden = false;
     if (!existingBoxScore) { submitBtn.hidden = false; updateBtn.hidden = true; }
     updateTeamPointTotals();
+    updateEffDisplay();
     updateSwipeHint();
     refreshAddPlayerDropdown();
   }
@@ -396,7 +413,7 @@
         curSide = p.side;
         curTeamName = p.teamName;
         var hr = document.createElement('tr'); hr.className = 'admin-team-header-row';
-        var hc = document.createElement('td'); hc.colSpan = STAT_FIELDS.length + 2;
+        var hc = document.createElement('td'); hc.colSpan = STAT_FIELDS.length + 3;
         hc.className = 'admin-team-header';
         hc.textContent = p.teamName + ' (' + I18n.t(p.side === 'home' ? 'admin.homeTeamPlayers' : 'admin.awayTeamPlayers') + ')';
         hr.appendChild(hc); boxscoreBody.appendChild(hr);
@@ -419,6 +436,10 @@
         err.id = 'err-' + idx + '-' + f; err.setAttribute('role','alert'); err.hidden = true;
         td.appendChild(err); tr.appendChild(td);
       });
+      var etd = document.createElement('td'); etd.className = 'admin-eff-cell stat-col-eff';
+      var effVal = document.createElement('span'); effVal.className = 'admin-eff-value';
+      effVal.id = 'eff-' + idx; effVal.textContent = '0';
+      etd.appendChild(effVal); tr.appendChild(etd);
       // Remove button column
       var rtd = document.createElement('td'); rtd.className = 'admin-op-col';
       var rbtn = document.createElement('button');
@@ -451,7 +472,8 @@
       }
       tr.appendChild(td);
     });
-    tr.appendChild(document.createElement('td'));
+    tr.appendChild(document.createElement('td')); // eff
+    tr.appendChild(document.createElement('td')); // op
     boxscoreBody.appendChild(tr);
   }
 
@@ -500,6 +522,12 @@
         err.id = 'mob-err-'+idx+'-'+f; err.setAttribute('role','alert'); err.hidden = true;
         item.appendChild(err); grid.appendChild(item);
       });
+      var effItem = document.createElement('div'); effItem.className = 'admin-stat-item stat-col-eff';
+      var effLbl = document.createElement('label'); effLbl.className = 'admin-stat-label';
+      effLbl.textContent = 'EFF'; effItem.appendChild(effLbl);
+      var effVal = document.createElement('span'); effVal.className = 'admin-eff-value';
+      effVal.id = 'mob-eff-' + idx; effVal.textContent = '0';
+      effItem.appendChild(effVal); grid.appendChild(effItem);
       card.appendChild(grid); mobileWrapper.appendChild(card);
     });
     setupSwipe();
@@ -528,6 +556,60 @@
   function setTotalText(id, value) {
     var el = document.getElementById(id);
     if (el) el.textContent = String(value || 0);
+  }
+
+  // --- EFF / 自動 MVP ---
+  function computeEff(stats) {
+    var pts = stats.pts || 0, oreb = stats.oreb || 0, dreb = stats.dreb || 0;
+    var ast = stats.ast || 0, stl = stats.stl || 0, blk = stats.blk || 0;
+    var fgm = stats.fgm || 0, fga = stats.fga || 0;
+    var ftm = stats.ftm || 0, fta = stats.fta || 0, to = stats.to || 0;
+    return pts + oreb + dreb + ast + stl + blk - (fga - fgm) - (fta - ftm) - to;
+  }
+
+  function readPlayerStats(idx) {
+    var stats = {};
+    STAT_FIELDS.forEach(function (f) { stats[f] = getStatNumeric(idx, f); });
+    return stats;
+  }
+
+  function hasPlayed(stats) {
+    return STAT_FIELDS.some(function (f) { return stats[f] > 0; });
+  }
+
+  function updateEffDisplay() {
+    allPlayers.forEach(function (p, idx) {
+      var eff = computeEff(readPlayerStats(idx));
+      var desktopEl = document.getElementById('eff-' + idx);
+      var mobileEl = document.getElementById('mob-eff-' + idx);
+      if (desktopEl) desktopEl.textContent = String(eff);
+      if (mobileEl) mobileEl.textContent = String(eff);
+    });
+  }
+
+  function gameIsCompleted() {
+    return !!currentGame && String(currentGame.status || '').toLowerCase() === 'completed';
+  }
+
+  function autoSelectMvp() {
+    if (!mvpAutoCheckEl || !mvpAutoCheckEl.checked || !mvpSelectEl) return;
+    var best = null;
+    allPlayers.forEach(function (p, idx) {
+      var stats = readPlayerStats(idx);
+      if (!hasPlayed(stats)) return;
+      var eff = computeEff(stats);
+      if (!best || eff > best.eff || (eff === best.eff && stats.pts > best.pts)) {
+        best = { playerId: p.id, eff: eff, pts: stats.pts };
+      }
+    });
+    if (!best) return;
+    mvpSelectEl.value = best.playerId;
+    updateMvpProfileLink();
+  }
+
+  function onStatInput() {
+    updateEffDisplay();
+    autoSelectMvp();
   }
 
   function setupSwipe() {
@@ -622,6 +704,7 @@
     var errors = validateAll();
     if (errors.length > 0) { showMessage(I18n.t('error.invalidData'), 'error'); return; }
     submitBtn.disabled = true;
+    autoSelectMvp();
     var mvpSelect = document.getElementById('mvp-select');
     var mvpPlayerId = mvpSelect ? mvpSelect.value : '';
     var payload = Object.assign({ gameId: gameSelect.value, seasonId: seasonSelect.value, entries: collectEntries(), mvpPlayerId: mvpPlayerId }, collectQuarterScores());
@@ -647,6 +730,7 @@
     var errors = validateAll();
     if (errors.length > 0) { showMessage(I18n.t('error.invalidData'), 'error'); return; }
     updateBtn.disabled = true;
+    autoSelectMvp();
     var mvpSelect = document.getElementById('mvp-select');
     var mvpPlayerId = mvpSelect ? mvpSelect.value : '';
     var payload = Object.assign({ gameId: gameSelect.value, seasonId: seasonSelect.value, entries: collectEntries(), mvpPlayerId: mvpPlayerId }, collectQuarterScores());
