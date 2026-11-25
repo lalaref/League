@@ -82,8 +82,8 @@
     if (awayLabelEl) awayLabelEl.textContent = game.awayTeamName || game.awayTeamId || '';
 
     // 渲染 Box Score 表格
-    _renderBoxScoreTable('home-boxscore-body', homeStats);
-    _renderBoxScoreTable('away-boxscore-body', awayStats);
+    _renderBoxScoreTable('home-boxscore-body', homeStats, game.mvpPlayerId);
+    _renderBoxScoreTable('away-boxscore-body', awayStats, game.mvpPlayerId);
 
     // 渲染節分 (Q1-Q4)
     _renderQuarterScores(game);
@@ -143,8 +143,9 @@
    * 渲染 Box Score 表格
    * @param {string} tbodyId
    * @param {Object[]} stats
+   * @param {string} mvpPlayerId
    */
-  function _renderBoxScoreTable(tbodyId, stats) {
+  function _renderBoxScoreTable(tbodyId, stats, mvpPlayerId) {
     var tbody = document.getElementById(tbodyId);
     if (!tbody) return;
     tbody.innerHTML = '';
@@ -152,7 +153,7 @@
     if (!stats || stats.length === 0) {
       var tr = document.createElement('tr');
       var td = document.createElement('td');
-      td.colSpan = 16;
+      td.colSpan = 20;
       td.className = 'text-center text-muted';
       td.textContent = typeof I18n !== 'undefined' ? I18n.t('common.noData') : '暫無數據';
       tr.appendChild(td);
@@ -186,18 +187,24 @@
       var oreb = p.oreb != null ? p.oreb : 0;
       var dreb = p.dreb != null ? p.dreb : 0;
       var pct  = function(m, a) { return a > 0 ? (m / a * 100).toFixed(1) + '%' : '-'; };
+      var pts  = p.pts != null ? p.pts : 0;
+      var ast  = p.ast != null ? p.ast : 0;
+      var stl  = p.stl != null ? p.stl : 0;
+      var blk  = p.blk != null ? p.blk : 0;
+      var to   = p.to  != null ? p.to  : 0;
+      var eff  = pts + oreb + dreb + ast + stl + blk - (fga - fgm) - (fta - ftm) - to;
 
       var cells = [
         p.fouls != null ? p.fouls : 0,
-        p.pts   != null ? p.pts   : 0,
+        pts,
         fgm, fga, pct(fgm, fga),
         tpm, tpa, pct(tpm, tpa),
         ftm, fta, pct(ftm, fta),
         oreb, dreb, oreb + dreb,
-        p.ast != null ? p.ast : 0,
-        p.stl != null ? p.stl : 0,
-        p.blk != null ? p.blk : 0,
-        p.to  != null ? p.to  : 0
+        ast,
+        stl,
+        blk,
+        to
       ];
 
       cells.forEach(function (val) {
@@ -207,7 +214,13 @@
         tr.appendChild(td);
       });
 
+      var effTd = document.createElement('td');
+      effTd.textContent = eff;
+      effTd.className = 'text-right stat-col-eff';
+      tr.appendChild(effTd);
+
       tr.insertBefore(nameTd, tr.firstChild);
+      if (mvpPlayerId && String(p.playerId) === String(mvpPlayerId)) tr.className = 'game-mvp-row';
       tbody.appendChild(tr);
     });
   }
