@@ -196,7 +196,7 @@
         function loadTeams() {
             var sid = seasonSelect.value;
             if (!sid) { tbody.innerHTML = '<tr><td colspan="7" class="text-muted">' + I18n.t('common.noData') + '</td></tr>'; return; }
-            API.getTeams(sid).then(function (teams) {
+            API.getTeamsWithTokens(sid).then(function (teams) {
                 tbody.innerHTML = '';
                 if (!teams || teams.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="7" class="text-muted">' + I18n.t('common.noData') + '</td></tr>';
@@ -204,7 +204,7 @@
                 }
 
                 // Auto-generate tokens for teams that don't have one yet
-                var pending = teams.filter(function(t) { return !t.teamToken; });
+                var pending = teams.filter(function(t) { return !t.teamToken && t.tokensIncluded; });
                 var autoGenPromises = pending.map(function(t) {
                     t.teamToken = _genToken();
                     return API.post('updateTeam', { teamId: t.id, seasonId: sid, teamToken: t.teamToken }).catch(function(){});
