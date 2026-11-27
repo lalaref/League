@@ -31,6 +31,8 @@
 
   /** @type {Array} 已完結賽季列表 */
   var completedSeasons = [];
+  /** @type {Array} 展示旗幟的賽季（已完結 + 進行中） */
+  var flagSeasons = [];
   /** @type {Object} 各賽季的 archive 數據快取 */
   var archiveCache = {};
   var teamCache = {};
@@ -86,11 +88,18 @@
   function loadSeasons() {
     API.getSeasons()
       .then(function (seasons) {
-        completedSeasons = (seasons || []).filter(function (s) {
+        var all = seasons || [];
+        completedSeasons = all.filter(function (s) {
           return s.status === 'completed';
         });
+        flagSeasons = all.filter(function (s) {
+          if (s.status === 'completed') return true;
+          if (String(s.status || '').toLowerCase() !== 'active') return false;
+          var start = Date.parse(s.startDate || '');
+          return isNaN(start) || start <= Date.now();
+        });
         populateSeasonSelect();
-        if (completedSeasons.length === 0) {
+        if (flagSeasons.length === 0) {
           showSection('empty');
         } else {
           showSection('list');
@@ -100,6 +109,7 @@
       })
       .catch(function () {
         completedSeasons = [];
+        flagSeasons = [];
         populateSeasonSelect();
         showSection('empty');
       });
@@ -158,12 +168,18 @@
     if (!seasonCardsContainer) return;
     seasonCardsContainer.innerHTML = '';
 
-    var seasons = completedSeasons.slice().sort(compareSeasonsByYearDesc);
+    var seasons = flagSeasons.slice().sort(function (a, b) {
+      var aPending = String(a.status || '').toLowerCase() !== 'completed' ? 1 : 0;
+      var bPending = String(b.status || '').toLowerCase() !== 'completed' ? 1 : 0;
+      if (aPending !== bPending) return aPending - bPending;
+      return compareSeasonsByYearDesc(a, b);
+    });
     seasons.forEach(function (season, index) {
       var archive = archiveCache[season.id] || null;
       var teams = teamCache[season.id] || [];
       var isSeasonOne = isSeasonOneSeason(season);
-      var championName = getChampionName(archive, season);
+      var isPending = String(season.status || '').toLowerCase() !== 'completed';
+      var championName = isPending ? '' : getChampionName(archive, season);
       var championTeam = findChampionTeam(championName, teams);
       var championLogo = getChampionLogo(championTeam);
       var year = getSeasonYear(season);
@@ -171,10 +187,15 @@
       var card = document.createElement('article');
       card.className = 'archive-season-card hof-card';
       if (seasonSelect && seasonSelect.value === season.id) card.classList.add('hof-card--active');
-      if (!championName) card.classList.add('hof-card--loading');
-      card.setAttribute('role', 'button');
-      card.setAttribute('tabindex', '0');
-      card.setAttribute('aria-label', championName ? (year + ' ' + championName) : season.name);
+      if (isPending) card.classList.add('hof-card--pending');
+      else if (!championName) card.classList.add('hof-card--loading');
+      if (!isPending) {
+        card.setAttribute('role', 'button');
+        card.setAttribute('tabindex', '0');
+      }
+      card.setAttribute('aria-label', isPending
+        ? (getSeasonShortName(season) + ' 冠軍待定')
+        : (championName ? (year + ' ' + championName) : season.name));
 
       var queue = document.createElement('div');
       queue.className = 'hof-queue-marker';
@@ -203,7 +224,7 @@
       var logoBox = document.createElement('div');
       logoBox.className = 'hof-team-photo';
       var img = document.createElement('img');
-      img.src = isSeasonOne ? 'images/damo.jpeg' : championLogo;
+      img.src = isPending ? 'images/logo.png' : (isSeasonOne ? 'images/damo.jpeg' : championLogo);
       img.alt = championName ? championName : 'ALL-IN Basketball League';
       img.loading = index < 2 ? 'eager' : 'lazy';
       img.onerror = function () { img.src = 'images/logo.png'; };
@@ -215,11 +236,11 @@
 
       var championLabel = document.createElement('div');
       championLabel.className = 'hof-champion-label';
-      championLabel.textContent = 'CHAMPIONS';
+      championLabel.textContent = isPending ? 'PENDING' : 'CHAMPIONS';
 
       var championEl = document.createElement('h3');
       championEl.className = 'archive-season-card-name hof-team-name';
-      championEl.textContent = championName || I18n.t('common.loading');
+      championEl.textContent = isPending ? 'TEAM PENDING' : (championName || I18n.t('common.loading'));
 
       var seasonEl = document.createElement('p');
       seasonEl.className = 'archive-season-card-date hof-season-name';
@@ -276,19 +297,21 @@
         card.appendChild(video);
       }
 
-      card.addEventListener('click', function () {
-        if (seasonSelect) seasonSelect.value = season.id;
-        onSeasonChange();
-        scrollToDetail();
-      });
-      card.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
+      if (!isPending) {
+        card.addEventListener('click', function () {
           if (seasonSelect) seasonSelect.value = season.id;
           onSeasonChange();
           scrollToDetail();
-        }
-      });
+        });
+        card.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            if (seasonSelect) seasonSelect.value = season.id;
+            onSeasonChange();
+            scrollToDetail();
+          }
+        });
+      }
 
       seasonCardsContainer.appendChild(card);
     });
@@ -298,6 +321,7 @@
 
   function loadHallOfFameCardData(season) {
     if (!season || pendingHallLoads[season.id]) return;
+    if (String(season.status || '').toLowerCase() !== 'completed') return;
     var needsArchive = !archiveCache[season.id];
     var needsTeams = !teamCache[season.id];
     if (!needsArchive && !needsTeams) return;
