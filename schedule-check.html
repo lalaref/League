@@ -1016,20 +1016,26 @@ function phaseName(phase) {
   return found ? found.name : String(phase || '');
 }
 
+var S3_GROUP_DISPLAY_NAMES = { A: 'Clutch', B: 'Fastbreak', C: 'Crossover' };
+
+function s3GroupDisplayName(groupId) {
+  return S3_GROUP_DISPLAY_NAMES[String(groupId || '').trim()] || '';
+}
+
 function groupLabelOf(game) {
   game = game || {};
   var groupId = String(game.groupId || '').trim();
   if (groupId === 'goldBelt') return '金腰帶';
   var notes = String(game.notes || '');
   if (!groupId && notes.indexOf('金腰帶') !== -1) return '金腰帶';
-  if (groupId) return 'Group ' + groupId;
-  var match = notes.match(/Group\s*([A-Za-z])/);
-  if (match) return 'Group ' + match[1].toUpperCase();
+  if (groupId) return s3GroupDisplayName(groupId) || ('Group ' + groupId);
   var cup = String(game.cup || game.playoffSeed || '').trim().toLowerCase();
   if (cup === 'mj23') return 'MJ23 Cup';
   if (cup === 'lbj23') return 'LBJ23 Cup';
   if (/MJ23/.test(notes)) return 'MJ23 Cup';
   if (/LBJ23/.test(notes)) return 'LBJ23 Cup';
+  var match = notes.match(/(?:Group\s*([A-Za-z]))|(Clutch|Fastbreak|Crossover)/);
+  if (match) return match[2] || s3GroupDisplayName(match[1] && match[1].toUpperCase()) || ('Group ' + match[1].toUpperCase());
   return '';
 }
 
@@ -1072,7 +1078,7 @@ function resolveGroups(season, context, games) {
     var source = groupPhase && state.s3Groups ? state.s3Groups[groupPhase] : null;
     if (source && source.length) {
       source.forEach(function(entry) {
-        var label = 'Group ' + entry.groupId;
+        var label = s3GroupDisplayName(entry.groupId) || ('Group ' + entry.groupId);
         (entry.teams || []).forEach(function(team) {
           var id = String(team.teamId);
           if (context.teamMap[id] && !seen[id]) { seen[id] = true; (groups[label] = groups[label] || []).push(id); teamGroup[id] = label; }
@@ -1082,7 +1088,7 @@ function resolveGroups(season, context, games) {
     if (!Object.keys(groups).length) {
       (games || []).forEach(function(game) {
         var label = groupLabelOf(game);
-        if (!/^Group /.test(label)) return;
+        if (!label || label.indexOf('Group ') === 0 || label === '金腰帶' || label === 'MJ23 Cup' || label === 'LBJ23 Cup') return;
         [game.homeTeamId, game.awayTeamId].forEach(function(id) {
           if (!id || !context.teamMap[id] || seen[id]) return;
           seen[id] = true;
