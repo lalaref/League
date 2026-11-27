@@ -350,8 +350,8 @@ var state = {
   availability: [], s3Groups: null, groupInfo: null, planText: '', loading: false
 };
 var SEASON3_PHASES = [
-  { id: 'preliminary', name: '預賽' },
-  { id: 'regular', name: '常規賽' },
+  { id: 'preliminary', name: '分組預賽' },
+  { id: 'regular', name: '跨組對壘' },
   { id: 'playoffs', name: 'MJ23／LBJ23 Cup' },
   { id: 'goldBelt', name: '終極金腰帶爭奪戰' }
 ];
@@ -1065,8 +1065,9 @@ function resolveGroups(season, context, games) {
   var teamIds = context.teamIds;
   var phase = isSeasonThree(season) ? (phaseSelect.value || 'preliminary') : '';
   if (isSeasonThree(season)) {
-    // Only the two round-robin phases have group tables; cups and the belt game do not.
-    var groupPhase = phase === 'preliminary' || phase === 'regular' ? phase : '';
+    // Only the intra-division round robin has group tables; the cross-division
+    // round, cups and the belt game pair teams across groups.
+    var groupPhase = phase === 'preliminary' ? phase : '';
     var groups = {}, teamGroup = {}, seen = {};
     var source = groupPhase && state.s3Groups ? state.s3Groups[groupPhase] : null;
     if (source && source.length) {
