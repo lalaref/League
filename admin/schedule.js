@@ -90,9 +90,9 @@
   rrBtn.addEventListener('click', showRoundRobinPanel);
   rrCloseBtn.addEventListener('click', hideRoundRobinPanel);
   rrPublishBtn.addEventListener('click', handlePublishAll);
-  season3PreliminaryBtn.addEventListener('click', function () { runSeason3Action('generateSeason3Preliminary', '確定按現有球隊排序生成 Season 3 預賽 A–D 組及 24 場賽程？此操作不可重複。'); });
-  season3RegularBtn.addEventListener('click', function () { runSeason3Action('generateSeason3RegularSeason', '確認所有預賽結果已完成，並按各組第 1 至第 4 名重組常規賽 A–D 組？'); });
-  season3CupsBtn.addEventListener('click', function () { runSeason3Action('generateSeason3Playoffs', '生成 Season 3 盃賽下一輪：首次建立八強；完成八強後建立準決賽；完成準決賽後建立決賽。確定繼續？'); });
+  season3PreliminaryBtn.addEventListener('click', function () { runSeason3Action('generateSeason3Preliminary', '確定按現有球隊排序生成 Season 3 組內單循環預賽（18 隊＝45 場，21 隊＝63 場）？此操作不可重複。'); });
+  season3RegularBtn.addEventListener('click', function () { runSeason3Action('generateSeason3RegularSeason', '確定所有組內預賽已完成，並按各組名次生成 9 場跨組對壘（每隊 1 場）？每組 7 隊時會自動跳過。'); });
+  season3CupsBtn.addEventListener('click', function () { runSeason3Action('generateSeason3Playoffs', '生成 Season 3 盃賽下一輪：首次建立外圍賽（9 隊盃賽）；完成外圍賽後建立八強；其後依次建立準決賽及決賽。確定繼續？'); });
   season3GoldBeltBtn.addEventListener('click', function () { runSeason3Action('generateSeason3GoldBelt', '確認生成 Season 3 MJ23 Cup 冠軍對達摩的金腰帶爭奪戰？'); });
 
   // ============================================================
@@ -152,6 +152,10 @@
 
   function isCurrentSeasonOne() {
     return isSeasonOne(getCurrentSeason());
+  }
+
+  function isCurrentSeasonThree() {
+    return isSeasonThree(getCurrentSeason());
   }
 
   function onSeasonChange() {
@@ -331,9 +335,17 @@
     }).catch(function () { showMsg(I18n.t('error.loadFailed'), 'error'); });
   }
 
+  var SEASON3_CUP_NAMES = { mj23: 'MJ23 Cup', lbj23: 'LBJ23 Cup' };
+  var SEASON3_CUP_ROUND_NAMES = { 1: '外圍賽', 2: '八強賽', 3: '準決賽', 4: '決賽' };
+
   function formatGameType(game) {
     if (String(game.type || '').toLowerCase() !== 'playoff') {
       return String(game.standingsExemptTeamIds || '').trim() ? (game.type || 'regular') + ' · 排名豁免' : (game.type || 'regular');
+    }
+    var cupName = SEASON3_CUP_NAMES[String(game.playoffSeed || game.cup || '').toLowerCase()];
+    if (cupName) {
+      var cupRound = Number(game.playoffRound) || 1;
+      return 'playoff · ' + cupName + ' · ' + (SEASON3_CUP_ROUND_NAMES[cupRound] || ('第 ' + cupRound + ' 輪'));
     }
     var seed = game.playoffSeed === 'consolation' ? '安慰賽／排名組' : (game.playoffSeed === 'champions' ? '冠軍組' : '未設定組別');
     var round = Number(game.playoffRound) || 1;
@@ -498,7 +510,9 @@
     playoffSettings.hidden = !isPlayoff;
     if (!isPlayoff) return;
 
-    var options = isCurrentSeasonOne()
+    var options = isCurrentSeasonThree()
+      ? [{ value: '1', label: '外圍賽（第 1 輪）' }, { value: '2', label: '八強賽（第 2 輪）' }, { value: '3', label: '準決賽（第 3 輪）' }, { value: '4', label: '決賽（第 4 輪）' }]
+      : isCurrentSeasonOne()
       ? [{ value: '1', label: '準決賽（第 1 輪）' }, { value: '2', label: '決賽（第 2 輪）' }]
       : [{ value: '1', label: '首輪（第 1 輪）' }, { value: '2', label: '準決賽（第 2 輪）' }, { value: '3', label: '決賽（第 3 輪）' }];
     var selected = String(preferredRound || playoffRoundSelect.value || '1');
@@ -1456,7 +1470,7 @@
       playoffPanel.hidden = false;
       playoffStatusEl.textContent = seasonThreeBrackets.length
         ? 'Season 3 已發佈的 MJ23 Cup／LBJ23 Cup 對陣。金腰帶賽將於 MJ23 Cup 冠軍產生後另行建立。'
-        : '完成全部常規賽後，使用上方「生成 MJ23／LBJ23 Cup」建立兩個盃賽八強。';
+        : '完成全部分組賽（組內預賽 ＋ 跨組對壘）後，使用上方「生成 MJ23／LBJ23 Cup」建立兩個盃賽的外圍賽或八強。';
       playoffBracketsEl.innerHTML = seasonThreeBrackets.length ? seasonThreeBrackets.map(function (bracket) {
         return '<section class="admin-bracket admin-bracket--' + esc(bracket.id) + '"><h3 class="admin-bracket-title">' + esc(bracket.name || bracket.id) + '</h3><div class="admin-bracket-grid">' + (bracket.rounds || []).map(function (round) {
           return renderAdminRound(round.name || ('Round ' + round.round), round.games || []);
