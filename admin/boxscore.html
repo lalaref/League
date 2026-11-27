@@ -12,6 +12,23 @@
     <style>
       /* Fallback: keep timeout score-sheet boxes visible even when a cached admin.css is served. */
       .live-timeout-strip { display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); align-items:center; gap:10px; padding:7px 12px; background:#fffaf0; border-bottom:1px solid #f2d49a; color:#6b4a0a; font-size:.8rem; font-weight:800; }
+      .live-clock-strip { display:flex; align-items:center; flex-wrap:wrap; gap:6px 10px; padding:8px 12px; background:#101c31; border-bottom:1px solid #1f2f4d; color:#cfe0ff; font-size:.8rem; }
+      .live-clock-strip.is-running { background:#0d2118; border-bottom-color:#153a2a; }
+      .live-clock-label { font-weight:800; white-space:nowrap; }
+      .live-clock-rec { display:none; width:9px; height:9px; border-radius:999px; background:#f43f5e; box-shadow:0 0 0 3px rgba(244,63,94,.25); animation:live-rec-blink 1.2s steps(2,start) infinite; }
+      .live-clock-strip.is-running .live-clock-rec { display:inline-block; }
+      @keyframes live-rec-blink { to { visibility:hidden; } }
+      .live-clock-display { min-width:64px; text-align:center; font-family:'Courier New',Courier,monospace; font-size:1.3rem; font-weight:900; letter-spacing:.04em; color:#fff; font-variant-numeric:tabular-nums; }
+      .live-clock-strip.is-running .live-clock-display { color:#7ef0a6; }
+      .live-clock-btn { padding:6px 12px; border:1px solid #2a3f62; border-radius:8px; background:#16263f; color:#e8f0ff; font-weight:800; font-size:.8rem; white-space:nowrap; }
+      .live-clock-btn--primary { min-width:84px; border-color:#f0647c; background:linear-gradient(135deg,#e94560,#c7364f); color:#fff; }
+      .live-clock-btn--primary.is-paused { background:linear-gradient(135deg,#2563eb,#1d4ed8); border-color:#4f7ee6; }
+      .live-clock-btn--export { border-color:#2fae77; background:#0d7a4f; color:#fff; }
+      .live-clock-btn:disabled { opacity:.45; cursor:not-allowed; }
+      .live-clock-hint { color:#8aa3c9; font-size:.72rem; }
+      .live-clock-hint.is-warning { color:#fbbf24; font-weight:800; }
+      .live-clock-count { font-weight:800; color:#b8cdf0; white-space:nowrap; }
+      .live-clock-spacer { flex:1 1 auto; }
       .live-timeout-team { display:grid; grid-template-columns:auto minmax(0,1fr); align-items:center; gap:7px; min-width:0; }
       .live-timeout-team--away { justify-content:end; }
       .live-timeout-record { display:flex; flex-direction:column; align-items:flex-start; gap:2px; }
@@ -32,7 +49,7 @@
       .admin-eff-value { display:inline-flex; align-items:center; justify-content:center; min-width:32px; min-height:26px; border-radius:4px; background:#fff; color:#7c5204; font-size:.95rem; font-weight:900; }
       .admin-mvp-auto { display:flex; align-items:center; gap:8px; margin-bottom:10px; font-weight:800; cursor:pointer; }
       .admin-mvp-auto input[type="checkbox"] { width:18px; height:18px; accent-color:var(--color-accent); cursor:pointer; }
-      @media (max-width:620px) { .live-timeout-strip { gap:6px; padding:6px 8px; font-size:.72rem; } .live-timeout-team { gap:5px; } .live-timeout-record { gap:0; } .live-team-fouls { font-size:.57rem; } .live-team-fouls strong { min-width:14px; font-size:.78rem; } .live-timeout-boxes { gap:3px; } .live-timeout-box { flex-basis:29px; width:29px; height:29px; font-size:1.55rem; } #live-timeout-half { font-size:.68rem; } }
+      @media (max-width:620px) { .live-timeout-strip { gap:6px; padding:6px 8px; font-size:.72rem; } .live-timeout-team { gap:5px; } .live-timeout-record { gap:0; } .live-team-fouls { font-size:.57rem; } .live-team-fouls strong { min-width:14px; font-size:.78rem; } .live-timeout-boxes { gap:3px; } .live-timeout-box { flex-basis:29px; width:29px; height:29px; font-size:1.55rem; } #live-timeout-half { font-size:.68rem; } .live-clock-strip { gap:5px 8px; padding:6px 8px; font-size:.74rem; } .live-clock-display { min-width:52px; font-size:1.1rem; } .live-clock-btn { padding:5px 9px; font-size:.74rem; } .live-clock-hint { flex-basis:100%; order:5; } }
     </style>
 </head>
 <body>
@@ -106,6 +123,17 @@
                         <div class="live-score-center"><span class="live-mode-label">LIVE ENTRY</span><strong id="live-quarter-label">Q1</strong><span id="live-draft-status">未儲存到伺服器；提交前資料只保存在此裝置</span></div>
                         <div class="live-score-team live-score-team--away"><span id="qs-live-away-name">客隊</span><strong id="live-away-score">0</strong></div>
                     </header>
+                    <div class="live-clock-strip" aria-label="錄影計時">
+                        <span class="live-clock-rec" aria-hidden="true"></span>
+                        <span class="live-clock-label">⏱ 錄影計時</span>
+                        <strong id="live-clock-display" class="live-clock-display">00:00</strong>
+                        <button type="button" id="btn-live-clock-start" class="live-clock-btn live-clock-btn--primary">▶ 開始</button>
+                        <button type="button" id="btn-live-clock-reset" class="live-clock-btn" hidden>↺ 重設</button>
+                        <span id="live-clock-hint" class="live-clock-hint">與錄影同步按「開始」計時</span>
+                        <span class="live-clock-spacer"></span>
+                        <span id="live-clock-count" class="live-clock-count">已記錄 0 球</span>
+                        <button type="button" id="btn-live-clock-export" class="live-clock-btn live-clock-btn--export" disabled>⬇ 匯出時間表</button>
+                    </div>
                     <div class="live-quarter-bar" role="group" aria-label="選擇節數">
                         <a class="live-back-timekeeper" href="timekeeper.html">← 記錄台</a>
                         <button type="button" class="is-active" data-live-quarter="1">Q1</button>
@@ -281,7 +309,7 @@
     <script src="../js/navigation.js?v=20260409"></script>
     <script src="auth.js?v=20260410"></script>
     <script src="boxscore.js?v=20261125-eff-mvp2"></script>
-    <script src="live-boxscore.js?v=20261117-spare-picker"></script>
+    <script src="live-boxscore.js?v=20261127-clock-timeout-quarter"></script>
     <script>I18n.init();</script>
 </body>
 </html>

@@ -17,6 +17,13 @@
   var timeoutHalfEl = document.getElementById('live-timeout-half');
   var homeTeamFoulsEl = document.getElementById('live-home-team-fouls');
   var awayTeamFoulsEl = document.getElementById('live-away-team-fouls');
+  var clockStrip = document.querySelector('.live-clock-strip');
+  var clockDisplayEl = document.getElementById('live-clock-display');
+  var clockStartButton = document.getElementById('btn-live-clock-start');
+  var clockResetButton = document.getElementById('btn-live-clock-reset');
+  var clockExportButton = document.getElementById('btn-live-clock-export');
+  var clockHintEl = document.getElementById('live-clock-hint');
+  var clockCountEl = document.getElementById('live-clock-count');
   var gameSelect = document.getElementById('game-select');
   var boxscoreBody = document.getElementById('boxscore-body');
 
@@ -33,8 +40,239 @@
   var timeouts = createDefaultTimeouts();
   var teamFoulsByQuarter = createDefaultTeamFouls();
 
+  // --- 錄影計時 (highlight timestamp clock) ---
+  var clockRunning = false;
+  var clockElapsedMs = 0;         // 已累積的計時（暫停時為最終值）
+  var clockResumeAtMs = 0;        // 最近一次開始/繼續的 wall time
+  var clockFirstStartMs = 0;      // 錄影開始的 wall time（匯出用）
+  var clockEntries = [];          // { elapsedMs, wallMs, quarter, side, player, event, score }
+  var clockTimerId = null;
+  var clockLoadedForGame = '';
+  var clockHintTimerId = null;
+  var CLOCK_HINT_DEFAULT = '與錄影同步按「開始」計時';
+
   function createDefaultTeamFouls() {
     return { home: { 1: 0, 2: 0, 3: 0, 4: 0 }, away: { 1: 0, 2: 0, 3: 0, 4: 0 } };
+  }
+
+  // ============================================================
+  // 錄影計時：開始/暫停/重設、時間記錄與匯出
+  // ============================================================
+  function clockStorageKey() { return 'allin_hl_clock_v1_' + gameId(); }
+
+  function clockElapsedNow() {
+    return clockRunning ? clockElapsedMs + (Date.now() - clockResumeAtMs) : clockElapsedMs;
+  }
+
+  function pad2(n) { return (n < 10 ? '0' : '') + n; }
+
+  function fmtElapsed(ms) {
+    var total = Math.max(0, Math.floor(ms / 1000));
+    var h = Math.floor(total / 3600), m = Math.floor((total % 3600) / 60), s = total % 60;
+    return (h > 0 ? h + ':' + pad2(m) : String(m)) + ':' + pad2(s);
+  }
+
+  function fmtTimeOfDay(ms) { var d = new Date(ms); return pad2(d.getHours()) + ':' + pad2(d.getMinutes()) + ':' + pad2(d.getSeconds()); }
+  function fmtDateTime(ms) { var d = new Date(ms); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()) + ' ' + fmtTimeOfDay(ms); }
+
+  function updateClockDisplay() {
+    if (clockDisplayEl) clockDisplayEl.textContent = fmtElapsed(clockElapsedNow());
+  }
+
+  function refreshClockStatus() {
+    if (!clockStrip) return;
+    clockStrip.classList.toggle('is-running', clockRunning);
+    if (clockStartButton) {
+      var started = clockFirstStartMs > 0 || clockElapsedMs > 0;
+      clockStartButton.textContent = clockRunning ? '⏸ 暫停' : (started ? '▶ 繼續' : '▶ 開始');
+      clockStartButton.classList.toggle('is-paused', !clockRunning && started);
+    }
+    if (clockResetButton) clockResetButton.hidden = !(clockFirstStartMs > 0 || clockElapsedMs > 0 || clockEntries.length > 0);
+    if (clockCountEl) clockCountEl.textContent = '已記錄 ' + clockEntries.length + ' 球';
+    if (clockExportButton) clockExportButton.disabled = clockEntries.length === 0;
+  }
+
+  function clockTick() {
+    updateClockDisplay();
+    refreshClockStatus();
+  }
+
+  function pauseClock() {
+    if (!clockRunning) return;
+    clockElapsedMs += Date.now() - clockResumeAtMs;
+    clockRunning = false;
+    if (clockTimerId !== null) { clearInterval(clockTimerId); clockTimerId = null; }
+    clockTick();
+  }
+
+  function startPauseClock() {
+    if (clockRunning) {
+      pauseClock();
+      setClockHint('計時已暫停' + (clockEntries.length ? ' · 已記錄 ' + clockEntries.length + ' 球' : ''));
+      persistClockState();
+    } else {
+      if (!clockFirstStartMs) clockFirstStartMs = Date.now();
+      clockResumeAtMs = Date.now();
+      clockRunning = true;
+      if (clockTimerId === null) clockTimerId = setInterval(clockTick, 250);
+      setClockHint('計時中 · 每次 +2 / +3 命中會自動記錄時間');
+      persistClockState();
+    }
+    clockTick();
+  }
+
+  function restartClockForQuarter() {
+    var wasStarted = clockFirstStartMs > 0 || clockElapsedMs > 0;
+    if (clockTimerId !== null) { clearInterval(clockTimerId); clockTimerId = null; }
+    clockElapsedMs = 0;
+    clockResumeAtMs = 0;
+    if (wasStarted) {
+      clockFirstStartMs = Date.now();
+      clockRunning = true;
+      clockResumeAtMs = Date.now();
+      clockTimerId = setInterval(clockTick, 250);
+      setClockHint('新一節開始，計時重新由 0 開始');
+    } else {
+      clockFirstStartMs = 0;
+      clockRunning = false;
+      setClockHint(CLOCK_HINT_DEFAULT);
+    }
+    persistClockState();
+    clockTick();
+  }
+
+  function resetClock() {
+    if (clockEntries.length && !confirm('重設錄影計時並清除已記錄的 ' + clockEntries.length + ' 球時間表？')) return;
+    if (clockTimerId !== null) { clearInterval(clockTimerId); clockTimerId = null; }
+    clockRunning = false;
+    clockElapsedMs = 0;
+    clockResumeAtMs = 0;
+    clockFirstStartMs = 0;
+    clockEntries = [];
+    try { localStorage.removeItem(clockStorageKey()); } catch (error) { /* ignore */ }
+    setClockHint(CLOCK_HINT_DEFAULT);
+    clockTick();
+  }
+
+  function setClockHint(text, isWarning) {
+    if (!clockHintEl) return;
+    if (clockHintTimerId !== null) { clearTimeout(clockHintTimerId); clockHintTimerId = null; }
+    clockHintEl.textContent = text;
+    clockHintEl.classList.toggle('is-warning', !!isWarning);
+  }
+
+  function flashClockHint(text) {
+    setClockHint(text, true);
+    clockHintTimerId = setTimeout(function () {
+      clockHintTimerId = null;
+      if (clockRunning) setClockHint('計時中 · 每次 +2 / +3 命中會自動記錄時間');
+      else setClockHint(CLOCK_HINT_DEFAULT);
+    }, 3200);
+  }
+
+  function persistClockState() {
+    if (!gameId()) return;
+    try {
+      localStorage.setItem(clockStorageKey(), JSON.stringify({
+        elapsedMs: Math.round(clockElapsedNow()),
+        wallStartMs: clockFirstStartMs,
+        entries: clockEntries,
+        savedAt: new Date().toISOString()
+      }));
+    } catch (error) { /* ignore */ }
+  }
+
+  function loadClockState() {
+    if (clockLoadedForGame === gameId()) return;
+    clockLoadedForGame = gameId();
+    if (clockTimerId !== null) { clearInterval(clockTimerId); clockTimerId = null; }
+    clockRunning = false;
+    clockElapsedMs = 0;
+    clockResumeAtMs = 0;
+    clockFirstStartMs = 0;
+    clockEntries = [];
+    try {
+      var raw = localStorage.getItem(clockStorageKey());
+      if (raw) {
+        var saved = JSON.parse(raw);
+        if (saved) {
+          clockElapsedMs = Number.isFinite(Number(saved.elapsedMs)) ? Math.max(0, Number(saved.elapsedMs)) : 0;
+          clockFirstStartMs = Number.isFinite(Number(saved.wallStartMs)) ? Number(saved.wallStartMs) : 0;
+          if (Array.isArray(saved.entries)) clockEntries = saved.entries;
+        }
+      }
+    } catch (error) { /* ignore */ }
+    clockTick();
+  }
+
+  function recordHighlightEntry(label, side) {
+    var home = 0, away = 0;
+    [1, 2, 3, 4].forEach(function (quarter) {
+      home += numberValue(quarterInput('home', quarter));
+      away += numberValue(quarterInput('away', quarter));
+    });
+    clockEntries.push({
+      elapsedMs: Math.round(clockElapsedNow()),
+      wallMs: Date.now(),
+      quarter: activeQuarter,
+      side: side,
+      player: playerMap[activePlayerIndex] ? playerMap[activePlayerIndex].label : '',
+      event: label,
+      score: home + '-' + away
+    });
+    persistClockState();
+    refreshClockStatus();
+    return true;
+  }
+
+  function exportHighlightLog() {
+    if (!clockEntries.length) return;
+    var homeName = document.getElementById('qs-home-label');
+    var awayName = document.getElementById('qs-away-label');
+    homeName = homeName ? homeName.textContent.trim() || '主隊' : '主隊';
+    awayName = awayName ? awayName.textContent.trim() || '客隊' : '客隊';
+    var gameLabel = gameSelect.options[gameSelect.selectedIndex] ? gameSelect.options[gameSelect.selectedIndex].textContent : '';
+
+    var lines = [];
+    lines.push(['ALL-IN Basketball League — Highlight Timestamps']);
+    lines.push(['比賽', gameLabel]);
+    lines.push(['對賽', homeName + ' vs ' + awayName]);
+    lines.push(['錄影開始時間', clockFirstStartMs ? fmtDateTime(clockFirstStartMs) : '—', '共記錄 ' + clockEntries.length + ' 球']);
+    lines.push([]);
+    lines.push(['序號', '影片時間(MM:SS)', '實際時間(HH:MM:SS)', '節', '隊伍', '球員', '事件', '比分']);
+    clockEntries.forEach(function (entry, i) {
+      lines.push([
+        i + 1,
+        fmtElapsed(entry.elapsedMs),
+        entry.wallMs ? fmtTimeOfDay(entry.wallMs) : '',
+        'Q' + entry.quarter,
+        entry.side === 'away' ? awayName : homeName,
+        entry.player,
+        entry.event,
+        entry.score
+      ]);
+    });
+
+    var csv = '\uFEFF' + lines.map(function (row) {
+      return row.map(function (cell) {
+        var s = String(cell == null ? '' : cell);
+        if (/[",\r\n]/.test(s)) s = '"' + s.replace(/"/g, '""') + '"';
+        return s;
+      }).join(',');
+    }).join('\r\n');
+
+    var safe = function (name) { return String(name || 'team').replace(/[^\w\u4e00-\u9fff-]+/g, '-').replace(/^-+|-+$/g, ''); };
+    var filename = 'highlight-times-' + safe(homeName) + '-vs-' + safe(awayName) + '.csv';
+    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    var url = URL.createObjectURL(blob);
+    var link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+    setClockHint('已匯出 ' + filename);
   }
 
   function restoreTeamFouls(savedTeamFouls) {
@@ -96,7 +334,14 @@
   function toggleTimeoutSlot(side, slot) {
     var half = currentTimeoutHalf();
     if ((side !== 'home' && side !== 'away') || slot < 0 || slot >= timeoutLimit(half)) return;
-    timeouts[half][side][slot] = !timeouts[half][side][slot];
+    var wasUsed = timeouts[half][side][slot];
+    timeouts[half][side][slot] = !wasUsed;
+    if (!wasUsed && clockRunning) {
+      // 記錄暫停時自動停錶，方便同步錄影剪片
+      pauseClock();
+      setClockHint('已記錄暫停，計時自動暫停');
+      persistClockState();
+    }
     persistDraft();
     refreshTimeoutDisplay();
   }
@@ -182,6 +427,7 @@
     panel.hidden = false;
     if (new URLSearchParams(window.location.search).get('timekeeper') === '1') document.body.classList.add('live-entry-active');
     restoreDraft();
+    loadClockState();
     refreshDisplay();
   }
 
@@ -282,11 +528,11 @@
     refreshDisplay();
   }
 
-  function applyEvent(label, deltas, scoreDelta) {
+  function applyEvent(label, deltas, scoreDelta, highlightEligible) {
     if (activePlayerIndex === null || !playerMap[activePlayerIndex]) {
       selectedLabel.textContent = '請先點選球員';
       selectedLabel.classList.add('is-warning');
-      return;
+      return false;
     }
     selectedLabel.classList.remove('is-warning');
     var before = {};
@@ -296,9 +542,18 @@
     Object.keys(deltas).forEach(function (field) { setNumber(activePlayerIndex, field, before[field] + deltas[field]); });
     if (deltas.fouls) teamFoulsByQuarter[activeSide][activeQuarter] = Math.max(0, teamFoulsBefore + deltas.fouls);
     if (scoreDelta) changeQuarterScore(activeSide, scoreDelta);
-    eventStack.push({ playerIndex: activePlayerIndex, side: activeSide, quarter: activeQuarter, label: label, before: before, quarterBefore: quarterBefore, teamFoulsBefore: teamFoulsBefore });
+    var event = { playerIndex: activePlayerIndex, side: activeSide, quarter: activeQuarter, label: label, before: before, quarterBefore: quarterBefore, teamFoulsBefore: teamFoulsBefore, highlightLogged: false };
+    if (highlightEligible) {
+      if (clockRunning) {
+        event.highlightLogged = recordHighlightEntry(label, activeSide);
+      } else {
+        flashClockHint('未開始計時：此球未有記錄時間（請按「▶ 開始」）');
+      }
+    }
+    eventStack.push(event);
     persistDraft();
     refreshDisplay();
+    return true;
   }
 
   function undoLast() {
@@ -307,6 +562,11 @@
     Object.keys(event.before).forEach(function (field) { setNumber(event.playerIndex, field, event.before[field]); });
     setQuarterScore(event.side, event.quarter, event.quarterBefore);
     if (event.teamFoulsBefore !== undefined) teamFoulsByQuarter[event.side][event.quarter] = event.teamFoulsBefore;
+    if (event.highlightLogged && clockEntries.length) {
+      clockEntries.pop();
+      persistClockState();
+      refreshClockStatus();
+    }
     activePlayerIndex = event.playerIndex;
     activeSide = event.side;
     persistDraft();
@@ -418,7 +678,10 @@
 
   document.querySelectorAll('[data-live-quarter]').forEach(function (button) {
     button.addEventListener('click', function () {
-      activeQuarter = Number(button.dataset.liveQuarter);
+      var quarter = Number(button.dataset.liveQuarter);
+      var quarterChanged = quarter !== activeQuarter;
+      activeQuarter = quarter;
+      if (quarterChanged) restartClockForQuarter();
       syncQuarterButtons();
       persistDraft();
       refreshDisplay();
@@ -449,11 +712,29 @@
         'to': ['失誤', { to: 1 }, 0],
         'foul': ['犯規', { fouls: 1 }, 0]
       };
-      if (actions[type]) applyEvent(actions[type][0], actions[type][1], actions[type][2]);
+      if (actions[type]) applyEvent(actions[type][0], actions[type][1], actions[type][2], type === '2m' || type === '3m');
     });
   });
 
   undoButton.addEventListener('click', undoLast);
+  if (clockStartButton) clockStartButton.addEventListener('click', startPauseClock);
+  if (clockResetButton) clockResetButton.addEventListener('click', resetClock);
+  if (clockExportButton) clockExportButton.addEventListener('click', exportHighlightLog);
+
+  window.addEventListener('pagehide', function () {
+    if (clockRunning) {
+      clockElapsedMs += Date.now() - clockResumeAtMs;
+      clockResumeAtMs = Date.now();
+      persistClockState();
+    }
+  });
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden && clockRunning) {
+      clockElapsedMs += Date.now() - clockResumeAtMs;
+      clockResumeAtMs = Date.now();
+      persistClockState();
+    }
+  });
   if (editNumbersButton) editNumbersButton.addEventListener('click', function () {
     setNumberEditMode(!numberEditMode);
   });
@@ -493,6 +774,12 @@
 
   document.addEventListener('allin:boxscoreSaved', function (event) {
     if (!event.detail || String(event.detail.gameId || '') !== gameId()) return;
+    if (clockRunning) {
+      clockElapsedMs += Date.now() - clockResumeAtMs;
+      clockRunning = false;
+      if (clockTimerId !== null) { clearInterval(clockTimerId); clockTimerId = null; }
+      clockTick();
+    }
     try { localStorage.removeItem(draftKey()); } catch (error) { /* ignore */ }
     eventStack = [];
     timeouts = createDefaultTimeouts();
@@ -512,6 +799,8 @@
     timeouts = createDefaultTimeouts();
     teamFoulsByQuarter = createDefaultTeamFouls();
     restoreAttemptedForGame = '';
+    clockLoadedForGame = '';
+    loadClockState();
     panel.hidden = true;
     document.body.classList.remove('live-entry-active');
     syncQuarterButtons();
