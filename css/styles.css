@@ -2662,6 +2662,33 @@ img {
     opacity: 0.72;
 }
 
+.hof-card--pending {
+    cursor: default;
+}
+
+.hof-card--pending:hover .hof-flag,
+.hof-card--pending:focus-visible .hof-flag {
+    transform: none;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.26);
+}
+
+.hof-card--pending .hof-flag {
+    filter: grayscale(0.45) brightness(0.94);
+}
+
+.hof-card--pending .hof-team-photo img {
+    opacity: 0.55;
+}
+
+.hof-card--pending .hof-champion-label {
+    color: rgba(249, 221, 176, 0.78);
+}
+
+.hof-card--pending .hof-team-name {
+    color: rgba(249, 221, 176, 0.72);
+    letter-spacing: 0.06em;
+}
+
 .hof-empty-card {
     max-width: 330px;
     margin: 0 auto var(--spacing-lg);
