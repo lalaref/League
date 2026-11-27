@@ -211,8 +211,11 @@
       var homeName = game.homeTeamName || game.home || game.homeTeam || '—';
       var awayName = game.awayTeamName || game.away || game.awayTeam || '—';
       var division = '—';
-      if (game.phase === 'preliminary' || game.phase === 'regular') {
-        division = (game.phase === 'preliminary' ? '預賽' : '常規賽') + (game.groupId ? ' Group ' + game.groupId : '');
+      if (game.phase === 'preliminary') {
+        var s3Names = { A: 'Clutch', B: 'Fastbreak', C: 'Crossover' };
+        division = '分組預賽' + (game.groupId ? ' ' + (s3Names[game.groupId] || ('Group ' + game.groupId)) : '');
+      } else if (game.phase === 'regular') {
+        division = game.groupId ? '常規賽 Group ' + game.groupId : '跨組對壘';
       } else if (game.phase === 'goldBelt') {
         division = '金腰帶爭奪戰';
       } else if (context && context.rules.isDivisionRoundRobin) {

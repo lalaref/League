@@ -345,18 +345,21 @@
     divisionGrid.hidden = false;
     divisionGrid.innerHTML = '<div class="loading">載入 Season 3 分組排名…</div>';
 
-    API.getGames(currentSeasonId).then(function (games) {
-      var phase = (games || []).some(function (game) { return String(game.phase || '') === 'regular'; }) ? 'regular' : 'preliminary';
-      return Promise.all(['A', 'B', 'C', 'D'].map(function (groupId) {
-        return API.get('standings', { seasonId: currentSeasonId, phase: phase, groupId: groupId })
+    API.get('season3Groups', { seasonId: currentSeasonId }).catch(function () { return null; }).then(function (groupsData) {
+      var groupIds = (groupsData && groupsData.divisions && groupsData.divisions.length)
+        ? groupsData.divisions : ['A', 'B', 'C'];
+      return Promise.all(groupIds.map(function (groupId) {
+        return API.get('standings', { seasonId: currentSeasonId, phase: 'group', groupId: groupId })
           .then(function (rows) { return { groupId: groupId, rows: rows || [] }; });
       })).then(function (groups) {
-        var phaseLabel = phase === 'regular' ? '常規賽' : '預賽';
+        var phaseLabel = '分組賽';
+        var groupNames = (groupsData && groupsData.groupNames) || { A: 'Clutch', B: 'Fastbreak', C: 'Crossover' };
         divisionGrid.innerHTML = groups.map(function (group) {
           var rows = group.rows;
+          var groupTitle = (groupNames[group.groupId] || ('Group ' + group.groupId)).toUpperCase();
           var body = rows.length ? rows.map(function (team) { return _renderStandingRow(team, team.rank || (rows.indexOf(team) + 1)); }).join('') : '<tr><td colspan="8" class="text-muted">暫無賽果</td></tr>';
           return '<section class="standings-division-card" style="overflow:hidden;background:#fff;border:1px solid #e5e7eb;border-top:4px solid #2563eb;border-radius:10px;box-shadow:0 4px 18px rgba(0,0,0,.08)">'
-            + '<div style="display:flex;justify-content:space-between;gap:12px;padding:14px 16px;background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff"><h4 style="margin:0;font-size:15px;font-weight:900;letter-spacing:.08em">' + phaseLabel + ' GROUP ' + group.groupId + '</h4><span style="font-size:11px;font-weight:700">' + rows.length + ' TEAMS</span></div>'
+            + '<div style="display:flex;justify-content:space-between;gap:12px;padding:14px 16px;background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff"><h4 style="margin:0;font-size:15px;font-weight:900;letter-spacing:.08em">' + phaseLabel + ' ' + groupTitle + '</h4><span style="font-size:11px;font-weight:700">' + rows.length + ' TEAMS</span></div>'
             + '<div class="table-wrapper" style="margin:0"><table class="data-table">' + standingsTableHead() + '<tbody>' + body + '</tbody></table></div></section>';
         }).join('');
       });
