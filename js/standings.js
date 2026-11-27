@@ -356,12 +356,18 @@
           .then(function (rows) { return { groupId: groupId, rows: rows || [] }; });
       })).then(function (groups) {
         var groupNames = (groupsData && groupsData.groupNames) || { A: 'Clutch', B: 'Fastbreak', C: 'Crossover' };
+        var groupColors = {
+          A: { top: '#2563eb', gradient: 'linear-gradient(135deg,#1d4ed8,#2563eb)' },
+          B: { top: '#ea580c', gradient: 'linear-gradient(135deg,#c2410c,#ea580c)' },
+          C: { top: '#7c3aed', gradient: 'linear-gradient(135deg,#6d28d9,#7c3aed)' }
+        };
         divisionGrid.innerHTML = groups.map(function (group) {
           var rows = group.rows;
           var groupTitle = (groupNames[group.groupId] || ('Group ' + group.groupId)).toUpperCase();
+          var color = groupColors[group.groupId] || groupColors.A;
           var body = rows.length ? rows.map(function (team) { return _renderStandingRow(team, team.rank || (rows.indexOf(team) + 1)); }).join('') : '<tr><td colspan="8" class="text-muted">暫無賽果</td></tr>';
-          return '<section class="standings-division-card" style="overflow:hidden;background:#fff;border:1px solid #e5e7eb;border-top:4px solid #2563eb;border-radius:10px;box-shadow:0 4px 18px rgba(0,0,0,.08)">'
-            + '<div style="display:flex;justify-content:space-between;gap:12px;padding:14px 16px;background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff"><h4 style="margin:0;font-family:\'Raleway\',sans-serif;font-size:15px;font-weight:900;letter-spacing:.1em;text-shadow:0 1px 2px rgba(0,0,0,.2)">DIVISION ' + groupTitle + '</h4><span style="font-size:11px;font-weight:700">' + rows.length + ' TEAMS</span></div>'
+          return '<section class="standings-division-card" style="overflow:hidden;background:#fff;border:1px solid #e5e7eb;border-top:4px solid ' + color.top + ';border-radius:10px;box-shadow:0 4px 18px rgba(0,0,0,.08)">'
+            + '<div style="display:flex;justify-content:space-between;gap:12px;padding:14px 16px;background:' + color.gradient + ';color:#fff"><h4 style="margin:0;font-family:\'Raleway\',sans-serif;font-size:15px;font-weight:900;letter-spacing:.1em;text-shadow:0 1px 2px rgba(0,0,0,.2)">DIVISION ' + groupTitle + '</h4><span style="font-size:11px;font-weight:700">' + rows.length + ' TEAMS</span></div>'
             + '<div class="table-wrapper" style="margin:0"><table class="data-table">' + standingsTableHead() + '<tbody>' + body + '</tbody></table></div></section>';
         }).join('');
       });
